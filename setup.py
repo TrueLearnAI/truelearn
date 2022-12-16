@@ -1,14 +1,13 @@
 from distutils.core import setup
 
 setup(
-    name='x5gon_data',
-    version='0.9.3',
-    packages=['test', 'test.transcript_reader', 'test.transcript_reader.data', 'scratch', 'scratch.generate_database',
-              'transcript_reader', 'analyses.truelearn_experiments'],
-    url='www,x5gon.org',
-    license='',
-    author='x5gon',
-    author_email='m.bulathwela@ucl.ac.uk',
+    name='Truelearn Library',
+    version='1.0',
+    packages=['truelearn_experiments'],
+    url='',
+    license='MIT',
+    author='',
+    author_email='',
     description='',
     install_requires=[
         'numpy>=1.14.1',
