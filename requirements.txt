@@ -1,0 +1,7 @@
+pandas
+ujson
+nltk
+xmltodict
+scipy
+numpy
+scikit-learn
