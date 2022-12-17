@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
     name='Truelearn Library',
-    version='1.0',
+    version='0.0.1',
     packages=['truelearn_experiments'],
     url='',
     license='MIT',
