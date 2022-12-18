@@ -27,10 +27,10 @@ jobs:
 
       - name: Publish report
         if: success() || failure()
-        uses: yuzutech/annotations-action@v0.4.0
+        uses: kibalabs/github-action-create-annotations@v0.1.1
         with:
-          repo-token: "${{ secrets.GITHUB_TOKEN }}"
-          title: "Prospector Analysis Report"
-          input: ./prospector_report.json
-
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          check-name: "Prospector Analysis Report"
+          json-file-path: ./prospector_report.json
+          
 
