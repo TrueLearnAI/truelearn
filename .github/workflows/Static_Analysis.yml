@@ -22,8 +22,8 @@ jobs:
 
       - name: Run Prospector
         run: |
-          prospector --output-format json
-          ls
+          #Outputs the json to project root
+          prospector --output-format json:prospector_report.json
 
       - name: Publish report
         if: success() || failure()
@@ -31,6 +31,6 @@ jobs:
         with:
           repo-token: "${{ secrets.GITHUB_TOKEN }}"
           title: "Prospector Analysis Report"
-          input: ./prospector.json
+          input: ./prospector_report.json
 
 
