@@ -21,7 +21,9 @@ jobs:
         run: pip install prospector
 
       - name: Run Prospector
-        run: prospector --outputformat json
+        run: |
+          prospector --output-format json
+          ls
 
       - name: Publish report
         if: success() || failure()
