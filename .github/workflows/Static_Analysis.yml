@@ -1,0 +1,34 @@
+name: Static analysis
+on:
+  push:
+    branches:
+      - main
+      - setup-ci
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+
+jobs:
+  Run_Prospector_Analysis:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+
+      - name: Install Prospector
+        run: pip install prospector
+
+      - name: Run Prospector
+        run: prospector --outputformat json
+
+      - name: Publish report
+        if: success() || failure()
+        uses: yuzutech/annotations-action@v0.4.0
+        with:
+          repo-token: "${{ secrets.GITHUB_TOKEN }}"
+          title: "Prospector Analysis Report"
+          input: ./prospector.json
+
+
