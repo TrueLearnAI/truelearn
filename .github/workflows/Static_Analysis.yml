@@ -13,6 +13,8 @@ on:
 jobs:
   Run_Prospector_Analysis:
     runs-on: ubuntu-latest
+    env: 
+      RESULTS_PATH: ./
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v3
@@ -24,12 +26,16 @@ jobs:
         run: |
           #Outputs the xunit xml to project root
           prospector --output-format xunit:prospector_report.xml
-
-      - name: Publish report
-        if: success() || failure()
+      - name: Generate Report
         uses: AutoModality/action-xunit-viewer@v1.0.1
         with:
+          results: ${{ env.RESULTS_PATH }}
+
+      - name: Attach report
+        if: success() || failure()
+        uses: actions/upload-artifact@v1
+        with:
           name: "Prospector Analysis Report"
-          path: ./prospector_report.xml
+          path: ${{ env.RESULTS_PATH }}
           
 
