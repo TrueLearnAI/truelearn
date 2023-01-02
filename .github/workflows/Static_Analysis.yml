@@ -22,15 +22,14 @@ jobs:
 
       - name: Run Prospector
         run: |
-          #Outputs the json to project root
-          prospector --output-format json:prospector_report.json
+          #Outputs the xunit xml to project root
+          prospector --output-format xunit:prospector_report.xml
 
       - name: Publish report
         if: success() || failure()
-        uses: kibalabs/github-action-create-annotations@v0.1.1
+        uses: AutoModality/action-xunit-viewer@v1.0.1
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          check-name: "Prospector Analysis Report"
-          json-file-path: ./prospector_report.json
+          name: "Prospector Analysis Report"
+          path: ./prospector_report.xml
           
 
