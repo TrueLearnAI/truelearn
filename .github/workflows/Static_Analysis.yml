@@ -42,13 +42,19 @@ jobs:
          # path: 'prospector_report.xml'
          # reporter: jest-junit
         #  name: 'Prospector Analysis Report'
-     
-      - name: Any Report to GitHub Annotations
-        uses: JBZoo/CI-Report-Converter@2.10.0
-        if: success()||failure()
+      - name: Publish report
+        if: success() || failure()
+        uses: jwgmeligmeyling/pmd-github-action@v1.2
         with:
-          input-file: prospector_report.xml
-          suite-name: Prospector Analysis Report
+          path: ./prospector_report.xml
+          name: 'Static Analysis Report'
+          title: 'Static Analysis Report'
+      #- name: Any Report to GitHub Annotations
+      #  uses: JBZoo/CI-Report-Converter@2.10.0
+      #  if: success()||failure()
+      #  with:
+      #    input-file: prospector_report.xml
+      #    suite-name: Prospector Analysis Report
 
      # - name: Convert test results to Github Annotations
        # uses: EnricoMi/publish-unit-test-result-action@v2
