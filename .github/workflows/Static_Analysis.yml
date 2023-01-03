@@ -44,6 +44,7 @@ jobs:
       
       #for debugging output
       - uses: actions/upload-artifact@v3
+        if: always()
         with:
           name: my-artifact
           path: prospector_junit.xml
