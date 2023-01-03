@@ -9,7 +9,6 @@ on:
       - main
   workflow_dispatch:
 
-
 jobs:
   Run_Prospector_Analysis:
     runs-on: ubuntu-latest
@@ -25,9 +24,6 @@ jobs:
       - name: Install Project Dependencies
         run: python setup.py install
 
-      - name: Setup Dotnet
-        uses: actions/setup-dotnet@v3
-        
       - name: Install Prospector
         run: pip install prospector
 
@@ -36,25 +32,14 @@ jobs:
           #Outputs the xunit report to project root
           prospector --full-pep8 --output-format xunit:prospector_report.xml
 
-      - name: Convert xunit to Junit
-        if: success()||failure()
-        run: |
-          dotnet tool install -g dotnet-xunit-to-junit
-          dotnet xunit-to-junit "./prospector_report.xml" "prospector_junit.xml"
-      
-      #for debugging output
-      - uses: actions/upload-artifact@v3
-        if: always()
-        with:
-          name: my-artifact
-          path: prospector_junit.xml
-
+      #NOTE: Because it expects Junit format, the line numberings on the annotation header defaults to 1
+      #However the error message shows the correct line numbering.
       - name: Convert test results to Github Annotations
         uses: mikepenz/action-junit-report@v3
         #Use success()||failure() to allow for manual cancellation of an action (see docs)
         if: success()||failure()
         with:
           #Report in project root
-          report_paths: ./prospector_junit.xml
+          report_paths: ./prospector_report.xml
           check_name: "Prospector Analysis Report"
 
