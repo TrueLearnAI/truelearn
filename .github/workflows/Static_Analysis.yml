@@ -36,6 +36,8 @@ jobs:
         with:
           path: 'prospector_report.xml'
           reporter: jest-junit
+          name: 'Prospector Analysis Report'
+          
 
       - name: Convert test results to Github Annotations
         uses: EnricoMi/publish-unit-test-result-action@v2
