@@ -35,8 +35,10 @@ jobs:
         uses: dorny/test-reporter@v1.6.0
         if: success()||failure()
         with:
+          name: 'Prospector Analysis Report'
           path: './vscodereport.trx'
           reporter: 'dotnet-trx'
+          
 
       - name: Convert test results to Github Annotations
         uses: EnricoMi/publish-unit-test-result-action@v2
