@@ -34,14 +34,14 @@ jobs:
           #Outputs the xunit report to project root
           prospector --full-pep8 --output-format xunit:prospector_report.xml
 
-      - name: Test Reporter
-        uses: phoenix-actions/test-reporting@v10
+      #- name: Test Reporter
+       # uses: phoenix-actions/test-reporting@v10
 
-        if: success()||failure()
-        with:
-          path: 'prospector_report.xml'
+        #if: success()||failure()
+        #with:
+         # path: 'prospector_report.xml'
          # reporter: jest-junit
-          name: 'Prospector Analysis Report'
+        #  name: 'Prospector Analysis Report'
      
       - name: Any Report to GitHub Annotations
         uses: JBZoo/CI-Report-Converter@2.10.0
