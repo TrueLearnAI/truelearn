@@ -33,14 +33,15 @@ jobs:
         run: |
           #Outputs the xunit report to project root
           prospector --full-pep8 --output-format xunit:prospector_report.xml
-          
+
       - name: Test Reporter
-        uses: dorny/test-reporter@v1.6.0
+        uses: phoenix-actions/test-reporting@v10
+
         if: success()||failure()
-        #with:
-         # path: 'prospector_report.xml'
+        with:
+          path: 'prospector_report.xml'
          # reporter: jest-junit
-         # name: 'Prospector Analysis Report'
+          name: 'Prospector Analysis Report'
           
 
       - name: Convert test results to Github Annotations
@@ -49,8 +50,8 @@ jobs:
         if: success()||failure()
         with:
           #Report in project root
-          #xunit_files: "prospector_report.xml"
-          junit_files: "prospector_report.xml"
+          xunit_files: "prospector_report.xml"
+          #junit_files: "prospector_report.xml"
           check_name: "Prospector Analysis Report"
 
           
