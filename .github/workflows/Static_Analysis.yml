@@ -53,6 +53,7 @@ jobs:
         uses: JBZoo/CI-Report-Converter@master
         if: success()||failure()
         with:
+          input-format: junit
           input-file: prospector_report.xml
           suite-name: Prospector Analysis Report
 
