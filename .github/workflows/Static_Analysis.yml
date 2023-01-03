@@ -17,10 +17,13 @@ jobs:
       - name: Checkout Repo
         uses: actions/checkout@v3
 
-      #- name: Setup Python
-       # uses: actions/setup-python@v4.4.0
-        #with:
-         # python-version: '3.10'
+      - name: Setup Python
+        uses: actions/setup-python@v4.4.0
+        with:
+          python-version: '3.10'
+
+      - name: Install Project Dependencies
+        run: pip install setup.py
 
       - name: Install Prospector
         run: pip install prospector
@@ -30,6 +33,7 @@ jobs:
         run: |
           #Outputs the xunit report to project root
           prospector --full-pep8 --output-format xunit:prospector_report.xml
+          
       - name: Test Reporter
         uses: dorny/test-reporter@v1.6.0
         if: success()||failure()
