@@ -43,5 +43,5 @@ jobs:
           report_paths: ./prospector_report.xml
           check_name: "Prospector Analysis Report"
           update_check: true
-          summary: true
+          detailed_summary: true
 
