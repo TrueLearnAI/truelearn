@@ -35,7 +35,7 @@ jobs:
         if: success()||failure()
         with:
           path: 'prospector_report.xml'
-          reporter: jest-junit
+          reporter: java-junit
           name: 'Prospector Analysis Report'
           
 
@@ -45,8 +45,8 @@ jobs:
         if: success()||failure()
         with:
           #Report in project root
-          xunit_files: "./prospector_report.xml"
-          junit_files: "prospector_report.xml"
+          #xunit_files: "./prospector_report.xml"
+          #junit_files: "prospector_report.xml"
           check_name: "Prospector Analysis Report"
 
           
