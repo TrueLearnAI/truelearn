@@ -49,13 +49,23 @@ jobs:
       #    path: ./prospector_report.xml
       #    name: 'Static Analysis Report'
       #    title: 'Static Analysis Report'
-      - name: Any Report to GitHub Annotations
-        uses: JBZoo/CI-Report-Converter@master
+      - name: Setup Dotnet
+        uses: actions/setup-dotnet@v3
+        
+      - name: Convert xunit to Junit
+        run: |
+          dotnet tool install -g dotnet-xunit-to-junit
+          dotnet xunit-to-junit "./prospector_report.xml" "prospector_junit.xml"
+
+
+      - name: Convert test results to Github Annotations
+        uses: mikepenz/action-junit-report@v3
+        #Use success()||failure() to allow for manual cancellation of an action (see docs)
         if: success()||failure()
         with:
-          input-file: prospector_report.xml
-          suite-name: Prospector Analysis Report
-
+          #Report in project root
+          report_paths: ./prospector_junit.xml
+          check_name: "Prospector Analysis Report"
      # - name: Convert test results to Github Annotations
        # uses: EnricoMi/publish-unit-test-result-action@v2
         #Use success()||failure() to allow for manual cancellation of an action (see docs)
