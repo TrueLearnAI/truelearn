@@ -23,7 +23,7 @@ jobs:
           python-version: '3.10'
 
       - name: Install Project Dependencies
-        run: python install setup.py
+        run: python setup.py install
 
       - name: Install Prospector
         run: pip install prospector
