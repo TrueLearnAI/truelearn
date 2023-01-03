@@ -30,13 +30,12 @@ jobs:
         run: |
           #Outputs the xunit report to project root
           prospector --full-pep8 --output-format xunit:prospector_report.xml
-          prospector --full-pep8 --output-format vscode:vscodereport.trx
       - name: Test Reporter
         uses: dorny/test-reporter@v1.6.0
         if: success()||failure()
         with:
-          path: './vscodereport.trx'
-          reporter: 'dotnet-trx'
+          path: 'prospector_report.xml'
+          reporter: jest-junit
 
       - name: Convert test results to Github Annotations
         uses: EnricoMi/publish-unit-test-result-action@v2
@@ -45,6 +44,7 @@ jobs:
         with:
           #Report in project root
           xunit_files: "./prospector_report.xml"
+          junit_files: "prospector_report.xml"
           check_name: "Prospector Analysis Report"
 
           
