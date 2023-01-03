@@ -33,6 +33,7 @@ jobs:
           prospector --full-pep8 --output-format vscode:vscodereport.trx
       - name: Test Reporter
         uses: dorny/test-reporter@v1.6.0
+        if: success()||failure()
         with:
           path: './vscodereport.trx'
           reporter: 'dotnet-trx'
