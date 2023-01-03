@@ -42,6 +42,6 @@ jobs:
           #Report in project root
           report_paths: ./prospector_report.xml
           check_name: "Prospector Analysis Report"
-          update_check: true
+          summary: "ONLY LAST 50 FAILS ARE SHOWN!"
           detailed_summary: true
 
