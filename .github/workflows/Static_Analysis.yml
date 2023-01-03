@@ -24,12 +24,14 @@ jobs:
 
       - name: Install Prospector
         run: pip install prospector
-
+      - name: Setup Pylint annotations
+        uses: rodrigo-nogues/pylint-annotations@v1
+        
       - name: Run Prospector
         run: |
-          #Outputs the xunit xml to project root
-          prospector --full-pep8 --output-format xunit:prospector_report.xml
-          
+          #Outputs the pylint report to project root
+          prospector --full-pep8 --output-format pylint:prospector_report
+      
       - name: Convert test results to Github Annotations
         uses: mikepenz/action-junit-report@v3
         #Use success()||failure() to allow for manual cancellation of an action (see docs)
