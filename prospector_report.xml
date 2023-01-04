@@ -4,7 +4,7 @@
 	<system-out><![CDATA[]]></system-out>
 	<system-err><![CDATA[]]></system-err>
 	<testcase file="truelearn_experiments/analyse_results.py" line="54">
-		<failure message="String statement has no effect" type="pylint Error"><![CDATA[truelearn_experiments/analyse_results.py:54: [pointless-string-statement(pylint), None] String statement has no effect]]></error>
+		<error message="String statement has no effect" name="pylint Error"><![CDATA[truelearn_experiments/analyse_results.py:54: [pointless-string-statement(pylint), None] String statement has no effect]]></error>
 	</testcase>
 </testsuite>
 
