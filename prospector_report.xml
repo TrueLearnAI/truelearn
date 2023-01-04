@@ -3,7 +3,7 @@
 	<properties/>
 	<system-out><![CDATA[]]></system-out>
 	<system-err><![CDATA[]]></system-err>
-	<testcase name="truelearn_experiments/analyse_results.py:54">
+	<testcase file="truelearn_experiments/analyse_results.py" line="54">
 		<error message="String statement has no effect" type="pylint Error"><![CDATA[truelearn_experiments/analyse_results.py:54: [pointless-string-statement(pylint), None] String statement has no effect]]></error>
 	</testcase>
 	<testcase name="truelearn_experiments/baseline_models.py-6">
