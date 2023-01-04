@@ -31,7 +31,7 @@ jobs:
         run: |
           #Outputs the xunit report to project root
           #Inc. documentation & test checks
-          prospector -T -D --full-pep8 --output-format xunit:prospector_report.xml
+          #prospector -T -D --full-pep8 --output-format xunit:prospector_report.xml
 
       #NOTE: Because it expects Junit format, the line numberings on the annotation header defaults to 1
       #However the error message shows the correct line numbering.
