@@ -33,7 +33,7 @@ jobs:
       - name: Calculate coverage
         #Inc. branch + statement coverage
         run: |
-          coverage run --source=./truelearn_experiments -m pytest .\unit_tests\
+          coverage run --source=truelearn_experiments -m pytest --pyargs unit_tests
           #coverage json
 
       - name: Coverage comment
