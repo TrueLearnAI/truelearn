@@ -9,7 +9,6 @@ on:
       - main
   workflow_dispatch:
 
-
 jobs:
   Run-System-Tests:
     runs-on: ubuntu-latest
