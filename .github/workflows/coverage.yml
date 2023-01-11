@@ -37,7 +37,7 @@ jobs:
           coverage json
 
       - name: Publish report
-        uses: jgillick/test-coverage-reporter@v1
+        uses: jgillick/test-coverage-reporter@v1.0.11
         with:
           coverage-file: ./coverage.json
           access-token: ${{ secrets.GITHUB_TOKEN }}
