@@ -21,6 +21,9 @@ jobs:
         with:
           python-version: '3.10'
 
+      - name: Install Project Dependencies
+        run: python setup.py install
+
       - name: Install Pytest
         run: pip install pytest
 
