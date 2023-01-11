@@ -24,6 +24,9 @@ jobs:
       - name: Install Project Dependencies
         run: python setup.py install
 
+      - name: Install Pytest
+        run: pip install pytest
+
       - name: Install Coverage
         run: pip install coverage
 
