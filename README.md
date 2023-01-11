@@ -1,5 +1,9 @@
 # TrueLearn-python-library
 
+[![Unit tests](https://github.com/comp0016-group1/TrueLearn-python-library/actions/workflows/unit_tests.yml/badge.svg)](https://github.com/comp0016-group1/TrueLearn-python-library/actions/workflows/unit_tests.yml)
+[![Static analysis](https://github.com/comp0016-group1/TrueLearn-python-library/actions/workflows/static_analysis.yml/badge.svg)](https://github.com/comp0016-group1/TrueLearn-python-library/actions/workflows/static_analysis.yml)
+[![Code Coverage](https://github.com/comp0016-group1/TrueLearn-python-library/actions/workflows/coverage.yml/badge.svg)](https://github.com/comp0016-group1/TrueLearn-python-library/actions/workflows/coverage.yml)
+
 Specify:
 How to package to pip
 
