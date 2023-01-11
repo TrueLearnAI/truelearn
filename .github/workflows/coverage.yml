@@ -34,12 +34,12 @@ jobs:
         #Inc. branch + statement coverage
         run: |
           coverage run --source=truelearn_experiments -m pytest --pyargs unit_tests
-          #coverage json
+          coverage json
 
-      - name: Coverage comment
-        id: coverage_comment
-        uses: py-cov-action/python-coverage-comment-action@v3
+      - name: Publish report
+        uses: jgillick/test-coverage-reporter@v1
         with:
-          GITHUB_TOKEN: ${{ github.token }}
+          coverage-file: ./coverage.json
+          access-token: ${{ secrets.GITHUB_TOKEN }}
       
 
