@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  Run-System-Tests:
+  Run-Unit-Tests:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
@@ -39,3 +39,5 @@ jobs:
         if: success()||failure()
         with:
           report_paths: unit_test_report.xml
+          check_name: "Unit test Report"
+          detailed_summary: true
