@@ -45,7 +45,7 @@ jobs:
       - name: Update CodeCov
         uses: codecov/codecov-action@v3
         with:
-          #token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
+          token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
           files: ./coverage.xml
           flags: Unit_Tests # optional
           # name: codecov-umbrella # optional
