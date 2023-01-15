@@ -1,0 +1,49 @@
+name: Code Coverage
+on:
+  push:
+    branches:
+      - main
+      - setup-ci
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  Code_Coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4.4.0
+        with:
+          python-version: '3.10'
+          cache: 'pip' #Cache dependencies
+
+      - name: Install Project Dependencies
+        run: pip install -r requirements.txt
+
+      - name: Install Pytest
+        run: pip install pytest
+
+      #Note PyCov is an extended form of coverage.py
+      - name: Install Pytest-cov
+        run: pip install pytest-cov
+
+      - name: Calculate coverage
+        #Inc. branch + statement coverage
+        run: |
+          pytest --cov-branch --cov-report "xml:coverage.xml" --cov=truelearn_experiments unit_tests
+
+      - name: Update CodeCov
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
+          files: ./coverage.xml
+          flags: Unit_Tests # optional
+          # name: codecov-umbrella # optional
+          fail_ci_if_error: true # optional (default = false)
+          verbose: true # optional (default = false)
+
