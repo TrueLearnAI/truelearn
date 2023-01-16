@@ -2,8 +2,9 @@ from distutils.core import setup
 
 setup(
     name='Truelearn Library',
-    version='0.0.1',
-    packages=['truelearn_experiments'],
+    #major.minor.patch versioning convention
+    version='0.1.1',
+    packages=['truelearn_experiments','unit_tests'],
     url='',
     license='MIT',
     author='',
