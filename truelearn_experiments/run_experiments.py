@@ -247,23 +247,8 @@ def main(args):
     # print("using {} learners".format(count_learners))
 
     # run the algorithm to get results
-    if (args["algorithm"]) == "cbf":
-        eval_func = (_get_eval_func(args["algorithm"], args["skill_repr"], data=grouped_data,
-                                    threshold=args["threshold"]))
-    elif (args["algorithm"]) == "ccf":
-        eval_func = (_get_eval_func(args["algorithm"], args["skill_repr"], data=grouped_data,
-                                    threshold=args["threshold"], source=args["source_filepath"]))
-    elif (args["algorithm"]) == "jaccard":
-        eval_func = (_get_eval_func(args["algorithm"], args["skill_repr"], data=grouped_data,
-                                    threshold=args["threshold"]))
-    elif (args["algorithm"]) == "user_interest":
-        eval_func = (_get_eval_func(args["algorithm"], args["skill_repr"], data=grouped_data,
-                                    threshold=args["threshold"]))
-    elif (args["algorithm"]) == 'user_tfidf':
-        eval_func = (_get_eval_func(args["algorithm"], args["skill_repr"], data=grouped_data,
-                                    threshold=args["threshold"], source=args["source_filepath"]))
 
-    elif (args["algorithm"]) == "truelearn_fixed":
+    if (args["algorithm"]) == "truelearn_fixed":
         eval_func = _get_eval_func(args["algorithm"], args["skill_repr"], data=grouped_data,
                                    def_var_factor=args["def_var_factor"], tau_factor=args["tau_factor"],
                                    beta_factor=args["beta_factor"], threshold=args["threshold"],
@@ -278,22 +263,6 @@ def main(args):
                                    var_const=args["var_constant"], positive_only=False, is_timing=args["time"],
                                    is_topics=args["topics"])
 
-    elif (args["algorithm"]) == "truelearn_novelq_pop_pred":
-        eval_func = _get_eval_func(args["algorithm"], args["skill_repr"], data=grouped_data,
-                                   def_var_factor=args["def_var_factor"], tau_factor=args["tau_factor"],
-                                   beta_factor=args["beta_factor"], threshold=args["threshold"],
-                                   draw_probability=args["draw_probability"], draw_factor=args["draw_factor"],
-                                   var_const=args["var_constant"], positive_only=False, is_timing=args["time"],
-                                   is_topics=args["topics"], quality_mapping=args["quality_mapping_filepath"],
-                                   num_signals=args["num_signals"], freq_type=args["freq_type"],
-                                   freq_agg=args["freq_agg"])
-
-    elif (args["algorithm"]) == "knowledge_tracing_interest":
-        eval_func = _get_eval_func(args["algorithm"], args["skill_repr"], def_var_factor=args["def_var_factor"],
-                                   tau_factor=args["tau_factor"], beta_factor=args["beta_factor"],
-                                   threshold=args["threshold"], positive_only=args["positive_only"],
-                                   interest_decay_type=args["interest_decay_type"],
-                                   interest_decay_factor=args["interest_decay_factor"])
 
     elif (args["algorithm"]) == "truelearn_interest":
         eval_func = _get_eval_func(args["algorithm"], args["skill_repr"], data=grouped_data,
@@ -319,10 +288,6 @@ def main(args):
 
     elif (args["algorithm"]) == "trueknowledge_all":
         eval_func = _get_eval_func(args["algorithm"], args["skill_repr"], data=grouped_data)
-    elif (args["algorithm"]) == "knowledge_tracing":
-        eval_func = _get_eval_func(args["algorithm"], args["skill_repr"], def_var_factor=args["def_var_factor"],
-                                   tau_factor=args["tau_factor"], beta_factor=args["beta_factor"],
-                                   threshold=args["threshold"], positive_only=args["positive_only"])
 
     else:
         eval_func = _get_eval_func(args["algorithm"], args["skill_repr"])
@@ -359,25 +324,6 @@ def main(args):
 
     evaluated_data = vectorised_data.mapValues(eval_func)
 
-    # if args["algorithm"] == "truelearn_background":
-    #     # run a for-loop
-    #     # temp_data = evaluated_data.collect()
-    #     # evaluated_data = []
-    #     # for (user, events) in temp_data:
-    #     #     try:
-    #     #         evaluated_data.append((user, truelearn_background_model(events, def_var=float(args["def_var_factor"]),
-    #     #                                                                 tau=float(args["tau_factor"]),
-    #     #                                                                 beta_sqr=float(args["beta_factor"]),
-    #     #                                                                 threshold=float(args["threshold"]),
-    #     #                                                                 positive_only=args["positive_only"])))
-    #     #     except ValueError:
-    #     #         print()
-    #
-    #     evaluated_data = spark.sparkContext.parallelize(evaluated_data, 10)
-    #
-    # else:
-    #     evaluated_data = evaluated_data.mapValues(eval_func)
-
     restructured_data = evaluated_data.map(restructure_data).collect()
 
     with open(join(args["output_dir"], "model_results.json"), "w") as outfile:
@@ -404,11 +350,7 @@ if __name__ == '__main__':
                         choices=['raw', 'max', 'or'],
                         help="The name of the SR aggregation method be one of the allowed methods")
     parser.add_argument('--algorithm', default='trueknowledge_sum', const='all', nargs='?',
-                        choices=['engage', 'persistent', 'majority',
-                                 "cbf", "ccf", "jaccard", "user_interest", "user_interest_tfidf",
-                                 "knowledge_tracing", "knowledge_tracing_interest",
-                                 "truelearn_fixed", "truelearn_novel", "truelearn_interest", "truelearn_hybrid",
-                                 "truelearn_novelq_pop_pred"],
+                        choices=["truelearn_fixed", "truelearn_novel", "truelearn_interest", "truelearn_hybrid"],
                         help="The name of the algorithm can be one of the allowed algorithms")
     parser.add_argument("--num-topics", type=int, default=10,
                         help="The number of top ranked topics that have to be considered.")
