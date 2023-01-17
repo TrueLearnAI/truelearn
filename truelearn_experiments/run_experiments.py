@@ -71,19 +71,6 @@ def _get_eval_func(algorithm, vect_type, data=None, engage_func="all", threshold
                        beta_sqr=_beta_sqr, threshold=threshold, positive_only=positive_only, is_fixed=True,
                        start_event=start_event)
 
-    elif algorithm == "semantic_truelearn_fixed":
-        semantic_mapping = get_semantic_relatedness_mapping(semantic_mapping_path)
-        spark = get_spark_context()
-        semantic_mapping_b = spark.sparkContext.broadcast(semantic_mapping)
-        cosine_var = float(get_default_variance_from_coverage_values(data, vect_type))
-        _def_var = float(np.square(cosine_var * def_var_factor))
-        _beta_sqr = float(np.square(np.sqrt(_def_var) * beta_factor))
-        _tau = float(1. * tau_factor)
-        return partial(truelearn_novel_model, init_skill=0., def_var=_def_var, tau=_tau,
-                       beta_sqr=_beta_sqr, threshold=threshold, positive_only=positive_only,
-                       semantic_mapping=semantic_mapping_b, agg_func=agg_func, sr_func=sr_func,
-                       top_k_sr_topics=top_k_sr_topics, is_pred_only=is_pred_only, is_fixed=True,
-                       start_event=start_event)
 
     elif algorithm == "truelearn_novel":
         cosine_var = float(get_default_variance_from_coverage_values(data, vect_type))
@@ -113,20 +100,6 @@ def _get_eval_func(algorithm, vect_type, data=None, engage_func="all", threshold
                        k_topics=2, start_event=start_event, quality_mapping=quality_mapping_b,
                        quality_type="prediction", num_signals=num_signals, freq_type=freq_type, freq_agg=freq_agg)
 
-    elif algorithm == "semantic_truelearn_novel":
-        semantic_mapping = get_semantic_relatedness_mapping(semantic_mapping_path)
-        spark = get_spark_context()
-        semantic_mapping_b = spark.sparkContext.broadcast(semantic_mapping)
-        cosine_var = float(get_default_variance_from_coverage_values(data, vect_type))
-        _def_var = float(np.square(cosine_var * def_var_factor))
-        _beta_sqr = float(np.square(np.sqrt(_def_var) * beta_factor))
-        _tau = float(1. * tau_factor)
-        return partial(truelearn_novel_model, init_skill=0., def_var=_def_var, tau=_tau, beta_sqr=_beta_sqr,
-                       threshold=threshold, draw_probability=draw_probability, positive_only=positive_only,
-                       draw_factor=draw_factor, semantic_mapping=semantic_mapping_b, agg_func=agg_func,
-                       is_pred_only=is_pred_only, is_diluted=is_diluted, dil_factor=dil_factor, var_const=var_const,
-                       top_k_sr_topics=top_k_sr_topics, sr_func=sr_func, tracking=is_timing,
-                       is_topics=is_topics, start_event=start_event)
 
     elif algorithm == "truelearn_interest":
         cosine_var = float(get_default_variance_from_coverage_values(data, vect_type))
@@ -139,21 +112,6 @@ def _get_eval_func(algorithm, vect_type, data=None, engage_func="all", threshold
                        draw_factor=draw_factor, var_const=var_const, tracking=is_timing, is_topics=is_topics,
                        is_interest=True, decay_func=interest_decay_func, start_event=start_event)
 
-    elif algorithm == "semantic_truelearn_interest":
-        semantic_mapping = get_semantic_relatedness_mapping(semantic_mapping_path)
-        interest_decay_func = get_interest_decay_func(interest_decay_type, interest_decay_factor)
-        spark = get_spark_context()
-        semantic_mapping_b = spark.sparkContext.broadcast(semantic_mapping)
-        cosine_var = float(get_default_variance_from_coverage_values(data, vect_type))
-        _def_var = float(np.square(cosine_var * def_var_factor))
-        _beta_sqr = float(np.square(np.sqrt(_def_var) * beta_factor))
-        _tau = float(1. * tau_factor)
-        return partial(truelearn_novel_model, init_skill=0., def_var=_def_var, tau=_tau, beta_sqr=_beta_sqr,
-                       threshold=threshold, draw_probability=draw_probability, positive_only=positive_only,
-                       draw_factor=draw_factor, semantic_mapping=semantic_mapping_b, agg_func=agg_func,
-                       is_pred_only=is_pred_only, is_diluted=is_diluted, dil_factor=dil_factor, var_const=var_const,
-                       top_k_sr_topics=top_k_sr_topics, sr_func=sr_func, tracking=is_timing,
-                       is_topics=is_topics, is_interest=True, decay_func=None, start_event=start_event)
 
     elif algorithm == "truelearn_hybrid":
         interest_decay_func = get_interest_decay_func(interest_decay_type, interest_decay_factor)
@@ -178,91 +136,6 @@ def _get_eval_func(algorithm, vect_type, data=None, engage_func="all", threshold
                        prob_combine_type=prob_combine_type, know_prob=know_prob, k_topics=3, i_topics=5,
                        start_event=start_event, q_random=q_random)
 
-    elif algorithm == "semantic_truelearn_hybrid":
-        semantic_mapping = get_semantic_relatedness_mapping(semantic_mapping_path)
-        interest_decay_func = get_interest_decay_func(interest_decay_type, interest_decay_factor)
-        spark = get_spark_context()
-        semantic_mapping_b = spark.sparkContext.broadcast(semantic_mapping)
-
-        k_cosine_var = float(get_default_variance_from_coverage_values(data, "cosine"))
-        i_cosine_var = float(get_default_variance_from_coverage_values(data, "binary"))  # for Gaussian interest
-
-        _k_def_var = float(np.square(k_cosine_var * def_var_factor))
-        # _i_def_var = float(i_def_var_factor)  # for kt interest
-        _i_def_var = float(np.square(i_cosine_var * i_def_var_factor))  # for Gaussian interest
-
-        _k_beta_sqr = float(np.square(np.sqrt(_k_def_var) * beta_factor))
-        # _i_beta_sqr = float(beta_factor)  # for kt pfail
-        _i_beta_sqr = float(np.square(np.sqrt(_i_def_var) * beta_factor))  # for Gaussian interest
-
-        _tau = float(1. * tau_factor)  # for pguess
-
-        return partial(hybrid_truelearn_model, init_skill=0., k_def_var=_k_def_var, i_def_var=_i_def_var, tau=_tau,
-                       k_beta_sqr=_k_beta_sqr, i_beta_sqr=_i_beta_sqr, threshold=threshold,
-                       draw_probability=draw_probability, positive_only=positive_only, draw_factor=draw_factor,
-                       semantic_mapping=semantic_mapping_b, agg_func=agg_func, is_pred_only=is_pred_only,
-                       is_diluted=is_diluted, dil_factor=dil_factor, var_const=var_const,
-                       top_k_sr_topics=top_k_sr_topics, sr_func=sr_func, tracking=is_timing, is_topics=is_topics,
-                       decay_func=interest_decay_func, prob_combine_type=prob_combine_type, know_prob=know_prob,
-                       start_event=start_event)
-
-    elif algorithm == "truelearn_qink_pop_pred":
-        interest_decay_func = get_interest_decay_func(interest_decay_type, interest_decay_factor)
-
-        k_cosine_var = float(get_default_variance_from_coverage_values(data, "cosine"))
-        i_cosine_var = float(get_default_variance_from_coverage_values(data, "binary"))  # for Gaussian interest
-
-        _k_def_var = float(np.square(k_cosine_var * def_var_factor))
-        # _i_def_var = float(i_def_var_factor)  # for init unceratinty for kt interest
-        _i_def_var = float(np.square(i_cosine_var * i_def_var_factor))  # for Gaussian interest
-
-        _k_beta_sqr = float(np.square(np.sqrt(_k_def_var) * beta_factor))
-        # _i_beta_sqr = float(beta_factor)  # for kt pfail
-        _i_beta_sqr = float(np.square(np.sqrt(_i_def_var) * beta_factor))  # for Gaussian interest
-
-        _tau = float(1. * tau_factor)  # for pguess
-
-        _quality_mapping = get_quality_mapping(quality_mapping)
-
-        spark = get_spark_context()
-        quality_mapping_b = spark.sparkContext.broadcast(_quality_mapping)
-
-        return partial(qink_truelearn_model, init_skill=0., k_def_var=_k_def_var, i_def_var=_i_def_var,
-                       tau=_tau, k_beta_sqr=_k_beta_sqr, i_beta_sqr=_i_beta_sqr, threshold=threshold,
-                       draw_probability=draw_probability, positive_only=positive_only, draw_factor=draw_factor,
-                       var_const=var_const, tracking=is_timing, is_topics=is_topics, decay_func=interest_decay_func,
-                       prob_combine_type=prob_combine_type, know_prob=know_prob, k_topics=3, i_topics=5,
-                       start_event=start_event, quality_mapping=quality_mapping_b, quality_type="prediction",
-                       num_signals=num_signals, freq_type=freq_type, freq_agg=freq_agg)
-
-    elif algorithm == "truelearn_qink_weighted":
-        interest_decay_func = get_interest_decay_func(interest_decay_type, interest_decay_factor)
-
-        k_cosine_var = float(get_default_variance_from_coverage_values(data, "cosine"))
-        i_cosine_var = float(get_default_variance_from_coverage_values(data, "binary"))  # for Gaussian interest
-
-        _k_def_var = float(np.square(k_cosine_var * def_var_factor))
-        # _i_def_var = float(i_def_var_factor)  # for init unceratinty for kt interest
-        _i_def_var = float(np.square(i_cosine_var * i_def_var_factor))  # for Gaussian interest
-
-        _k_beta_sqr = float(np.square(np.sqrt(_k_def_var) * beta_factor))
-        # _i_beta_sqr = float(beta_factor)  # for kt pfail
-        _i_beta_sqr = float(np.square(np.sqrt(_i_def_var) * beta_factor))  # for Gaussian interest
-
-        _tau = float(1. * tau_factor)  # for pguess
-
-        _quality_mapping = get_quality_mapping(quality_mapping)
-
-        spark = get_spark_context()
-        quality_mapping_b = spark.sparkContext.broadcast(_quality_mapping)
-
-        return partial(qink_truelearn_model, init_skill=0., k_def_var=_k_def_var, i_def_var=_i_def_var,
-                       tau=_tau, k_beta_sqr=_k_beta_sqr, i_beta_sqr=_i_beta_sqr, threshold=threshold,
-                       draw_probability=draw_probability, positive_only=positive_only, draw_factor=draw_factor,
-                       var_const=var_const, tracking=is_timing, is_topics=is_topics, decay_func=interest_decay_func,
-                       prob_combine_type=prob_combine_type, know_prob=know_prob, k_topics=3, i_topics=5,
-                       start_event=start_event, quality_mapping=quality_mapping_b, quality_type="prediction",
-                       num_signals=num_signals, freq_type=freq_type, freq_agg=freq_agg, weighted=True)
 
     elif algorithm == "knowledge_tracing_interest":
         _init_certainty = float(def_var_factor)  # .0
@@ -374,35 +247,13 @@ def main(args):
     # print("using {} learners".format(count_learners))
 
     # run the algorithm to get results
-    if (args["algorithm"]) == "cbf":
-        eval_func = (_get_eval_func(args["algorithm"], args["skill_repr"], data=grouped_data,
-                                    threshold=args["threshold"]))
-    elif (args["algorithm"]) == "ccf":
-        eval_func = (_get_eval_func(args["algorithm"], args["skill_repr"], data=grouped_data,
-                                    threshold=args["threshold"], source=args["source_filepath"]))
-    elif (args["algorithm"]) == "jaccard":
-        eval_func = (_get_eval_func(args["algorithm"], args["skill_repr"], data=grouped_data,
-                                    threshold=args["threshold"]))
-    elif (args["algorithm"]) == "user_interest":
-        eval_func = (_get_eval_func(args["algorithm"], args["skill_repr"], data=grouped_data,
-                                    threshold=args["threshold"]))
-    elif (args["algorithm"]) == 'user_tfidf':
-        eval_func = (_get_eval_func(args["algorithm"], args["skill_repr"], data=grouped_data,
-                                    threshold=args["threshold"], source=args["source_filepath"]))
 
-    elif (args["algorithm"]) == "truelearn_fixed":
+    if (args["algorithm"]) == "truelearn_fixed":
         eval_func = _get_eval_func(args["algorithm"], args["skill_repr"], data=grouped_data,
                                    def_var_factor=args["def_var_factor"], tau_factor=args["tau_factor"],
                                    beta_factor=args["beta_factor"], threshold=args["threshold"],
                                    positive_only=args["positive_only"])
 
-    elif (args["algorithm"]) == "semantic_truelearn_fixed":
-        eval_func = _get_eval_func(args["algorithm"], args["skill_repr"], data=grouped_data,
-                                   def_var_factor=args["def_var_factor"], tau_factor=args["tau_factor"],
-                                   beta_factor=args["beta_factor"], threshold=args["threshold"],
-                                   positive_only=args["positive_only"], sr_func=args["sr_func"],
-                                   semantic_mapping_path=args["semantic_relatedness_filepath"],
-                                   agg_func=args['agg_func'], is_pred_only=args["prediction_only"])
 
     elif (args["algorithm"]) == "truelearn_novel":
         eval_func = _get_eval_func(args["algorithm"], args["skill_repr"], data=grouped_data,
@@ -412,35 +263,6 @@ def main(args):
                                    var_const=args["var_constant"], positive_only=False, is_timing=args["time"],
                                    is_topics=args["topics"])
 
-    elif (args["algorithm"]) == "truelearn_novelq_pop_pred":
-        eval_func = _get_eval_func(args["algorithm"], args["skill_repr"], data=grouped_data,
-                                   def_var_factor=args["def_var_factor"], tau_factor=args["tau_factor"],
-                                   beta_factor=args["beta_factor"], threshold=args["threshold"],
-                                   draw_probability=args["draw_probability"], draw_factor=args["draw_factor"],
-                                   var_const=args["var_constant"], positive_only=False, is_timing=args["time"],
-                                   is_topics=args["topics"], quality_mapping=args["quality_mapping_filepath"],
-                                   num_signals=args["num_signals"], freq_type=args["freq_type"],
-                                   freq_agg=args["freq_agg"])
-
-    elif (args["algorithm"]) == "semantic_truelearn_novel":
-        eval_func = _get_eval_func(args["algorithm"], args["skill_repr"], data=grouped_data,
-                                   def_var_factor=args["def_var_factor"], tau_factor=args["tau_factor"],
-                                   beta_factor=args["beta_factor"], threshold=args["threshold"],
-                                   draw_probability=args["draw_probability"], draw_factor=args["draw_factor"],
-                                   positive_only=False, semantic_mapping_path=args["semantic_relatedness_filepath"],
-                                   agg_func=args['agg_func'], is_pred_only=args["prediction_only"],
-                                   is_diluted=args["dilute_var"], dil_factor=args["dilution_factor"],
-                                   top_k_sr_topics=args["top_k_sr_topics"], sr_func=args["sr_func"],
-                                   is_timing=args["time"], is_topics=args["topics"])
-
-
-
-    elif (args["algorithm"]) == "knowledge_tracing_interest":
-        eval_func = _get_eval_func(args["algorithm"], args["skill_repr"], def_var_factor=args["def_var_factor"],
-                                   tau_factor=args["tau_factor"], beta_factor=args["beta_factor"],
-                                   threshold=args["threshold"], positive_only=args["positive_only"],
-                                   interest_decay_type=args["interest_decay_type"],
-                                   interest_decay_factor=args["interest_decay_factor"])
 
     elif (args["algorithm"]) == "truelearn_interest":
         eval_func = _get_eval_func(args["algorithm"], args["skill_repr"], data=grouped_data,
@@ -451,18 +273,6 @@ def main(args):
                                    is_topics=args["topics"], interest_decay_type=args["interest_decay_type"],
                                    interest_decay_factor=args["interest_decay_factor"])
 
-    elif (args["algorithm"]) == "semantic_truelearn_interest":
-        eval_func = _get_eval_func(args["algorithm"], args["skill_repr"], data=grouped_data,
-                                   def_var_factor=args["def_var_factor"], tau_factor=args["tau_factor"],
-                                   beta_factor=args["beta_factor"], threshold=args["threshold"],
-                                   draw_probability=args["draw_probability"], draw_factor=args["draw_factor"],
-                                   positive_only=False, semantic_mapping_path=args["semantic_relatedness_filepath"],
-                                   agg_func=args['agg_func'], is_pred_only=args["prediction_only"],
-                                   is_diluted=args["dilute_var"], dil_factor=args["dilution_factor"],
-                                   top_k_sr_topics=args["top_k_sr_topics"], sr_func=args["sr_func"],
-                                   is_timing=args["time"], is_topics=args["topics"],
-                                   interest_decay_type=args["interest_decay_type"],
-                                   interest_decay_factor=args["interest_decay_factor"])
 
     elif (args["algorithm"]) == "truelearn_hybrid":
         eval_func = _get_eval_func(args["algorithm"], args["skill_repr"], data=grouped_data,
@@ -476,51 +286,8 @@ def main(args):
                                    prob_combine_type=args["prob_combine_type"], know_prob=args["know_prob"],
                                    q_random=args["q_random"])
 
-    elif (args["algorithm"]) == "semantic_truelearn_hybrid":
-        eval_func = _get_eval_func(args["algorithm"], args["skill_repr"], data=grouped_data,
-                                   def_var_factor=args["def_var_factor"], i_def_var_factor=args["i_def_var_factor"],
-                                   tau_factor=args["tau_factor"], beta_factor=args["beta_factor"],
-                                   draw_probability=args["draw_probability"], draw_factor=args["draw_factor"],
-                                   positive_only=False, semantic_mapping_path=args["semantic_relatedness_filepath"],
-                                   agg_func=args['agg_func'], is_pred_only=args["prediction_only"],
-                                   is_diluted=args["dilute_var"], dil_factor=args["dilution_factor"],
-                                   top_k_sr_topics=args["top_k_sr_topics"], sr_func=args["sr_func"],
-                                   is_timing=args["time"], is_topics=args["topics"],
-                                   interest_decay_type=args["interest_decay_type"],
-                                   interest_decay_factor=args["interest_decay_factor"],
-                                   prob_combine_type=args["prob_combine_type"], know_prob=args["know_prob"])
-
-    elif (args["algorithm"]) == "truelearn_qink_pop_pred":
-        eval_func = _get_eval_func(args["algorithm"], args["skill_repr"], data=grouped_data,
-                                   def_var_factor=args["def_var_factor"], i_def_var_factor=args["i_def_var_factor"],
-                                   tau_factor=args["tau_factor"], beta_factor=args["beta_factor"],
-                                   threshold=args["threshold"], draw_probability=args["draw_probability"],
-                                   draw_factor=args["draw_factor"], var_const=args["var_constant"], positive_only=False,
-                                   is_timing=args["time"], is_topics=args["topics"],
-                                   interest_decay_type=args["interest_decay_type"],
-                                   interest_decay_factor=args["interest_decay_factor"],
-                                   prob_combine_type=args["prob_combine_type"], know_prob=args["know_prob"],
-                                   quality_mapping=args["quality_mapping_filepath"], num_signals=args["num_signals"],
-                                   freq_type=args["freq_type"], freq_agg=args["freq_agg"])
-    elif (args["algorithm"]) == "truelearn_qink_weighted":
-        eval_func = _get_eval_func(args["algorithm"], args["skill_repr"], data=grouped_data,
-                                   def_var_factor=args["def_var_factor"], i_def_var_factor=args["i_def_var_factor"],
-                                   tau_factor=args["tau_factor"], beta_factor=args["beta_factor"],
-                                   threshold=args["threshold"], draw_probability=args["draw_probability"],
-                                   draw_factor=args["draw_factor"], var_const=args["var_constant"], positive_only=False,
-                                   is_timing=args["time"], is_topics=args["topics"],
-                                   interest_decay_type=args["interest_decay_type"],
-                                   interest_decay_factor=args["interest_decay_factor"],
-                                   prob_combine_type=args["prob_combine_type"], know_prob=args["know_prob"],
-                                   quality_mapping=args["quality_mapping_filepath"], num_signals=args["num_signals"],
-                                   freq_type=args["freq_type"], freq_agg=args["freq_agg"])
-
     elif (args["algorithm"]) == "trueknowledge_all":
         eval_func = _get_eval_func(args["algorithm"], args["skill_repr"], data=grouped_data)
-    elif (args["algorithm"]) == "knowledge_tracing":
-        eval_func = _get_eval_func(args["algorithm"], args["skill_repr"], def_var_factor=args["def_var_factor"],
-                                   tau_factor=args["tau_factor"], beta_factor=args["beta_factor"],
-                                   threshold=args["threshold"], positive_only=args["positive_only"])
 
     else:
         eval_func = _get_eval_func(args["algorithm"], args["skill_repr"])
@@ -557,25 +324,6 @@ def main(args):
 
     evaluated_data = vectorised_data.mapValues(eval_func)
 
-    # if args["algorithm"] == "truelearn_background":
-    #     # run a for-loop
-    #     # temp_data = evaluated_data.collect()
-    #     # evaluated_data = []
-    #     # for (user, events) in temp_data:
-    #     #     try:
-    #     #         evaluated_data.append((user, truelearn_background_model(events, def_var=float(args["def_var_factor"]),
-    #     #                                                                 tau=float(args["tau_factor"]),
-    #     #                                                                 beta_sqr=float(args["beta_factor"]),
-    #     #                                                                 threshold=float(args["threshold"]),
-    #     #                                                                 positive_only=args["positive_only"])))
-    #     #     except ValueError:
-    #     #         print()
-    #
-    #     evaluated_data = spark.sparkContext.parallelize(evaluated_data, 10)
-    #
-    # else:
-    #     evaluated_data = evaluated_data.mapValues(eval_func)
-
     restructured_data = evaluated_data.map(restructure_data).collect()
 
     with open(join(args["output_dir"], "model_results.json"), "w") as outfile:
@@ -602,14 +350,7 @@ if __name__ == '__main__':
                         choices=['raw', 'max', 'or'],
                         help="The name of the SR aggregation method be one of the allowed methods")
     parser.add_argument('--algorithm', default='trueknowledge_sum', const='all', nargs='?',
-                        choices=['engage', 'persistent', 'majority',
-                                 "cbf", "ccf", "jaccard", "user_interest", "user_interest_tfidf",
-                                 "knowledge_tracing", "knowledge_tracing_interest",
-                                 "truelearn_fixed", "truelearn_novel", "truelearn_interest", "truelearn_hybrid",
-                                 "truelearn_novelq_pop_pred", "truelearn_qink_pop_pred", "truelearn_qink_weighted"
-                                                                                         "semantic_truelearn_fixed",
-                                 "semantic_truelearn_novel",
-                                 "semantic_truelearn_interest", "semantic_truelearn_hybrid"],
+                        choices=["truelearn_fixed", "truelearn_novel", "truelearn_interest", "truelearn_hybrid"],
                         help="The name of the algorithm can be one of the allowed algorithms")
     parser.add_argument("--num-topics", type=int, default=10,
                         help="The number of top ranked topics that have to be considered.")
