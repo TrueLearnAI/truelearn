@@ -1,0 +1,3 @@
+
+class TrueLearnInkClassifier:
+    pass

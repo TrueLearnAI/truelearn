@@ -1,0 +1,3 @@
+
+class TrueLearnNovelClassifier:
+    pass
