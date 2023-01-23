@@ -5,7 +5,9 @@ from truelearn.metrics.confusion_matrix import ConfusionMatrix
 class TrueLearnKnowledgeClassifier:
 
     # Default create a new model
-    def __init__(self, learner_model=LearnerDataModel()) -> None:
+    def __init__(self, learner_model=None) -> None:
+        if learner_model is None:
+            learner_model = LearnerDataModel()
         self._learner_model = learner_model
 
     def fit(self) -> None:
