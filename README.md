@@ -1,5 +1,5 @@
 # TrueLearn-python-library
-![License](https://img.shields.io/badge/License-MIT-blue)
+[![License](https://img.shields.io/badge/License-MIT-blue)](https://github.com/comp0016-group1/TrueLearn-python-library/blob/main/LICENSE)
 [![Unit tests](https://github.com/comp0016-group1/TrueLearn-python-library/actions/workflows/unit_tests.yml/badge.svg)](https://github.com/comp0016-group1/TrueLearn-python-library/actions/workflows/unit_tests.yml)
 [![Static analysis](https://github.com/comp0016-group1/TrueLearn-python-library/actions/workflows/static_analysis.yml/badge.svg)](https://github.com/comp0016-group1/TrueLearn-python-library/actions/workflows/static_analysis.yml)
 [![codecov](https://codecov.io/gh/comp0016-group1/TrueLearn-python-library/branch/main/graph/badge.svg?token=69JZ051NAO)](https://codecov.io/gh/comp0016-group1/TrueLearn-python-library)
