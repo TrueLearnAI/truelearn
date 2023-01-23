@@ -1,0 +1,6 @@
+from .truelearn_ink_classifier import TrueLearnInkClassifier
+from .truelearn_interest_classifier import TrueLearnInterestClassifier
+from .truelearn_knowledge_classifier import TrueLearnKnowledgeClassifier
+from .truelearn_novel_classifier import TrueLearnNovelClassifier
+
+__all__ = [TrueLearnInkClassifier, TrueLearnInterestClassifier, TrueLearnKnowledgeClassifier, TrueLearnNovelClassifier]
