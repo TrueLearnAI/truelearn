@@ -1,6 +1,7 @@
 from truelearn.learner_models import LearnerDataModel
 from truelearn.metrics.confusion_matrix import ConfusionMatrix
 
+
 class TrueLearnKnowledgeClassifier:
 
     # Default create a new model

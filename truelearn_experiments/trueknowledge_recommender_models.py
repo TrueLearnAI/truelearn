@@ -196,7 +196,7 @@ def update_truelearn_novel(label, team_learner, team_content, learner_weights, c
 def predict_and_model_truelearn_novel(events, user_model, draw_probability, draw_factor, topics_covered,
                                       positive_only, stats, init_skill, def_var, beta_sqr, tau, semantic_mapping,
                                       agg_func, is_pred_only, is_diluted, dil_factor, var_const, top_k_sr_topics,
-                                      sr_func, is_tracking, is_topics, is_fixed, is_interest, decay_func, n_topics,
+                                      sr_func, is_topics, is_fixed, is_interest, decay_func, n_topics,
                                       threshold, start_event, q_random):
     random.seed(42)
 
@@ -215,158 +215,127 @@ def predict_and_model_truelearn_novel(events, user_model, draw_probability, draw
     # # else:
     # start_event = 0
 
-    if is_tracking:
-        turns = 5
-        tot_durations = []
-    else:
-        turns = 1
-        tot_durations = None
+
 
     rel_topics = {}  # to track related topics
     current_vid = None
 
-    for turn in range(turns):
+    for idx, event in enumerate(events):
+        #  calculate if the user is going to engage with this resource
 
-        start_time = datetime.now()
-        for idx, event in enumerate(events):
-            #  calculate if the user is going to engage with this resource
+        user_id, slug, vid_id, part_id, event_time, event_timeframe, topic_vec, label = decode_vector(event,
+                                                                                                      n_topics)
 
-            user_id, slug, vid_id, part_id, event_time, event_timeframe, topic_vec, label = decode_vector(event,
-                                                                                                          n_topics)
+        topic_dict = get_topic_dict(topic_vec)
 
-            topic_dict = get_topic_dict(topic_vec)
+        # setup trueskill environment
+        if draw_probability == "static":
+            _draw_probability = STATIC_DRAW_PROB  # population success rate
+            # _draw_probability = 1.
+        else:
+            # compute novelty prob
+            _draw_probability = float(np.mean(actual))
+            _draw_probability = _draw_probability if _draw_probability > 0. else 0.000000000001  # cant be zero
+            _draw_probability = _draw_probability if _draw_probability < 1. else 0.999999999999  # cant be one
 
-            # setup trueskill environment
-            if draw_probability == "static":
-                _draw_probability = STATIC_DRAW_PROB  # population success rate
-                # _draw_probability = 1.
-            else:
-                # compute novelty prob
-                _draw_probability = float(np.mean(actual))
-                _draw_probability = _draw_probability if _draw_probability > 0. else 0.000000000001  # cant be zero
-                _draw_probability = _draw_probability if _draw_probability < 1. else 0.999999999999  # cant be one
+        _draw_probability *= draw_factor
 
-            _draw_probability *= draw_factor
+        trueskill.setup(mu=0.0, sigma=1 / 1000000000, beta=float(np.sqrt(beta_sqr)), tau=tau,
+                        draw_probability=_draw_probability,
+                        backend="mpmath")
 
-            trueskill.setup(mu=0.0, sigma=1 / 1000000000, beta=float(np.sqrt(beta_sqr)), tau=tau,
-                            draw_probability=_draw_probability,
-                            backend="mpmath")
+        # track unique topic encountered
+        topics_covered |= set(topic_dict.keys())
 
-            # track unique topic encountered
-            topics_covered |= set(topic_dict.keys())
+        # create_teams
+        team_learner = tuple()
+        learner_weights = tuple()
+        orig_team_learner = tuple()
 
-            # create_teams
-            team_learner = tuple()
-            learner_weights = tuple()
-            orig_team_learner = tuple()
+        # pos_team_learner = tuple()
+        team_learner_mean_vec = list()
+        team_learner_var_vec = list()
+        team_mean_learner = list()
 
-            # pos_team_learner = tuple()
-            team_learner_mean_vec = list()
-            team_learner_var_vec = list()
-            team_mean_learner = list()
+        team_content = tuple()
+        content_weights = tuple()
 
-            team_content = tuple()
-            content_weights = tuple()
+        team_content_mean_vec = list()
+        team_content_var_vec = list()
+        team_mean_content = list()
 
-            team_content_mean_vec = list()
-            team_content_var_vec = list()
-            team_mean_content = list()
+        topic_seq = []
+        tmp_updates = []
 
-            topic_seq = []
-            tmp_updates = []
+        _topic = None
+        for topic, coverage in topic_dict.items():
+            topic_seq.append(topic)
 
-            _topic = None
-            for topic, coverage in topic_dict.items():
-                topic_seq.append(topic)
+            if is_topics and topic not in user_model:
 
-                if is_topics and topic not in user_model:
+                if semantic_mapping is not None:
+                    # it is fresh
+                    _rel_topics = get_related_skill_set(user_model, semantic_mapping, topic, top_k_sr_topics,
+                                                        sr_func=sr_func)
+                else:
+                    _rel_topics = {}
 
-                    if semantic_mapping is not None:
-                        # it is fresh
-                        _rel_topics = get_related_skill_set(user_model, semantic_mapping, topic, top_k_sr_topics,
-                                                            sr_func=sr_func)
-                    else:
-                        _rel_topics = {}
+                _topic = topic
+                rel_topics[topic] = {
+                    "idx": idx,
+                    "rel_topics": _rel_topics
+                }
 
-                    _topic = topic
-                    rel_topics[topic] = {
-                        "idx": idx,
-                        "rel_topics": _rel_topics
-                    }
+            # get user skill rating
+            tmp_learner_skill = user_model["mean"].get(topic, init_skill)
+            tmp_learner_sd = np.sqrt(user_model["variance"].get(topic, def_var) + var_const)
+            tmp_learner_f = float(user_model["updates"].get(topic, 0))
+            tmp_learner_l_time = float(user_model["last_time"].get(topic, event_time))
 
-                # get user skill rating
-                tmp_learner_skill = user_model["mean"].get(topic, init_skill)
-                tmp_learner_sd = np.sqrt(user_model["variance"].get(topic, def_var) + var_const)
-                tmp_learner_f = float(user_model["updates"].get(topic, 0))
-                tmp_learner_l_time = float(user_model["last_time"].get(topic, event_time))
+            tmp_updates.append(tmp_learner_f)
 
-                tmp_updates.append(tmp_learner_f)
+            # for reinitialising learner if predict only
+            orig_learner_skill = trueskill.Rating(mu=tmp_learner_skill, sigma=tmp_learner_sd)
 
-                # for reinitialising learner if predict only
-                orig_learner_skill = trueskill.Rating(mu=tmp_learner_skill, sigma=tmp_learner_sd)
+            # if semantic truelearn and unobserved topic
+            if semantic_mapping is not None and tmp_learner_skill == init_skill and tmp_learner_sd == np.sqrt(
+                    def_var):
+                updated_learner = get_semantic_skill_inference(user_model, semantic_mapping, topic, init_skill,
+                                                               def_var, event_time,
+                                                               agg_func, top_k_sr_topics, sr_func)
 
-                # if semantic truelearn and unobserved topic
-                if semantic_mapping is not None and tmp_learner_skill == init_skill and tmp_learner_sd == np.sqrt(
-                        def_var):
-                    updated_learner = get_semantic_skill_inference(user_model, semantic_mapping, topic, init_skill,
-                                                                   def_var, event_time,
-                                                                   agg_func, top_k_sr_topics, sr_func)
+                tmp_learner_skill, tmp_learner_sd = updated_learner
 
-                    tmp_learner_skill, tmp_learner_sd = updated_learner
+            # apply interest decay
+            if decay_func:
+                tmp_learner_skill = apply_interest_decay(tmp_learner_skill, event_time, tmp_learner_l_time,
+                                                         decay_func)
 
-                # apply interest decay
-                if decay_func:
-                    tmp_learner_skill = apply_interest_decay(tmp_learner_skill, event_time, tmp_learner_l_time,
-                                                             decay_func)
+            # used for prediction
+            learner_skill = trueskill.Rating(mu=tmp_learner_skill, sigma=tmp_learner_sd)
 
-                # used for prediction
-                learner_skill = trueskill.Rating(mu=tmp_learner_skill, sigma=tmp_learner_sd)
+            # for reinitialising learner if predict only
+            orig_team_learner += (orig_learner_skill,)
 
-                # if is_diluted:
-                #     tmp_learner_skill, tmp_learner_sd = dilute_variance(orig_learner_skill.mu, orig_learner_skill.sigma,
-                #                                                         user_model, semantic_mapping, topic, dil_factor,
-                #                                                         top_k_sr_topics, def_var)
-                #     # if not predicting with this, replace with original values
-                #     if not is_pred_only:
-                #         learner_skill = trueskill.Rating(mu=orig_learner_skill.mu, sigma=orig_learner_skill.sigma)
-                #
-                #     # used for learning with diluted variance of semantically related new topic
-                #     orig_learner_skill = trueskill.Rating(mu=tmp_learner_skill, sigma=tmp_learner_sd)
+            # for prediction
+            team_learner += (learner_skill,)
+            # learner_weights += (coverage,)
+            learner_weights += (1.,)
 
-                # for reinitialising learner if predict only
-                orig_team_learner += (orig_learner_skill,)
+            team_mean_learner.append(learner_skill.mu)
+            team_learner_mean_vec.append(tmp_learner_skill)
+            team_learner_var_vec.append(np.square(tmp_learner_sd))
 
-                # for prediction
-                team_learner += (learner_skill,)
-                # learner_weights += (coverage,)
-                learner_weights += (1.,)
+            # get skill coverage
+            tmp_content_topic = coverage
+            topic_cov = trueskill.Rating(mu=tmp_content_topic, sigma=1 / 1000000000)
+            team_content += (topic_cov,)
+            content_weights += (1.,)
 
-                team_mean_learner.append(learner_skill.mu)
-                team_learner_mean_vec.append(tmp_learner_skill)
-                team_learner_var_vec.append(np.square(tmp_learner_sd))
+            team_mean_content.append(topic_cov.mu)
+            team_content_mean_vec.append(tmp_content_topic)
+            team_content_var_vec.append(np.square(1 / 1000000000))
 
-                # get skill coverage
-                tmp_content_topic = coverage
-                topic_cov = trueskill.Rating(mu=tmp_content_topic, sigma=1 / 1000000000)
-                team_content += (topic_cov,)
-                content_weights += (1.,)
-
-                team_mean_content.append(topic_cov.mu)
-                team_content_mean_vec.append(tmp_content_topic)
-                team_content_var_vec.append(np.square(1 / 1000000000))
-
-            # check if user engages
-            # test_team_learer = deepcopy(team_learner)
-
-            # pred_list = []
-            # for i, topic in enumerate(topic_seq):
-            #     tmp_team_learner = (team_learner[i],)
-            #     tmp_team_content = (team_content[i],)
-
-            # pred_learner = (team_learner[0],)
-            # pred_content = (team_content[0],)
-            # pred_learner_weights = (learner_weights[0],)
-            # pred_content_weights = (content_weights[0],)
 
             if is_fixed or is_interest:
                 # engage if player is better than content, hence sum quality rather than draw...
@@ -386,8 +355,6 @@ def predict_and_model_truelearn_novel(events, user_model, draw_probability, draw
                 orig_label = label
                 label = 1
 
-            # if idx ==600:
-            #     print()
 
             # if label is negative and setting is positive only, skip updating
             if positive_only and label != 1:
@@ -438,10 +405,6 @@ def predict_and_model_truelearn_novel(events, user_model, draw_probability, draw
             topics.append(topic_seq)
             prev_label = label
 
-        if is_tracking:
-            stop_time = datetime.now()
-            difference_in_milliseconds = float((stop_time - start_time) / timedelta(milliseconds=1))
-            tot_durations.append(difference_in_milliseconds)
 
     stats = dict(stats)
     stats["total_duration"] = tot_durations
