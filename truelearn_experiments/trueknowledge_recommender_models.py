@@ -195,7 +195,7 @@ def update_truelearn_novel(label, team_learner, team_content, learner_weights, c
 
 def predict_and_model_truelearn_novel(events, user_model, draw_probability, draw_factor, topics_covered,
                                       positive_only, stats, init_skill, def_var, beta_sqr, tau, semantic_mapping,
-                                      agg_func, is_pred_only, is_diluted, dil_factor, var_const, top_k_sr_topics,
+                                      agg_func, is_pred_only, var_const, top_k_sr_topics,
                                       sr_func, is_topics, is_fixed, is_interest, decay_func, n_topics,
                                       threshold, start_event, q_random):
     random.seed(42)

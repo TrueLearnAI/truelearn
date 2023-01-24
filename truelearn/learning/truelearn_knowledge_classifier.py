@@ -1,13 +1,13 @@
-from truelearn.learner_models import LearnerDataModel
+from truelearn.models import LearnerModel
 from truelearn.metrics.confusion_matrix import ConfusionMatrix
 
 
-class TrueLearnInkClassifier:
+class TrueLearnKnowledgeClassifier:
 
     # Default create a new model
     def __init__(self, learner_model=None) -> None:
         if learner_model is None:
-            learner_model = LearnerDataModel()
+            learner_model = LearnerModel()
         self._learner_model = learner_model
 
     def fit(self) -> None:

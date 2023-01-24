@@ -1,4 +1,4 @@
-class LearnerDataModel:
+class LearnerModel:
 
     def __init__(self, learner_id=str, learner_data=None, skill=0., variance=0., tau=0., beta_squared=0.) -> None:
         self._learner_id = learner_id

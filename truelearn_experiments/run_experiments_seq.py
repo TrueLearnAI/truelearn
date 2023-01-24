@@ -311,7 +311,7 @@ def fit_model(spark, data_path, threshold=0.5, is_single=False, is_tracking=Fals
     user_event_count = defaultdict(int)
     user_unique_topic_count = defaultdict(set)
 
-    # initiate learner bayesian_models
+    # initiate learner learning
     user_models = {}
 
     # initiate video, topic params
