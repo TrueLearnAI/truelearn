@@ -1,5 +1,5 @@
 from truelearn.models import LearnerModel
-from truelearn.metrics.confusion_matrix import ConfusionMatrix
+from truelearn.utils.metrics import ConfusionMatrix
 
 
 class InkClassifier:

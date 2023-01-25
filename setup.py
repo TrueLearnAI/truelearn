@@ -4,7 +4,10 @@ setup(
     name='truelearn',
     # major.minor.patch versioning convention
     version='1.1.1',
-    packages=['truelearn'],
+    packages=['truelearn_experiments', 'truelearn.learning', 'truelearn.tests',
+              'truelearn.datasets', 'truelearn.models', 'truelearn.utils.metrics',
+              'truelearn.utils.visualisations', 'truelearn.utils.persistent',
+              'truelearn.preprocessing'],
     url='',
     license='MIT',
     author='',
