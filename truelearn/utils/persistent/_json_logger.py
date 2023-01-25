@@ -1,8 +1,5 @@
-import logging
-from truelearn.models._json_extractor import JsonExtractor
-
-
 # Logs the data in JSON format
+
 class JsonLogger:
     """
     Example usage
@@ -14,7 +11,4 @@ class JsonLogger:
         self.json_file = json_file
 
     def log_data(self):
-        json_extractor = JsonExtractor(self.json_file)
-        data = json_extractor.extract_json_data()
-        for item in data:
-            logging.info(item)
+        pass
