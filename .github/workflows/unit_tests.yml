@@ -31,7 +31,7 @@ jobs:
         #Pytest generates an XML report
       - name: Execute tests
         run: |
-         python -m pytest ./unit_tests/ --junitxml=unit_test_report.xml -v
+         python -m pytest ./tests/ --junitxml=unit_test_report.xml -v
 
         #Convert the XML report to GitHub annotations
       - name: Convert test results to Github Annotations
