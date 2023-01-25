@@ -14,7 +14,6 @@ setup(
     description='',
     install_requires=[
         'numpy>=1.14.1',
-        'pandas>=0.22.0',
         'trueskill>=0.4.5',
         'mpmath>=1.1.0',
     ]
