@@ -1,7 +1,4 @@
-pandas
-ujson
-nltk
-xmltodict
-scipy
 numpy
+trueskill
+mpmath
 scikit-learn

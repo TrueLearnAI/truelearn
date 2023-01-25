@@ -356,7 +356,7 @@ if __name__ == '__main__':
                         help="The number of top ranked topics that have to be considered.")
     parser.add_argument('--skill-repr', default='cosine', const='all', nargs='?',
                         choices=['cosine', 'binary', "norm"],
-                        help="How the skills should be represented in the models")
+                        help="How the skills should be represented in the learning")
     parser.add_argument('--output-dir', type=str, required=True,
                         help="Output directory path where the results will be saved.")
     parser.add_argument('--source-filepath', type=str, default=None,

@@ -1,0 +1,1 @@
+#Define classes for static plotting
