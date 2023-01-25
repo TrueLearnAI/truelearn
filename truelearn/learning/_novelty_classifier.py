@@ -2,7 +2,7 @@ from truelearn.models import LearnerModel
 from truelearn.metrics.confusion_matrix import ConfusionMatrix
 
 
-class TrueLearnInkClassifier:
+class NoveltyClassifier:
 
     # Default create a new model
     def __init__(self, learner_model=None) -> None:

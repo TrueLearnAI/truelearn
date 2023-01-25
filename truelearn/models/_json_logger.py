@@ -1,5 +1,5 @@
 import logging
-from truelearn.utils.json_extractor import JsonExtractor
+from truelearn.models._json_extractor import JsonExtractor
 
 
 # Logs the data in JSON format
