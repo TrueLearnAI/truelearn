@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+
 class MajorityClassifier:
     """A Classifier that predicts based on the number of learner's engagement and non-engagement.
 
@@ -25,7 +28,7 @@ class MajorityClassifier:
         self.__non_engagement = 0
 
     # TODO: add type annotations
-    def fit(self, _x, y) -> "MajorityClassifier":
+    def fit(self, _x, y) -> MajorityClassifier:
         """Train the model based on the given data and labels.
 
         Parameters

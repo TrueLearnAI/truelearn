@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+
 class EngageClassifier:
     """A Classifier that always makes positive prediction.
 
@@ -16,7 +19,7 @@ class EngageClassifier:
         pass
 
     # TODO: add type annotations
-    def fit(self, _x, _y) -> "EngageClassifier":
+    def fit(self, _x, _y) -> EngageClassifier:
         """Train the model based on the given data and labels.
 
         Parameters

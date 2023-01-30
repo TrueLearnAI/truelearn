@@ -1,3 +1,4 @@
+from __future__ import annotations
 from truelearn.models import LearnerModel
 from truelearn.utils.metrics import ConfusionMatrix
 

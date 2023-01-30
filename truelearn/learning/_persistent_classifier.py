@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+
 class PersistentClassifier:
     """A classifier that makes predictions based on whether the learner has engaged with the last learnable unit.
 
@@ -20,7 +23,7 @@ class PersistentClassifier:
         self.__engage_with_last = False
 
     # TODO: add type annotations
-    def fit(self, _x, y) -> "PersistentClassifier":
+    def fit(self, _x, y) -> PersistentClassifier:
         """Train the model based on the given data and labels.
 
         Parameters
