@@ -41,7 +41,8 @@ class EngageClassifier:
         return self
 
     # TODO: add type annotations
-    def predict(self, _x) -> bool:
+    @staticmethod
+    def predict(_x) -> bool:
         """Predict whether the learner will engage.
 
         Parameters
@@ -62,7 +63,8 @@ class EngageClassifier:
         return True
 
     # TODO: add type annotations
-    def predict_prob(self, _x) -> float:
+    @staticmethod
+    def predict_prob(_x) -> float:
         """Predict the probability of learner engagement.
 
         Parameters

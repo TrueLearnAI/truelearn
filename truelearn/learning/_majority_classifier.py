@@ -16,7 +16,7 @@ class MajorityClassifier:
     predict_prob(x)
         Predict the probability of learner engagement.
 
-    Attributes
+    Properties
     ----------
     engagement
     non_engagement
@@ -24,8 +24,8 @@ class MajorityClassifier:
     """
 
     def __init__(self) -> None:
-        self.__engagement = 0
-        self.__non_engagement = 0
+        self._engagement = 0
+        self._non_engagement = 0
 
     # TODO: add type annotations
     def fit(self, _x, y) -> MajorityClassifier:
@@ -48,9 +48,9 @@ class MajorityClassifier:
 
         """
         if y:
-            self.__engagement += 1
+            self._engagement += 1
         else:
-            self.__non_engagement += 1
+            self._non_engagement += 1
 
         return self
 
@@ -73,7 +73,7 @@ class MajorityClassifier:
         Given the nature of this classifier, the input _x is not used.
 
         """
-        return self.__engagement > self.__non_engagement
+        return self._engagement > self._non_engagement
 
     # TODO: add type annotations
     def predict_prob(self, _x) -> float:
@@ -94,7 +94,7 @@ class MajorityClassifier:
         Given the nature of this classifier, the input _x is not used.
 
         """
-        return self.__engagement > self.__non_engagement
+        return self._engagement > self._non_engagement
 
     @property
     def engagement(self) -> int:
@@ -106,7 +106,7 @@ class MajorityClassifier:
             The number of learner's engagement on the training data.
 
         """
-        return self.__engagement
+        return self._engagement
 
     @property
     def non_engagement(self) -> int:
@@ -118,4 +118,4 @@ class MajorityClassifier:
             The number of learner's non-engagement on the training data.
 
         """
-        return self.__non_engagement
+        return self._non_engagement
