@@ -20,7 +20,7 @@ class PersistentClassifier:
     """
 
     def __init__(self) -> None:
-        self._engage_with_last = False
+        self.__engage_with_last = False
 
     # TODO: add type annotations
     def fit(self, _x, y) -> PersistentClassifier:
@@ -42,7 +42,7 @@ class PersistentClassifier:
         Given the nature of this classifier, the input _x is not used.
 
         """
-        self._engage_with_last = y
+        self.__engage_with_last = y
         return self
 
     # TODO: add type annotations
@@ -64,7 +64,7 @@ class PersistentClassifier:
         Given the nature of this classifier, the input _x is not used.
 
         """
-        return self._engage_with_last
+        return self.__engage_with_last
 
     # TODO: add type annotations
     def predict_prob(self, _x) -> float:
@@ -85,7 +85,7 @@ class PersistentClassifier:
         Given the nature of this classifier, the input _x is not used.
 
         """
-        return float(self._engage_with_last)
+        return float(self.__engage_with_last)
 
     @property
     def engage_with_last(self) -> bool:
@@ -96,4 +96,4 @@ class PersistentClassifier:
         bool
             Whether the learner engage with the last learnable unit.
         """
-        return self._engage_with_last
+        return self.__engage_with_last
