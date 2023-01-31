@@ -1,3 +1,4 @@
+from __future__ import annotations
 from truelearn.models import LearnerModel
 from truelearn.utils.metrics import ConfusionMatrix
 
@@ -8,7 +9,7 @@ class KnowledgeClassifier:
     def __init__(self, learner_model=None) -> None:
         if learner_model is None:
             learner_model = LearnerModel()
-        self._learner_model = learner_model
+        self.__learner_model = learner_model
 
     def fit(self) -> None:
         pass
