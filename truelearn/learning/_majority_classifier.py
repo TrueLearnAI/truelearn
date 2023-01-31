@@ -15,7 +15,7 @@ class MajorityClassifier:
         e.g. classifier.fit(x, y).predict(x)
     predict(x)
         Predict whether the learner will engage.
-    predict_prob(x)
+    predict_proba(x)
         Predict the probability of learner engagement.
 
     Properties
@@ -79,7 +79,7 @@ class MajorityClassifier:
         return self.__engagement > self.__non_engagement
 
     # TODO: add type annotations
-    def predict_prob(self, _x) -> float:
+    def predict_proba(self, _x) -> float:
         """Predict the probability of learner engagement.
 
         Parameters

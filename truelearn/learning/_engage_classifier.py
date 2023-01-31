@@ -12,7 +12,7 @@ class EngageClassifier:
         e.g. classifier.fit(x, y).predict(x)
     predict(x)
         Predict whether the learner will engage.
-    predict_prob(x)
+    predict_proba(x)
         Predict the probability of learner engagement.
 
     """
@@ -44,8 +44,7 @@ class EngageClassifier:
         return self
 
     # TODO: add type annotations
-    @staticmethod
-    def predict(_x) -> bool:
+    def predict(self, _x) -> bool:
         """Predict whether the learner will engage.
 
         Parameters
@@ -66,8 +65,7 @@ class EngageClassifier:
         return True
 
     # TODO: add type annotations
-    @staticmethod
-    def predict_prob(_x) -> float:
+    def predict_proba(self, _x) -> float:
         """Predict the probability of learner engagement.
 
         Parameters
