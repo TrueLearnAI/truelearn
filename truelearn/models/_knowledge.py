@@ -154,16 +154,6 @@ class Knowledge:
             self.__knowledge[topic_id].mean = mean
             self.__knowledge[topic_id].variance = variance
 
-    def __iter__(self) -> Iterable[int]:
-        """Return an iterable of the topic_id.
-
-        Returns
-        -------
-        Iterable[int]
-
-        """
-        return self.__knowledge
-
     def topic_kc_pairs(self) -> Iterable[tuple[int, KnowledgeComponent]]:
         """Return an iterable of the (topic_id, KC) pair.
 
