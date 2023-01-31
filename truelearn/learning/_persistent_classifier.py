@@ -24,14 +24,13 @@ class PersistentClassifier:
     def __init__(self) -> None:
         self.__engage_with_last = False
 
-    # TODO: add type annotations
     def fit(self, _x, y) -> PersistentClassifier:
         """Train the model based on the given data and labels.
 
         Parameters
         ----------
-        _x: an iterable collection of Topic
-            An array of Topic that represents a learnable unit.
+        _x: Knowledge
+            A Knowledge that represents a learnable unit.
         y: bool
             A label that is either True or False.
 
@@ -48,14 +47,13 @@ class PersistentClassifier:
         self.__engage_with_last = y
         return self
 
-    # TODO: add type annotations
     def predict(self, _x) -> bool:
         """Predict whether the learner will engage.
 
         Parameters
         ----------
-        _x: an iterable collection of Topic
-            An array of Topic that represents a learnable unit.
+        _x: Knowledge
+            A Knowledge that represents a learnable unit.
 
         Returns
         -------
@@ -69,14 +67,13 @@ class PersistentClassifier:
         """
         return self.__engage_with_last
 
-    # TODO: add type annotations
     def predict_proba(self, _x) -> float:
         """Predict the probability of learner engagement.
 
         Parameters
         ----------
-        _x: an iterable collection of Topic
-            An array of Topic that represents a learnable unit.
+        _x: Knowledge
+            A Knowledge that represents a learnable unit.
 
         Returns
         -------
