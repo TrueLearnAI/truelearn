@@ -1,4 +1,6 @@
-from ._topic import Topic
+from typing import Iterable
+
+from truelearn.models._topic import Topic
 
 
 class KnowledgeComponent:
@@ -115,13 +117,13 @@ class Knowledge:
         else:
             self.__knowledge: dict[int, KnowledgeComponent] = {}
 
-    def get(self, topic_id: int, default: KnowledgeComponent | None = None) -> KnowledgeComponent | None:
+    def get(self, topic_id: int, default: KnowledgeComponent | None = None):
         """Get the KnowledgeComponent associated with the topic_id if the topic is in the Knowledge, else default.
 
         Parameters
         ----------
         topic_id : int
-            The id that uniquely identifies a topic
+            The id that uniquely identifies a topic.
         default : KnowledgeComponent | None, optional
 
         Returns
@@ -129,27 +131,55 @@ class Knowledge:
         KnowledgeComponent | None
 
         """
-        if topic_id in self.__knowledge:
-            return self.__knowledge[topic_id]
-        return default
+        return self.__knowledge.get(topic_id, default)
 
-    def update(self, topic_id: int, other_kc: KnowledgeComponent, mean: float, variance: float) -> None:
-        """Update the mean and variance of KC associated with the topic_id if the topic is in the Knowledge, else add the new KC into Knowledge
+    def update(self, topic_id: int, kc: KnowledgeComponent, mean: float, variance: float) -> None:
+        """Update the mean and variance of KC associated with the topic_id if the topic is in the Knowledge,
+        else add the given KC into Knowledge.
 
-        The new KC will be created from the kc parameter via `KnowledgeComponent(other_kc.topic, mean, variance)`.
-        The other_kc.topic is the topic that the entity who possess this knowledge is interacting with.
+        The new KC will be created from the kc parameter via `KnowledgeComponent(kc.topic, mean, variance)`.
 
         Parameters
         ----------
         topic_id : int
-        other_kc: KnowledgeComponent
+        kc: KnowledgeComponent
         mean : float
         variance : float
 
         """
         if topic_id not in self.__knowledge:
             self.__knowledge[topic_id] = KnowledgeComponent(
-                other_kc.topic, mean, variance)
+                kc.topic, mean, variance)
         else:
             self.__knowledge[topic_id].mean = mean
             self.__knowledge[topic_id].variance = variance
+
+    def __iter__(self) -> Iterable[int]:
+        """Return an iterable of the topic_id.
+
+        Returns
+        -------
+        Iterable[int]
+
+        """
+        return self.__knowledge
+
+    def topic_kc_pairs(self) -> Iterable[tuple[int, KnowledgeComponent]]:
+        """Return an iterable of the (topic_id, KC) pair.
+
+        Returns
+        -------
+        Iterable[tuple[int, KnowledgeComponent]]
+
+        """
+        return self.__knowledge.items()
+
+    def knowledge_components(self) -> Iterable[KnowledgeComponent]:
+        """Return an iterable of the Knowledge Component.
+
+        Returns
+        -------
+        Iterable[KnowledgeComponent]
+
+        """
+        return self.__knowledge.values()

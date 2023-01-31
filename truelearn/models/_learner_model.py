@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from ._knowledge import Knowledge
+from truelearn.models._knowledge import Knowledge
 
 
 class LearnerModel:
@@ -8,34 +8,44 @@ class LearnerModel:
 
     Parameters
     ----------
-    knowledge: Knowledge
+    knowledge: Knowledge | None
+        The representation of the learner's knowledge.
+        A new Knowledge will be created if the knowledge is None.
     tau: float
-    beta: float
+        A dynamic factor of the learner's learning process.
 
     Attributes
     ----------
     knowledge
     tau
-    beta
 
     """
 
-    def __init__(self, knowledge: Knowledge | None = None, tau: float = 0., beta: float = 0.) -> None:
+    def __init__(self, knowledge: Knowledge | None = None, tau: float = 0.1) -> None:
         if knowledge is None:
             self.__knowledge = Knowledge()
         else:
             self.__knowledge = knowledge
         self.__tau = tau
-        self.__beta = beta
 
     @property
-    def knowledge(self):
+    def knowledge(self) -> Knowledge:
+        """Return the Knowledge representation of the learner.
+
+        Returns
+        -------
+        Knowledge
+
+        """
         return self.__knowledge
 
     @property
-    def tau(self):
-        return self.__tau
+    def tau(self) -> float:
+        """Return the dynamic factor of the learner.
 
-    @property
-    def beta(self):
-        return self.__beta
+        Returns
+        -------
+        float
+
+        """
+        return self.__tau
