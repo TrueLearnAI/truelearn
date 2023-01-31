@@ -37,7 +37,8 @@ class PersistentClassifier:
 
         Returns
         -------
-        The updated model.
+        PersistentClassifier
+            The updated model.
 
         Notes
         -----

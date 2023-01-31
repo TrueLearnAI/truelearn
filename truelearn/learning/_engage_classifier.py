@@ -33,7 +33,8 @@ class EngageClassifier:
 
         Returns
         -------
-        The updated model.
+        EngageClassifier
+            The updated model.
 
         Notes
         -----

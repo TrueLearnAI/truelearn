@@ -42,7 +42,8 @@ class MajorityClassifier:
 
         Returns
         -------
-        The updated model.
+        MajorityClassifier
+            The updated model.
 
         Notes
         -----
