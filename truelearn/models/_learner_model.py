@@ -3,7 +3,6 @@ from __future__ import annotations
 from ._knowledge import Knowledge
 
 
-# TODO: update documentation tomorrow
 class LearnerModel:
     """A Classifier that always makes positive prediction.
 
@@ -22,15 +21,16 @@ class LearnerModel:
     """
 
     def __init__(self, knowledge: Knowledge | None = None, tau: float = 0., beta: float = 0.) -> None:
-        self.__knowledge = knowledge
-        if self.__knowledge is None:
+        if knowledge is None:
             self.__knowledge = Knowledge()
+        else:
+            self.__knowledge = knowledge
         self.__tau = tau
         self.__beta = beta
 
     @property
     def knowledge(self):
-        return self.knowledge
+        return self.__knowledge
 
     @property
     def tau(self):

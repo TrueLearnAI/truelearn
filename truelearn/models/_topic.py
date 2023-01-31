@@ -3,61 +3,37 @@ class Topic:
 
     Parameters
     ----------
-    topic_id: a hashable and comparable object
-        An id that uniquely identify a Topic.
+    title: str or None
+        An optional string that is the title of the topic.
     description: str or None
-        An optional description of the Topic.
+        An optional string that describes the topic.
+    url: str or None
+        An optional string that is the url of the topic.
 
     Attributes
     ----------
-    topic_id
+    title
     description
+    url
 
     """
 
-    def __init__(self, topic_id, description: str | None = None) -> None:
-        self.__topic_id = topic_id
+    def __init__(self, title: str | None = None, description: str | None = None, url: str | None = None) -> None:
+        self.__title = title
         self.__description = description
-
-    def __hash__(self) -> int:
-        """Generate the hash of the Topic object.
-
-        Returns
-        -------
-        int
-            Hash of the Topic object. The hash is based on the given topic_id.
-
-        """
-        return hash(self.__topic_id)
-
-    def __eq__(self, other) -> bool:
-        """Check whether the Topic object equals to another object.
-
-        Parameters
-        ----------
-        other : object
-
-        Returns
-        -------
-        bool
-            Whether the two given object is equal. Two objects (Topic and the other) are equal iff they are both Topic objects and share the same topic_id.
-
-        """
-        if isinstance(other, Topic) is not True:
-            return False
-        return self.__topic_id == other.topic_id
+        self.__url = url
 
     @property
-    def topic_id(self):
+    def title(self):
         """Return the Topic id.
 
         Returns
         -------
-        topic_id
-            A hashable and comparable type.
+        str | None
+            An optional string that is the title of the topic.
 
         """
-        return self.__topic_id
+        return self.__title
 
     @property
     def description(self) -> str | None:
@@ -66,7 +42,19 @@ class Topic:
         Returns
         -------
         str | None
-            An optional description about the topic.
+            An optional string that is the description of the topic.
 
         """
         return self.__description
+
+    @property
+    def url(self) -> str | None:
+        """Return the url of the Topic.
+
+        Returns
+        -------
+        str | None
+            An optional string that is the url of the topic.
+
+        """
+        return self.__url
