@@ -9,8 +9,10 @@ class MajorityClassifier:
 
     Methods
     -------
-    fit(x, y)
+    fit(x, y) returns MajorityClassifier
         Train the model based on the given data and label.
+        Model returns the classifier to allow for chaining of methods
+        e.g. classifier.fit(x, y).predict(x)
     predict(x)
         Predict whether the learner will engage.
     predict_prob(x)
