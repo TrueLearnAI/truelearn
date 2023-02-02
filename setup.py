@@ -17,6 +17,7 @@ setup(
         'numpy>=1.14.1',
         'trueskill>=0.4.5',
         'mpmath>=1.1.0',
-        "scikit-learn>=0.19.1"
+        'scikit-learn>=0.19.1',
+        'ujson',
     ]
 )
