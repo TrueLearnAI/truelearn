@@ -6,9 +6,6 @@ ERROR_KEY = u'error'
 
 _WIKIFIER_WIKIFY_URL = u"http://www.wikifier.org/annotate-article"
 
-DF_IGNORE_VAL = 50
-WORDS_IGNORE_VAL = 50
-
 TITLE_FIELD = u'title'
 COSINE_FIELD = u'cosine'
 PAGERANK_FIELD = u'pageRank'
@@ -19,7 +16,7 @@ STATUS_FIELD = u'status'
 ANNOTATION_DATA_FIELD = u'annotation_data'
 
 
-def get_wikifier_wikify_response(text, api_key, df_ignore, words_ignore):
+def make_wikifier_request(text, api_key, df_ignore, words_ignore):
     params = {"text": text, "userKey": api_key, "nTopDfValuesToIgnore": df_ignore,
               "nWordsToIgnoreFromList": words_ignore}
     r = requests.post(_WIKIFIER_WIKIFY_URL, params)
@@ -32,7 +29,7 @@ def get_wikifier_wikify_response(text, api_key, df_ignore, words_ignore):
         raise ValueError("http status code 200 expected, got status code {} instead".format(r.status_code))
 
 
-def get_wikififier_concepts(resp, prob=0.0, top_n=None):
+def format_wikifier_response(resp, prob=0.0, top_n=None):
     annotations = list(sorted([{TITLE_FIELD: ann[TITLE_FIELD],
                                 URL_FIELD: ann[URL_FIELD],
                                 COSINE_FIELD: ann[COSINE_FIELD],
@@ -52,7 +49,7 @@ def get_wikififier_concepts(resp, prob=0.0, top_n=None):
 
 def wikify(text, key, df_ignore=50, words_ignore=50):
     try:
-        resp = get_wikifier_wikify_response(text, key, df_ignore, words_ignore)
+        resp = make_wikifier_request(text, key, df_ignore, words_ignore)
         resp[STATUS_FIELD] = 'success'
     except ValueError as e:
         try:
@@ -63,4 +60,4 @@ def wikify(text, key, df_ignore=50, words_ignore=50):
             STATUS_FIELD: STATUS_
         }
     time.sleep(0.5)
-    return get_wikififier_concepts(resp)
+    return format_wikifier_response(resp)
