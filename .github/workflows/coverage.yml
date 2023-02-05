@@ -35,7 +35,7 @@ jobs:
       - name: Calculate coverage
         #Inc. branch + statement coverage
         run: |
-          pytest --cov-branch --cov-report "xml:coverage.xml" --cov=truelearn_experiments ./tests
+          pytest --cov-branch --cov-report "xml:coverage.xml" --cov=truelearn truelearn.tests
 
       - name: Update CodeCov
         uses: codecov/codecov-action@v3
