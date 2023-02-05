@@ -38,7 +38,7 @@ class KnowledgeClassifier:
 
     """
 
-    content_variance = 1e-9
+    CONTENT_VARIANCE = 1e-9
 
     def __init__(self, *, learner_model: LearnerModel | None = None, threshold: float = 0.5,
                  init_skill=0., def_var=0.5, beta: float = 0.5, positive_only=True) -> None:
@@ -54,7 +54,7 @@ class KnowledgeClassifier:
 
         # initialize an environment in which training will take place
         self.__env = trueskill.TrueSkill()
-        trueskill.setup(mu=0., sigma=KnowledgeClassifier.content_variance, beta=float(self.__beta),
+        trueskill.setup(mu=0., sigma=KnowledgeClassifier.CONTENT_VARIANCE, beta=float(self.__beta),
                         tau=float(self.__learner_model.tau), draw_probability=0.,
                         backend="mpmath", env=self.__env)
 
@@ -77,7 +77,7 @@ class KnowledgeClassifier:
         topic_id, kc = topic_kc_pair
         extracted_kc = self.__learner_model.knowledge.get(
             topic_id, KnowledgeComponent(kc.topic, self.__init_skill, self.__def_var))
-        return (topic_id, extracted_kc)  # type: ignore
+        return topic_id, extracted_kc  # type: ignore
 
     def __kc_mapper(self, topic_kc_pair: tuple[int, KnowledgeComponent]) -> KnowledgeComponent:
         """Retrieve a KC from learner model.
@@ -101,7 +101,8 @@ class KnowledgeClassifier:
         return extracted_kc  # type: ignore
 
     def __select_topic_kc_pairs(self, content_knowledge: Knowledge) -> Iterable[tuple[int, KnowledgeComponent]]:
-        """Return an iterable of the (topic_id, KC) pair representing the learner's knowledge in the topic specified by the learnable unit.
+        """Return an iterable of the (topic_id, KC) pair representing the learner's knowledge in the topic specified
+        by the learnable unit.
 
         Given the knowledge representation of the learnable unit, this method tries to get
         the corresponding knowledge representation from the Learner Model.
@@ -125,7 +126,8 @@ class KnowledgeClassifier:
         return team_learner
 
     def __select_kcs(self, content_knowledge: Knowledge) -> Iterable[KnowledgeComponent]:
-        """Return an iterable of the KC representing the learner's knowledge in the topic specified by the learnable unit.
+        """Return an iterable of the KC representing the learner's knowledge in the topic specified by the learnable
+        unit.
 
         Given the knowledge representation of the learnable unit, this method tries to get
         the corresponding knowledge representation from the Learner Model.
@@ -148,7 +150,8 @@ class KnowledgeClassifier:
                            content_knowledge.topic_kc_pairs())
         return team_learner
 
-    def __team_sum_quality(self, learner_kcs: Iterable[KnowledgeComponent], content_kcs: Iterable[KnowledgeComponent]) -> float:
+    def __team_sum_quality(self, learner_kcs: Iterable[KnowledgeComponent],
+                           content_kcs: Iterable[KnowledgeComponent]) -> float:
         """Return the probability that the learner engages with the learnable unit.
 
         Parameters
@@ -203,15 +206,15 @@ class KnowledgeClassifier:
         content_kcs = x.topic_kc_pairs()
         team_learner = tuple(
             map(
-                lambda topic_kc_pair: self.__env.create_rating(
-                    mu=topic_kc_pair[1].mean, sigma=math.sqrt(topic_kc_pair[1].variance)),
+                lambda topic_kc_learner_pair: self.__env.create_rating(
+                    mu=topic_kc_learner_pair[1].mean, sigma=math.sqrt(topic_kc_learner_pair[1].variance)),
                 learner_kcs
             )
         )
         team_content = tuple(
             map(
-                lambda topic_kc_pair: self.__env.create_rating(
-                    mu=topic_kc_pair[1].mean, sigma=math.sqrt(topic_kc_pair[1].variance)),
+                lambda topic_kc_content_pair: self.__env.create_rating(
+                    mu=topic_kc_content_pair[1].mean, sigma=math.sqrt(topic_kc_content_pair[1].variance)),
                 content_kcs
             )
         )
@@ -261,7 +264,7 @@ class KnowledgeClassifier:
 
         The algorithm uses cumulative density function of normal distribution to calculate the probability.
         It calculates the probability of getting x in a Normal Distribution N(0, std) where x is the difference
-        between the leaner's skill (mean) and the learnable unit's skill (mean) and std is the standard deviation
+        between the learner's skill (mean) and the learnable unit's skill (mean) and std is the standard deviation
         of the new normal distribution as a result of subtracting the two old normal distribution (learner and
         learnable unit).
 
