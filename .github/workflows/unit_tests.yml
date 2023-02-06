@@ -19,7 +19,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v4.4.0
         with:
-          python-version: '3.10'
+          python-version: '3.7'
           cache: 'pip' #Cache dependencies
 
       - name: Install Project Dependencies
@@ -31,7 +31,7 @@ jobs:
         #Pytest generates an XML report
       - name: Execute tests
         run: |
-         python -m pytest ./tests/ --junitxml=unit_test_report.xml -v
+         python -m pytest ./truelearn/tests --junitxml=unit_test_report.xml -v
 
         #Convert the XML report to GitHub annotations
       - name: Convert test results to Github Annotations
