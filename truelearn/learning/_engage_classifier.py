@@ -42,8 +42,7 @@ class EngageClassifier:
         """
         return self
 
-    @staticmethod
-    def predict(_x) -> bool:
+    def predict(self, _x) -> bool:
         """Predict whether the learner will engage.
 
         Parameters
@@ -63,8 +62,7 @@ class EngageClassifier:
         """
         return True
 
-    @staticmethod
-    def predict_proba(_x) -> float:
+    def predict_proba(self, _x) -> float:
         """Predict the probability of learner engagement.
 
         Parameters
