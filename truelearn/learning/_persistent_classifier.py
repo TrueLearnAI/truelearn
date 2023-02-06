@@ -95,5 +95,6 @@ class PersistentClassifier:
         -------
         bool
             Whether the learner engage with the last learnable unit.
+
         """
         return self.__engage_with_last

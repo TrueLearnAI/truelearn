@@ -125,6 +125,7 @@ class Knowledge:
         topic_id : int
             The id that uniquely identifies a topic.
         default : KnowledgeComponent | None, optional
+            The default knowledge component to return when there is no matching KC
 
         Returns
         -------
@@ -134,17 +135,20 @@ class Knowledge:
         return self.__knowledge.get(topic_id, default)
 
     def update(self, topic_id: int, kc: KnowledgeComponent, mean: float, variance: float) -> None:
-        """Update the mean and variance of KC associated with the topic_id if the topic is in the Knowledge,
-        else add the given KC into Knowledge.
+        """Update the mean and variance of KC associated with the topic_id if the topic is in the Knowledge, else add the given KC into Knowledge.
 
         The new KC will be created from the kc parameter via `KnowledgeComponent(kc.topic, mean, variance)`.
 
         Parameters
         ----------
         topic_id : int
+            The id that uniquely identifies a topic.
         kc: KnowledgeComponent
+            The new KC.
         mean : float
+            Deprecated -- will be removed in the next commit
         variance : float
+            Deprecated -- will be removed in the next commit
 
         """
         if topic_id not in self.__knowledge:
