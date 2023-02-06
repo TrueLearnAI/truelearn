@@ -1,179 +1,148 @@
-from typing import Iterable
+from __future__ import annotations
+from typing import Iterable, Hashable, Any
 
-from truelearn.models._topic import Topic
+from _abstract_knowledge import AbstractKnowledgeComponent, AbstractKnowledge
 
 
-class KnowledgeComponent:
-    """A class that represents a knowledge component (KC).
-
-    The class can be used as a founding block to build up knowledge.
+class KnowledgeComponent(AbstractKnowledgeComponent):
+    """A concrete class that implements AbstractKnowledgeComponent which represents a knowledge component.
 
     Parameters
     ----------
-    topic: Topic
     mean: float
     variance: float
+    title: str
+    description: str
+    url: str
+
+    Methods
+    -------
+    update(mean, variance)
+        Update the mean and variance of the KnowledgeComponent
+    clone(mean, variance)
+        Clone the KnowledgeComponent with new mean and variance
+    export(output_format)
+        Export the KnowledgeComponent into some format
 
     Attributes
     ----------
-    topic
+    title
+    description
+    url
     mean
     variance
 
     """
 
-    def __init__(self, topic: Topic, mean: float, variance: float) -> None:
-        self.__topic = topic
+    def __init__(self, mean: float, variance: float, *, title: str | None = None, description: str | None = None, url: str | None = None) -> None:
+        super().__init__()
+
+        self.__title = title
+        self.__description = description
+        self.__url = url
         self.__mean = mean
         self.__variance = variance
 
     @property
-    def topic(self) -> Topic:
-        """Return the topic associated with this KC.
+    def title(self):
+        """Return the title of the KnowledgeComponent.
 
         Returns
         -------
-        Topic
+        str | None
+            An optional string that is the title of the KnowledgeComponent.
 
         """
-        return self.__topic
+        return self.__title
+
+    @property
+    def description(self) -> str | None:
+        """Return the description of the KnowledgeComponent.
+
+        Returns
+        -------
+        str | None
+            An optional string that is the description of the KnowledgeComponent.
+
+        """
+        return self.__description
+
+    @property
+    def url(self) -> str | None:
+        """Return the url of the KnowledgeComponent.
+
+        Returns
+        -------
+        str | None
+            An optional string that is the url of the KnowledgeComponent.
+
+        """
+        return self.__url
 
     @property
     def mean(self) -> float:
-        """Return the mean associated with this KC.
-
-        Returns
-        -------
-        float
-
-        """
         return self.__mean
 
     @property
     def variance(self) -> float:
-        """Return the variance associated with this KC.
-
-        Returns
-        -------
-        float
-
-        """
         return self.__variance
 
-    @mean.setter
-    def mean(self, mean: float) -> None:
-        """Update the mean associated with this KC.
-
-        Parameters
-        ----------
-        mean : float
-            The new mean value.
-
-        """
+    def update(self, mean: float, variance: float) -> None:
         self.__mean = mean
-
-    @variance.setter
-    def variance(self, variance: float) -> None:
-        """Update the variance with this KC.
-
-        Parameters
-        ----------
-        variance : float
-            The new variance value.
-
-        """
         self.__variance = variance
 
+    def clone(self, mean, variance) -> KnowledgeComponent:
+        return KnowledgeComponent(mean, variance, title=self.__title, description=self.__description, url=self.__url)
 
-class Knowledge:
-    """A class that represents the knowledge.
+    def export(self, output_format: str) -> Any:
+        raise NotImplementedError(
+            f"The export function for {output_format} is not yet implemented")
+
+
+class Knowledge(AbstractKnowledge):
+    """A concrete class that implements AbstractKnowledge which represents the knowledge.
 
     The class can be used to represent 1) the learner's knowledge and
     2) the topics in a learnable unit and the depth of knowledge of those topics.
 
     Parameters
     ----------
-    knowledge: dict[int, KnowledgeComponent]
+    knowledge: dict[Hashable, AbstractKnowledgeComponent]
 
     Methods
     -------
     get(topic_id, default)
-        Get the KC associated with the topic_id from Knowledge. If the topic_id is not included in learner's knowledge,
-        the default is returned.
-    update(topic, mean, variance)
-        Update the mean and variance of the given topic.
-
-    Attributes
-    ----------
-    topics
-    means
-    variances
+        Get the AbstractKnowledgeComponent associated with the topic_id.
+        If the topic_id is not included in learner's knowledge, the default is returned.
+    update(topic_id, kc)
+        Update the AbstractKnowledgeComponent associated with the topic_id
+    topic_kc_pairs()
+        Return an iterable of (topic_id, AbstractKnowledgeComponent) pairs
+    knowledge_components()
+        Return an iterable of AbstractKnowledgeComponents.
 
     """
 
-    def __init__(self, knowledge: dict[int, KnowledgeComponent] | None = None) -> None:
+    def __init__(self, knowledge: dict[Hashable, AbstractKnowledgeComponent] | None = None) -> None:
+        super().__init__()
+
         if knowledge is not None:
             self.__knowledge = knowledge
         else:
-            self.__knowledge: dict[int, KnowledgeComponent] = {}
+            self.__knowledge: dict[Hashable, AbstractKnowledgeComponent] = {}
 
-    def get(self, topic_id: int, default: KnowledgeComponent | None = None):
-        """Get the KnowledgeComponent associated with the topic_id if the topic is in the Knowledge, else default.
-
-        Parameters
-        ----------
-        topic_id : int
-            The id that uniquely identifies a topic.
-        default : KnowledgeComponent | None, optional
-            The default knowledge component to return when there is no matching KC
-
-        Returns
-        -------
-        KnowledgeComponent | None
-
-        """
+    def get(self, topic_id: Hashable, default: AbstractKnowledgeComponent) -> AbstractKnowledgeComponent:
         return self.__knowledge.get(topic_id, default)
 
-    def update(self, topic_id: int, kc: KnowledgeComponent, mean: float, variance: float) -> None:
-        """Update the mean and variance of KC associated with the topic_id if the topic is in the Knowledge, else add the given KC into Knowledge.
+    def update(self, topic_id: Hashable, kc: AbstractKnowledgeComponent) -> None:
+        self.__knowledge[topic_id] = kc
 
-        The new KC will be created from the kc parameter via `KnowledgeComponent(kc.topic, mean, variance)`.
-
-        Parameters
-        ----------
-        topic_id : int
-            The id that uniquely identifies a topic.
-        kc: KnowledgeComponent
-            The new KC.
-        mean : float
-            Deprecated -- will be removed in the next commit
-        variance : float
-            Deprecated -- will be removed in the next commit
-
-        """
-        if topic_id not in self.__knowledge:
-            self.__knowledge[topic_id] = KnowledgeComponent(
-                kc.topic, mean, variance)
-        else:
-            self.__knowledge[topic_id].mean = mean
-            self.__knowledge[topic_id].variance = variance
-
-    def topic_kc_pairs(self) -> Iterable[tuple[int, KnowledgeComponent]]:
-        """Return an iterable of the (topic_id, KC) pair.
-
-        Returns
-        -------
-        Iterable[tuple[int, KnowledgeComponent]]
-
-        """
+    def topic_kc_pairs(self) -> Iterable[tuple[Hashable, AbstractKnowledgeComponent]]:
         return self.__knowledge.items()
 
-    def knowledge_components(self) -> Iterable[KnowledgeComponent]:
-        """Return an iterable of the Knowledge Component.
-
-        Returns
-        -------
-        Iterable[KnowledgeComponent]
-
-        """
+    def knowledge_components(self) -> Iterable[AbstractKnowledgeComponent]:
         return self.__knowledge.values()
+
+    def export(self, output_format: str) -> Any:
+        raise NotImplementedError(
+            f"The export function for {output_format} is not yet implemented")

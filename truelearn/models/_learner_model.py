@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from truelearn.models._knowledge import Knowledge
+from ._abstract_knowledge import AbstractKnowledge
+from ._knowledge import Knowledge
 
 
 class LearnerModel:
@@ -21,7 +22,7 @@ class LearnerModel:
 
     """
 
-    def __init__(self, knowledge: Knowledge | None = None, tau: float = 0.1) -> None:
+    def __init__(self, knowledge: AbstractKnowledge | None = None, tau: float = 0.1) -> None:
         if knowledge is None:
             self.__knowledge = Knowledge()
         else:
@@ -29,7 +30,7 @@ class LearnerModel:
         self.__tau = tau
 
     @property
-    def knowledge(self) -> Knowledge:
+    def knowledge(self) -> AbstractKnowledge:
         """Return the Knowledge representation of the learner.
 
         Returns

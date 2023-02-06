@@ -1,3 +1,5 @@
+"""The :mod:`truelearn.learning` module implements a variety of classifiers described in TrueLearn paper."""
+
 from ._ink_classifier import InkClassifier
 from ._interest_classifier import InterestClassifier
 from ._knowledge_classifier import KnowledgeClassifier

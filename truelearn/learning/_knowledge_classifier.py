@@ -1,14 +1,14 @@
 from __future__ import annotations
-from typing import Iterable
+from typing import Iterable, Hashable
 import math
 
 import trueskill
 
-from truelearn.models import Knowledge, KnowledgeComponent, LearnerModel
+from truelearn.models import AbstractKnowledge, AbstractKnowledgeComponent, LearnerModel
 
 
 class KnowledgeClassifier:
-    """A Knowledge Classifier.
+    """A AbstractKnowledge Classifier.
 
     Parameters
     ----------
@@ -58,10 +58,10 @@ class KnowledgeClassifier:
                         tau=float(self.__learner_model.tau), draw_probability=0.,
                         backend="mpmath", env=self.__env)
 
-    def __topic_kc_pair_mapper(self, topic_kc_pair: tuple[int, KnowledgeComponent]) -> tuple[int, KnowledgeComponent]:
+    def __topic_kc_pair_mapper(self, topic_kc_pair: tuple[Hashable, AbstractKnowledgeComponent]) -> tuple[Hashable, AbstractKnowledgeComponent]:
         """Retrieve a (topic_id, kc) pair from learner model.
 
-        If the Knowledge of the learner doesn't contain the topic_id,
+        If the AbstractKnowledge of the learner doesn't contain the topic_id,
         a new KC will be constructed via `KnowledgeComponent(kc.topic, init_skill, def_var)`.
 
         Parameters
@@ -76,13 +76,13 @@ class KnowledgeClassifier:
         """
         topic_id, kc = topic_kc_pair
         extracted_kc = self.__learner_model.knowledge.get(
-            topic_id, KnowledgeComponent(kc.topic, self.__init_skill, self.__def_var))
-        return topic_id, extracted_kc  # type: ignore
+            topic_id, kc.clone(self.__init_skill, self.__def_var))
+        return topic_id, extracted_kc
 
-    def __kc_mapper(self, topic_kc_pair: tuple[int, KnowledgeComponent]) -> KnowledgeComponent:
+    def __kc_mapper(self, topic_kc_pair: tuple[Hashable, AbstractKnowledgeComponent]) -> AbstractKnowledgeComponent:
         """Retrieve a KC from learner model.
 
-        If the Knowledge of the learner doesn't contain the topic_id,
+        If the AbstractKnowledge of the learner doesn't contain the topic_id,
         a new KC will be constructed via `KnowledgeComponent(kc.topic, init_skill, def_var)`.
 
         Parameters
@@ -97,12 +97,11 @@ class KnowledgeClassifier:
         """
         topic_id, kc = topic_kc_pair
         extracted_kc = self.__learner_model.knowledge.get(
-            topic_id, KnowledgeComponent(kc.topic, self.__init_skill, self.__def_var))
+            topic_id, kc.clone(self.__init_skill, self.__def_var))
         return extracted_kc  # type: ignore
 
-    def __select_topic_kc_pairs(self, content_knowledge: Knowledge) -> Iterable[tuple[int, KnowledgeComponent]]:
-        """Return an iterable of the (topic_id, KC) pair representing the learner's knowledge in the topic specified
-        by the learnable unit.
+    def __select_topic_kc_pairs(self, content_knowledge: AbstractKnowledge) -> Iterable[tuple[Hashable, AbstractKnowledgeComponent]]:
+        """Return an iterable of the (topic_id, KC) pair representing the learner's knowledge in the topic specified by the learnable unit.
 
         Given the knowledge representation of the learnable unit, this method tries to get
         the corresponding knowledge representation from the Learner Model.
@@ -113,8 +112,8 @@ class KnowledgeClassifier:
 
         Parameters
         ----------
-        content_knowledge : Knowledge
-            The Knowledge representation of a learnable unit.
+        content_knowledge : AbstractKnowledge
+            The AbstractKnowledge representation of a learnable unit.
 
         Returns
         -------
@@ -125,9 +124,8 @@ class KnowledgeClassifier:
                            content_knowledge.topic_kc_pairs())
         return team_learner
 
-    def __select_kcs(self, content_knowledge: Knowledge) -> Iterable[KnowledgeComponent]:
-        """Return an iterable of the KC representing the learner's knowledge in the topic specified by the learnable
-        unit.
+    def __select_kcs(self, content_knowledge: AbstractKnowledge) -> Iterable[AbstractKnowledgeComponent]:
+        """Return an iterable of the KC representing the learner's knowledge in the topic specified by the learnable unit.
 
         Given the knowledge representation of the learnable unit, this method tries to get
         the corresponding knowledge representation from the Learner Model.
@@ -138,8 +136,8 @@ class KnowledgeClassifier:
 
         Parameters
         ----------
-        content_knowledge : Knowledge
-            The Knowledge representation of a learnable unit.
+        content_knowledge : AbstractKnowledge
+            The AbstractKnowledge representation of a learnable unit.
 
         Returns
         -------
@@ -150,8 +148,8 @@ class KnowledgeClassifier:
                            content_knowledge.topic_kc_pairs())
         return team_learner
 
-    def __team_sum_quality(self, learner_kcs: Iterable[KnowledgeComponent],
-                           content_kcs: Iterable[KnowledgeComponent]) -> float:
+    def __team_sum_quality(self, learner_kcs: Iterable[AbstractKnowledgeComponent],
+                           content_kcs: Iterable[AbstractKnowledgeComponent]) -> float:
         """Return the probability that the learner engages with the learnable unit.
 
         Parameters
@@ -177,13 +175,13 @@ class KnowledgeClassifier:
         return float(self.__env.
                      cdf(difference, 0, std))  # type: ignore
 
-    def fit(self, x: Knowledge, y) -> KnowledgeClassifier:
-        """Train the model based on a given Knowledge representation of a learnable unit.
+    def fit(self, x: AbstractKnowledge, y: bool) -> KnowledgeClassifier:
+        """Train the model based on a given AbstractKnowledge representation of a learnable unit.
 
         Parameters
         ----------
-        x : Knowledge
-            A Knowledge representation of a learnable unit.
+        x : AbstractKnowledge
+            A AbstractKnowledge representation of a learnable unit.
         y : bool
             Whether the user engages with the learnable unit.
 
@@ -202,19 +200,20 @@ class KnowledgeClassifier:
         if self.__positive_only and x is False:
             return self
 
-        learner_kcs = self.__select_topic_kc_pairs(x)
-        content_kcs = x.topic_kc_pairs()
+        learner_topic_kc_pairs = list(self.__select_topic_kc_pairs(x))
+        content_kcs = x.knowledge_components()
+
         team_learner = tuple(
             map(
                 lambda topic_kc_learner_pair: self.__env.create_rating(
                     mu=topic_kc_learner_pair[1].mean, sigma=math.sqrt(topic_kc_learner_pair[1].variance)),
-                learner_kcs
+                learner_topic_kc_pairs
             )
         )
         team_content = tuple(
             map(
-                lambda topic_kc_content_pair: self.__env.create_rating(
-                    mu=topic_kc_content_pair[1].mean, sigma=math.sqrt(topic_kc_content_pair[1].variance)),
+                lambda kc: self.__env.create_rating(
+                    mu=kc.mean, sigma=math.sqrt(kc.variance)),
                 content_kcs
             )
         )
@@ -228,14 +227,14 @@ class KnowledgeClassifier:
             _, updated_team_learner = self.__env.rate(
                 [team_content, team_learner], ranks=[0, 1])
 
-        for topic_kc_pair, rating in zip(learner_kcs, updated_team_learner):
+        for topic_kc_pair, rating in zip(learner_topic_kc_pairs, updated_team_learner):
             topic_id, kc = topic_kc_pair
-            self.__learner_model.knowledge.update(
-                topic_id, kc, rating.mean, rating.sigma ** 2)
+            kc.update(rating.mean, rating.sigma ** 2)
+            self.__learner_model.knowledge.update(topic_id, kc)
 
         return self
 
-    def predict(self, x: Knowledge) -> bool:
+    def predict(self, x: AbstractKnowledge) -> bool:
         """Predict whether the user will engage with the given learnable unit.
 
         The function will return True iff the probability that the learner engages
@@ -245,8 +244,8 @@ class KnowledgeClassifier:
 
         Parameters
         ----------
-        x : Knowledge
-            A Knowledge representation of a learnable unit.
+        x : AbstractKnowledge
+            A AbstractKnowledge representation of a learnable unit.
 
         Returns
         -------
@@ -256,7 +255,7 @@ class KnowledgeClassifier:
         """
         return self.predict_proba(x) > self.__threshold
 
-    def predict_proba(self, x: Knowledge) -> float:
+    def predict_proba(self, x: AbstractKnowledge) -> float:
         """Predict the probability of the learner's engagement with the given learnable unit.
 
         Learner and Learnable Unit is can be represented as a Normal Distribution with certain skills (mu) and
@@ -270,8 +269,8 @@ class KnowledgeClassifier:
 
         Parameters
         ----------
-        x : Knowledge
-            A Knowledge representation of a learnable unit.
+        x : AbstractKnowledge
+            A AbstractKnowledge representation of a learnable unit.
 
         Returns
         -------
