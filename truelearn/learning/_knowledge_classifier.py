@@ -98,7 +98,7 @@ class KnowledgeClassifier:
         topic_id, kc = topic_kc_pair
         extracted_kc = self.__learner_model.knowledge.get(
             topic_id, kc.clone(self.__init_skill, self.__def_var))
-        return extracted_kc  # type: ignore
+        return extracted_kc
 
     def __select_topic_kc_pairs(self, content_knowledge: AbstractKnowledge) -> Iterable[tuple[Hashable, AbstractKnowledgeComponent]]:
         """Return an iterable of the (topic_id, KC) pair representing the learner's knowledge in the topic specified by the learnable unit.
