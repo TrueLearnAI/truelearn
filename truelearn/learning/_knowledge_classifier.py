@@ -8,7 +8,7 @@ from truelearn.models import AbstractKnowledge, AbstractKnowledgeComponent, Lear
 
 
 class KnowledgeClassifier:
-    """A AbstractKnowledge Classifier.
+    """A Knowledge Classifier.
 
     Parameters
     ----------
@@ -59,19 +59,19 @@ class KnowledgeClassifier:
                         backend="mpmath", env=self.__env)
 
     def __topic_kc_pair_mapper(self, topic_kc_pair: tuple[Hashable, AbstractKnowledgeComponent]) -> tuple[Hashable, AbstractKnowledgeComponent]:
-        """Retrieve a (topic_id, kc) pair from learner model.
+        """Retrieve a (topic_id, AbstractKnowledgeComponent) pair from learner model.
 
         If the AbstractKnowledge of the learner doesn't contain the topic_id,
-        a new KC will be constructed via `KnowledgeComponent(kc.topic, init_skill, def_var)`.
+        a new KC will be constructed via `kc.clone(self.__init_skill, self.__def_var)`.
 
         Parameters
         ----------
-        topic_kc_pair : tuple[int, KnowledgeComponent]
-            The (topic_id, kc) pair from the learnable unit.
+        topic_kc_pair : tuple[Hashable, AbstractKnowledgeComponent]
+            The (topic_id, AbstractKnowledgeComponent) pair from the learnable unit.
 
         Returns
         -------
-        tuple[int, KnowledgeComponent]
+        tuple[Hashable, AbstractKnowledgeComponent]
 
         """
         topic_id, kc = topic_kc_pair
@@ -83,16 +83,16 @@ class KnowledgeClassifier:
         """Retrieve a KC from learner model.
 
         If the AbstractKnowledge of the learner doesn't contain the topic_id,
-        a new KC will be constructed via `KnowledgeComponent(kc.topic, init_skill, def_var)`.
+        a new KC will be constructed via `kc.clone(self.__init_skill, self.__def_var)`.
 
         Parameters
         ----------
-        topic_kc_pair : tuple[int, KnowledgeComponent]
-            The (topic_id, kc) pair from the learnable unit.
+        topic_kc_pair : tuple[Hashable, AbstractKnowledgeComponent]
+            The (topic_id, AbstractKnowledgeComponent) pair from the learnable unit.
 
         Returns
         -------
-        KnowledgeComponent
+        AbstractKnowledgeComponent
 
         """
         topic_id, kc = topic_kc_pair
@@ -101,7 +101,7 @@ class KnowledgeClassifier:
         return extracted_kc
 
     def __select_topic_kc_pairs(self, content_knowledge: AbstractKnowledge) -> Iterable[tuple[Hashable, AbstractKnowledgeComponent]]:
-        """Return an iterable of the (topic_id, KC) pair representing the learner's knowledge in the topic specified by the learnable unit.
+        """Return an iterable representing the learner's knowledge in the topics specified by the learnable unit.
 
         Given the knowledge representation of the learnable unit, this method tries to get
         the corresponding knowledge representation from the Learner Model.
@@ -113,11 +113,11 @@ class KnowledgeClassifier:
         Parameters
         ----------
         content_knowledge : AbstractKnowledge
-            The AbstractKnowledge representation of a learnable unit.
+            The knowledge representation of a learnable unit.
 
         Returns
         -------
-        Iterable[tuple[int, KnowledgeComponent]]
+        Iterable[tuple[Hashable, AbstractKnowledgeComponent]]
 
         """
         team_learner = map(self.__topic_kc_pair_mapper,
@@ -137,11 +137,11 @@ class KnowledgeClassifier:
         Parameters
         ----------
         content_knowledge : AbstractKnowledge
-            The AbstractKnowledge representation of a learnable unit.
+            The knowledge representation of a learnable unit.
 
         Returns
         -------
-        Iterable[KnowledgeComponent]
+        Iterable[AbstractKnowledgeComponent]
 
         """
         team_learner = map(self.__kc_mapper,
@@ -154,9 +154,9 @@ class KnowledgeClassifier:
 
         Parameters
         ----------
-        learner_kcs : Iterable[KnowledgeComponent]
+        learner_kcs : Iterable[AbstractKnowledgeComponent]
             An iterable of learner's knowledge component.
-        content_kcs : Iterable[KnowledgeComponent]
+        content_kcs : Iterable[AbstractKnowledgeComponent]
             An iterable of learnable unit's knowledge component.
 
         Returns
@@ -176,14 +176,14 @@ class KnowledgeClassifier:
                      cdf(difference, 0, std))  # type: ignore
 
     def fit(self, x: AbstractKnowledge, y: bool) -> KnowledgeClassifier:
-        """Train the model based on a given AbstractKnowledge representation of a learnable unit.
+        """Train the model based on a given AbstractKnowledge that represents a learnable unit.
 
         Parameters
         ----------
         x : AbstractKnowledge
-            A AbstractKnowledge representation of a learnable unit.
+            A knowledge representation of a learnable unit.
         y : bool
-            Whether the user engages with the learnable unit.
+            Whether the learner engages with the learnable unit.
 
         Returns
         -------
@@ -235,7 +235,7 @@ class KnowledgeClassifier:
         return self
 
     def predict(self, x: AbstractKnowledge) -> bool:
-        """Predict whether the user will engage with the given learnable unit.
+        """Predict whether the learner will engage with the given learnable unit.
 
         The function will return True iff the probability that the learner engages
         with the learnable unit is greater than the given threshold.
@@ -245,12 +245,12 @@ class KnowledgeClassifier:
         Parameters
         ----------
         x : AbstractKnowledge
-            A AbstractKnowledge representation of a learnable unit.
+            A knowledge representation of a learnable unit.
 
         Returns
         -------
         bool
-            Whether the user will engage with the given learnable unit.
+            Whether the learner will engage with the given learnable unit.
 
         """
         return self.predict_proba(x) > self.__threshold
@@ -270,7 +270,7 @@ class KnowledgeClassifier:
         Parameters
         ----------
         x : AbstractKnowledge
-            A AbstractKnowledge representation of a learnable unit.
+            A knowledge representation of a learnable unit.
 
         Returns
         -------
