@@ -12,13 +12,14 @@
 ```python
 pip install truelearn
 ```
+**Supported Python Versions:** 3.7+
 
-# Maintainer
-- Only package truelearn
+# Documentation
 
-(Remove below after updating PyPi)
+**Available at:** https://kd-7.github.io/truelearn-docs/
 
-PYTHON VERSION:
-CI uses 3.10 
-Supported: 3.7+
+# Maintainer Information
+- Package truelearn only
+
+
 
