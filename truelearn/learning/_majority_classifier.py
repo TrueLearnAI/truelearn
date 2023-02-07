@@ -9,10 +9,8 @@ class MajorityClassifier:
 
     Methods
     -------
-    fit(x, y) returns MajorityClassifier
+    fit(x, y)
         Train the model based on the given data and label.
-        Model returns the classifier to allow for chaining of methods
-        e.g. classifier.fit(x, y).predict(x)
     predict(x)
         Predict whether the learner will engage.
     predict_proba(x)
@@ -34,8 +32,8 @@ class MajorityClassifier:
 
         Parameters
         ----------
-        _x: Knowledge
-            A Knowledge that represents a learnable unit.
+        _x: AbstractKnowledge
+            A knowledge representation of a learnable unit.
         y: bool
             A label that is either True or False.
 
@@ -61,8 +59,8 @@ class MajorityClassifier:
 
         Parameters
         ----------
-        _x: Knowledge
-            A Knowledge that represents a learnable unit.
+        _x: AbstractKnowledge
+            A knowledge representation of a learnable unit.
 
         Returns
         -------
@@ -81,8 +79,8 @@ class MajorityClassifier:
 
         Parameters
         ----------
-        _x: Knowledge
-            A Knowledge that represents a learnable unit.
+        _x: AbstractKnowledge
+            A knowledge representation of a learnable unit.
 
         Returns
         -------

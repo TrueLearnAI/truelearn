@@ -15,7 +15,7 @@ class AbstractKnowledgeComponent(ABC):
     export(output_format)
         Export the AbstractKnowledgeComponent into some format
 
-    Properties
+    Attributes
     ----------
     mean
     variance
@@ -123,9 +123,8 @@ class AbstractKnowledge(ABC):
     """
 
     @abstractmethod
-    def get(self, topic_id: Hashable, default: AbstractKnowledgeComponent) -> AbstractKnowledgeComponent:
-        """Get the AbstractKnowledgeComponent associated with the topic_id if the AbstractKnowledgeComponent is in
-        the AbstractKnowledge, else return default.
+    def get_kc(self, topic_id: Hashable, default: AbstractKnowledgeComponent) -> AbstractKnowledgeComponent:
+        """Get the AbstractKnowledgeComponent associated with the topic_id if the AbstractKnowledgeComponent is in the AbstractKnowledge, else return default.
 
         Parameters
         ----------
@@ -141,7 +140,7 @@ class AbstractKnowledge(ABC):
         """
 
     @abstractmethod
-    def update(self, topic_id: Hashable, kc: AbstractKnowledgeComponent) -> None:
+    def update_kc(self, topic_id: Hashable, kc: AbstractKnowledgeComponent) -> None:
         """Update the AbstractKnowledgeComponent associated with the topic_id.
 
         If the topic_id doesn't exist in the AbstractKnowledge, the mapping will be created.

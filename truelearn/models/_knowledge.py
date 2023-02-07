@@ -133,10 +133,10 @@ class Knowledge(AbstractKnowledge):
         else:
             self.__knowledge: dict[Hashable, AbstractKnowledgeComponent] = {}
 
-    def get(self, topic_id: Hashable, default: AbstractKnowledgeComponent) -> AbstractKnowledgeComponent:
+    def get_kc(self, topic_id: Hashable, default: AbstractKnowledgeComponent) -> AbstractKnowledgeComponent:
         return self.__knowledge.get(topic_id, default)
 
-    def update(self, topic_id: Hashable, kc: AbstractKnowledgeComponent) -> None:
+    def update_kc(self, topic_id: Hashable, kc: AbstractKnowledgeComponent) -> None:
         self.__knowledge[topic_id] = kc
 
     def topic_kc_pairs(self) -> Iterable[tuple[Hashable, AbstractKnowledgeComponent]]:
