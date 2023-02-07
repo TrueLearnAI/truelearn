@@ -1,17 +1,20 @@
 from __future__ import annotations
 
+from ._base_classifier import BaseClassifier
+from truelearn.models import EventModel
 
-class PersistentClassifier:
+
+class PersistentClassifier(BaseClassifier):
     """A classifier that makes predictions based on whether the learner has engaged with the last learnable unit.
 
     Methods
     -------
     fit(x, y)
-        Train the model based on the given data and label.
+        Train the model based on the given event and label.
     predict(x)
-        Predict whether the learner will engage.
+        Predict whether the learner will engage in the given learning event.
     predict_proba(x)
-        Predict the probability of learner engagement.
+        Predict the probability of learner engagement in the given learning event.
 
     Properties
     ----------
@@ -20,15 +23,17 @@ class PersistentClassifier:
     """
 
     def __init__(self) -> None:
+        super().__init__()
+
         self.__engage_with_last = False
 
-    def fit(self, _x, y) -> PersistentClassifier:
-        """Train the model based on the given data and labels.
+    def fit(self, _x: EventModel, y: bool) -> PersistentClassifier:
+        """Train the model based on the given event and labels.
 
         Parameters
         ----------
-        _x: AbstractKnowledge
-            A knowledge representation of a learnable unit.
+        _x : EventModel
+            A representation of a learning event.
         y: bool
             A label that is either True or False.
 
@@ -45,18 +50,18 @@ class PersistentClassifier:
         self.__engage_with_last = y
         return self
 
-    def predict(self, _x) -> bool:
-        """Predict whether the learner will engage.
+    def predict(self, _x: EventModel) -> bool:
+        """Predict whether the learner will engage in the given learning event.
 
         Parameters
         ----------
-        _x: AbstractKnowledge
-            A knowledge representation of a learnable unit.
+        _x : EventModel
+            A representation of a learning event.
 
         Returns
         -------
         bool
-            Whether the learner will engage with the given learnable unit.
+            Whether the learner will engage in the given learning event.
 
         Notes
         -----
@@ -65,18 +70,18 @@ class PersistentClassifier:
         """
         return self.__engage_with_last
 
-    def predict_proba(self, _x) -> float:
+    def predict_proba(self, _x: EventModel) -> float:
         """Predict the probability of learner engagement.
 
         Parameters
         ----------
-        _x: AbstractKnowledge
-            A knowledge representation of a learnable unit.
+        _x : EventModel
+            A representation of a learning event.
 
         Returns
         -------
         float
-            The probability that the learner will engage with the given learnable unit.
+            The probability that the learner will engage in the given learning event.
 
         Notes
         -----

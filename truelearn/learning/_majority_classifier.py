@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+from ._base_classifier import BaseClassifier
+from truelearn.models import EventModel
 
-class MajorityClassifier:
+
+class MajorityClassifier(BaseClassifier):
     """A Classifier that predicts based on the number of learner's engagement and non-engagement.
 
     If the number of engagement on the training data is greater than the number of non-engagement,
@@ -10,11 +13,11 @@ class MajorityClassifier:
     Methods
     -------
     fit(x, y)
-        Train the model based on the given data and label.
+        Train the model based on the given event and label.
     predict(x)
-        Predict whether the learner will engage.
+        Predict whether the learner will engage in the given learning event.
     predict_proba(x)
-        Predict the probability of learner engagement.
+        Predict the probability of learner engagement in the given learning event.
 
     Properties
     ----------
@@ -24,17 +27,19 @@ class MajorityClassifier:
     """
 
     def __init__(self) -> None:
+        super().__init__()
+
         self.__engagement = 0
         self.__non_engagement = 0
 
-    def fit(self, _x, y) -> MajorityClassifier:
-        """Train the model based on the given data and labels.
+    def fit(self, _x: EventModel, y: bool) -> MajorityClassifier:
+        """Train the model based on the given event and labels.
 
         Parameters
         ----------
-        _x: AbstractKnowledge
-            A knowledge representation of a learnable unit.
-        y: bool
+        _x : EventModel
+            A representation of a learning event.
+        y : bool
             A label that is either True or False.
 
         Returns
@@ -54,18 +59,18 @@ class MajorityClassifier:
 
         return self
 
-    def predict(self, _x) -> bool:
-        """Predict whether the learner will engage.
+    def predict(self, _x: EventModel) -> bool:
+        """Predict whether the learner will engage in the given learning event.
 
         Parameters
         ----------
-        _x: AbstractKnowledge
-            A knowledge representation of a learnable unit.
+        _x : EventModel
+            A representation of a learning event.
 
         Returns
         -------
         bool
-            Whether the learner will engage with the given learnable unit.
+            Whether the learner will engage in the given learning event.
 
         Notes
         -----
@@ -74,18 +79,18 @@ class MajorityClassifier:
         """
         return self.__engagement > self.__non_engagement
 
-    def predict_proba(self, _x) -> float:
+    def predict_proba(self, _x: EventModel) -> float:
         """Predict the probability of learner engagement.
 
         Parameters
         ----------
-        _x: AbstractKnowledge
-            A knowledge representation of a learnable unit.
+        _x : EventModel
+            A representation of a learning event.
 
         Returns
         -------
         float
-            The probability that the learner will engage with the given learnable unit.
+            The probability that the learner will engage in the given learning event.
 
         Notes
         -----

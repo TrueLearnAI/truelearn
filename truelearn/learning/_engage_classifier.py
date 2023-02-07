@@ -1,31 +1,31 @@
 from __future__ import annotations
 
+from ._base_classifier import BaseClassifier
+from truelearn.models import EventModel
 
-class EngageClassifier:
+
+class EngageClassifier(BaseClassifier):
     """A Classifier that always makes positive prediction.
 
     Methods
     -------
     fit(x, y)
-        Train the model based on the given data and label.
+        Train the model based on the given event and label.
     predict(x)
-        Predict whether the learner will engage.
+        Predict whether the learner will engage in the given learning event.
     predict_proba(x)
-        Predict the probability of learner engagement.
+        Predict the probability of learner engagement in the given learning event.
 
     """
 
-    def __init__(self) -> None:
-        pass
-
-    def fit(self, _x, _y) -> EngageClassifier:
-        """Train the model based on the given data and labels.
+    def fit(self, _x: EventModel, _y: bool) -> EngageClassifier:
+        """Train the model based on the given event and labels.
 
         Parameters
         ----------
-        _x: AbstractKnowledge
-            A knowledge representation of a learnable unit.
-        _y: bool
+        _x : EventModel
+            A representation of a learning event.
+        _y : bool
             A label that is either True or False.
 
         Returns
@@ -40,18 +40,18 @@ class EngageClassifier:
         """
         return self
 
-    def predict(self, _x) -> bool:
-        """Predict whether the learner will engage.
+    def predict(self, _x: EventModel) -> bool:
+        """Predict whether the learner will engage in the given learning event.
 
         Parameters
         ----------
-        _x: AbstractKnowledge
-            A knowledge representation of a learnable unit.
+        _x : EventModel
+            A representation of a learning event.
 
         Returns
         -------
         bool
-            Whether the learner will engage with the given learnable unit.
+            Whether the learner will engage in the given learning event.
 
         Notes
         -----
@@ -60,18 +60,18 @@ class EngageClassifier:
         """
         return True
 
-    def predict_proba(self, _x) -> float:
-        """Predict the probability of learner engagement.
+    def predict_proba(self, _x: EventModel) -> float:
+        """Predict the probability of learner engagement in the given learning event.
 
         Parameters
         ----------
-        _x: AbstractKnowledge
-            A knowledge representation of a learnable unit.
+        _x : EventModel
+            A representation of a learning event.
 
         Returns
         -------
         float
-            The probability that the learner will engage with the given learnable unit.
+            The probability that the learner will engage in the given learning event.
 
         Notes
         -----
