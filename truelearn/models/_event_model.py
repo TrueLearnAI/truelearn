@@ -1,9 +1,11 @@
 from __future__ import annotations
+from dataclasses import dataclass, field
 
 from ._abstract_knowledge import AbstractKnowledge
 from ._knowledge import Knowledge
 
 
+@dataclass
 class EventModel:
     """A class that models a learning event in TrueLearn algorithm.
 
@@ -24,31 +26,5 @@ class EventModel:
 
     """
 
-    def __init__(self, knowledge: AbstractKnowledge | None = None, event_time: float | None = None) -> None:
-        if knowledge is None:
-            self.__knowledge = Knowledge()
-        else:
-            self.__knowledge = knowledge
-        self.__event_time = event_time
-
-    @property
-    def knowledge(self) -> AbstractKnowledge:
-        """Return the Knowledge representation of the learner.
-
-        Returns
-        -------
-        Knowledge
-
-        """
-        return self.__knowledge
-
-    @property
-    def event_time(self) -> float | None:
-        """Return the POSIX timestamp of the event.
-
-        Returns
-        -------
-        float | None
-
-        """
-        return self.__event_time
+    knowledge: AbstractKnowledge = field(default_factory=Knowledge)
+    event_time: float | None = None
