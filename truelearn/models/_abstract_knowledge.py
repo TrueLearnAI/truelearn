@@ -8,9 +8,9 @@ class AbstractKnowledgeComponent(ABC):
 
     Methods
     -------
-    update(mean, variance)
+    update(mean, variance, timestamp)
         Update the mean and variance of the AbstractKnowledgeComponent
-    clone(mean, variance)
+    clone(mean, variance, timestamp)
         Clone the AbstractKnowledgeComponent with new mean and variance
     export(output_format)
         Export the AbstractKnowledgeComponent into some format
@@ -19,6 +19,7 @@ class AbstractKnowledgeComponent(ABC):
     ----------
     mean
     variance
+    timestamp
 
     """
 
@@ -44,9 +45,20 @@ class AbstractKnowledgeComponent(ABC):
 
         """
 
+    @property
     @abstractmethod
-    def update(self, mean, variance) -> None:
-        """Update the mean and variance of this AbstractKnowledgeComponent.
+    def timestamp(self) -> float | None:
+        """Return the POSIX timestamp of the last update of this AbstractKnowledgeComponent.
+
+        Returns
+        -------
+        float | None
+
+        """
+
+    @abstractmethod
+    def update(self, mean: float, variance: float, timestamp: float | None = None) -> None:
+        """Update the mean, variance, and timestamp of this AbstractKnowledgeComponent.
 
         Parameters
         ----------
@@ -54,6 +66,9 @@ class AbstractKnowledgeComponent(ABC):
             The new mean of the AbstractKnowledgeComponent.
         variance : float
             The new variance of the AbstractKnowledgeComponent.
+        timestamp : float | None, optional
+            The new POSIX timestamp of the AbstractKnowledgeComponent.
+            If the timestamp is None, the timestamp of the AbstractKnowledgeComponent will be None.
 
         Returns
         -------
@@ -62,8 +77,8 @@ class AbstractKnowledgeComponent(ABC):
         """
 
     @abstractmethod
-    def clone(self, mean, variance) -> AbstractKnowledgeComponent:
-        """Generate a copy of the current AbstractKnowledgeComponent with given mean and variance.
+    def clone(self, mean: float, variance: float, timestamp: float | None = None) -> AbstractKnowledgeComponent:
+        """Generate a copy of the current AbstractKnowledgeComponent with given mean, variance and timestamp.
 
         This function doesn't change the mean and variance of the current AbstractKnowledgeComponent.
 
@@ -73,6 +88,9 @@ class AbstractKnowledgeComponent(ABC):
             The mean of the cloned AbstractKnowledgeComponent.
         variance : float
             The variance of the cloned AbstractKnowledgeComponent.
+        timestamp : float | None, optional
+            The new POSIX timestamp of the cloned AbstractKnowledgeComponent.
+            If the timestamp is None, the timestamp of the cloned AbstractKnowledgeComponent will be None.
 
         Returns
         -------
@@ -124,7 +142,7 @@ class AbstractKnowledge(ABC):
 
     @abstractmethod
     def get_kc(self, topic_id: Hashable, default: AbstractKnowledgeComponent) -> AbstractKnowledgeComponent:
-        """Get the AbstractKnowledgeComponent associated with the topic_id if the AbstractKnowledgeComponent is in
+        """Get the AbstractKnowledgeComponent associated with the topic_id if the AbstractKnowledgeComponent is in\
         the AbstractKnowledge, else return default.
 
         Parameters

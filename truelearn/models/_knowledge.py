@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import Iterable, Hashable, Any
 
-from _abstract_knowledge import AbstractKnowledgeComponent, AbstractKnowledge
+from ._abstract_knowledge import AbstractKnowledgeComponent, AbstractKnowledge
 
 
 class KnowledgeComponent(AbstractKnowledgeComponent):
@@ -11,6 +11,7 @@ class KnowledgeComponent(AbstractKnowledgeComponent):
     ----------
     mean: float
     variance: float
+    timestamp: float | None
     title: str
     description: str
     url: str
@@ -26,27 +27,30 @@ class KnowledgeComponent(AbstractKnowledgeComponent):
 
     Properties
     ----------
+    mean
+    variance
+    timestamp
     title
     description
     url
-    mean
-    variance
 
     """
 
-    def __init__(self, *, mean: float, variance: float, title: str | None = None,
-                 description: str | None = None, url: str | None = None
+    def __init__(self, *, mean: float, variance: float, timestamp: float | None = None,
+                 title: str | None = None, description: str | None = None, url: str | None = None
                  ) -> None:
         super().__init__()
 
         self.__title = title
         self.__description = description
         self.__url = url
+
         self.__mean = mean
         self.__variance = variance
+        self.__timestamp = timestamp
 
     @property
-    def title(self):
+    def title(self) -> str | None:
         """Return the title of the KnowledgeComponent.
 
         Returns
@@ -89,12 +93,17 @@ class KnowledgeComponent(AbstractKnowledgeComponent):
     def variance(self) -> float:
         return self.__variance
 
-    def update(self, mean: float, variance: float) -> None:
+    @property
+    def timestamp(self) -> float | None:
+        return self.__timestamp
+
+    def update(self, mean: float, variance: float, timestamp: float | None = None) -> None:
         self.__mean = mean
         self.__variance = variance
+        self.__timestamp = timestamp
 
-    def clone(self, mean, variance) -> KnowledgeComponent:
-        return KnowledgeComponent(mean=mean, variance=variance, title=self.__title,
+    def clone(self, mean: float, variance: float, timestamp: float | None = None) -> KnowledgeComponent:
+        return KnowledgeComponent(mean=mean, variance=variance, timestamp=timestamp, title=self.__title,
                                   description=self.__description, url=self.__url)
 
     def export(self, output_format: str) -> Any:
