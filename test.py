@@ -1,8 +1,10 @@
-from truelearn.preprocessing.wikifier import wikify
+from truelearn.preprocessing.wikifier import Wikifier
 
 rfile = open("credentials.txt")
 MY_KEY = rfile.readline()
 rfile.close()
+
+wik = Wikifier(MY_KEY)
 
 TEXT = """
 In the last section, we examined some early aspects of memory. In this section, what we’re going to do is discuss some factors that influence memory. So let’s do that by beginning with the concept on slide two, and that concept is overlearning. Basically in overlearning, the idea is that you continue to study something after you can recall it perfectly. So you study some particular topic whatever that topic is. When you can recall it perfectly, you continue to study it.
@@ -20,8 +22,9 @@ Now there are other organizational strategies that one can use as well. The next
 """	
 
 def main(text, key):
-    annotated_object = wikify(text, key)
+    annotated_object = wik.wikify(text, 500, 500)
     return annotated_object
 
 if __name__ == "__main__":
-    print(main(TEXT, MY_KEY))
+    anns = main(TEXT, MY_KEY)
+    print(anns)
