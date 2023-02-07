@@ -83,4 +83,3 @@ fabric.properties
 .pytest_cache
 
 __pycache__/
-credentials.txt
