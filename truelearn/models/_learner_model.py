@@ -15,7 +15,7 @@ class LearnerModel:
     tau: float
         A dynamic factor of the learner's learning process.
 
-    Attributes
+    Properties
     ----------
     knowledge
     tau

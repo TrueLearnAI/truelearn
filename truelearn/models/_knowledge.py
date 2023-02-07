@@ -24,7 +24,7 @@ class KnowledgeComponent(AbstractKnowledgeComponent):
     export(output_format)
         Export the KnowledgeComponent into some format
 
-    Attributes
+    Properties
     ----------
     title
     description
@@ -34,7 +34,9 @@ class KnowledgeComponent(AbstractKnowledgeComponent):
 
     """
 
-    def __init__(self, mean: float, variance: float, *, title: str | None = None, description: str | None = None, url: str | None = None) -> None:
+    def __init__(self, mean: float, variance: float, *, title: str | None = None,
+                 description: str | None = None, url: str | None = None
+                 ) -> None:
         super().__init__()
 
         self.__title = title
