@@ -9,6 +9,11 @@ pep8:
   full: true
 
 pydocstyle:
-  ignore:
-    #Docstrings should start on the first line (i.e. the same one as the quotes)
-    - D213
+  disable:
+    - D107 # init doc is placed in the class doc
+    - D203 # incompatible with D211
+    - D213 # incompatible with D212
+
+pylint:
+  disable:
+    - missing-module-docstring

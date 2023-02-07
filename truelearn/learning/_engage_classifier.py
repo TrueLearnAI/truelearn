@@ -6,13 +6,11 @@ class EngageClassifier:
 
     Methods
     -------
-    fit(x, y) returns EngageClassifier
+    fit(x, y)
         Train the model based on the given data and label.
-        Model returns the classifier to allow for chaining of methods
-        e.g. classifier.fit(x, y).predict(x)
     predict(x)
         Predict whether the learner will engage.
-    predict_prob(x)
+    predict_proba(x)
         Predict the probability of learner engagement.
 
     """
@@ -20,14 +18,13 @@ class EngageClassifier:
     def __init__(self) -> None:
         pass
 
-    # TODO: add type annotations
     def fit(self, _x, _y) -> EngageClassifier:
         """Train the model based on the given data and labels.
 
         Parameters
         ----------
-        _x: an iterable collection of Topic
-            An array of Topic that represents a learnable unit.
+        _x: AbstractKnowledge
+            A knowledge representation of a learnable unit.
         _y: bool
             A label that is either True or False.
 
@@ -43,15 +40,13 @@ class EngageClassifier:
         """
         return self
 
-    # TODO: add type annotations
-    @staticmethod
-    def predict(_x) -> bool:
+    def predict(self, _x) -> bool:
         """Predict whether the learner will engage.
 
         Parameters
         ----------
-        _x: an iterable collection of Topic
-            An array of Topic that represents a learnable unit.
+        _x: AbstractKnowledge
+            A knowledge representation of a learnable unit.
 
         Returns
         -------
@@ -65,15 +60,13 @@ class EngageClassifier:
         """
         return True
 
-    # TODO: add type annotations
-    @staticmethod
-    def predict_prob(_x) -> float:
+    def predict_proba(self, _x) -> float:
         """Predict the probability of learner engagement.
 
         Parameters
         ----------
-        _x: an iterable collection of Topic
-            An array of Topic that represents a learnable unit.
+        _x: AbstractKnowledge
+            A knowledge representation of a learnable unit.
 
         Returns
         -------
