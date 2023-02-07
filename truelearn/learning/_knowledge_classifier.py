@@ -75,7 +75,7 @@ class KnowledgeClassifier:
 
         """
         topic_id, kc = topic_kc_pair
-        extracted_kc = self.__learner_model.knowledge.get(
+        extracted_kc = self.__learner_model.knowledge.get_kc(
             topic_id, kc.clone(self.__init_skill, self.__def_var))
         return topic_id, extracted_kc
 
@@ -96,7 +96,7 @@ class KnowledgeClassifier:
 
         """
         topic_id, kc = topic_kc_pair
-        extracted_kc = self.__learner_model.knowledge.get(
+        extracted_kc = self.__learner_model.knowledge.get_kc(
             topic_id, kc.clone(self.__init_skill, self.__def_var))
         return extracted_kc
 
@@ -230,7 +230,7 @@ class KnowledgeClassifier:
         for topic_kc_pair, rating in zip(learner_topic_kc_pairs, updated_team_learner):
             topic_id, kc = topic_kc_pair
             kc.update(rating.mean, rating.sigma ** 2)
-            self.__learner_model.knowledge.update(topic_id, kc)
+            self.__learner_model.knowledge.update_kc(topic_id, kc)
 
         return self
 
