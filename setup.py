@@ -1,9 +1,9 @@
 from distutils.core import setup
+import truelearn
 
 setup(
     name='truelearn',
-    # major.minor.patch versioning convention
-    version='1.1.1',
+    version=truelearn.__version__,
     python_requires='>=3.7',
     packages=['truelearn', 'truelearn.learning', 'truelearn.tests',
               'truelearn.datasets', 'truelearn.models', 'truelearn.utils.metrics',
@@ -11,7 +11,7 @@ setup(
               'truelearn.preprocessing'],
     url='',
     license='MIT',
-    author='',
+    author='KD-7,sahanbull,yuxqiu,deniselezi,aaneelshalman',
     author_email='',
     description='',
     long_description=open('README.md').read(),
