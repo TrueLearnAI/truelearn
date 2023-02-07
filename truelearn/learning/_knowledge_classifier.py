@@ -127,8 +127,8 @@ class KnowledgeClassifier:
         return team_learner
 
     def __select_kcs(self, content_knowledge: AbstractKnowledge) -> Iterable[AbstractKnowledgeComponent]:
-        """Return an iterable of the KC representing the learner's knowledge in the topic specified by the learnable
-        unit.
+        """Return an iterable of the AbstractKnowledgeComponent representing the learner's knowledge\
+        in the topic specified by the learnable unit.
 
         Given the knowledge representation of the learnable unit, this method tries to get
         the corresponding knowledge representation from the Learner Model.
