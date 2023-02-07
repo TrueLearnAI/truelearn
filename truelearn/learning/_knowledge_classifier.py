@@ -58,7 +58,8 @@ class KnowledgeClassifier:
                         tau=float(self.__learner_model.tau), draw_probability=0.,
                         backend="mpmath", env=self.__env)
 
-    def __topic_kc_pair_mapper(self, topic_kc_pair: tuple[Hashable, AbstractKnowledgeComponent]) -> tuple[Hashable, AbstractKnowledgeComponent]:
+    def __topic_kc_pair_mapper(self, topic_kc_pair: tuple[Hashable, AbstractKnowledgeComponent])\
+            -> tuple[Hashable, AbstractKnowledgeComponent]:
         """Retrieve a (topic_id, AbstractKnowledgeComponent) pair from learner model.
 
         If the AbstractKnowledge of the learner doesn't contain the topic_id,
@@ -100,7 +101,8 @@ class KnowledgeClassifier:
             topic_id, kc.clone(self.__init_skill, self.__def_var))
         return extracted_kc
 
-    def __select_topic_kc_pairs(self, content_knowledge: AbstractKnowledge) -> Iterable[tuple[Hashable, AbstractKnowledgeComponent]]:
+    def __select_topic_kc_pairs(self, content_knowledge: AbstractKnowledge)\
+            -> Iterable[tuple[Hashable, AbstractKnowledgeComponent]]:
         """Return an iterable representing the learner's knowledge in the topics specified by the learnable unit.
 
         Given the knowledge representation of the learnable unit, this method tries to get
@@ -125,7 +127,8 @@ class KnowledgeClassifier:
         return team_learner
 
     def __select_kcs(self, content_knowledge: AbstractKnowledge) -> Iterable[AbstractKnowledgeComponent]:
-        """Return an iterable of the KC representing the learner's knowledge in the topic specified by the learnable unit.
+        """Return an iterable of the KC representing the learner's knowledge in the topic specified by the learnable
+        unit.
 
         Given the knowledge representation of the learnable unit, this method tries to get
         the corresponding knowledge representation from the Learner Model.
@@ -212,8 +215,8 @@ class KnowledgeClassifier:
         )
         team_content = tuple(
             map(
-                lambda kc: self.__env.create_rating(
-                    mu=kc.mean, sigma=math.sqrt(kc.variance)),
+                lambda content_kc: self.__env.create_rating(
+                    mu=content_kc.mean, sigma=math.sqrt(content_kc.variance)),
                 content_kcs
             )
         )
