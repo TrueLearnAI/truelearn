@@ -34,7 +34,7 @@ class KnowledgeComponent(AbstractKnowledgeComponent):
 
     """
 
-    def __init__(self, mean: float, variance: float, *, title: str | None = None, description: str | None = None, url: str | None = None) -> None:
+    def __init__(self, *, mean: float, variance: float, title: str | None = None, description: str | None = None, url: str | None = None) -> None:
         super().__init__()
 
         self.__title = title
@@ -92,7 +92,7 @@ class KnowledgeComponent(AbstractKnowledgeComponent):
         self.__variance = variance
 
     def clone(self, mean, variance) -> KnowledgeComponent:
-        return KnowledgeComponent(mean, variance, title=self.__title, description=self.__description, url=self.__url)
+        return KnowledgeComponent(mean=mean, variance=variance, title=self.__title, description=self.__description, url=self.__url)
 
     def export(self, output_format: str) -> Any:
         raise NotImplementedError(
