@@ -1,4 +1,1 @@
-numpy
-trueskill
-mpmath
-scikit-learn
+.
