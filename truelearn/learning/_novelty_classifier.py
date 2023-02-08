@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from ._base_classifier import InterestNoveltyKnowledgeBaseClassifier
+from ._base import InterestNoveltyKnowledgeBaseClassifier
 from truelearn.models import EventModel
 
 

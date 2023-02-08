@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from ._base_classifier import BaseClassifier
+from ._base import BaseClassifier
 from truelearn.models import EventModel
 
 

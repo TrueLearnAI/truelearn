@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import Iterable
 import math
 
-from ._base_classifier import InterestNoveltyKnowledgeBaseClassifier
+from ._base import InterestNoveltyKnowledgeBaseClassifier
 from truelearn.models import EventModel, AbstractKnowledgeComponent, LearnerModel
 
 
