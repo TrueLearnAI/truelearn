@@ -1,14 +1,12 @@
 from distutils.core import setup
+from setuptools import find_packages
 import truelearn
 
 setup(
     name='truelearn',
     version=truelearn.__version__,
     python_requires='>=3.7',
-    packages=['truelearn', 'truelearn.learning', 'truelearn.tests',
-              'truelearn.datasets', 'truelearn.models', 'truelearn.utils.metrics',
-              'truelearn.utils.visualisations', 'truelearn.utils.persistent',
-              'truelearn.preprocessing'],
+    packages=find_packages("truelearn"),
     url='',
     license='MIT',
     author='KD-7,sahanbull,yuxqiu,deniselezi,aaneelshalman',
