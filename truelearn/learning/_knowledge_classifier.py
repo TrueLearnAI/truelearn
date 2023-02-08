@@ -69,49 +69,14 @@ class KnowledgeClassifier(InterestNoveltyKnowledgeBaseClassifier):
         return float(self._env.
                      cdf(difference, 0, std))  # type: ignore
 
-    def fit(self, x: EventModel, y: bool) -> KnowledgeClassifier:
-        """Train the model based on a given EventModel that represents a learning event.
+    def _update_knowledge_representation(self, x: EventModel, y: bool) -> None:
+        learner_topic_kc_pairs = list(self._select_topic_kc_pairs(x.knowledge))
+        learner_kcs = map(
+            lambda topic_kc_pair: topic_kc_pair[1], learner_topic_kc_pairs)
+        content_kcs = x.knowledge.knowledge_components()
 
-        Parameters
-        ----------
-        x : EventModel
-            A representation of a learning event.
-        y : bool
-            Whether the learner engages in the given learning event.
-
-        Returns
-        -------
-        KnowledgeClassifier
-            The updated KnowledgeClassifier.
-
-        References
-        ----------
-        [1] Bulathwela, S. et al. (2020) “TrueLearn: A Family of Bayesian algorithms to match lifelong learners
-        to open educational resources,” Proceedings of the AAAI Conference on Artificial Intelligence, 34(01),
-        pp. 565-573. Available at: https://doi.org/10.1609/aaai.v34i01.5395.
-
-        """
-        if self._positive_only and x is False:
-            return self
-
-        knowledge = x.knowledge
-        learner_topic_kc_pairs = list(self._select_topic_kc_pairs(knowledge))
-        content_kcs = knowledge.knowledge_components()
-
-        team_learner = tuple(
-            map(
-                lambda topic_kc_learner_pair: self._env.create_rating(
-                    mu=topic_kc_learner_pair[1].mean, sigma=math.sqrt(topic_kc_learner_pair[1].variance)),
-                learner_topic_kc_pairs
-            )
-        )
-        team_content = tuple(
-            map(
-                lambda content_kc: self._env.create_rating(
-                    mu=content_kc.mean, sigma=math.sqrt(content_kc.variance)),
-                content_kcs
-            )
-        )
+        team_learner = self._gather_trueskill_team(learner_kcs)
+        team_content = self._gather_trueskill_team(content_kcs)
 
         if y:
             # learner wins: lower rank == winning
@@ -127,29 +92,6 @@ class KnowledgeClassifier(InterestNoveltyKnowledgeBaseClassifier):
             kc.update(rating.mean, rating.sigma ** 2)
             self._learner_model.knowledge.update_kc(topic_id, kc)
 
-        return self
-
-    def predict(self, x: EventModel) -> bool:
-        """Predict whether the learner will engage in the given learning event.
-
-        The function will return True iff the probability that the learner engages
-        with the learnable unit is greater than the given threshold.
-
-        Refer to `predict_proba` for more details.
-
-        Parameters
-        ----------
-        x : EventModel
-            A representation of a learning event.
-
-        Returns
-        -------
-        bool
-            Whether the learner will engage in the given learning event.
-
-        """
-        return self.predict_proba(x) > self._threshold
-
     def predict_proba(self, x: EventModel) -> float:
         """Predict the probability of the learner's engagement in the given learning event.
 
@@ -162,6 +104,8 @@ class KnowledgeClassifier(InterestNoveltyKnowledgeBaseClassifier):
         of the new normal distribution as a result of subtracting the two old normal distribution (learner and
         learnable unit).
 
+        # TODO: describe the win probability
+
         Parameters
         ----------
         x : EventModel
@@ -173,7 +117,7 @@ class KnowledgeClassifier(InterestNoveltyKnowledgeBaseClassifier):
             The probability that the learner engages in the given learning event.
 
         """
-        knowledge = x.knowledge
-        learner_kcs = self._select_kcs(knowledge)
-        content_kcs = knowledge.knowledge_components()
+        learner_kcs = map(
+            lambda x: x[1], self._select_topic_kc_pairs(x.knowledge))
+        content_kcs = x.knowledge.knowledge_components()
         return self.__team_sum_quality(learner_kcs, content_kcs)
