@@ -22,6 +22,8 @@ class NoveltyClassifier(InterestNoveltyKnowledgeBaseClassifier):
     positive_only: bool
         Whether the model updates itself only if encountering positive data.
 
+    # TODO: fix probability doc
+
     Methods
     -------
     fit(x, y)

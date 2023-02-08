@@ -11,14 +11,14 @@ from truelearn.models import EventModel, AbstractKnowledge, AbstractKnowledgeCom
 class BaseClassifier(ABC):
     """The base class of all the classifiers in TrueLearn.
 
+    # TODO: add type checking
+
     Notes
     -----
     This classifier checks the type of the parameters.
     So, all estimators should specify all the parameters that can be set
     at the class level in their ``__init__`` as explicit keyword
     arguments.
-
-    Inspired by scikit-learn BaseEstimator.
 
     """
 
@@ -115,6 +115,8 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
         The noise factor, which is used in trueskill.
     positive_only: bool
         Whether the model updates itself only if encountering positive data.
+
+    # TODO: fix probability doc
 
     Methods
     -------
