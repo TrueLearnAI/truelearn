@@ -51,6 +51,7 @@ jobs:
 
   Jekyll_Build:
     runs-on: ubuntu-latest
+    needs: Sphinx_Build
     steps:
       - name: Checkout
         uses: actions/checkout@v3
