@@ -1,4 +1,4 @@
-name: Docs Build and Deploy
+name: 'Docs: Build and Deploy'
 on:
   push:
     branches:
@@ -41,6 +41,7 @@ jobs:
       - name: Sphinx Build (composite)
         uses: rickstaa/action-sphinx-composite@v1.0.0
         with:
+          pre-build: 'sphinx-apidoc -f -o docs/ truelearn'
           docs-folder: './docs'
 
 
