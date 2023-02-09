@@ -17,6 +17,18 @@ jobs:
       - name: Checkout Repo
         uses: actions/checkout@v3
 
+      - name: Setup Python
+        uses: actions/setup-python@v4.4.0
+        with:
+          python-version: '3.7'
+          cache: 'pip' #Cache dependencies
+
+      - name: Install Project Dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install Sphinx
+          pip install Furo
+
       - name: Sphinx Build
         uses: ammaraskar/sphinx-action@0.4
         with:
