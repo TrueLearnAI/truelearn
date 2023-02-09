@@ -1,0 +1,43 @@
+name: 'Docs Build'
+on:
+  push:
+    branches:
+      #For debugging only
+      - documentation-generation
+  workflow_dispatch:
+  pull_request:
+  workflow_call:
+    inputs:
+      branch:
+        description: 'Branch to build docs from'
+        required: true
+        type: string
+
+jobs:
+  Sphinx_Build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4.4.0
+        with:
+          python-version: '3.7'
+          cache: 'pip' #Cache dependencies
+
+      - name: Install Project Dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install Sphinx
+          pip install furo
+
+      - name: Sphinx Problem Matcher
+        uses: ammaraskar/sphinx-problem-matcher@0.1
+
+      - name: Sphinx direct build
+        run: |
+          sphinx-apidoc -f -o docs/ truelearn
+          cd ./docs
+          make html -e
