@@ -32,11 +32,11 @@ jobs:
       - name: Sphinx Problem Matcher
         uses: ammaraskar/sphinx-problem-matcher@0.1
 
-      - name: Sphinx direct build
-        run: |
-          sphinx-apidoc -f -o docs/ truelearn
-          cd docs
-          make html -e
+      #- name: Sphinx direct build
+       # run: |
+          #sphinx-apidoc -f -o docs/ truelearn
+          #cd docs
+          #make html -e
 
       - name: Sphinx Build (composite)
         uses: rickstaa/action-sphinx-composite@v1.0.0
