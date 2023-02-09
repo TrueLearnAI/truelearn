@@ -1,7 +1,8 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Iterable, Hashable
-import math
+from statistics import NormalDist
+from math import sqrt
 
 import trueskill
 
@@ -160,8 +161,8 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
             self.__calculate_draw_proba = __calculate_draw_proba_static
         elif self._draw_proba_type == "dynamic":
             def __calculate_draw_proba_dynamic():
-                total_engagement_stats = min(1, self._learner_model.number_of_engagements +
-                                             self._learner_model.number_of_non_engagements)
+                total_engagement_stats = min(
+                    1, self._learner_model.number_of_engagements + self._learner_model.number_of_non_engagements)
                 draw_probability = float(
                     self._learner_model.number_of_engagements / total_engagement_stats)
 
@@ -182,55 +183,10 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
         # create an environment in which training will take place
         self._env = trueskill.TrueSkill()
 
-    def __topic_kc_pair_mapper(self, topic_kc_pair: tuple[Hashable, AbstractKnowledgeComponent]) -> tuple[Hashable, AbstractKnowledgeComponent]:
-        """Retrieve a (topic_id, AbstractKnowledgeComponent) pair from learner model.
-
-        If the AbstractKnowledge of the learner doesn't contain the topic_id,
-        a new KC will be constructed via `kc.clone(self.__init_skill, self.__def_var)`.
-
-        Parameters
-        ----------
-        topic_kc_pair : tuple[Hashable, AbstractKnowledgeComponent]
-            The (topic_id, AbstractKnowledgeComponent) pair from the learnable unit.
-
-        Returns
-        -------
-        tuple[Hashable, AbstractKnowledgeComponent]
-
-        """
-        topic_id, kc = topic_kc_pair
-        extracted_kc = self._learner_model.knowledge.get_kc(
-            topic_id, kc.clone(self._init_skill, self._def_var))
-        return topic_id, extracted_kc
-
-    def _select_topic_kc_pairs(self, content_knowledge: AbstractKnowledge) -> Iterable[tuple[Hashable, AbstractKnowledgeComponent]]:
-        """Return an iterable representing the learner's knowledge in the topics specified by the learnable unit.
-
-        Given the knowledge representation of the learnable unit, this method tries to get
-        the corresponding knowledge representation from the Learner Model.
-
-        If it cannot find the corresponding knowledge component in learner's model, which means
-        the learner has never exposed to this knowledge component before, a new KC will be constructed
-        with initial skill and default variance. This will be done by using `__topic_kc_pair_mapper`.
-
-        Parameters
-        ----------
-        content_knowledge : AbstractKnowledge
-            The knowledge representation of a learnable unit.
-
-        Returns
-        -------
-        Iterable[tuple[Hashable, AbstractKnowledgeComponent]]
-
-        """
-        team_learner = map(self.__topic_kc_pair_mapper,
-                           content_knowledge.topic_kc_pairs())
-        return team_learner
-
     def _gather_trueskill_team(self, kcs: Iterable[AbstractKnowledgeComponent]) -> tuple[trueskill.Rating]:
         return tuple(map(
             lambda kc: self._env.create_rating(
-                mu=kc.mean, sigma=math.sqrt(kc.variance)),
+                mu=kc.mean, sigma=sqrt(kc.variance)),
             kcs
         ))
 
@@ -303,3 +259,105 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
 
         """
         return self.predict_proba(x) > self._threshold
+
+
+def team_sum_quality(learner_kcs: Iterable[AbstractKnowledgeComponent], content_kcs: Iterable[AbstractKnowledgeComponent], beta: float) -> float:
+    """Return the probability that the learner engages with the learnable unit.
+
+    Parameters
+    ----------
+    learner_kcs : Iterable[AbstractKnowledgeComponent]
+        An iterable of learner's knowledge component.
+    content_kcs : Iterable[AbstractKnowledgeComponent]
+        An iterable of learnable unit's knowledge component.
+    beta : float
+        The noise factor, which is used in trueskill.
+
+    Returns
+    -------
+    float
+
+    """
+    team_learner_mean = map(lambda kc: kc.mean, learner_kcs)
+    team_learner_variance = map(lambda kc: kc.variance, learner_kcs)
+    team_content_mean = map(lambda kc: kc.mean, content_kcs)
+    team_content_variance = map(lambda kc: kc.variance, content_kcs)
+
+    difference = sum(team_learner_mean) - sum(team_content_mean)
+    std = sqrt(sum(team_learner_variance) + sum(team_content_variance) + beta)
+    return NormalDist(mu=0, sigma=std).cdf(difference)
+
+
+def select_topic_kc_pairs(learner_model: LearnerModel, content_knowledge: AbstractKnowledge,
+                          init_skill: float, def_var: float) -> Iterable[tuple[Hashable, AbstractKnowledgeComponent]]:
+    """Return an iterable representing the learner's knowledge in the topics specified by the learnable unit.
+
+    Given the knowledge representation of the learnable unit, this method tries to get
+    the corresponding knowledge representation from the Learner Model.
+
+    If it cannot find the corresponding knowledge component in learner's model, which means
+    the learner has never exposed to this knowledge component before, a new KC will be constructed
+    with initial skill and default variance. This will be done by using `__topic_kc_pair_mapper`.
+
+    Parameters
+    ----------
+    learner_model : LearnerModel
+        A representation of the learner.
+    content_knowledge : AbstractKnowledge
+        The knowledge representation of a learnable unit.
+    init_skill: float
+        The initial skill (mean) of the learner given a new AbstractKnowledgeComponent.
+    def_var: float
+        The default variance of the new AbstractKnowledgeComponent.
+
+    Returns
+    -------
+    Iterable[tuple[Hashable, AbstractKnowledgeComponent]]
+
+    """
+    def __topic_kc_pair_mapper(topic_kc_pair: tuple[Hashable, AbstractKnowledgeComponent]) -> tuple[Hashable, AbstractKnowledgeComponent]:
+        topic_id, kc = topic_kc_pair
+        extracted_kc = learner_model.knowledge.get_kc(
+            topic_id, kc.clone(init_skill, def_var))
+        return topic_id, extracted_kc
+
+    team_learner = map(__topic_kc_pair_mapper,
+                       content_knowledge.topic_kc_pairs())
+    return team_learner
+
+
+def select_kcs(learner_model: LearnerModel, content_knowledge: AbstractKnowledge,
+               init_skill: float, def_var: float) -> Iterable[AbstractKnowledgeComponent]:
+    """Return an iterable representing the learner's knowledge in the topics specified by the learnable unit.
+
+    Given the knowledge representation of the learnable unit, this method tries to get
+    the corresponding knowledge representation from the Learner Model.
+
+    If it cannot find the corresponding knowledge component in learner's model, which means
+    the learner has never exposed to this knowledge component before, a new KC will be constructed
+    with initial skill and default variance. This will be done by using `__topic_kc_pair_mapper`.
+
+    Parameters
+    ----------
+    learner_model : LearnerModel
+        A representation of the learner.
+    content_knowledge : AbstractKnowledge
+        The knowledge representation of a learnable unit.
+    init_skill: float
+        The initial skill (mean) of the learner given a new AbstractKnowledgeComponent.
+    def_var: float
+        The default variance of the new AbstractKnowledgeComponent.
+
+    Returns
+    -------
+    Iterable[tuple[Hashable, AbstractKnowledgeComponent]]
+
+    """
+    def __kc_mapper(topic_kc_pair: tuple[Hashable, AbstractKnowledgeComponent]) -> AbstractKnowledgeComponent:
+        topic_id, kc = topic_kc_pair
+        extracted_kc = learner_model.knowledge.get_kc(
+            topic_id, kc.clone(init_skill, def_var))
+        return extracted_kc
+
+    team_learner = map(__kc_mapper, content_knowledge.topic_kc_pairs())
+    return team_learner

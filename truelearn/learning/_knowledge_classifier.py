@@ -1,9 +1,7 @@
 from __future__ import annotations
-from typing import Iterable
-import math
 
-from ._base import InterestNoveltyKnowledgeBaseClassifier
-from truelearn.models import EventModel, AbstractKnowledgeComponent, LearnerModel
+from ._base import InterestNoveltyKnowledgeBaseClassifier, team_sum_quality, select_kcs, select_topic_kc_pairs
+from truelearn.models import EventModel, LearnerModel
 
 
 class KnowledgeClassifier(InterestNoveltyKnowledgeBaseClassifier):
@@ -16,9 +14,9 @@ class KnowledgeClassifier(InterestNoveltyKnowledgeBaseClassifier):
         Threshold for judging learner engagement. If the probability of the learner engagement is greater
         than the threshold, the model will predict engagement.
     init_skill: float
-        The initial skill (mean) of the learner given a new KnowledgeComponent.
+        The initial skill (mean) of the learner given a new AbstractKnowledgeComponent.
     def_var: float
-        The default variance of the new KnowledgeComponent.
+        The default variance of the new AbstractKnowledgeComponent.
     beta: float
         The noise factor, which is used in trueskill.
     positive_only: bool
@@ -48,35 +46,9 @@ class KnowledgeClassifier(InterestNoveltyKnowledgeBaseClassifier):
                          init_skill=init_skill, def_var=def_var, beta=beta, positive_only=positive_only,
                          draw_proba_type="static", draw_proba_static=KnowledgeClassifier.DRAW_PROBA_STATIC, draw_proba_factor=0.1)
 
-    def __team_sum_quality(self, learner_kcs: Iterable[AbstractKnowledgeComponent],
-                           content_kcs: Iterable[AbstractKnowledgeComponent]) -> float:
-        """Return the probability that the learner engages with the learnable unit.
-
-        Parameters
-        ----------
-        learner_kcs : Iterable[AbstractKnowledgeComponent]
-            An iterable of learner's knowledge component.
-        content_kcs : Iterable[AbstractKnowledgeComponent]
-            An iterable of learnable unit's knowledge component.
-
-        Returns
-        -------
-        float
-
-        """
-        team_learner_mean = map(lambda kc: kc.mean, learner_kcs)
-        team_learner_variance = map(lambda kc: kc.variance, learner_kcs)
-        team_content_mean = map(lambda kc: kc.mean, content_kcs)
-        team_content_variance = map(lambda kc: kc.variance, content_kcs)
-
-        difference = sum(team_learner_mean) - sum(team_content_mean)
-        std = math.sqrt(sum(team_learner_variance) +
-                        sum(team_content_variance) + self._beta)
-        return float(self._env.
-                     cdf(difference, 0, std))  # type: ignore
-
     def _update_knowledge_representation(self, x: EventModel, y: bool) -> None:
-        learner_topic_kc_pairs = list(self._select_topic_kc_pairs(x.knowledge))
+        learner_topic_kc_pairs = list(select_topic_kc_pairs(
+            self._learner_model, x.knowledge, self._init_skill, self._def_var))
         learner_kcs = map(
             lambda topic_kc_pair: topic_kc_pair[1], learner_topic_kc_pairs)
         content_kcs = x.knowledge.knowledge_components()
@@ -123,7 +95,7 @@ class KnowledgeClassifier(InterestNoveltyKnowledgeBaseClassifier):
             The probability that the learner engages in the given learning event.
 
         """
-        learner_kcs = map(
-            lambda x: x[1], self._select_topic_kc_pairs(x.knowledge))
+        learner_kcs = select_kcs(
+            self._learner_model, x.knowledge, self._init_skill, self._def_var)
         content_kcs = x.knowledge.knowledge_components()
-        return self.__team_sum_quality(learner_kcs, content_kcs)
+        return team_sum_quality(learner_kcs, content_kcs, self._beta)

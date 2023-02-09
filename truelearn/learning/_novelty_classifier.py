@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from ._base import InterestNoveltyKnowledgeBaseClassifier
+from ._base import InterestNoveltyKnowledgeBaseClassifier, select_kcs, select_topic_kc_pairs
 from truelearn.models import EventModel, LearnerModel
 
 
@@ -14,9 +14,9 @@ class NoveltyClassifier(InterestNoveltyKnowledgeBaseClassifier):
         Threshold for judging learner engagement. If the probability of the learner engagement is greater
         than the threshold, the model will predict engagement.
     init_skill: float
-        The initial skill (mean) of the learner given a new KnowledgeComponent.
+        The initial skill (mean) of the learner given a new AbstractKnowledgeComponent.
     def_var: float
-        The default variance of the new KnowledgeComponent.
+        The default variance of the new AbstractKnowledgeComponent.
     beta: float
         The noise factor, which is used in trueskill.
     positive_only: bool
@@ -46,7 +46,8 @@ class NoveltyClassifier(InterestNoveltyKnowledgeBaseClassifier):
 
     # pylint: disable=too-many-locals
     def _update_knowledge_representation(self, x: EventModel, y: bool) -> None:
-        learner_topic_kc_pairs = list(self._select_topic_kc_pairs(x.knowledge))
+        learner_topic_kc_pairs = list(select_topic_kc_pairs(
+            self._learner_model, x.knowledge, self._init_skill, self._def_var))
         learner_kcs = list(
             map(
                 lambda topic_kc_pair: topic_kc_pair[1],
@@ -103,8 +104,8 @@ class NoveltyClassifier(InterestNoveltyKnowledgeBaseClassifier):
             The probability that the learner engages in the given learning event.
 
         """
-        learner_kcs = map(
-            lambda x: x[1], self._select_topic_kc_pairs(x.knowledge))
+        learner_kcs = select_kcs(
+            self._learner_model, x.knowledge, self._init_skill, self._def_var)
         content_kcs = x.knowledge.knowledge_components()
 
         team_learner = self._gather_trueskill_team(learner_kcs)
