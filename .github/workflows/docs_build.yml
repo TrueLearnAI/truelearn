@@ -4,14 +4,26 @@ on:
     branches:
       #For debugging only
       - documentation-generation
+
   workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to build docs from'
+        required: true
+        default: ${{ github.ref }}}
+        type: string
+
   pull_request:
+    branches:
+      - main
+
   workflow_call:
     inputs:
       branch:
         description: 'Branch to build docs from'
         required: true
         type: string
+        default: ${{ github.ref }}
 
 jobs:
   Sphinx_Build:
