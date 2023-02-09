@@ -29,6 +29,11 @@ jobs:
           pip install Sphinx
           pip install furo
 
+      - name: Sphinx direct build
+        run: |
+          sphinx-apidoc -f -o docs/ truelearn
+          make html -e
+
       - name: Sphinx Build
         uses: KD-7/sphinx-action@master
         with:
