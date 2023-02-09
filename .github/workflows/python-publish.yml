@@ -12,14 +12,14 @@ permissions:
 
 jobs:
   Unit_tests:
-    uses: ./github/workflows/unit_tests.yml
+    uses: ./.github/workflows/unit_tests.yml
 
   Static_analysis:
-    uses: ./github/workflows/static_analysis.yml
+    uses: ./.github/workflows/static_analysis.yml
 
   Deploy_to_PyPi:
     runs-on: ubuntu-latest
-    needs: [run_tests, static_analysis]
+    needs: [Unit_tests,Static_analysis]
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python
