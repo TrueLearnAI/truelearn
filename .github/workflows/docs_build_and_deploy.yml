@@ -23,8 +23,6 @@ concurrency:
 jobs:
   Sphinx_Build:
     uses: ./.github/workflows/docs_build.yml
-    with:
-      branch: ${{ github.ref_name }}
 
 # Build the Jekyll site
   Jekyll_Build:
