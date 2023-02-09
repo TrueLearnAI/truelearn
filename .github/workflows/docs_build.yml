@@ -32,7 +32,7 @@ jobs:
           pip install furo
 
       - name: Sphinx Problem Matcher
-        uses: ammaraskar/sphinx-problem-matcher@0.1
+        uses: ammaraskar/sphinx-problem-matcher@master
 
       - name: Sphinx direct build
         run: |
