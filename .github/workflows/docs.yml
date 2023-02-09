@@ -1,0 +1,23 @@
+name: Docs Build and Deploy
+on:
+  push:
+    branches:
+      #For debugging only
+      - documentation-generation
+  release:
+    types:
+      - published
+  workflow_dispatch:
+
+jobs:
+  - name: Build and Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+
+      - name: Sphinx Build
+        uses: ammaraskar/sphinx-action@0.4
+        with:
+          docs-folder: "docs/"
+
