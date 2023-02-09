@@ -1,7 +1,9 @@
 from __future__ import annotations
+from math import exp
+from datetime import datetime as dt
 
-from ._base import InterestNoveltyKnowledgeBaseClassifier
-from truelearn.models import EventModel
+from ._base import InterestNoveltyKnowledgeBaseClassifier, team_sum_quality, select_kcs, select_topic_kc_pairs
+from truelearn.models import EventModel, LearnerModel, AbstractKnowledgeComponent
 
 
 class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
@@ -37,47 +39,61 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
 
     """
 
-    # pylint: disable=too-many-locals
+    def __init__(self, *, learner_model: LearnerModel | None = None, threshold: float = 0.5, init_skill=0.,
+                 def_var=0.5, beta: float = 0.5, positive_only=True, draw_proba_type: str = "dynamic",
+                 draw_proba_static: float = 0.5, draw_proba_factor: float = 0.1,
+                 decay_func_type: str = "short", decay_func_factor: float = 0.) -> None:
+        super().__init__(learner_model=learner_model, threshold=threshold, init_skill=init_skill,
+                         def_var=def_var, beta=beta, positive_only=positive_only, draw_proba_type=draw_proba_type,
+                         draw_proba_static=draw_proba_static, draw_proba_factor=draw_proba_factor)
+
+        self.__decay_func_type = decay_func_type
+        self.__decay_func_factor = decay_func_factor
+        if self.__decay_func_type == "short":
+            def __decay_func_short(t_delta: float) -> float:
+                return min(2 / (1 + exp(self.__decay_func_factor * t_delta)), 1.)
+            self.__decay_func = __decay_func_short
+        elif self.__decay_func_type == "long":
+            def __decay_func_long(t_delta: float) -> float:
+                return min(exp(-self.__decay_func_factor * t_delta), 1.)
+            self.__decay_func = __decay_func_long
+
     def _update_knowledge_representation(self, x: EventModel, y: bool) -> None:
-        learner_topic_kc_pairs = list(self._select_topic_kc_pairs(x.knowledge))
-        learner_kcs = list(
-            map(
-                lambda topic_kc_pair: topic_kc_pair[1],
-                learner_topic_kc_pairs
-            )
-        )
-        content_kcs = list(x.knowledge.knowledge_components())
+        if x.event_time is None:
+            raise RuntimeError("Time is not specified for event.")
 
-        team_learner = self._gather_trueskill_team(learner_kcs)
-        team_content = self._gather_trueskill_team(content_kcs)
-        team_learner_mean = map(lambda kc: kc.mean, learner_kcs)
-        team_content_mean = map(lambda kc: kc.mean, content_kcs)
+        event_time_posix = dt.utcfromtimestamp(x.event_time)
 
-        if y:
-            # if learner wins, use pos_learner skill which is updated with them topics ;)
-            ranks = [0, 0]
-        else:  # if the person is not engaged...
-            difference = sum(team_learner_mean) - sum(team_content_mean)
+        # make it a list because we need to use it more than one time later
+        # select topic_kc_pairs with default event time = x.event_time
+        learner_topic_kc_pairs = list(select_topic_kc_pairs(
+            self._learner_model, x.knowledge, self._init_skill, self._def_var, x.event_time))
+        learner_kcs = map(
+            lambda topic_kc_pair: topic_kc_pair[1], learner_topic_kc_pairs)
 
-            # check if the winner is learner or content, uses the predicted skill representation
-            if difference > 0.:  # learner wins --> boring content
-                ranks = [0, 1]
-            elif difference < 0.:  # learner loses --> intimidation
-                ranks = [1, 0]
-            else:
-                ranks = None
+        # apply interest decay
+        def __apply_interest_decay(kc: AbstractKnowledgeComponent) -> AbstractKnowledgeComponent:
+            if kc.timestamp is None:
+                raise RuntimeError(
+                    "Time is not specified for learner's knowledge component.")
+            t_delta = (event_time_posix -
+                       dt.utcfromtimestamp(kc.timestamp)).days
+            kc.update(mean=kc.mean * self.__decay_func(float(t_delta)))
+            return kc
 
-        # update the rating based on the rank
-        if ranks is not None:
-            updated_team_learner, _ = self._env.rate(
-                [team_learner, team_content], ranks=ranks)
-        else:
-            updated_team_learner = team_learner
+        learner_kcs_decayed = map(__apply_interest_decay, learner_kcs)
 
-        # update the learner's knowledge representation
+        team_learner = self._gather_trueskill_team(learner_kcs_decayed)
+        team_content = self._gather_trueskill_team(x.knowledge.knowledge_components())
+
+        # learner always wins in interest
+        updated_team_learner, _ = self._env.rate(
+            [team_learner, team_content], ranks=[0, 1])
+
         for topic_kc_pair, rating in zip(learner_topic_kc_pairs, updated_team_learner):
             topic_id, kc = topic_kc_pair
-            kc.update(rating.mean, rating.sigma ** 2)
+            # need to update with timestamp=x.event_time as there are old kcs in the pairs
+            kc.update(mean=rating.mean, variance=rating.sigma ** 2, timestamp=x.event_time)
             self._learner_model.knowledge.update_kc(topic_id, kc)
 
     def predict_proba(self, x: EventModel) -> float:
@@ -96,11 +112,7 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
             The probability that the learner engages in the given learning event.
 
         """
-        learner_kcs = map(
-            lambda x: x[1], self._select_topic_kc_pairs(x.knowledge))
+        learner_kcs = select_kcs(
+            self._learner_model, x.knowledge, self._init_skill, self._def_var)
         content_kcs = x.knowledge.knowledge_components()
-
-        team_learner = self._gather_trueskill_team(learner_kcs)
-        team_content = self._gather_trueskill_team(content_kcs)
-
-        return self._env.quality([team_learner, team_content])
+        return team_sum_quality(learner_kcs, content_kcs, self._beta)
