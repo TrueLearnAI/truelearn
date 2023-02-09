@@ -57,40 +57,40 @@ class AbstractKnowledgeComponent(ABC):
         """
 
     @abstractmethod
-    def update(self, mean: float, variance: float, timestamp: float | None = None) -> None:
+    def update(self, *, mean: float | None = None, variance: float | None = None, timestamp: float | None = None) -> None:
         """Update the mean, variance, and timestamp of this AbstractKnowledgeComponent.
 
         Parameters
         ----------
-        mean : float
+        mean : float | None, optional
             The new mean of the AbstractKnowledgeComponent.
-        variance : float
+            If the given mean is None, it will not be updated.
+        variance : float | None, optional
             The new variance of the AbstractKnowledgeComponent.
+            If the given variance is None, it will not be updated.
         timestamp : float | None, optional
             The new POSIX timestamp of the AbstractKnowledgeComponent.
-            If the timestamp is None, the timestamp of the AbstractKnowledgeComponent will be None.
-
-        Returns
-        -------
-        None
+            If the timestamp is None, the timestamp of the AbstractKnowledgeComponent will not be updated.
 
         """
 
     @abstractmethod
-    def clone(self, mean: float, variance: float, timestamp: float | None = None) -> AbstractKnowledgeComponent:
-        """Generate a copy of the current AbstractKnowledgeComponent with given mean, variance and timestamp.
+    def clone(self, *, mean: float | None = None, variance: float | None = None, timestamp: float | None = None) -> AbstractKnowledgeComponent:
+        """Generate a copy of the current AbstractKnowledgeComponent with given mean and variance.
 
         This function doesn't change the mean and variance of the current AbstractKnowledgeComponent.
 
         Parameters
         ----------
-        mean : float
-            The mean of the cloned AbstractKnowledgeComponent.
-        variance : float
-            The variance of the cloned AbstractKnowledgeComponent.
+        mean : float | None, optional
+            The new mean of the AbstractKnowledgeComponent.
+            If the given mean is None, it will not be updated.
+        variance : float | None, optional
+            The new variance of the AbstractKnowledgeComponent.
+            If the given variance is None, it will not be updated.
         timestamp : float | None, optional
-            The new POSIX timestamp of the cloned AbstractKnowledgeComponent.
-            If the timestamp is None, the timestamp of the cloned AbstractKnowledgeComponent will be None.
+            The new POSIX timestamp of the AbstractKnowledgeComponent.
+            If the timestamp is None, the timestamp of the AbstractKnowledgeComponent will not be updated.
 
         Returns
         -------

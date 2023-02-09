@@ -97,12 +97,19 @@ class KnowledgeComponent(AbstractKnowledgeComponent):
     def timestamp(self) -> float | None:
         return self.__timestamp
 
-    def update(self, mean: float, variance: float, timestamp: float | None = None) -> None:
-        self.__mean = mean
-        self.__variance = variance
-        self.__timestamp = timestamp
+    def update(self, *, mean: float | None = None, variance: float | None = None, timestamp: float | None = None) -> None:
+        if mean is not None:
+            self.__mean = mean
+        if variance is not None:
+            self.__variance = variance
+        if timestamp is not None:
+            self.__timestamp = timestamp
 
-    def clone(self, mean: float, variance: float, timestamp: float | None = None) -> KnowledgeComponent:
+    def clone(self, *, mean: float | None = None, variance: float | None = None, timestamp: float | None = None) -> KnowledgeComponent:
+        if mean is None:
+            mean = self.__mean
+        if variance is None:
+            variance = self.__variance
         return KnowledgeComponent(mean=mean, variance=variance, timestamp=timestamp, title=self.__title,
                                   description=self.__description, url=self.__url)
 

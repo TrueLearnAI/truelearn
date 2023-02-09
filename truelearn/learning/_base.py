@@ -289,7 +289,7 @@ def team_sum_quality(learner_kcs: Iterable[AbstractKnowledgeComponent], content_
 
 
 def select_topic_kc_pairs(learner_model: LearnerModel, content_knowledge: AbstractKnowledge,
-                          init_skill: float, def_var: float) -> Iterable[tuple[Hashable, AbstractKnowledgeComponent]]:
+                          init_skill: float, def_var: float, def_timestamp: float | None = None) -> Iterable[tuple[Hashable, AbstractKnowledgeComponent]]:
     """Return an iterable representing the learner's knowledge in the topics specified by the learnable unit.
 
     Given the knowledge representation of the learnable unit, this method tries to get
@@ -309,6 +309,11 @@ def select_topic_kc_pairs(learner_model: LearnerModel, content_knowledge: Abstra
         The initial skill (mean) of the learner given a new AbstractKnowledgeComponent.
     def_var: float
         The default variance of the new AbstractKnowledgeComponent.
+    def_timestamp: float | None, optional
+        The default timestamp of the new AbstractKnowledgeComponent.
+        It should be the event time for InterestClassifier.
+        This field could be left empty if InterestClassifier or any meta model
+        that uses InterestClassifier are not used.
 
     Returns
     -------
@@ -318,7 +323,7 @@ def select_topic_kc_pairs(learner_model: LearnerModel, content_knowledge: Abstra
     def __topic_kc_pair_mapper(topic_kc_pair: tuple[Hashable, AbstractKnowledgeComponent]) -> tuple[Hashable, AbstractKnowledgeComponent]:
         topic_id, kc = topic_kc_pair
         extracted_kc = learner_model.knowledge.get_kc(
-            topic_id, kc.clone(init_skill, def_var))
+            topic_id, kc.clone(mean=init_skill, variance=def_var, timestamp=def_timestamp))
         return topic_id, extracted_kc
 
     team_learner = map(__topic_kc_pair_mapper,
@@ -327,7 +332,7 @@ def select_topic_kc_pairs(learner_model: LearnerModel, content_knowledge: Abstra
 
 
 def select_kcs(learner_model: LearnerModel, content_knowledge: AbstractKnowledge,
-               init_skill: float, def_var: float) -> Iterable[AbstractKnowledgeComponent]:
+               init_skill: float, def_var: float, def_timestamp: float | None = None) -> Iterable[AbstractKnowledgeComponent]:
     """Return an iterable representing the learner's knowledge in the topics specified by the learnable unit.
 
     Given the knowledge representation of the learnable unit, this method tries to get
@@ -347,6 +352,11 @@ def select_kcs(learner_model: LearnerModel, content_knowledge: AbstractKnowledge
         The initial skill (mean) of the learner given a new AbstractKnowledgeComponent.
     def_var: float
         The default variance of the new AbstractKnowledgeComponent.
+    def_timestamp: float | None, optional
+        The default timestamp of the new AbstractKnowledgeComponent.
+        It should be the event time for InterestClassifier.
+        This field could be left empty if InterestClassifier or any meta model
+        that uses InterestClassifier are not used.
 
     Returns
     -------
@@ -356,7 +366,7 @@ def select_kcs(learner_model: LearnerModel, content_knowledge: AbstractKnowledge
     def __kc_mapper(topic_kc_pair: tuple[Hashable, AbstractKnowledgeComponent]) -> AbstractKnowledgeComponent:
         topic_id, kc = topic_kc_pair
         extracted_kc = learner_model.knowledge.get_kc(
-            topic_id, kc.clone(init_skill, def_var))
+            topic_id, kc.clone(mean=init_skill, variance=def_var, timestamp=def_timestamp))
         return extracted_kc
 
     team_learner = map(__kc_mapper, content_knowledge.topic_kc_pairs())

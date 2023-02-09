@@ -68,7 +68,7 @@ class KnowledgeClassifier(InterestNoveltyKnowledgeBaseClassifier):
 
         for topic_kc_pair, rating in zip(learner_topic_kc_pairs, updated_team_learner):
             topic_id, kc = topic_kc_pair
-            kc.update(rating.mean, rating.sigma ** 2)
+            kc.update(mean=rating.mean, variance=rating.sigma ** 2)
             self._learner_model.knowledge.update_kc(topic_id, kc)
 
     def predict_proba(self, x: EventModel) -> float:
