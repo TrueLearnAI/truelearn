@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from ._base import InterestNoveltyKnowledgeBaseClassifier
-from truelearn.models import EventModel
+from truelearn.models import EventModel, LearnerModel
 
 
 class NoveltyClassifier(InterestNoveltyKnowledgeBaseClassifier):
@@ -36,6 +36,13 @@ class NoveltyClassifier(InterestNoveltyKnowledgeBaseClassifier):
         Get parameters associated with the model.
 
     """
+
+    def __init__(self, *, learner_model: LearnerModel | None = None, threshold: float = 0.5, init_skill=0.,
+                 def_var=0.5, beta: float = 0.5, positive_only=True, draw_proba_type: str = "dynamic",
+                 draw_proba_static: float = 0.5, draw_proba_factor: float = 0.1) -> None:
+        super().__init__(learner_model=learner_model, threshold=threshold, init_skill=init_skill,
+                         def_var=def_var, beta=beta, positive_only=positive_only, draw_proba_type=draw_proba_type,
+                         draw_proba_static=draw_proba_static, draw_proba_factor=draw_proba_factor)
 
     # pylint: disable=too-many-locals
     def _update_knowledge_representation(self, x: EventModel, y: bool) -> None:

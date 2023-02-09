@@ -135,9 +135,9 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
     DEFAULT_DRAW_PROBA_LOW: float = 1e-9
     DEFAULT_DRAW_PROBA_HIGH: float = 0.999999999
 
-    def __init__(self, *, learner_model: LearnerModel | None = None, threshold: float = 0.5,
-                 init_skill=0., def_var=0.5, beta: float = 0.5, positive_only=True, draw_proba_type: str = "dynamic",
-                 draw_proba_static: float = 0.5, draw_proba_factor: float = 0.1) -> None:
+    def __init__(self, *, learner_model: LearnerModel | None, threshold: float,
+                 init_skill, def_var, beta: float, positive_only, draw_proba_type: str,
+                 draw_proba_static: float, draw_proba_factor: float) -> None:
         super().__init__()
 
         if learner_model is None:
@@ -155,7 +155,9 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
         self._draw_proba_factor = draw_proba_factor
 
         if self._draw_proba_type == "static":
-            self.__calculate_draw_proba = lambda: self._draw_proba_static * self._draw_proba_factor
+            def __calculate_draw_proba_static():
+                return self._draw_proba_static * self._draw_proba_factor
+            self.__calculate_draw_proba = __calculate_draw_proba_static
         elif self._draw_proba_type == "dynamic":
             def __calculate_draw_proba_dynamic():
                 total_engagement_stats = min(1, self._learner_model.number_of_engagements +

@@ -37,10 +37,16 @@ class KnowledgeClassifier(InterestNoveltyKnowledgeBaseClassifier):
 
     """
 
+    DRAW_PROBA_STATIC: float = 1e-9
+
     def __init__(self, *, learner_model: LearnerModel | None = None, threshold: float = 0.5,
                  init_skill=0., def_var=0.5, beta: float = 0.5, positive_only=True) -> None:
+        # the knowledge classifier doesn't rely on the draw probability
+        # it utilizes different assumptions
+        # so, we set draw probability to a very small value to avoid its impact
         super().__init__(learner_model=learner_model, threshold=threshold,
-                         init_skill=init_skill, def_var=def_var, beta=beta, positive_only=positive_only)
+                         init_skill=init_skill, def_var=def_var, beta=beta, positive_only=positive_only,
+                         draw_proba_type="static", draw_proba_static=KnowledgeClassifier.DRAW_PROBA_STATIC, draw_proba_factor=0.1)
 
     def __team_sum_quality(self, learner_kcs: Iterable[AbstractKnowledgeComponent],
                            content_kcs: Iterable[AbstractKnowledgeComponent]) -> float:
