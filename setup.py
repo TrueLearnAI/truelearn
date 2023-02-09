@@ -30,3 +30,5 @@ setup(
         "License :: OSI Approved :: MIT License",
     ]
 )
+if __name__ == "__main__":
+    setup()
