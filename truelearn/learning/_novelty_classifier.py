@@ -46,6 +46,7 @@ class NoveltyClassifier(InterestNoveltyKnowledgeBaseClassifier):
 
     # pylint: disable=too-many-locals
     def _update_knowledge_representation(self, x: EventModel, y: bool) -> None:
+        # make them list because we use them more than one time later
         learner_topic_kc_pairs = list(select_topic_kc_pairs(
             self._learner_model, x.knowledge, self._init_skill, self._def_var))
         learner_kcs = list(

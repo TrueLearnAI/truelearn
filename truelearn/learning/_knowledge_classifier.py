@@ -47,6 +47,7 @@ class KnowledgeClassifier(InterestNoveltyKnowledgeBaseClassifier):
                          draw_proba_type="static", draw_proba_static=KnowledgeClassifier.DRAW_PROBA_STATIC, draw_proba_factor=0.1)
 
     def _update_knowledge_representation(self, x: EventModel, y: bool) -> None:
+        # make it a list because we need to use it more than one time later
         learner_topic_kc_pairs = list(select_topic_kc_pairs(
             self._learner_model, x.knowledge, self._init_skill, self._def_var))
         learner_kcs = map(
