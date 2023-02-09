@@ -1,4 +1,4 @@
-import requests
+from urllib import request, parse
 import ujson as json
 
 from typing import Optional, Union, NoReturn
@@ -99,16 +99,23 @@ class Wikifier:
             'nTopDfValuesToIgnore': df_ignore,
             'nWordsToIgnoreFromList': words_ignore
         }
-        r = requests.post("http://www.wikifier.org/annotate-article", params)
-        if r.status_code == 200:
-            resp = json.loads(r.content)
-            if 'error' in resp:
-                raise ValueError("error in response : {}".format(resp['error']))
-            return resp
-        else:
-            raise ValueError(
-                "http status code 200 expected, got status code {} instead".format(r.status_code)
-                )
+
+        data = parse.urlencode(params)
+        url = "http://www.wikifier.org/annotate-article?" + data
+
+        with request.urlopen(url) as r:
+            if r.getcode() == 200:
+                r = r.read().decode('utf-8')
+                resp = json.loads(r)
+                if 'error' in resp:
+                    raise ValueError("error in response : {}".format(resp['error']))
+                if 'status' in resp:
+                    raise ValueError(resp['status'])
+                return resp
+            else:
+                raise ValueError(
+                    "http status code 200 expected, got status code {} instead".format(r.status_code)
+                    )
 
     def __format_wikifier_response(
             self, resp: WikifierAnnotations, top_n: Optional[int] = None
