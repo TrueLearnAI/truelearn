@@ -155,7 +155,7 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
         self._draw_proba_factor = draw_proba_factor
 
         if self._draw_proba_type == "static":
-            self.__calculate_draw_proba = lambda: self._draw_proba_static
+            self.__calculate_draw_proba = lambda: self._draw_proba_static * self._draw_proba_factor
         elif self._draw_proba_type == "dynamic":
             def __calculate_draw_proba_dynamic():
                 total_engagement_stats = min(1, self._learner_model.number_of_engagements +
@@ -273,11 +273,11 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
             The updated InterestNoveltyKnowledgeBaseClassifier.
 
         """
-        if self._positive_only is True and y is False:
-            return self
+        # update the knowledge representation if positive_only is False or (it's true and y is true)
+        if not self._positive_only or y is True:
+            self.__setup_env()
+            self._update_knowledge_representation(x, y)
 
-        self.__setup_env()
-        self._update_knowledge_representation(x, y)
         self.__update_engagement_stats(y)
         return self
 
