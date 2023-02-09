@@ -30,7 +30,7 @@ jobs:
           pip install Furo
 
       - name: Sphinx Build
-        uses: KD-7/sphinx-action
+        uses: KD-7/sphinx-action@master
         with:
           docs-folder: "docs/"
 
