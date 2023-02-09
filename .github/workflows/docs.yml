@@ -10,8 +10,9 @@ on:
   workflow_dispatch:
 
 jobs:
-  - name: Build and Deploy
+  Build_and_Deploy:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v3
