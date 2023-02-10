@@ -21,24 +21,25 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  Sphinx_Build:
-    uses: ./.github/workflows/docs_build.yml
-
 # Deployment to GitHub Pages
 # See: https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site#choosing-a-publishing-source
-  Deploy:
+  Build_and_Deploy:
+    # Will only deploy if on the main branch or documentation generation
+    # To change this go to:https://github.com/comp0016-group1/truelearn/settings/environments
+    # Then under deployment add a deployment branch rule with the name of that branch you want to deploy from
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     needs: Sphinx_Build
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+      - name: Sphinx Build
+        uses: ./.github/workflows/docs_build.yml
       - name: Setup Pages
         uses: actions/configure-pages@v3
-      #Debugging
+      # Debugging
       - run: ls
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
