@@ -25,6 +25,7 @@ jobs:
     uses: ./.github/workflows/docs_build.yml
 
 # Deployment to GitHub Pages
+# See: https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site#choosing-a-publishing-source
   Deploy:
     environment:
       name: github-pages
