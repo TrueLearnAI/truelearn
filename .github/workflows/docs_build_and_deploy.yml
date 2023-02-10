@@ -32,10 +32,12 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Sphinx Build
-        uses: ./.github/workflows/docs_build.yml
+      # Run checkout first so we can access that action
       - name: Checkout Repo
         uses: actions/checkout@v3
+      - name: Sphinx Build
+        uses: ./.github/workflows/docs_build.yml
+
       - name: Setup Pages
         uses: actions/configure-pages@v3
 
