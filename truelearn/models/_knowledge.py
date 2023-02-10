@@ -115,7 +115,7 @@ class KnowledgeComponent(AbstractKnowledgeComponent):
 
     def export(self, output_format: str) -> Any:
         raise NotImplementedError(
-            f"The export function for {output_format} is not yet implemented")
+            f"The export function for {output_format} is not yet implemented.")
 
 
 class Knowledge(AbstractKnowledge):
@@ -164,4 +164,4 @@ class Knowledge(AbstractKnowledge):
 
     def export(self, output_format: str) -> Any:
         raise NotImplementedError(
-            f"The export function for {output_format} is not yet implemented")
+            f"The export function for {output_format} is not yet implemented.")

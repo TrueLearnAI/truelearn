@@ -83,7 +83,9 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
     # pylint: disable=too-many-locals
     def _update_knowledge_representation(self, x: EventModel, y: bool) -> None:
         if x.event_time is None:
-            raise RuntimeError("Time is not specified for event.")
+            raise ValueError(
+                "The event time should not be None when using InterestClassifier."
+            )
 
         event_time_posix = dt.utcfromtimestamp(x.event_time)
 
@@ -99,8 +101,9 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
 
         def __apply_interest_decay(kc: AbstractKnowledgeComponent) -> AbstractKnowledgeComponent:
             if kc.timestamp is None:
-                raise RuntimeError(
-                    "Time is not specified for learner's knowledge component.")
+                raise ValueError(
+                    "The timestamp field of knowledge component should not be None if using InterestClassifier."
+                )
             t_delta = (event_time_posix -
                        dt.utcfromtimestamp(kc.timestamp)).days
             kc.update(mean=kc.mean * decay_func(float(t_delta)))
@@ -109,7 +112,8 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
         learner_kcs_decayed = map(__apply_interest_decay, learner_kcs)
 
         team_learner = self._gather_trueskill_team(learner_kcs_decayed)
-        team_content = self._gather_trueskill_team(x.knowledge.knowledge_components())
+        team_content = self._gather_trueskill_team(
+            x.knowledge.knowledge_components())
 
         # learner always wins in interest
         updated_team_learner, _ = self._env.rate(
@@ -118,7 +122,8 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
         for topic_kc_pair, rating in zip(learner_topic_kc_pairs, updated_team_learner):
             topic_id, kc = topic_kc_pair
             # need to update with timestamp=x.event_time as there are old kcs in the pairs
-            kc.update(mean=rating.mean, variance=rating.sigma ** 2, timestamp=x.event_time)
+            kc.update(mean=rating.mean, variance=rating.sigma **
+                      2, timestamp=x.event_time)
             self._learner_model.knowledge.update_kc(topic_id, kc)
 
     def predict_proba(self, x: EventModel) -> float:

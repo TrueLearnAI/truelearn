@@ -141,7 +141,7 @@ class BaseClassifier(ABC):
         for key in param_names:
             if not hasattr(self, key):
                 raise ValueError(
-                    f"The specified parameter name {key} is not in the {self.__class__.__name__}")
+                    f"The specified parameter name {key} is not in the {self.__class__.__name__}.")
 
             value = getattr(self, key)
             if deep and isinstance(value, BaseClassifier):
@@ -182,7 +182,7 @@ class BaseClassifier(ABC):
                 BaseClassifier.__DEEP_PARAM_DELIMITER)
             if key not in valid_params:
                 raise ValueError(
-                    f"The given parameter {key} is not in the class {self.__class__.__name__}. "
+                    f"The given parameter {key} is not in the class {self.__class__.__name__}."
                 )
 
             if delim:
@@ -310,13 +310,13 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
         self._beta = beta
         self._positive_only = positive_only
 
+        if draw_proba_type not in ("static", "dynamic"):
+            raise ValueError(
+                f"The draw_proba_type should be either static or dynamic. Got {draw_proba_type} instead."
+            )
+
         self._draw_proba_type = draw_proba_type
         self._draw_proba_factor = draw_proba_factor
-
-        if self._draw_proba_type not in ("static", "dynamic"):
-            raise ValueError(
-                "Unsupported draw probability type. The model supports two types: static and dynamic")
-
         self._draw_proba_static = draw_proba_static
         self._draw_probability = self.__calculate_draw_proba()
 
@@ -328,7 +328,7 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
             # delayed check as this can be potentially replaced by set_params
             if self._draw_proba_static is None:
                 raise ValueError(
-                    "When _draw_proba_type is set to static, the draw_proba_static should not be None"
+                    "When draw_proba_type is set to static, the draw_proba_static should not be None."
                 )
             return self._draw_proba_static * self._draw_proba_factor
 
