@@ -17,7 +17,8 @@ setup(
     long_description=open('README.md').read(),
     install_requires=[
         'trueskill>=0.4.5',
-        "scikit-learn>=0.19.1"
+        "scikit-learn>=1.0.0",
+        "typing-extensions>=4.4.0"
     ],
     classifiers=[
         "Programming Language :: Python :: 3.7",
