@@ -24,8 +24,11 @@ jobs:
   Sphinx_Build:
     uses: ./.github/workflows/docs_build.yml
 
-# Build the Jekyll site
-  Jekyll_Build:
+# Deployment to GitHub Pages
+  Deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     needs: Sphinx_Build
     steps:
@@ -33,25 +36,11 @@ jobs:
         uses: actions/checkout@v3
       - name: Setup Pages
         uses: actions/configure-pages@v3
-
-      - name: Build with Jekyll
-        uses: actions/jekyll-build-pages@v1
-        with:
-          source: ./docs/_build/html
-          destination: ./_site
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
-
-# Deployment to GitHub Pages
-  Deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: Jekyll_Build
-    steps:
+        with:
+          # Upload Sphinx Build
+          path: './docs/_build/html'
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v1
-
-
