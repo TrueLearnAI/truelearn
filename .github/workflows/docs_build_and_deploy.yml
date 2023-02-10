@@ -21,6 +21,24 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  Sphinx_Build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+
+      - name: Sphinx Build
+        uses: ./.github/actions/docs_build/docs_build.yml
+
+      # Caching build to share between jobs
+      # See: https://github.com/actions/cache/blob/main/save/README.md
+      - name: Cache build for deployment
+        uses: actions/cache/save@v3
+        id: cache
+        with:
+          path: ./docs/_build/html/
+          key: ${{ runner.os }}
+
 # Deployment to GitHub Pages
 # See: https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site#choosing-a-publishing-source
   Build_and_Deploy:
@@ -36,8 +54,13 @@ jobs:
       - name: Checkout Repo
         uses: actions/checkout@v3
 
-      - name: Sphinx Build
-        uses: ./.github/actions/docs_build/action.yml
+      - name: Restore Build Cache
+        uses: actions/cache/restore@v3
+        id: cache
+        with:
+          path: ./docs/_build/html/
+          key: ${{ runner.os }}
+          fail-on-cache-miss: true
 
       - name: Setup Pages
         uses: actions/configure-pages@v3
