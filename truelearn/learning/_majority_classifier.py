@@ -26,11 +26,17 @@ class MajorityClassifier(BaseClassifier):
 
     """
 
+    _parameter_constraints = {
+        **BaseClassifier._parameter_constraints,
+        "_engagement": int,
+        "_non_engagement": int
+    }
+
     def __init__(self) -> None:
         super().__init__()
 
-        self.__engagement = 0
-        self.__non_engagement = 0
+        self._engagement = 0
+        self._non_engagement = 0
 
     def fit(self, _x: EventModel, y: bool) -> MajorityClassifier:
         """Train the model based on the given event and labels.
@@ -53,9 +59,9 @@ class MajorityClassifier(BaseClassifier):
 
         """
         if y:
-            self.__engagement += 1
+            self._engagement += 1
         else:
-            self.__non_engagement += 1
+            self._non_engagement += 1
 
         return self
 
@@ -77,7 +83,7 @@ class MajorityClassifier(BaseClassifier):
         Given the nature of this classifier, the input _x is not used.
 
         """
-        return self.__engagement > self.__non_engagement
+        return self._engagement > self._non_engagement
 
     def predict_proba(self, _x: EventModel) -> float:
         """Predict the probability of learner engagement.
@@ -97,7 +103,7 @@ class MajorityClassifier(BaseClassifier):
         Given the nature of this classifier, the input _x is not used.
 
         """
-        return self.__engagement > self.__non_engagement
+        return self._engagement > self._non_engagement
 
     @property
     def engagement(self) -> int:
@@ -109,7 +115,7 @@ class MajorityClassifier(BaseClassifier):
             The number of learner's engagement on the training data.
 
         """
-        return self.__engagement
+        return self._engagement
 
     @property
     def non_engagement(self) -> int:
@@ -121,4 +127,4 @@ class MajorityClassifier(BaseClassifier):
             The number of learner's non-engagement on the training data.
 
         """
-        return self.__non_engagement
+        return self._non_engagement

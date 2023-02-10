@@ -22,10 +22,15 @@ class PersistentClassifier(BaseClassifier):
 
     """
 
+    _parameter_constraints = {
+        **BaseClassifier._parameter_constraints,
+        "_engage_with_last": bool
+    }
+
     def __init__(self) -> None:
         super().__init__()
 
-        self.__engage_with_last = False
+        self._engage_with_last = False
 
     def fit(self, _x: EventModel, y: bool) -> PersistentClassifier:
         """Train the model based on the given event and labels.
@@ -47,7 +52,7 @@ class PersistentClassifier(BaseClassifier):
         Given the nature of this classifier, the input _x is not used.
 
         """
-        self.__engage_with_last = y
+        self._engage_with_last = y
         return self
 
     def predict(self, _x: EventModel) -> bool:
@@ -68,7 +73,7 @@ class PersistentClassifier(BaseClassifier):
         Given the nature of this classifier, the input _x is not used.
 
         """
-        return self.__engage_with_last
+        return self._engage_with_last
 
     def predict_proba(self, _x: EventModel) -> float:
         """Predict the probability of learner engagement.
@@ -88,7 +93,7 @@ class PersistentClassifier(BaseClassifier):
         Given the nature of this classifier, the input _x is not used.
 
         """
-        return float(self.__engage_with_last)
+        return float(self._engage_with_last)
 
     @property
     def engage_with_last(self) -> bool:
@@ -100,4 +105,4 @@ class PersistentClassifier(BaseClassifier):
             Whether the learner engage with the last learnable unit.
 
         """
-        return self.__engage_with_last
+        return self._engage_with_last

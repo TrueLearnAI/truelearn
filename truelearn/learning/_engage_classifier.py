@@ -18,6 +18,15 @@ class EngageClassifier(BaseClassifier):
 
     """
 
+    _parameter_constraints = {
+        **BaseClassifier._parameter_constraints
+    }
+
+    def __init__(self) -> None:
+        super().__init__()
+
+        self._validate_params()
+
     def fit(self, _x: EventModel, _y: bool) -> EngageClassifier:
         """Train the model based on the given event and labels.
 

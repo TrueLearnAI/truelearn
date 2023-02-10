@@ -39,6 +39,12 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
 
     """
 
+    _parameter_constraints = {
+        **InterestNoveltyKnowledgeBaseClassifier._parameter_constraints,
+        "_decay_func_type": str,
+        "_decay_func_factor": float
+    }
+
     def __init__(self, *, learner_model: LearnerModel | None = None, threshold: float = 0.5, init_skill=0.,
                  def_var=0.5, beta: float = 0.5, positive_only=True, draw_proba_type: str = "dynamic",
                  draw_proba_static: float = 0.5, draw_proba_factor: float = 0.1,
@@ -47,17 +53,34 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
                          def_var=def_var, beta=beta, positive_only=positive_only, draw_proba_type=draw_proba_type,
                          draw_proba_static=draw_proba_static, draw_proba_factor=draw_proba_factor)
 
-        self.__decay_func_type = decay_func_type
-        self.__decay_func_factor = decay_func_factor
-        if self.__decay_func_type == "short":
-            def __decay_func_short(t_delta: float) -> float:
-                return min(2 / (1 + exp(self.__decay_func_factor * t_delta)), 1.)
-            self.__decay_func = __decay_func_short
-        elif self.__decay_func_type == "long":
-            def __decay_func_long(t_delta: float) -> float:
-                return min(exp(-self.__decay_func_factor * t_delta), 1.)
-            self.__decay_func = __decay_func_long
+        if decay_func_type not in ("short", "long"):
+            raise ValueError(
+                f"The decay_func_type must be either short or long. Got {decay_func_type} instead."
+            )
+        self._decay_func_type = decay_func_type
+        self._decay_func_factor = decay_func_factor
 
+        self._validate_params()
+
+    def __get_decay_func(self):
+        """Get decay function based on decay_func_type.
+
+        Returns
+        -------
+        Callable[float, float]
+            The resulting decay_function.
+
+        Notes
+        -----
+        Equations from: https://link.springer.com/article/10.1007/s11227-020-03266-2
+
+        """
+        if self._decay_func_type == "short":
+            return lambda t_delta: min(2 / (1 + exp(self._decay_func_factor * t_delta)), 1.)
+
+        return lambda t_delta: min(exp(-self._decay_func_factor * t_delta), 1.)
+
+    # pylint: disable=too-many-locals
     def _update_knowledge_representation(self, x: EventModel, y: bool) -> None:
         if x.event_time is None:
             raise RuntimeError("Time is not specified for event.")
@@ -72,13 +95,15 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
             lambda topic_kc_pair: topic_kc_pair[1], learner_topic_kc_pairs)
 
         # apply interest decay
+        decay_func = self.__get_decay_func()
+
         def __apply_interest_decay(kc: AbstractKnowledgeComponent) -> AbstractKnowledgeComponent:
             if kc.timestamp is None:
                 raise RuntimeError(
                     "Time is not specified for learner's knowledge component.")
             t_delta = (event_time_posix -
                        dt.utcfromtimestamp(kc.timestamp)).days
-            kc.update(mean=kc.mean * self.__decay_func(float(t_delta)))
+            kc.update(mean=kc.mean * decay_func(float(t_delta)))
             return kc
 
         learner_kcs_decayed = map(__apply_interest_decay, learner_kcs)
