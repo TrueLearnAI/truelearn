@@ -1,4 +1,3 @@
-from __future__ import annotations
 from typing import Callable
 from math import exp
 from datetime import datetime as dt

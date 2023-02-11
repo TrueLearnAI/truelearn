@@ -1,4 +1,3 @@
-from __future__ import annotations
 from typing_extensions import Self
 
 from ._base import BaseClassifier

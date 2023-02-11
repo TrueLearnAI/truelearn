@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from ._base import InterestNoveltyKnowledgeBaseClassifier, select_kcs, select_topic_kc_pairs
 from truelearn.models import EventModel, LearnerModel
 

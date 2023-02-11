@@ -1,4 +1,3 @@
-from __future__ import annotations
 from typing import Iterable, Hashable, Any
 from typing_extensions import Self
 from abc import ABC, abstractmethod
