@@ -56,13 +56,14 @@ class KnowledgeClassifier(InterestNoveltyKnowledgeBaseClassifier):
                  threshold: float = 0.5,
                  init_skill: float = 0.,
                  def_var: float = 0.5,
+                 tau: float = 0.1,
                  beta: float = 0.5,
                  positive_only: bool = True) -> None:
         # the knowledge classifier doesn't rely on the draw probability
         # it utilizes different assumptions
         # so, we set draw probability to a very small value to avoid its impact
         super().__init__(learner_model=learner_model, threshold=threshold,
-                         init_skill=init_skill, def_var=def_var, beta=beta, positive_only=positive_only,
+                         init_skill=init_skill, def_var=def_var, tau=tau, beta=beta, positive_only=positive_only,
                          draw_proba_type="static", draw_proba_static=KnowledgeClassifier.DRAW_PROBA_STATIC, draw_proba_factor=0.1)
 
         self._validate_params()

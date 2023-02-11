@@ -267,6 +267,7 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
         "_threshold": float,
         "_init_skill": float,
         "_def_var": float,
+        "_tau": float,
         "_beta": float,
         "_positive_only": bool,
         "_draw_proba_type": str,
@@ -279,6 +280,7 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
                  threshold: float,
                  init_skill: float,
                  def_var: float,
+                 tau: float,
                  beta: float,
                  positive_only: bool,
                  draw_proba_type: str,
@@ -293,6 +295,7 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
         self._threshold = threshold
         self._init_skill = init_skill
         self._def_var = def_var
+        self._tau = tau
         self._beta = beta
         self._positive_only = positive_only
 
@@ -334,8 +337,8 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
     @final
     def __setup_env(self) -> None:
         self.__calculate_draw_proba()
-        trueskill.setup(mu=0., sigma=InterestNoveltyKnowledgeBaseClassifier.DEFAULT_CONTENT_VARIANCE, beta=float(self._beta),
-                        tau=float(self._learner_model.tau), draw_probability=self._draw_probability,
+        trueskill.setup(mu=0., sigma=InterestNoveltyKnowledgeBaseClassifier.DEFAULT_CONTENT_VARIANCE, beta=self._beta,
+                        tau=self._tau, draw_probability=self._draw_probability,
                         backend="mpmath", env=self._env)
 
     @final
