@@ -64,29 +64,30 @@ class INKClassifier(BaseClassifier):
         "_draw_proba_factor": float,
         "_decay_func_type": str,
         "_decay_func_factor": float,
-        "_greedy": bool
+        "_greedy": bool,
     }
 
     # pylint: disable=too-many-locals
-    def __init__(self,
-                 *,
-                 learner_model: MetaLearnerModel | None = None,
-                 threshold: float = 0.5,
-                 k_init_skill: float = 0.,
-                 i_init_skill: float = 0.,
-                 k_def_var: float = 0.5,
-                 i_def_var: float = 0.5,
-                 k_beta: float = 0.1,
-                 i_beta: float = 0.1,
-                 tau: float = 0.5,
-                 positive_only: bool = True,
-                 draw_proba_type: str = "dynamic",
-                 draw_proba_static: float = 0.5,
-                 draw_proba_factor: float = 0.1,
-                 decay_func_type: str = "short",
-                 decay_func_factor: float = 0.,
-                 greedy: bool = False) -> None:
-
+    def __init__(
+        self,
+        *,
+        learner_model: MetaLearnerModel | None = None,
+        threshold: float = 0.5,
+        k_init_skill: float = 0.0,
+        i_init_skill: float = 0.0,
+        k_def_var: float = 0.5,
+        i_def_var: float = 0.5,
+        k_beta: float = 0.1,
+        i_beta: float = 0.1,
+        tau: float = 0.5,
+        positive_only: bool = True,
+        draw_proba_type: str = "dynamic",
+        draw_proba_static: float = 0.5,
+        draw_proba_factor: float = 0.1,
+        decay_func_type: str = "short",
+        decay_func_factor: float = 0.0,
+        greedy: bool = False,
+    ) -> None:
         if learner_model is None:
             learner_model = MetaLearnerModel()
 
@@ -107,35 +108,58 @@ class INKClassifier(BaseClassifier):
         self._decay_func_factor = decay_func_factor
         self._greedy = greedy
 
-        self._env = trueskill.setup(mu=0.0, sigma=INKClassifier.DEFAULT_SIGMA, beta=1,
-                                    tau=tau, draw_probability=INKClassifier.DEFAULT_DRAW_PROBA, backend="mpmath")
+        self._env = trueskill.setup(
+            mu=0.0,
+            sigma=INKClassifier.DEFAULT_SIGMA,
+            beta=1,
+            tau=tau,
+            draw_probability=INKClassifier.DEFAULT_DRAW_PROBA,
+            backend="mpmath",
+        )
 
         self._validate_params()
 
-    def __calculate_sum_prediction(self,
-                                   *,
-                                   mu_novelty,
-                                   var_novelty,
-                                   pred_novelty,
-                                   mu_interest,
-                                   var_interest,
-                                   pred_interest,
-                                   mu_bias,
-                                   var_bias,
-                                   pred_bias) -> float:
-        difference = (mu_novelty * pred_novelty) + (mu_interest *
-                                                    pred_interest) + (mu_bias * pred_bias) - self._threshold
+    def __calculate_sum_prediction(
+        self,
+        *,
+        mu_novelty,
+        var_novelty,
+        pred_novelty,
+        mu_interest,
+        var_interest,
+        pred_interest,
+        mu_bias,
+        var_bias,
+        pred_bias,
+    ) -> float:
+        difference = (
+            (mu_novelty * pred_novelty)
+            + (mu_interest * pred_interest)
+            + (mu_bias * pred_bias)
+            - self._threshold
+        )
         std = math.sqrt(
-            ((var_novelty) * pred_novelty) + ((var_interest) * pred_interest) + ((var_bias) * pred_bias))
+            ((var_novelty) * pred_novelty)
+            + ((var_interest) * pred_interest)
+            + ((var_bias) * pred_bias)
+        )
         return statistics.NormalDist(mu=0, sigma=std).cdf(difference)
 
-    def __update_weights(self, pred_novelty: bool, pred_interest: bool, pred_actual: bool) -> None:
-        mu_novelty, var_novelty = \
-            self._learner_model.novelty_weight["mean"], self._learner_model.novelty_weight["variance"]
-        mu_interest, var_interest = \
-            self._learner_model.interest_weight["mean"], self._learner_model.interest_weight["variance"]
-        mu_bias, var_bias = \
-            self._learner_model.bias_weight["mean"], self._learner_model.bias_weight["variance"]
+    def __update_weights(
+        self, pred_novelty: bool, pred_interest: bool, pred_actual: bool
+    ) -> None:
+        mu_novelty, var_novelty = (
+            self._learner_model.novelty_weight["mean"],
+            self._learner_model.novelty_weight["variance"],
+        )
+        mu_interest, var_interest = (
+            self._learner_model.interest_weight["mean"],
+            self._learner_model.interest_weight["variance"],
+        )
+        mu_bias, var_bias = (
+            self._learner_model.bias_weight["mean"],
+            self._learner_model.bias_weight["variance"],
+        )
 
         cur_pred = self.__calculate_sum_prediction(
             mu_novelty=mu_novelty,
@@ -146,7 +170,7 @@ class INKClassifier(BaseClassifier):
             pred_interest=pred_interest,
             mu_bias=mu_bias,
             var_bias=var_bias,
-            pred_bias=1
+            pred_bias=1,
         )
 
         # if prediction is correct and greedy, don't train
@@ -156,37 +180,44 @@ class INKClassifier(BaseClassifier):
         # train
         team_experts = (
             self._env.create_rating(
-                mu=mu_novelty, sigma=math.sqrt(var_novelty)),
+                mu=mu_novelty, sigma=math.sqrt(var_novelty)
+            ),
             self._env.create_rating(
-                mu=mu_interest, sigma=math.sqrt(var_interest)),
-            self._env.create_rating(
-                mu=mu_bias, sigma=math.sqrt(var_bias)),
+                mu=mu_interest, sigma=math.sqrt(var_interest)
+            ),
+            self._env.create_rating(mu=mu_bias, sigma=math.sqrt(var_bias)),
         )
 
         team_threshold = (
-            self._env.create_rating(mu=.5, sigma=INKClassifier.DEFAULT_SIGMA),
+            self._env.create_rating(mu=0.5, sigma=INKClassifier.DEFAULT_SIGMA),
         )
 
         if pred_actual:  # weights need to be larger than threshold
             new_team_experts, _ = self._env.rate(
                 [team_experts, team_threshold],
                 weights=[(pred_novelty, pred_interest, 1), (1,)],
-                ranks=[0, 1]
+                ranks=[0, 1],
             )
         else:
             new_team_experts, _ = self._env.rate(
                 [team_experts, team_threshold],
                 weights=[(pred_novelty, pred_interest, 1), (1,)],
-                ranks=[1, 0]
+                ranks=[1, 0],
             )
 
         # update skills
-        self._learner_model.novelty_weight["mean"], self._learner_model.novelty_weight["variance"] = \
-            new_team_experts[0].mu, new_team_experts[0].sigma ** 2
-        self._learner_model.interest_weight["mean"], self._learner_model.interest_weight["variance"] = \
-            new_team_experts[1].mu, new_team_experts[1].sigma ** 2
-        self._learner_model.bias_weight["mean"], self._learner_model.bias_weight["variance"] = \
-            new_team_experts[2].mu, new_team_experts[2].sigma ** 2
+        (
+            self._learner_model.novelty_weight["mean"],
+            self._learner_model.novelty_weight["variance"],
+        ) = (new_team_experts[0].mu, new_team_experts[0].sigma ** 2)
+        (
+            self._learner_model.interest_weight["mean"],
+            self._learner_model.interest_weight["variance"],
+        ) = (new_team_experts[1].mu, new_team_experts[1].sigma ** 2)
+        (
+            self._learner_model.bias_weight["mean"],
+            self._learner_model.bias_weight["variance"],
+        ) = (new_team_experts[2].mu, new_team_experts[2].sigma ** 2)
 
     def fit(self, x: EventModel, y: bool) -> Self:
         """Train the model based on the given event and labels.
@@ -214,7 +245,7 @@ class INKClassifier(BaseClassifier):
             positive_only=self._positive_only,
             draw_proba_type=self._draw_proba_type,
             draw_proba_static=self._draw_proba_static,
-            draw_proba_factor=self._draw_proba_factor
+            draw_proba_factor=self._draw_proba_factor,
         )
         interest_classifier = InterestClassifier(
             learner_model=self._learner_model.learner_interest,
@@ -228,7 +259,7 @@ class INKClassifier(BaseClassifier):
             draw_proba_static=self._draw_proba_static,
             draw_proba_factor=self._draw_proba_factor,
             decay_func_type=self._decay_func_type,
-            decay_func_factor=self._decay_func_factor
+            decay_func_factor=self._decay_func_factor,
         )
         novelty_classifier.fit(x, y)
         interest_classifier.fit(x, y)
@@ -266,7 +297,7 @@ class INKClassifier(BaseClassifier):
             positive_only=self._positive_only,
             draw_proba_type=self._draw_proba_type,
             draw_proba_static=self._draw_proba_static,
-            draw_proba_factor=self._draw_proba_factor
+            draw_proba_factor=self._draw_proba_factor,
         )
         interest_classifier = InterestClassifier(
             learner_model=self._learner_model.learner_interest,
@@ -280,15 +311,21 @@ class INKClassifier(BaseClassifier):
             draw_proba_static=self._draw_proba_static,
             draw_proba_factor=self._draw_proba_factor,
             decay_func_type=self._decay_func_type,
-            decay_func_factor=self._decay_func_factor
+            decay_func_factor=self._decay_func_factor,
         )
 
-        mu_novelty, var_novelty = \
-            self._learner_model.novelty_weight["mean"], self._learner_model.novelty_weight["variance"]
-        mu_interest, var_interest = \
-            self._learner_model.interest_weight["mean"], self._learner_model.interest_weight["variance"]
-        mu_bias, var_bias = \
-            self._learner_model.bias_weight["mean"], self._learner_model.bias_weight["variance"]
+        mu_novelty, var_novelty = (
+            self._learner_model.novelty_weight["mean"],
+            self._learner_model.novelty_weight["variance"],
+        )
+        mu_interest, var_interest = (
+            self._learner_model.interest_weight["mean"],
+            self._learner_model.interest_weight["variance"],
+        )
+        mu_bias, var_bias = (
+            self._learner_model.bias_weight["mean"],
+            self._learner_model.bias_weight["variance"],
+        )
 
         cur_pred = self.__calculate_sum_prediction(
             mu_novelty=mu_novelty,
@@ -299,7 +336,7 @@ class INKClassifier(BaseClassifier):
             pred_interest=interest_classifier.predict(x),
             mu_bias=mu_bias,
             var_bias=var_bias,
-            pred_bias=1
+            pred_bias=1,
         )
 
         return cur_pred

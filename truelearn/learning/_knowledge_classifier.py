@@ -1,7 +1,12 @@
 from typing_extensions import Final
 from typing import Any
 
-from ._base import InterestNoveltyKnowledgeBaseClassifier, team_sum_quality, select_kcs, select_topic_kc_pairs
+from ._base import (
+    InterestNoveltyKnowledgeBaseClassifier,
+    team_sum_quality,
+    select_kcs,
+    select_topic_kc_pairs,
+)
 from truelearn.models import EventModel, LearnerModel
 
 
@@ -50,30 +55,48 @@ class KnowledgeClassifier(InterestNoveltyKnowledgeBaseClassifier):
         **InterestNoveltyKnowledgeBaseClassifier._parameter_constraints,
     }
 
-    def __init__(self,
-                 *,
-                 learner_model: LearnerModel | None = None,
-                 threshold: float = 0.5,
-                 init_skill: float = 0.,
-                 def_var: float = 0.5,
-                 beta: float = 0.1,
-                 tau: float = 0.1,
-                 positive_only: bool = True) -> None:
+    def __init__(
+        self,
+        *,
+        learner_model: LearnerModel | None = None,
+        threshold: float = 0.5,
+        init_skill: float = 0.0,
+        def_var: float = 0.5,
+        beta: float = 0.1,
+        tau: float = 0.1,
+        positive_only: bool = True,
+    ) -> None:
         # the knowledge classifier doesn't rely on the draw probability
         # it utilizes different assumptions
         # so, we set draw probability to a very small value to avoid its impact
-        super().__init__(learner_model=learner_model, threshold=threshold,
-                         init_skill=init_skill, def_var=def_var, tau=tau, beta=beta, positive_only=positive_only,
-                         draw_proba_type="static", draw_proba_static=KnowledgeClassifier.DRAW_PROBA_STATIC, draw_proba_factor=0.1)
+        super().__init__(
+            learner_model=learner_model,
+            threshold=threshold,
+            init_skill=init_skill,
+            def_var=def_var,
+            tau=tau,
+            beta=beta,
+            positive_only=positive_only,
+            draw_proba_type="static",
+            draw_proba_static=KnowledgeClassifier.DRAW_PROBA_STATIC,
+            draw_proba_factor=0.1,
+        )
 
         self._validate_params()
 
     def _update_knowledge_representation(self, x: EventModel, y: bool) -> None:
         # make it a list because we need to use it more than one time later
-        learner_topic_kc_pairs = list(select_topic_kc_pairs(
-            self._learner_model, x.knowledge, self._init_skill, self._def_var))
+        learner_topic_kc_pairs = list(
+            select_topic_kc_pairs(
+                self._learner_model,
+                x.knowledge,
+                self._init_skill,
+                self._def_var,
+            )
+        )
         learner_kcs = map(
-            lambda topic_kc_pair: topic_kc_pair[1], learner_topic_kc_pairs)
+            lambda topic_kc_pair: topic_kc_pair[1], learner_topic_kc_pairs
+        )
         content_kcs = x.knowledge.knowledge_components()
 
         team_learner = self._gather_trueskill_team(learner_kcs)
@@ -82,15 +105,19 @@ class KnowledgeClassifier(InterestNoveltyKnowledgeBaseClassifier):
         if y:
             # learner wins: lower rank == winning
             updated_team_learner, _ = self._env.rate(
-                [team_learner, team_content], ranks=[0, 1])
+                [team_learner, team_content], ranks=[0, 1]
+            )
         else:
             # content wins
             _, updated_team_learner = self._env.rate(
-                [team_content, team_learner], ranks=[0, 1])
+                [team_content, team_learner], ranks=[0, 1]
+            )
 
-        for topic_kc_pair, rating in zip(learner_topic_kc_pairs, updated_team_learner):
+        for topic_kc_pair, rating in zip(
+            learner_topic_kc_pairs, updated_team_learner
+        ):
             topic_id, kc = topic_kc_pair
-            kc.update(mean=rating.mean, variance=rating.sigma ** 2)
+            kc.update(mean=rating.mean, variance=rating.sigma**2)
             self._learner_model.knowledge.update_kc(topic_id, kc)
 
     def predict_proba(self, x: EventModel) -> float:
@@ -119,6 +146,7 @@ class KnowledgeClassifier(InterestNoveltyKnowledgeBaseClassifier):
 
         """
         learner_kcs = select_kcs(
-            self._learner_model, x.knowledge, self._init_skill, self._def_var)
+            self._learner_model, x.knowledge, self._init_skill, self._def_var
+        )
         content_kcs = x.knowledge.knowledge_components()
         return team_sum_quality(learner_kcs, content_kcs, self._beta)

@@ -38,6 +38,12 @@ class MetaLearnerModel:
 
     learner_novelty: LearnerModel = field(default_factory=LearnerModel)
     learner_interest: LearnerModel = field(default_factory=LearnerModel)
-    novelty_weight: dict[str, float] = field(default_factory=lambda: {"mean": 0., "variance": 1})
-    interest_weight: dict[str, float] = field(default_factory=lambda: {"mean": 0., "variance": 1})
-    bias_weight: dict[str, float] = field(default_factory=lambda: {"mean": 0., "variance": 1})
+    novelty_weight: dict[str, float] = field(
+        default_factory=lambda: {"mean": 0.0, "variance": 1}
+    )
+    interest_weight: dict[str, float] = field(
+        default_factory=lambda: {"mean": 0.0, "variance": 1}
+    )
+    bias_weight: dict[str, float] = field(
+        default_factory=lambda: {"mean": 0.0, "variance": 1}
+    )

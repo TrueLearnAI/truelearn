@@ -89,4 +89,4 @@ class EngageClassifier(BaseClassifier):
         Given the nature of this classifier, the input _x is not used.
 
         """
-        return 1.
+        return 1.0

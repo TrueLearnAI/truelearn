@@ -1,6 +1,10 @@
 from typing import Any
 
-from ._base import InterestNoveltyKnowledgeBaseClassifier, select_kcs, select_topic_kc_pairs
+from ._base import (
+    InterestNoveltyKnowledgeBaseClassifier,
+    select_kcs,
+    select_topic_kc_pairs,
+)
 from truelearn.models import EventModel, LearnerModel
 
 
@@ -46,34 +50,48 @@ class NoveltyClassifier(InterestNoveltyKnowledgeBaseClassifier):
         **InterestNoveltyKnowledgeBaseClassifier._parameter_constraints,
     }
 
-    def __init__(self,
-                 *,
-                 learner_model: LearnerModel | None = None,
-                 threshold: float = 0.5,
-                 init_skill: float = 0.,
-                 def_var: float = 0.5,
-                 beta: float = 0.1,
-                 tau: float = 0.1,
-                 positive_only: bool = True,
-                 draw_proba_type: str = "dynamic",
-                 draw_proba_static: float = 0.5,
-                 draw_proba_factor: float = 0.1) -> None:
-        super().__init__(learner_model=learner_model, threshold=threshold, init_skill=init_skill,
-                         def_var=def_var, tau=tau, beta=beta, positive_only=positive_only, draw_proba_type=draw_proba_type,
-                         draw_proba_static=draw_proba_static, draw_proba_factor=draw_proba_factor)
+    def __init__(
+        self,
+        *,
+        learner_model: LearnerModel | None = None,
+        threshold: float = 0.5,
+        init_skill: float = 0.0,
+        def_var: float = 0.5,
+        beta: float = 0.1,
+        tau: float = 0.1,
+        positive_only: bool = True,
+        draw_proba_type: str = "dynamic",
+        draw_proba_static: float = 0.5,
+        draw_proba_factor: float = 0.1,
+    ) -> None:
+        super().__init__(
+            learner_model=learner_model,
+            threshold=threshold,
+            init_skill=init_skill,
+            def_var=def_var,
+            tau=tau,
+            beta=beta,
+            positive_only=positive_only,
+            draw_proba_type=draw_proba_type,
+            draw_proba_static=draw_proba_static,
+            draw_proba_factor=draw_proba_factor,
+        )
 
         self._validate_params()
 
     # pylint: disable=too-many-locals
     def _update_knowledge_representation(self, x: EventModel, y: bool) -> None:
         # make them list because we use them more than one time later
-        learner_topic_kc_pairs = list(select_topic_kc_pairs(
-            self._learner_model, x.knowledge, self._init_skill, self._def_var))
-        learner_kcs = list(
-            map(
-                lambda topic_kc_pair: topic_kc_pair[1],
-                learner_topic_kc_pairs
+        learner_topic_kc_pairs = list(
+            select_topic_kc_pairs(
+                self._learner_model,
+                x.knowledge,
+                self._init_skill,
+                self._def_var,
             )
+        )
+        learner_kcs = list(
+            map(lambda topic_kc_pair: topic_kc_pair[1], learner_topic_kc_pairs)
         )
         content_kcs = list(x.knowledge.knowledge_components())
 
@@ -89,9 +107,9 @@ class NoveltyClassifier(InterestNoveltyKnowledgeBaseClassifier):
             difference = sum(team_learner_mean) - sum(team_content_mean)
 
             # check if the winner is learner or content, uses the predicted skill representation
-            if difference > 0.:  # learner wins --> boring content
+            if difference > 0.0:  # learner wins --> boring content
                 ranks = [0, 1]
-            elif difference < 0.:  # learner loses --> intimidation
+            elif difference < 0.0:  # learner loses --> intimidation
                 ranks = [1, 0]
             else:
                 ranks = None
@@ -99,14 +117,17 @@ class NoveltyClassifier(InterestNoveltyKnowledgeBaseClassifier):
         # update the rating based on the rank
         if ranks is not None:
             updated_team_learner, _ = self._env.rate(
-                [team_learner, team_content], ranks=ranks)
+                [team_learner, team_content], ranks=ranks
+            )
         else:
             updated_team_learner = team_learner
 
         # update the learner's knowledge representation
-        for topic_kc_pair, rating in zip(learner_topic_kc_pairs, updated_team_learner):
+        for topic_kc_pair, rating in zip(
+            learner_topic_kc_pairs, updated_team_learner
+        ):
             topic_id, kc = topic_kc_pair
-            kc.update(mean=rating.mean, variance=rating.sigma ** 2)
+            kc.update(mean=rating.mean, variance=rating.sigma**2)
             self._learner_model.knowledge.update_kc(topic_id, kc)
 
     def predict_proba(self, x: EventModel) -> float:
@@ -126,7 +147,8 @@ class NoveltyClassifier(InterestNoveltyKnowledgeBaseClassifier):
 
         """
         learner_kcs = select_kcs(
-            self._learner_model, x.knowledge, self._init_skill, self._def_var)
+            self._learner_model, x.knowledge, self._init_skill, self._def_var
+        )
         content_kcs = x.knowledge.knowledge_components()
 
         team_learner = self._gather_trueskill_team(learner_kcs)

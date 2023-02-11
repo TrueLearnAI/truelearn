@@ -59,11 +59,13 @@ class AbstractKnowledgeComponent(ABC):
         """
 
     @abstractmethod
-    def update(self,
-               *,
-               mean: float | None = None,
-               variance: float | None = None,
-               timestamp: float | None = None) -> None:
+    def update(
+        self,
+        *,
+        mean: float | None = None,
+        variance: float | None = None,
+        timestamp: float | None = None,
+    ) -> None:
         """Update the mean, variance, and timestamp of this AbstractKnowledgeComponent.
 
         Parameters
@@ -81,11 +83,13 @@ class AbstractKnowledgeComponent(ABC):
         """
 
     @abstractmethod
-    def clone(self,
-              *,
-              mean: float | None = None,
-              variance: float | None = None,
-              timestamp: float | None = None) -> Self:
+    def clone(
+        self,
+        *,
+        mean: float | None = None,
+        variance: float | None = None,
+        timestamp: float | None = None,
+    ) -> Self:
         """Generate a copy of the current AbstractKnowledgeComponent with given mean and variance.
 
         This function doesn't change the mean and variance of the current AbstractKnowledgeComponent.

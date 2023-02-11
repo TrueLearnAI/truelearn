@@ -38,14 +38,16 @@ class KnowledgeComponent(AbstractKnowledgeComponent):
 
     """
 
-    def __init__(self,
-                 *,
-                 mean: float,
-                 variance: float,
-                 timestamp: float | None = None,
-                 title: str | None = None,
-                 description: str | None = None,
-                 url: str | None = None) -> None:
+    def __init__(
+        self,
+        *,
+        mean: float,
+        variance: float,
+        timestamp: float | None = None,
+        title: str | None = None,
+        description: str | None = None,
+        url: str | None = None,
+    ) -> None:
         super().__init__()
 
         self.__title = title
@@ -104,11 +106,13 @@ class KnowledgeComponent(AbstractKnowledgeComponent):
     def timestamp(self) -> float | None:
         return self.__timestamp
 
-    def update(self,
-               *,
-               mean: float | None = None,
-               variance: float | None = None,
-               timestamp: float | None = None) -> None:
+    def update(
+        self,
+        *,
+        mean: float | None = None,
+        variance: float | None = None,
+        timestamp: float | None = None,
+    ) -> None:
         if mean is not None:
             self.__mean = mean
         if variance is not None:
@@ -116,21 +120,31 @@ class KnowledgeComponent(AbstractKnowledgeComponent):
         if timestamp is not None:
             self.__timestamp = timestamp
 
-    def clone(self,
-              *,
-              mean: float | None = None,
-              variance: float | None = None,
-              timestamp: float | None = None) -> Self:
+    def clone(
+        self,
+        *,
+        mean: float | None = None,
+        variance: float | None = None,
+        timestamp: float | None = None,
+    ) -> Self:
         if mean is None:
             mean = self.__mean
         if variance is None:
             variance = self.__variance
-        return KnowledgeComponent(mean=mean, variance=variance, timestamp=timestamp, title=self.__title,
-                                  description=self.__description, url=self.__url)
+
+        return KnowledgeComponent(
+            mean=mean,
+            variance=variance,
+            timestamp=timestamp,
+            title=self.__title,
+            description=self.__description,
+            url=self.__url,
+        )
 
     def export(self, output_format: str) -> Any:
         raise NotImplementedError(
-            f"The export function for {output_format} is not yet implemented.")
+            f"The export function for {output_format} is not yet implemented."
+        )
 
 
 class Knowledge:
@@ -153,7 +167,10 @@ class Knowledge:
 
     """
 
-    def __init__(self, knowledge: dict[Hashable, AbstractKnowledgeComponent] | None = None) -> None:
+    def __init__(
+        self,
+        knowledge: dict[Hashable, AbstractKnowledgeComponent] | None = None,
+    ) -> None:
         super().__init__()
 
         if knowledge is not None:
@@ -161,7 +178,9 @@ class Knowledge:
         else:
             self.__knowledge: dict[Hashable, AbstractKnowledgeComponent] = {}
 
-    def get_kc(self, topic_id: Hashable, default: AbstractKnowledgeComponent) -> AbstractKnowledgeComponent:
+    def get_kc(
+        self, topic_id: Hashable, default: AbstractKnowledgeComponent
+    ) -> AbstractKnowledgeComponent:
         """Get the AbstractKnowledgeComponent associated with the topic_id if the AbstractKnowledgeComponent is in\
         the AbstractKnowledge, else return default.
 
@@ -179,7 +198,9 @@ class Knowledge:
         """
         return self.__knowledge.get(topic_id, default)
 
-    def update_kc(self, topic_id: Hashable, kc: AbstractKnowledgeComponent) -> None:
+    def update_kc(
+        self, topic_id: Hashable, kc: AbstractKnowledgeComponent
+    ) -> None:
         """Update the AbstractKnowledgeComponent associated with the topic_id.
 
         If the topic_id doesn't exist in the AbstractKnowledge, the mapping will be created.
@@ -194,7 +215,9 @@ class Knowledge:
         """
         self.__knowledge[topic_id] = kc
 
-    def topic_kc_pairs(self) -> Iterable[tuple[Hashable, AbstractKnowledgeComponent]]:
+    def topic_kc_pairs(
+        self,
+    ) -> Iterable[tuple[Hashable, AbstractKnowledgeComponent]]:
         """Return an iterable of the (topic_id, AbstractKnowledgeComponent) pair.
 
         Returns
@@ -234,4 +257,5 @@ class Knowledge:
 
         """
         raise NotImplementedError(
-            f"The export function for {output_format} is not yet implemented.")
+            f"The export function for {output_format} is not yet implemented."
+        )
