@@ -19,10 +19,6 @@ class PersistentClassifier(BaseClassifier):
 
     # TODO: remove method section after switching to google style
 
-    Properties
-    ----------
-    engage_with_last
-
     """
 
     _parameter_constraints: dict[str, Any] = {
@@ -99,15 +95,3 @@ class PersistentClassifier(BaseClassifier):
 
         """
         return float(self._engage_with_last)
-
-    @property
-    def engage_with_last(self) -> bool:
-        """Return whether the learner engage with the last learnable unit.
-
-        Returns
-        -------
-        bool
-            Whether the learner engage with the last learnable unit.
-
-        """
-        return self._engage_with_last

@@ -26,11 +26,6 @@ class MajorityClassifier(BaseClassifier):
 
     # TODO: remove method section after switching to google style
 
-    Properties
-    ----------
-    engagement
-    non_engagement
-
     """
 
     _parameter_constraints: dict[str, Any] = {
@@ -113,27 +108,3 @@ class MajorityClassifier(BaseClassifier):
 
         """
         return self._engagement > self._non_engagement
-
-    @property
-    def engagement(self) -> int:
-        """Get the number of learner's engagement on the training data.
-
-        Returns
-        -------
-        int
-            The number of learner's engagement on the training data.
-
-        """
-        return self._engagement
-
-    @property
-    def non_engagement(self) -> int:
-        """Get the number of learner's non-engagement on the training data.
-
-        Returns
-        -------
-        int
-            The number of learner's non-engagement on the training data.
-
-        """
-        return self._non_engagement
