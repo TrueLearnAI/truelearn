@@ -12,8 +12,6 @@ class LearnerModel:
     knowledge: Knowledge | None
         The representation of the learner's knowledge.
         A new Knowledge will be created if the knowledge is None.
-    tau: float
-        A dynamic factor of the learner's learning process.
     number_of_engagements: int
         The number of engagements with the learnable units.
     number_of_non_engagements: int
@@ -22,7 +20,6 @@ class LearnerModel:
     Properties
     ----------
     knowledge
-    tau
     number_of_engagements
     number_of_non_engagements
 
@@ -31,6 +28,16 @@ class LearnerModel:
     """
 
     knowledge: Knowledge = field(default_factory=Knowledge)
-    tau: float = 0.1
     number_of_engagements: int = 0
     number_of_non_engagements: int = 0
+
+
+@dataclass
+class MetaLearnerModel:
+    """Placeholder."""
+
+    learner_novelty: LearnerModel = field(default_factory=LearnerModel)
+    learner_interest: LearnerModel = field(default_factory=LearnerModel)
+    novelty_weight: dict[str, float] = field(default_factory=lambda: {"mean": 0., "variance": 1})
+    interest_weight: dict[str, float] = field(default_factory=lambda: {"mean": 0., "variance": 1})
+    bias_weight: dict[str, float] = field(default_factory=lambda: {"mean": 0., "variance": 1})
