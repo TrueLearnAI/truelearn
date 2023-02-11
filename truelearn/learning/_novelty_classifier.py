@@ -53,7 +53,7 @@ class NoveltyClassifier(InterestNoveltyKnowledgeBaseClassifier):
                  init_skill: float = 0.,
                  def_var: float = 0.5,
                  tau: float = 0.1,
-                 beta: float = 0.5,
+                 beta: float = 0.1,
                  positive_only: bool = True,
                  draw_proba_type: str = "dynamic",
                  draw_proba_static: float = 0.5,

@@ -57,7 +57,7 @@ class KnowledgeClassifier(InterestNoveltyKnowledgeBaseClassifier):
                  init_skill: float = 0.,
                  def_var: float = 0.5,
                  tau: float = 0.1,
-                 beta: float = 0.5,
+                 beta: float = 0.1,
                  positive_only: bool = True) -> None:
         # the knowledge classifier doesn't rely on the draw probability
         # it utilizes different assumptions
