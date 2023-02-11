@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Iterable, Hashable, Any
-from typing_extensions import Self
+from typing_extensions import Self, Final, final
 import statistics
 import math
 import collections
@@ -70,7 +70,7 @@ class BaseClassifier(ABC):
 
     """
 
-    __DEEP_PARAM_DELIMITER: str = "__"
+    __DEEP_PARAM_DELIMITER: Final[str] = "__"
     _parameter_constraints: dict[str, Any] = {}
 
     @abstractmethod
@@ -123,6 +123,7 @@ class BaseClassifier(ABC):
 
         """
 
+    @final
     def get_params(self, deep: bool = True):
         """Get parameters for this Classifier.
 
@@ -156,6 +157,7 @@ class BaseClassifier(ABC):
 
         return out
 
+    @final
     def set_params(self, **params) -> Self:
         """Set the parameters of this Classifier.
 
@@ -200,6 +202,7 @@ class BaseClassifier(ABC):
 
         return self
 
+    @final
     def _validate_params(self) -> None:
         """Validate types of constructor parameters."""
         params = self.get_params(deep=False)
@@ -282,9 +285,9 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
 
     """
 
-    DEFAULT_CONTENT_VARIANCE: float = 1e-9
-    DEFAULT_DRAW_PROBA_LOW: float = 1e-9
-    DEFAULT_DRAW_PROBA_HIGH: float = 0.999999999
+    DEFAULT_CONTENT_VARIANCE: Final[float] = 1e-9
+    DEFAULT_DRAW_PROBA_LOW: Final[float] = 1e-9
+    DEFAULT_DRAW_PROBA_HIGH: Final[float] = 0.999999999
 
     _parameter_constraints: dict[str, Any] = {
         **BaseClassifier._parameter_constraints,
@@ -334,6 +337,7 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
         # create an environment in which training will take place
         self._env = trueskill.TrueSkill()
 
+    @final
     def __calculate_draw_proba(self) -> float:
         if self._draw_proba_type == "static":
             # delayed check as this can be potentially replaced by set_params
@@ -355,18 +359,21 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
         # draw_proba_param is a factor if the type is dynamic
         return draw_probability * self._draw_proba_factor
 
+    @final
     def __setup_env(self) -> None:
         self.__calculate_draw_proba()
         trueskill.setup(mu=0., sigma=InterestNoveltyKnowledgeBaseClassifier.DEFAULT_CONTENT_VARIANCE, beta=float(self._beta),
                         tau=float(self._learner_model.tau), draw_probability=self._draw_probability,
                         backend="mpmath", env=self._env)
 
+    @final
     def __update_engagement_stats(self, y: bool) -> None:
         if y:
             self._learner_model.number_of_engagements += 1
         else:
             self._learner_model.number_of_non_engagements += 1
 
+    @final
     def _gather_trueskill_team(self, kcs: Iterable[AbstractKnowledgeComponent]) -> tuple[trueskill.Rating]:
         return tuple(map(
             lambda kc: self._env.create_rating(
@@ -387,6 +394,7 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
 
         """
 
+    @final
     def fit(self, x: EventModel, y: bool) -> Self:
         """Train the model based on a given EventModel that represents a learning event.
 
@@ -411,6 +419,7 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
         self.__update_engagement_stats(y)
         return self
 
+    @final
     def predict(self, x: EventModel) -> bool:
         """Predict whether the learner will engage in the given learning event.
 

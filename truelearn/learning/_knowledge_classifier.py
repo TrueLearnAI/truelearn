@@ -1,3 +1,4 @@
+from typing_extensions import Final
 from typing import Any
 
 from ._base import InterestNoveltyKnowledgeBaseClassifier, team_sum_quality, select_kcs, select_topic_kc_pairs
@@ -35,7 +36,7 @@ class KnowledgeClassifier(InterestNoveltyKnowledgeBaseClassifier):
 
     """
 
-    DRAW_PROBA_STATIC: float = 1e-9
+    DRAW_PROBA_STATIC: Final[float] = 1e-9
 
     _parameter_constraints: dict[str, Any] = {
         **InterestNoveltyKnowledgeBaseClassifier._parameter_constraints
