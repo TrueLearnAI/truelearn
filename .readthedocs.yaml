@@ -12,6 +12,9 @@ build:
     python: "3.7"
   jobs:
     pre_build:
+      # Install the theme
+      - pip install furo
+      # Remove the bit above when using .toml file
       - sphinx-apidoc -f -o docs/ truelearn
 
 
