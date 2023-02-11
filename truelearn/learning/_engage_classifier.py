@@ -1,4 +1,5 @@
 from __future__ import annotations
+from typing_extensions import Self
 
 from ._base import BaseClassifier
 from truelearn.models import EventModel
@@ -27,7 +28,7 @@ class EngageClassifier(BaseClassifier):
 
         self._validate_params()
 
-    def fit(self, _x: EventModel, _y: bool) -> EngageClassifier:
+    def fit(self, _x: EventModel, _y: bool) -> Self:
         """Train the model based on the given event and labels.
 
         Parameters
@@ -39,8 +40,8 @@ class EngageClassifier(BaseClassifier):
 
         Returns
         -------
-        EngageClassifier
-            The updated model.
+        Self
+            The updated Classifier.
 
         Notes
         -----

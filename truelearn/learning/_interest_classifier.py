@@ -1,4 +1,5 @@
 from __future__ import annotations
+from typing import Callable
 from math import exp
 from datetime import datetime as dt
 
@@ -62,7 +63,7 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
 
         self._validate_params()
 
-    def __get_decay_func(self):
+    def __get_decay_func(self) -> Callable[[float], float]:
         """Get decay function based on decay_func_type.
 
         Returns

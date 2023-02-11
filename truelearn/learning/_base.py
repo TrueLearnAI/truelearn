@@ -1,6 +1,7 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Iterable, Hashable
+from typing_extensions import Self
 from statistics import NormalDist
 from math import sqrt
 from collections import defaultdict
@@ -70,7 +71,7 @@ class BaseClassifier(ABC):
     _parameter_constraints: dict = {}
 
     @abstractmethod
-    def fit(self, x: EventModel, y: bool) -> BaseClassifier:
+    def fit(self, x: EventModel, y: bool) -> Self:
         """Train the model based on a given EventModel that represents a learning event.
 
         Parameters
@@ -82,8 +83,8 @@ class BaseClassifier(ABC):
 
         Returns
         -------
-        BaseClassifier
-            The updated BaseClassifier.
+        Self
+            The updated classifier.
 
         """
 
@@ -120,7 +121,7 @@ class BaseClassifier(ABC):
         """
 
     def get_params(self, deep=True):
-        """Get parameters for Classifier.
+        """Get parameters for this Classifier.
 
         Parameters
         ----------
@@ -152,8 +153,8 @@ class BaseClassifier(ABC):
 
         return out
 
-    def set_params(self, **params):
-        """Set the parameters of the Classifier.
+    def set_params(self, **params) -> Self:
+        """Set the parameters of this Classifier.
 
         Parameters
         ----------
@@ -196,7 +197,7 @@ class BaseClassifier(ABC):
 
         return self
 
-    def _validate_params(self):
+    def _validate_params(self) -> None:
         """Validate types of constructor parameters."""
         params = self.get_params(deep=False)
 
@@ -323,7 +324,7 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
         # create an environment in which training will take place
         self._env = trueskill.TrueSkill()
 
-    def __calculate_draw_proba(self):
+    def __calculate_draw_proba(self) -> float:
         if self._draw_proba_type == "static":
             # delayed check as this can be potentially replaced by set_params
             if self._draw_proba_static is None:
@@ -376,7 +377,7 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
 
         """
 
-    def fit(self, x: EventModel, y: bool) -> InterestNoveltyKnowledgeBaseClassifier:
+    def fit(self, x: EventModel, y: bool) -> Self:
         """Train the model based on a given EventModel that represents a learning event.
 
         Parameters
@@ -388,8 +389,8 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
 
         Returns
         -------
-        InterestNoveltyKnowledgeBaseClassifier
-            The updated InterestNoveltyKnowledgeBaseClassifier.
+        Self
+            The updated Classifier.
 
         """
         # update the knowledge representation if positive_only is False or (it's true and y is true)

@@ -1,4 +1,5 @@
 from __future__ import annotations
+from typing_extensions import Self
 
 from ._base import BaseClassifier
 from truelearn.models import EventModel
@@ -38,7 +39,7 @@ class MajorityClassifier(BaseClassifier):
         self._engagement = 0
         self._non_engagement = 0
 
-    def fit(self, _x: EventModel, y: bool) -> MajorityClassifier:
+    def fit(self, _x: EventModel, y: bool) -> Self:
         """Train the model based on the given event and labels.
 
         Parameters
@@ -50,8 +51,8 @@ class MajorityClassifier(BaseClassifier):
 
         Returns
         -------
-        MajorityClassifier
-            The updated model.
+        Self
+            The updated Classifier.
 
         Notes
         -----

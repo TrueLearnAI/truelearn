@@ -1,5 +1,6 @@
 from __future__ import annotations
 from typing import Iterable, Hashable, Any
+from typing_extensions import Self
 
 from ._abstract_knowledge import AbstractKnowledgeComponent, AbstractKnowledge
 
@@ -105,7 +106,7 @@ class KnowledgeComponent(AbstractKnowledgeComponent):
         if timestamp is not None:
             self.__timestamp = timestamp
 
-    def clone(self, *, mean: float | None = None, variance: float | None = None, timestamp: float | None = None) -> KnowledgeComponent:
+    def clone(self, *, mean: float | None = None, variance: float | None = None, timestamp: float | None = None) -> Self:
         if mean is None:
             mean = self.__mean
         if variance is None:

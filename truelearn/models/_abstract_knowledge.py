@@ -1,5 +1,6 @@
 from __future__ import annotations
 from typing import Iterable, Hashable, Any
+from typing_extensions import Self
 from abc import ABC, abstractmethod
 
 
@@ -75,7 +76,7 @@ class AbstractKnowledgeComponent(ABC):
         """
 
     @abstractmethod
-    def clone(self, *, mean: float | None = None, variance: float | None = None, timestamp: float | None = None) -> AbstractKnowledgeComponent:
+    def clone(self, *, mean: float | None = None, variance: float | None = None, timestamp: float | None = None) -> Self:
         """Generate a copy of the current AbstractKnowledgeComponent with given mean and variance.
 
         This function doesn't change the mean and variance of the current AbstractKnowledgeComponent.
@@ -94,7 +95,8 @@ class AbstractKnowledgeComponent(ABC):
 
         Returns
         -------
-        None
+        Self
+            A cloned version of the current knowledge with the given parameters.
 
         """
 

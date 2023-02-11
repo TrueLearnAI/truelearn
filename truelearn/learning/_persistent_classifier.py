@@ -1,4 +1,5 @@
 from __future__ import annotations
+from typing_extensions import Self
 
 from ._base import BaseClassifier
 from truelearn.models import EventModel
@@ -32,7 +33,7 @@ class PersistentClassifier(BaseClassifier):
 
         self._engage_with_last = False
 
-    def fit(self, _x: EventModel, y: bool) -> PersistentClassifier:
+    def fit(self, _x: EventModel, y: bool) -> Self:
         """Train the model based on the given event and labels.
 
         Parameters
@@ -44,8 +45,8 @@ class PersistentClassifier(BaseClassifier):
 
         Returns
         -------
-        PersistentClassifier
-            The updated model.
+        Self
+            The updated Classifier.
 
         Notes
         -----
