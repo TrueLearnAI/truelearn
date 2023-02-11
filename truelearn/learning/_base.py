@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Iterable, Hashable
+from typing import Iterable, Hashable, Any
 from typing_extensions import Self
 import statistics
 import math
@@ -61,13 +61,17 @@ class BaseClassifier(ABC):
     as it's possible for a type to accept more than one type.
     To do the constraint check based on this, simply call `self._validate_params` in your classifier.
 
+    Notice, the types in parameter constraints doesn't necessary need to be the
+    type annotated in your __init__ method. It should be considered as post-conditions
+    after you assign this given parameters to self.
+
     If you don't want to do the constraint check, but want to support `get_params`,
     you don't need to call the `self._validate_params()`.
 
     """
 
     __DEEP_PARAM_DELIMITER: str = "__"
-    _parameter_constraints: dict = {}
+    _parameter_constraints: dict[str, Any] = {}
 
     @abstractmethod
     def fit(self, x: EventModel, y: bool) -> Self:
@@ -119,7 +123,7 @@ class BaseClassifier(ABC):
 
         """
 
-    def get_params(self, deep=True):
+    def get_params(self, deep: bool = True):
         """Get parameters for this Classifier.
 
         Parameters
@@ -282,9 +286,9 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
     DEFAULT_DRAW_PROBA_LOW: float = 1e-9
     DEFAULT_DRAW_PROBA_HIGH: float = 0.999999999
 
-    _parameter_constraints: dict = {
+    _parameter_constraints: dict[str, Any] = {
         **BaseClassifier._parameter_constraints,
-        "_learner_model": [LearnerModel, type(None)],
+        "_learner_model": LearnerModel,
         "_threshold": float,
         "_init_skill": float,
         "_def_var": float,
@@ -295,9 +299,16 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
         "_draw_proba_factor": float
     }
 
-    def __init__(self, *, learner_model: LearnerModel | None, threshold: float,
-                 init_skill: float, def_var: float, beta: float, positive_only: bool,
-                 draw_proba_type: str, draw_proba_static: float | None, draw_proba_factor: float) -> None:
+    def __init__(self, *,
+                 learner_model: LearnerModel | None,
+                 threshold: float,
+                 init_skill: float,
+                 def_var: float,
+                 beta: float,
+                 positive_only: bool,
+                 draw_proba_type: str,
+                 draw_proba_static: float | None,
+                 draw_proba_factor: float) -> None:
         super().__init__()
 
         if learner_model is None:
@@ -350,7 +361,7 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
                         tau=float(self._learner_model.tau), draw_probability=self._draw_probability,
                         backend="mpmath", env=self._env)
 
-    def __update_engagement_stats(self, y) -> None:
+    def __update_engagement_stats(self, y: bool) -> None:
         if y:
             self._learner_model.number_of_engagements += 1
         else:
@@ -364,7 +375,7 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
         ))
 
     @abstractmethod
-    def _update_knowledge_representation(self, x, y) -> None:
+    def _update_knowledge_representation(self, x: EventModel, y: bool) -> None:
         """Update the knowledge representation of the LearnerModel.
 
         Parameters
@@ -422,7 +433,9 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
         return self.predict_proba(x) > self._threshold
 
 
-def team_sum_quality(learner_kcs: Iterable[AbstractKnowledgeComponent], content_kcs: Iterable[AbstractKnowledgeComponent], beta: float) -> float:
+def team_sum_quality(learner_kcs: Iterable[AbstractKnowledgeComponent],
+                     content_kcs: Iterable[AbstractKnowledgeComponent],
+                     beta: float) -> float:
     """Return the probability that the learner engages with the learnable unit.
 
     Parameters
@@ -445,12 +458,16 @@ def team_sum_quality(learner_kcs: Iterable[AbstractKnowledgeComponent], content_
     team_content_variance = map(lambda kc: kc.variance, content_kcs)
 
     difference = sum(team_learner_mean) - sum(team_content_mean)
-    std = math.sqrt(sum(team_learner_variance) + sum(team_content_variance) + beta)
+    std = math.sqrt(sum(team_learner_variance) +
+                    sum(team_content_variance) + beta)
     return statistics.NormalDist(mu=0, sigma=std).cdf(difference)
 
 
-def select_topic_kc_pairs(learner_model: LearnerModel, content_knowledge: AbstractKnowledge,
-                          init_skill: float, def_var: float, def_timestamp: float | None = None) -> Iterable[tuple[Hashable, AbstractKnowledgeComponent]]:
+def select_topic_kc_pairs(learner_model: LearnerModel,
+                          content_knowledge: AbstractKnowledge,
+                          init_skill: float,
+                          def_var: float,
+                          def_timestamp: float | None = None) -> Iterable[tuple[Hashable, AbstractKnowledgeComponent]]:
     """Return an iterable representing the learner's knowledge in the topics specified by the learnable unit.
 
     Given the knowledge representation of the learnable unit, this method tries to get
@@ -492,8 +509,11 @@ def select_topic_kc_pairs(learner_model: LearnerModel, content_knowledge: Abstra
     return team_learner
 
 
-def select_kcs(learner_model: LearnerModel, content_knowledge: AbstractKnowledge,
-               init_skill: float, def_var: float, def_timestamp: float | None = None) -> Iterable[AbstractKnowledgeComponent]:
+def select_kcs(learner_model: LearnerModel,
+               content_knowledge: AbstractKnowledge,
+               init_skill: float,
+               def_var: float,
+               def_timestamp: float | None = None) -> Iterable[AbstractKnowledgeComponent]:
     """Return an iterable representing the learner's knowledge in the topics specified by the learnable unit.
 
     Given the knowledge representation of the learnable unit, this method tries to get

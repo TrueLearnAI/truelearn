@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Callable, Any
 from datetime import datetime as dt
 import math
 
@@ -39,16 +39,25 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
 
     """
 
-    _parameter_constraints = {
+    _parameter_constraints: dict[str, Any] = {
         **InterestNoveltyKnowledgeBaseClassifier._parameter_constraints,
         "_decay_func_type": str,
         "_decay_func_factor": float
     }
 
-    def __init__(self, *, learner_model: LearnerModel | None = None, threshold: float = 0.5, init_skill=0.,
-                 def_var=0.5, beta: float = 0.5, positive_only=True, draw_proba_type: str = "dynamic",
-                 draw_proba_static: float = 0.5, draw_proba_factor: float = 0.1,
-                 decay_func_type: str = "short", decay_func_factor: float = 0.) -> None:
+    def __init__(self,
+                 *,
+                 learner_model: LearnerModel | None = None,
+                 threshold: float = 0.5,
+                 init_skill: float = 0.,
+                 def_var: float = 0.5,
+                 beta: float = 0.5,
+                 positive_only: bool = True,
+                 draw_proba_type: str = "dynamic",
+                 draw_proba_static: float = 0.5,
+                 draw_proba_factor: float = 0.1,
+                 decay_func_type: str = "short",
+                 decay_func_factor: float = 0.) -> None:
         super().__init__(learner_model=learner_model, threshold=threshold, init_skill=init_skill,
                          def_var=def_var, beta=beta, positive_only=positive_only, draw_proba_type=draw_proba_type,
                          draw_proba_static=draw_proba_static, draw_proba_factor=draw_proba_factor)

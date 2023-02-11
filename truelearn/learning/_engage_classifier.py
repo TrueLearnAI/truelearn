@@ -1,4 +1,4 @@
-from typing_extensions import Self
+from typing_extensions import Self, Any
 
 from ._base import BaseClassifier
 from truelearn.models import EventModel
@@ -18,7 +18,7 @@ class EngageClassifier(BaseClassifier):
 
     """
 
-    _parameter_constraints = {
+    _parameter_constraints: dict[str, Any] = {
         **BaseClassifier._parameter_constraints
     }
 

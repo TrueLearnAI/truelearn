@@ -1,4 +1,5 @@
 from typing_extensions import Self
+from typing import Any
 
 from ._base import BaseClassifier
 from truelearn.models import EventModel
@@ -26,17 +27,19 @@ class MajorityClassifier(BaseClassifier):
 
     """
 
-    _parameter_constraints = {
+    _parameter_constraints: dict[str, Any] = {
         **BaseClassifier._parameter_constraints,
         "_engagement": int,
         "_non_engagement": int
     }
 
-    def __init__(self) -> None:
+    def __init__(self, engagement: int = 0, non_engagement: int = 0) -> None:
         super().__init__()
 
-        self._engagement = 0
-        self._non_engagement = 0
+        self._engagement = engagement
+        self._non_engagement = non_engagement
+
+        self._validate_params()
 
     def fit(self, _x: EventModel, y: bool) -> Self:
         """Train the model based on the given event and labels.

@@ -1,3 +1,5 @@
+from typing import Any
+
 from ._base import InterestNoveltyKnowledgeBaseClassifier, team_sum_quality, select_kcs, select_topic_kc_pairs
 from truelearn.models import EventModel, LearnerModel
 
@@ -35,12 +37,18 @@ class KnowledgeClassifier(InterestNoveltyKnowledgeBaseClassifier):
 
     DRAW_PROBA_STATIC: float = 1e-9
 
-    _parameter_constraints = {
+    _parameter_constraints: dict[str, Any] = {
         **InterestNoveltyKnowledgeBaseClassifier._parameter_constraints
     }
 
-    def __init__(self, *, learner_model: LearnerModel | None = None, threshold: float = 0.5,
-                 init_skill=0., def_var=0.5, beta: float = 0.5, positive_only=True) -> None:
+    def __init__(self,
+                 *,
+                 learner_model: LearnerModel | None = None,
+                 threshold: float = 0.5,
+                 init_skill: float = 0.,
+                 def_var: float = 0.5,
+                 beta: float = 0.5,
+                 positive_only: bool = True) -> None:
         # the knowledge classifier doesn't rely on the draw probability
         # it utilizes different assumptions
         # so, we set draw probability to a very small value to avoid its impact

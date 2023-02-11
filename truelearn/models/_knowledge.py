@@ -36,9 +36,14 @@ class KnowledgeComponent(AbstractKnowledgeComponent):
 
     """
 
-    def __init__(self, *, mean: float, variance: float, timestamp: float | None = None,
-                 title: str | None = None, description: str | None = None, url: str | None = None
-                 ) -> None:
+    def __init__(self,
+                 *,
+                 mean: float,
+                 variance: float,
+                 timestamp: float | None = None,
+                 title: str | None = None,
+                 description: str | None = None,
+                 url: str | None = None) -> None:
         super().__init__()
 
         self.__title = title
@@ -97,7 +102,11 @@ class KnowledgeComponent(AbstractKnowledgeComponent):
     def timestamp(self) -> float | None:
         return self.__timestamp
 
-    def update(self, *, mean: float | None = None, variance: float | None = None, timestamp: float | None = None) -> None:
+    def update(self,
+               *,
+               mean: float | None = None,
+               variance: float | None = None,
+               timestamp: float | None = None) -> None:
         if mean is not None:
             self.__mean = mean
         if variance is not None:
@@ -105,7 +114,11 @@ class KnowledgeComponent(AbstractKnowledgeComponent):
         if timestamp is not None:
             self.__timestamp = timestamp
 
-    def clone(self, *, mean: float | None = None, variance: float | None = None, timestamp: float | None = None) -> Self:
+    def clone(self,
+              *,
+              mean: float | None = None,
+              variance: float | None = None,
+              timestamp: float | None = None) -> Self:
         if mean is None:
             mean = self.__mean
         if variance is None:

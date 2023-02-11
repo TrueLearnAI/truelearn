@@ -1,4 +1,5 @@
 from typing_extensions import Self
+from typing import Any
 
 from ._base import BaseClassifier
 from truelearn.models import EventModel
@@ -22,15 +23,17 @@ class PersistentClassifier(BaseClassifier):
 
     """
 
-    _parameter_constraints = {
+    _parameter_constraints: dict[str, Any] = {
         **BaseClassifier._parameter_constraints,
         "_engage_with_last": bool
     }
 
-    def __init__(self) -> None:
+    def __init__(self, engage_with_last: bool = False) -> None:
         super().__init__()
 
-        self._engage_with_last = False
+        self._engage_with_last = engage_with_last
+
+        self._validate_params()
 
     def fit(self, _x: EventModel, y: bool) -> Self:
         """Train the model based on the given event and labels.
