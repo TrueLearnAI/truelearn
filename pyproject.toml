@@ -47,9 +47,8 @@ dependencies = [
 [tool.setuptools.dynamic]
 version = {attr = "truelearn.__version__"}
 
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["truelearn*"]
+[tool.setuptools]
+packages = ["truelearn"]
 
 # You install the optional dependencies by doing:
 # pip install truelearn[name_of_optional_dependency]
