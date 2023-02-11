@@ -31,7 +31,7 @@ class MajorityClassifier(BaseClassifier):
     _parameter_constraints: dict[str, Any] = {
         **BaseClassifier._parameter_constraints,
         "_engagement": int,
-        "_non_engagement": int
+        "_non_engagement": int,
     }
 
     def __init__(self, engagement: int = 0, non_engagement: int = 0) -> None:

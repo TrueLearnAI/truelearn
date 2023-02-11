@@ -272,7 +272,7 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
         "_positive_only": bool,
         "_draw_proba_type": str,
         "_draw_proba_static": [float, type(None)],
-        "_draw_proba_factor": float
+        "_draw_proba_factor": float,
     }
 
     def __init__(self, *,

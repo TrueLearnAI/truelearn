@@ -47,7 +47,7 @@ class KnowledgeClassifier(InterestNoveltyKnowledgeBaseClassifier):
     DRAW_PROBA_STATIC: Final[float] = 1e-9
 
     _parameter_constraints: dict[str, Any] = {
-        **InterestNoveltyKnowledgeBaseClassifier._parameter_constraints
+        **InterestNoveltyKnowledgeBaseClassifier._parameter_constraints,
     }
 
     def __init__(self,

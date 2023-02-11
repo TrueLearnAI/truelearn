@@ -23,7 +23,7 @@ class PersistentClassifier(BaseClassifier):
 
     _parameter_constraints: dict[str, Any] = {
         **BaseClassifier._parameter_constraints,
-        "_engage_with_last": bool
+        "_engage_with_last": bool,
     }
 
     def __init__(self, engage_with_last: bool = False) -> None:

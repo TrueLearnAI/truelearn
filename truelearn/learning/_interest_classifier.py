@@ -49,7 +49,7 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
     _parameter_constraints: dict[str, Any] = {
         **InterestNoveltyKnowledgeBaseClassifier._parameter_constraints,
         "_decay_func_type": str,
-        "_decay_func_factor": float
+        "_decay_func_factor": float,
     }
 
     def __init__(self,

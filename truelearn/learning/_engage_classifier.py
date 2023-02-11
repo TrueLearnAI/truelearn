@@ -21,7 +21,7 @@ class EngageClassifier(BaseClassifier):
     """
 
     _parameter_constraints: dict[str, Any] = {
-        **BaseClassifier._parameter_constraints
+        **BaseClassifier._parameter_constraints,
     }
 
     def __init__(self) -> None:
