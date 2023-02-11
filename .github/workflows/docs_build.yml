@@ -1,0 +1,43 @@
+#Workflow to test whether the docs build correctly without errors or warnings
+name: 'Docs: Build'
+on:
+  push:
+    branches:
+      #For debugging only
+      - documentation-generation
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+
+jobs:
+  Sphinx_Build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4.4.0
+        with:
+          python-version: '3.7'
+          cache: 'pip' #Cache dependencies
+
+      - name: Install Project Dependencies
+        run: |
+          #TODO remove requirements.txt dependency
+          pip install -r requirements.txt
+          pip install Sphinx
+          # Sphinx theme
+          pip install furo
+
+      - name: Sphinx Problem Matcher
+        uses: ammaraskar/sphinx-problem-matcher@master
+
+      - name: Sphinx direct build
+        run: |
+          sphinx-apidoc -f -o docs/ truelearn
+          cd ./docs
+          make html -e
+
