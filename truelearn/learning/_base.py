@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
 from typing import Iterable, Hashable
 from typing_extensions import Self
-from statistics import NormalDist
-from math import sqrt
-from collections import defaultdict
+import statistics
+import math
+import collections
 
 import trueskill
 
@@ -175,7 +175,7 @@ class BaseClassifier(ABC):
         # a dictionary that stores params for nested classifiers
         # it stores a map from nested_classifier_name to its parameters (a dict)
         # { nested_classifier_name => {key => value} }
-        nested_params = defaultdict(dict)
+        nested_params = collections.defaultdict(dict)
 
         for key, value in params.items():
             key, delim, sub_key = key.partition(
@@ -359,7 +359,7 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
     def _gather_trueskill_team(self, kcs: Iterable[AbstractKnowledgeComponent]) -> tuple[trueskill.Rating]:
         return tuple(map(
             lambda kc: self._env.create_rating(
-                mu=kc.mean, sigma=sqrt(kc.variance)),
+                mu=kc.mean, sigma=math.sqrt(kc.variance)),
             kcs
         ))
 
@@ -445,8 +445,8 @@ def team_sum_quality(learner_kcs: Iterable[AbstractKnowledgeComponent], content_
     team_content_variance = map(lambda kc: kc.variance, content_kcs)
 
     difference = sum(team_learner_mean) - sum(team_content_mean)
-    std = sqrt(sum(team_learner_variance) + sum(team_content_variance) + beta)
-    return NormalDist(mu=0, sigma=std).cdf(difference)
+    std = math.sqrt(sum(team_learner_variance) + sum(team_content_variance) + beta)
+    return statistics.NormalDist(mu=0, sigma=std).cdf(difference)
 
 
 def select_topic_kc_pairs(learner_model: LearnerModel, content_knowledge: AbstractKnowledge,

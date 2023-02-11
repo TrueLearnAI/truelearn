@@ -1,6 +1,6 @@
 from typing import Callable
-from math import exp
 from datetime import datetime as dt
+import math
 
 from ._base import InterestNoveltyKnowledgeBaseClassifier, team_sum_quality, select_kcs, select_topic_kc_pairs
 from truelearn.models import EventModel, LearnerModel, AbstractKnowledgeComponent
@@ -76,9 +76,9 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
 
         """
         if self._decay_func_type == "short":
-            return lambda t_delta: min(2 / (1 + exp(self._decay_func_factor * t_delta)), 1.)
+            return lambda t_delta: min(2 / (1 + math.exp(self._decay_func_factor * t_delta)), 1.)
 
-        return lambda t_delta: min(exp(-self._decay_func_factor * t_delta), 1.)
+        return lambda t_delta: min(math.exp(-self._decay_func_factor * t_delta), 1.)
 
     # pylint: disable=too-many-locals
     def _update_knowledge_representation(self, x: EventModel, y: bool) -> None:
