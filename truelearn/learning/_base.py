@@ -7,7 +7,7 @@ import collections
 
 import trueskill
 
-from truelearn.models import EventModel, AbstractKnowledge, AbstractKnowledgeComponent, LearnerModel
+from truelearn.models import EventModel, Knowledge, AbstractKnowledgeComponent, LearnerModel
 
 
 # pylint: disable=pointless-string-statement
@@ -473,7 +473,7 @@ def team_sum_quality(learner_kcs: Iterable[AbstractKnowledgeComponent],
 
 
 def select_topic_kc_pairs(learner_model: LearnerModel,
-                          content_knowledge: AbstractKnowledge,
+                          content_knowledge: Knowledge,
                           init_skill: float,
                           def_var: float,
                           def_timestamp: float | None = None) -> Iterable[tuple[Hashable, AbstractKnowledgeComponent]]:
@@ -519,7 +519,7 @@ def select_topic_kc_pairs(learner_model: LearnerModel,
 
 
 def select_kcs(learner_model: LearnerModel,
-               content_knowledge: AbstractKnowledge,
+               content_knowledge: Knowledge,
                init_skill: float,
                def_var: float,
                def_timestamp: float | None = None) -> Iterable[AbstractKnowledgeComponent]:

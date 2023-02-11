@@ -1,4 +1,4 @@
-from typing import Iterable, Hashable, Any
+from typing import Any
 from typing_extensions import Self
 from abc import ABC, abstractmethod
 
@@ -110,101 +110,6 @@ class AbstractKnowledgeComponent(ABC):
     @abstractmethod
     def export(self, output_format: str) -> Any:
         """Export the AbstractKnowledgeComponent into some formats.
-
-        Parameters
-        ----------
-        output_format : str
-            The name of the output format
-
-        Returns
-        -------
-        Any
-            The requested format
-
-        Raises
-        ------
-        NotImplementedError
-            If the requested format is not available
-
-        """
-
-
-class AbstractKnowledge(ABC):
-    """An abstract class that represents the knowledge.
-
-    The class can be used to represent 1) the learner's knowledge and
-    2) the topics in a learnable unit and the depth of knowledge of those topics.
-
-    Methods
-    -------
-    get(topic_id, default)
-        Get the AbstractKnowledgeComponent associated with the topic_id.
-        If the topic_id is not included in learner's knowledge, the default is returned.
-    update(topic_id, kc)
-        Update the AbstractKnowledgeComponent associated with the topic_id
-    topic_kc_pairs()
-        Return an iterable of (topic_id, AbstractKnowledgeComponent) pairs.
-    knowledge_components()
-        Return an iterable of AbstractKnowledgeComponents.
-
-    """
-
-    @abstractmethod
-    def get_kc(self, topic_id: Hashable, default: AbstractKnowledgeComponent) -> AbstractKnowledgeComponent:
-        """Get the AbstractKnowledgeComponent associated with the topic_id if the AbstractKnowledgeComponent is in\
-        the AbstractKnowledge, else return default.
-
-        Parameters
-        ----------
-        topic_id : Hashable
-            The id that uniquely identifies a topic.
-        default : AbstractKnowledgeComponent
-            The default AbstractKnowledgeComponent to return
-
-        Returns
-        -------
-        AbstractKnowledgeComponent
-
-        """
-
-    @abstractmethod
-    def update_kc(self, topic_id: Hashable, kc: AbstractKnowledgeComponent) -> None:
-        """Update the AbstractKnowledgeComponent associated with the topic_id.
-
-        If the topic_id doesn't exist in the AbstractKnowledge, the mapping will be created.
-
-        Parameters
-        ----------
-        topic_id : Hashable
-            The id that uniquely identifies a topic.
-        kc: AbstractKnowledgeComponent
-            The new AbstractKnowledgeComponents.
-
-        """
-
-    @abstractmethod
-    def topic_kc_pairs(self) -> Iterable[tuple[Hashable, AbstractKnowledgeComponent]]:
-        """Return an iterable of the (topic_id, AbstractKnowledgeComponent) pair.
-
-        Returns
-        -------
-        Iterable[tuple[Hashable, AbstractKnowledgeComponent]]
-
-        """
-
-    @abstractmethod
-    def knowledge_components(self) -> Iterable[AbstractKnowledgeComponent]:
-        """Return an iterable of the AbstractKnowledgeComponents.
-
-        Returns
-        -------
-        Iterable[AbstractKnowledgeComponent]
-
-        """
-
-    @abstractmethod
-    def export(self, output_format: str) -> Any:
-        """Export the AbstractKnowledge into some formats.
 
         Parameters
         ----------

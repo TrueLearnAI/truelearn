@@ -1,6 +1,5 @@
 from dataclasses import dataclass, field
 
-from ._abstract_knowledge import AbstractKnowledge
 from ._knowledge import Knowledge
 
 
@@ -25,5 +24,5 @@ class EventModel:
 
     """
 
-    knowledge: AbstractKnowledge = field(default_factory=Knowledge)
+    knowledge: Knowledge = field(default_factory=Knowledge)
     event_time: float | None = None

@@ -1,6 +1,5 @@
 from dataclasses import dataclass, field
 
-from ._abstract_knowledge import AbstractKnowledge
 from ._knowledge import Knowledge
 
 
@@ -29,7 +28,7 @@ class LearnerModel:
 
     """
 
-    knowledge: AbstractKnowledge = field(default_factory=Knowledge)
+    knowledge: Knowledge = field(default_factory=Knowledge)
     tau: float = 0.1
     number_of_engagements: int = 0
     number_of_non_engagements: int = 0
