@@ -257,7 +257,7 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
 
     """
 
-    DEFAULT_CONTENT_VARIANCE: Final[float] = 1e-9
+    DEFAULT_CONTENT_SIGMA: Final[float] = 1e-9
     DEFAULT_DRAW_PROBA_LOW: Final[float] = 1e-9
     DEFAULT_DRAW_PROBA_HIGH: Final[float] = 0.999999999
 
@@ -337,7 +337,7 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
     @final
     def __setup_env(self) -> None:
         self.__calculate_draw_proba()
-        trueskill.setup(mu=0., sigma=InterestNoveltyKnowledgeBaseClassifier.DEFAULT_CONTENT_VARIANCE, beta=self._beta,
+        trueskill.setup(mu=0., sigma=InterestNoveltyKnowledgeBaseClassifier.DEFAULT_CONTENT_SIGMA, beta=self._beta,
                         tau=self._tau, draw_probability=self._draw_probability,
                         backend="mpmath", env=self._env)
 
