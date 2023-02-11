@@ -7,6 +7,8 @@ from truelearn.models import EventModel, LearnerModel
 class NoveltyClassifier(InterestNoveltyKnowledgeBaseClassifier):
     """A Novelty Classifier.
 
+    # TODO: fix probability doc
+
     Parameters
     ----------
     learner_model: LearnerModel | None, optional
@@ -22,7 +24,8 @@ class NoveltyClassifier(InterestNoveltyKnowledgeBaseClassifier):
     positive_only: bool
         Whether the model updates itself only if encountering positive data.
 
-    # TODO: fix probability doc
+    # TODO: add missing parameters when switching to google style
+    # TODO: this section should be moved to __init__ later
 
     Methods
     -------
@@ -34,6 +37,8 @@ class NoveltyClassifier(InterestNoveltyKnowledgeBaseClassifier):
         Predict the probability of learner engagement.
     get_params()
         Get parameters associated with the model.
+
+    # TODO: remove method section after switching to google style
 
     """
 

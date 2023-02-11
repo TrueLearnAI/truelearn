@@ -26,6 +26,8 @@ class LearnerModel:
     number_of_engagements
     number_of_non_engagements
 
+    # TODO: rename Properties to Attributes after switching to google style
+
     """
 
     knowledge: Knowledge = field(default_factory=Knowledge)

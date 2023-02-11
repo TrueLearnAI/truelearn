@@ -16,6 +16,8 @@ class EngageClassifier(BaseClassifier):
     predict_proba(x)
         Predict the probability of learner engagement in the given learning event.
 
+    # TODO: remove method section after switching to google style
+
     """
 
     _parameter_constraints: dict[str, Any] = {

@@ -9,6 +9,8 @@ from truelearn.models import EventModel, LearnerModel, AbstractKnowledgeComponen
 class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
     """An Interest Classifier.
 
+    # TODO: fix probability doc
+
     Parameters
     ----------
     learner_model: LearnerModel | None, optional
@@ -24,7 +26,8 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
     positive_only: bool
         Whether the model updates itself only if encountering positive data.
 
-    # TODO: fix probability doc
+    # TODO: add missing parameters when switching to google style
+    # TODO: this section should be moved to __init__ later
 
     Methods
     -------
@@ -35,7 +38,11 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
     predict_proba(x)
         Predict the probability of learner engagement.
     get_params()
-        Get parameters associated with the model.
+        Get the parameters associated with the model.
+    set_params(**kargs)
+        Set the parameters associated with the model.
+
+    # TODO: remove method section after switching to google style
 
     """
 

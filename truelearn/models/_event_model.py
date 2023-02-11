@@ -22,6 +22,8 @@ class EventModel:
     knowledge
     event_time
 
+    # TODO: rename Properties to Attributes after switching to google style
+
     """
 
     knowledge: Knowledge = field(default_factory=Knowledge)

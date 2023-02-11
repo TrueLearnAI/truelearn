@@ -25,6 +25,8 @@ class KnowledgeComponent(AbstractKnowledgeComponent):
     export(output_format)
         Export the KnowledgeComponent into some format
 
+    # TODO: remove method section after switching to google style
+
     Properties
     ----------
     mean

@@ -19,6 +19,12 @@ class MajorityClassifier(BaseClassifier):
         Predict whether the learner will engage in the given learning event.
     predict_proba(x)
         Predict the probability of learner engagement in the given learning event.
+    get_params()
+        Get the parameters associated with the model.
+    set_params(**kargs)
+        Set the parameters associated with the model.
+
+    # TODO: remove method section after switching to google style
 
     Properties
     ----------

@@ -15,6 +15,8 @@ class AbstractKnowledgeComponent(ABC):
     export(output_format)
         Export the AbstractKnowledgeComponent into some format
 
+    # TODO: remove method section after switching to google style
+
     Properties
     ----------
     mean

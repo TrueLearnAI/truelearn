@@ -255,34 +255,6 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
     It defines the necessary instance variables and
     common methods to interact with the LearnerModel.
 
-    Parameters
-    ----------
-    learner_model: LearnerModel | None, optional
-    threshold: float
-        Threshold for judging learner engagement. If the probability of the learner engagement is greater
-        than the threshold, the model will predict engagement.
-    init_skill: float
-        The initial skill (mean) of the learner given a new KnowledgeComponent.
-    def_var: float
-        The default variance of the new KnowledgeComponent.
-    beta: float
-        The noise factor, which is used in trueskill.
-    positive_only: bool
-        Whether the model updates itself only if encountering positive data.
-
-    # TODO: fix probability doc
-
-    Methods
-    -------
-    fit(x, y)
-        Train the model based on the given data and label.
-    predict(x)
-        Predict whether the learner will engage.
-    predict_proba(x)
-        Predict the probability of learner engagement.
-    get_params()
-        Get parameters associated with the model.
-
     """
 
     DEFAULT_CONTENT_VARIANCE: Final[float] = 1e-9
