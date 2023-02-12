@@ -39,5 +39,9 @@ jobs:
         run: |
           sphinx-apidoc -f -o docs/ truelearn
           cd ./docs
-          make html -e
+           
+          # Treat warnings as errors by setting the SPHINXOPTS variable to -W.
+          # --keep-going is for not stopping at the first error
+          # -n is for nitpicky mode warns about all missing references
+          make html -e SPHINXOPTS="-W --keep-going -n"
 
