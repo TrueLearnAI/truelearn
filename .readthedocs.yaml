@@ -12,20 +12,22 @@ build:
     python: "3.7"
   jobs:
     pre_build:
-      # Install the theme
-      - pip install furo
-      # Remove the bit above when using .toml file
-      - sphinx-apidoc -f -o docs/ truelearn
+     - sphinx-apidoc -f -o docs/ truelearn
 
 
-      # Build documentation in the docs/ directory with Sphinx
+# Build documentation in the docs/ directory with Sphinx
 sphinx:
    configuration: docs/conf.py
-   #fail_on_warning: true
+   fail_on_warning: true
 
-
-# Optionally declare the Python requirements required to build your docs
 python:
    install:
-   # Replace when requirements.txt is removed
-   - requirements: ./requirements.txt
+   # Install truelearn with its core dependencies equivalent to `pip install .`
+   - method: pip
+     path: .
+
+   # Install docs dependencies equivalent to `pip install .[docs]`
+   - method: pip
+     path: .
+     extra_requirements:
+     - docs
