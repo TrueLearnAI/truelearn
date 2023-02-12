@@ -1,13 +1,15 @@
 strictness: medium
 test-warnings: true
 doc-warnings: true
-max-line-length: 80
 
 ignore-paths:
   - truelearn_experiments
 
 pep8:
   full: true
+
+pycodestyle:
+  max-line-length: 80
 
 pydocstyle:
   # disable checks that do not fit into the google convention
