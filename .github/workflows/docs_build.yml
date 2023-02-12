@@ -1,15 +1,10 @@
-#Workflow to test whether the docs build correctly without errors or warnings
-name: 'Docs: Build'
+# Ensures that the docs build correctly
+name: 'Docs Build'
 on:
-  push:
-    branches:
-      #For debugging only
-      - documentation-generation
   pull_request:
     branches:
       - main
   workflow_dispatch:
-
 
 jobs:
   Sphinx_Build:
@@ -22,15 +17,23 @@ jobs:
         uses: actions/setup-python@v4.4.0
         with:
           python-version: '3.7'
-          cache: 'pip' #Cache dependencies
+          cache: 'pip' # Cache dependencies
+          cache-dependency-path: '**/pyproject.toml'
+
+      - name: Install pip-tools and generate requirements.txt
+        run: |
+          pip install pip-tools
+          # Generates a requirements.txt file from pyproject.toml 
+          # This means that we dont have to install truelearn 
+          # so this workflow can use the same cache as the other workflows
+          pip-compile --resolver=backtracking --output-file requirements.txt pyproject.toml
 
       - name: Install Project Dependencies
+        run: pip install -r requirements.txt
+
+      - name: Install Doc Dependencies
         run: |
-          #TODO remove requirements.txt dependency
-          pip install -r requirements.txt
-          pip install Sphinx
-          # Sphinx theme
-          pip install furo
+          pip install .[docs]
 
       - name: Sphinx Problem Matcher
         uses: ammaraskar/sphinx-problem-matcher@master
