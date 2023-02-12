@@ -6,10 +6,12 @@ from truelearn.models import EventModel
 
 
 class MajorityClassifier(BaseClassifier):
-    """A classifier that predicts based on the number of learner's engagement and non-engagement.
+    """A classifier that predicts based on \
+    the number of learner's engagement and non-engagement.
 
-    If the number of engagement on the training data is greater than the number of non-engagement,
-    the classifier predicts Engage (True); otherwise, it predicts Non-Engage (False).
+    If the number of engagement on the training data is greater than
+    the number of non-engagement, the classifier predicts Engage (True);
+    otherwise, it predicts Non-Engage (False).
     """
 
     _parameter_constraints: dict[str, Any] = {
@@ -18,8 +20,14 @@ class MajorityClassifier(BaseClassifier):
         "_non_engagement": int,
     }
 
-    def __init__(self, engagement: int = 0, non_engagement: int = 0) -> None:
-        """Init MajorityClassifier object."""
+    def __init__(self, *, engagement: int = 0, non_engagement: int = 0) -> None:
+        """Init MajorityClassifier object.
+
+        Args:
+            *: Use to reject positional arguments.
+            engagement: The number of learner's engagement.
+            non_engagement: The number of learner's non_engagement.
+        """
         super().__init__()
 
         self._engagement = engagement

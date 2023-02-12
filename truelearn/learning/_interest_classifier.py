@@ -16,25 +16,33 @@ from truelearn.models import (
 
 
 class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
-    """A classifier that models the learner's interest and makes prediction based on the interest.
+    """A classifier that models the learner's interest and \
+    makes prediction based on the interest.
 
-    Note, the knowledge component in this context means the interest of the learner/learnable unit.
+    Note, the knowledge component in this context means
+    the interest of the learner/learnable unit.
 
-    During the training process, the classifier uses the idea of game matching established in TrueSkill.
-    It represents the learning process as a game of two teams. One team consists of all the knowledge
-    components from the learnable unit and the other consist of all the corresponding knowledge components
-    from the learner. Then, the classifier uses the given label to update the knowledge components of the learner.
+    During the training process, the classifier uses the idea of game matching
+    established in TrueSkill. It represents the learning process as a game of two teams.
+    One team consists of all the knowledge components from the learnable unit and
+    the other consist of all the corresponding knowledge components from the learner.
+    Then, the classifier uses the given label to update the knowledge components of
+    the learner.
 
-    The update of knowledge components is based on the assumption that if the learner engages with the
-    learnable unit, it means that the learner has a higher skill than the depth of the resource, which
-    means that the learner wins the game.
+    The update of knowledge components is based on the assumption that
+    if the learner engages with the learnable unit, it means that the learner
+    has a higher skill than the depth of the resource, which means that
+    the learner wins the game.
 
-    During the prediction process, the classifier uses cumulative density function of normal distribution
-    to calculate the probability that the learner engage in the learning event. It calculates the probability
-    of getting x in a Normal Distribution N(0, std) where x is the difference between the learner's skill (mean)
-    and the learnable unit's skill (mean) and std is the standard deviation of the new normal distribution as a
-    result of subtracting the two old normal distribution (learner and learnable unit). In TrueSkill's terminology,
-    this calculates the win probability that the learner will win the content.
+    During the prediction process, the classifier uses cumulative density function
+    of normal distribution to calculate the probability that the learner engage in
+    the learning event. It calculates the probability of getting x in a
+    Normal Distribution N(0, std) where x is the difference between
+    the learner's skill (mean) and the learnable unit's skill (mean) and
+    std is the standard deviation of the new normal distribution as a result of
+    subtracting the two old normal distribution (learner and learnable unit).
+    In TrueSkill's terminology, this calculates the win probability that
+    the learner will win the content.
     """
 
     _parameter_constraints: dict[str, Any] = {
@@ -62,28 +70,40 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
         """Init InterestClassifier object.
 
         Args:
-            learner_model: A representation of the learner.
-            threshold: A float that determines the prediction threshold.
+            *:
+                Use to reject positional arguments.
+            learner_model:
+                A representation of the learner.
+            threshold:
+                A float that determines the prediction threshold.
                 When the predict is called, the classifier will return True iff
                 the predicted probability is greater than the threshold.
-            init_skill: The initial mean of the learner's knowledge component.
-                It will be used when the learner interacts with some knowledge components
+            init_skill:
+                The initial mean of the learner's knowledge component.
+                It will be used when the learner interacts with knowledge components
                 at its first time.
-            def_var: The initial variance of the learner's knowledge component.
-                It will be used when the learner interacts with some knowledge components
+            def_var:
+                The initial variance of the learner's knowledge component.
+                It will be used when the learner interacts with knowledge components
                 at its first time.
-            beta: The noise factor.
-            tau: The dynamic factor of learner's learning process.
+            beta:
+                The noise factor.
+            tau:
+                The dynamic factor of learner's learning process.
                 It's used to avoid the halting of the learning process.
-            positive_only: A bool indicating whether the classifier only
+            positive_only:
+                A bool indicating whether the classifier only
                 updates the learner's knowledge when encountering a positive label.
-            decay_func_type: A str specifying the type of the interest decay function.
+            decay_func_type:
+                A str specifying the type of the interest decay function.
                 The allowed values are "short" and "long".
-            decay_func_factor: A factor that will be used in both short and long
+            decay_func_factor:
+                A factor that will be used in both short and long
                 interest decay function.
 
         Raises:
-            ValueError: If draw_proba_type is neither "static" nor "dynamic";
+            ValueError:
+                If draw_proba_type is neither "static" nor "dynamic";
                 If decay_func_type is neither "short" nor "long".
         """
         super().__init__(
@@ -101,7 +121,8 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
 
         if decay_func_type not in ("short", "long"):
             raise ValueError(
-                f"The decay_func_type must be either short or long. Got {decay_func_type} instead."
+                f"The decay_func_type must be either short or long."
+                f" Got {decay_func_type} instead."
             )
         self._decay_func_type = decay_func_type
         self._decay_func_factor = decay_func_factor
@@ -122,9 +143,7 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
                 2 / (1 + math.exp(self._decay_func_factor * t_delta)), 1.0
             )
 
-        return lambda t_delta: min(
-            math.exp(-self._decay_func_factor * t_delta), 1.0
-        )
+        return lambda t_delta: min(math.exp(-self._decay_func_factor * t_delta), 1.0)
 
     # pylint: disable=too-many-locals
     def _update_knowledge_representation(self, x: EventModel, y: bool) -> None:
@@ -158,31 +177,27 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
         ) -> AbstractKnowledgeComponent:
             if kc.timestamp is None:
                 raise ValueError(
-                    "The timestamp field of knowledge component should not be None if using InterestClassifier."
+                    "The timestamp field of knowledge component"
+                    " should not be None if using InterestClassifier."
                 )
-            t_delta = (
-                event_time_posix - dt.utcfromtimestamp(kc.timestamp)
-            ).days
+            t_delta = (event_time_posix - dt.utcfromtimestamp(kc.timestamp)).days
             kc.update(mean=kc.mean * decay_func(float(t_delta)))
             return kc
 
         learner_kcs_decayed = map(__apply_interest_decay, learner_kcs)
 
         team_learner = self._gather_trueskill_team(learner_kcs_decayed)
-        team_content = self._gather_trueskill_team(
-            x.knowledge.knowledge_components()
-        )
+        team_content = self._gather_trueskill_team(x.knowledge.knowledge_components())
 
         # learner always wins in interest
         updated_team_learner, _ = self._env.rate(
             [team_learner, team_content], ranks=[0, 1]
         )
 
-        for topic_kc_pair, rating in zip(
-            learner_topic_kc_pairs, updated_team_learner
-        ):
+        for topic_kc_pair, rating in zip(learner_topic_kc_pairs, updated_team_learner):
             topic_id, kc = topic_kc_pair
-            # need to update with timestamp=x.event_time as there are old kcs in the pairs
+            # need to update with timestamp=x.event_time
+            # as there are old kcs in the pairs
             kc.update(
                 mean=rating.mean,
                 variance=rating.sigma**2,
@@ -191,21 +206,6 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
             self._learner_model.knowledge.update_kc(topic_id, kc)
 
     def predict_proba(self, x: EventModel) -> float:
-        """Predict the probability of the learner's engagement in the given learning event.
-
-        # TODO: describe the draw probability
-
-        Parameters
-        ----------
-        x : EventModel
-            A representation of a learning event.
-
-        Returns
-        -------
-        float
-            The probability that the learner engages in the given learning event.
-
-        """
         learner_kcs = select_kcs(
             self._learner_model, x.knowledge, self._init_skill, self._def_var
         )

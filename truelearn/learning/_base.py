@@ -64,7 +64,8 @@ class BaseClassifier(ABC):
     The `_parameter_constraints` is a dictionary that maps parameter
     names to its expected type. The expected type can be a list or a single type
     as it's possible for a type to accept more than one type.
-    To do the constraint check based on this, simply call `self._validate_params` in your classifier.
+    To do the constraint check based on this, simply call `self._validate_params`
+    in your classifier.
 
     Notice, the types in parameter constraints doesn't necessary need to be the
     type annotated in your __init__ method. It should be considered as post-conditions
@@ -80,7 +81,7 @@ class BaseClassifier(ABC):
 
         Args:
             x: A representation of a learning event.
-            y: A bool indicating whether the learner engages in the given learning event.
+            y: A bool indicating whether the learner engages in the learning event.
 
         Returns:
             The updated classifier object.
@@ -88,7 +89,7 @@ class BaseClassifier(ABC):
 
     @abstractmethod
     def predict(self, x: EventModel) -> bool:
-        """Predict whether the learner will engage in the given learning event.
+        """Predict whether the learner will engage in the learning event.
 
         Args:
             x: A representation of a learning event.
@@ -105,7 +106,8 @@ class BaseClassifier(ABC):
             x: A representation of a learning event.
 
         Returns:
-            A float indicating the probability that the learner will engage in the learning event.
+            A float indicating the probability that the learner will engage
+            in the learning event.
         """
 
     @final
@@ -113,8 +115,9 @@ class BaseClassifier(ABC):
         """Get parameters for this Classifier.
 
         Args:
-            deep: If True, will return the parameters for this Classifier and
-            contained sub-objects that inherits BaseClassifier class.
+            deep:
+                If True, will return the parameters for this Classifier and
+                contained sub-objects that inherits BaseClassifier class.
 
         Returns:
             A dict mapping variable names to the corresponding objects.
@@ -126,7 +129,8 @@ class BaseClassifier(ABC):
         for key in param_names:
             if not hasattr(self, key):
                 raise ValueError(
-                    f"The specified parameter name {key} is not in the {self.__class__.__name__}."
+                    f"The specified parameter name {key}"
+                    f" is not in the {self.__class__.__name__}."
                 )
 
             value = getattr(self, key)
@@ -164,12 +168,11 @@ class BaseClassifier(ABC):
         nested_params = collections.defaultdict(dict)
 
         for key, value in params.items():
-            key, delim, sub_key = key.partition(
-                BaseClassifier.__DEEP_PARAM_DELIMITER
-            )
+            key, delim, sub_key = key.partition(BaseClassifier.__DEEP_PARAM_DELIMITER)
             if key not in valid_params:
                 raise ValueError(
-                    f"The given parameter {key} is not in the class {self.__class__.__name__}."
+                    f"The given parameter {key}"
+                    f" is not in the class {self.__class__.__name__}."
                 )
 
             if delim:
@@ -195,7 +198,8 @@ class BaseClassifier(ABC):
             # ensure param_name is in the valid params dictionary
             if param_name not in params:
                 raise ValueError(
-                    f"The {param_name} parameter is not in the class {self.__class__.__name__}."
+                    f"The {param_name} parameter is not"
+                    f" in the class {self.__class__.__name__}."
                 )
 
             # ensure expected_param_type is properly set
@@ -228,20 +232,22 @@ class BaseClassifier(ABC):
                         map(lambda cls: cls.__name__, expected_param_type)
                     )
                     raise TypeError(
-                        f"The {param_name} parameter of {self.__class__.__name__} must be"
-                        f" one of the classes in {param_classname_expected}."
+                        f"The {param_name} parameter of {self.__class__.__name__}"
+                        f" must be one of the classes in {param_classname_expected}."
                         f" Got {param.__class__.__name__} instead."
                     )
             else:
                 if not isinstance(param, expected_param_type):
                     raise TypeError(
-                        f"The {param_name} parameter of {self.__class__.__name__} must be"
-                        f" {expected_param_type.__name__}. Got {param.__class__.__name__} instead."
+                        f"The {param_name} parameter of {self.__class__.__name__}"
+                        f" must be {expected_param_type.__name__}."
+                        f" Got {param.__class__.__name__} instead."
                     )
 
 
 class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
-    """A Base Classifier for KnowledgeClassifier, NoveltyClassifier and InterestClassifier.
+    """A Base Classifier for KnowledgeClassifier, NoveltyClassifier \
+    and InterestClassifier.
 
     It defines the necessary instance variables and
     common methods to interact with the LearnerModel.
@@ -282,28 +288,42 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
         """Init InterestNoveltyKnowledgeBaseClassifier object.
 
         Args:
-            learner_model: A representation of the learner.
-            threshold: A float that determines the prediction threshold.
+            *:
+                Use to reject positional arguments.
+            learner_model:
+                A representation of the learner.
+            threshold:
+                A float that determines the prediction threshold.
                 When the predict is called, the classifier will return True iff
                 the predicted probability is greater than the threshold.
-            init_skill: The initial mean of the learner's knowledge component.
-                It will be used when the learner interacts with some knowledge components
-                at its first time.
-            def_var: The initial variance of the learner's knowledge component.
-                It will be used when the learner interacts with some knowledge components
-                at its first time.
-            beta: The noise factor.
-            tau: The dynamic factor of learner's learning process.
+            init_skill:
+                The initial mean of the learner's knowledge component.
+                It will be used when the learner interacts with some
+                knowledge components at its first time.
+            def_var:
+                The initial variance of the learner's knowledge component.
+                It will be used when the learner interacts with some
+                knowledge components at its first time.
+            beta:
+                The noise factor.
+            tau:
+                The dynamic factor of learner's learning process.
                 It's used to avoid the halting of the learning process.
-            positive_only: A bool indicating whether the classifier only
+            positive_only:
+                A bool indicating whether the classifier only
                 updates the learner's knowledge when encountering a positive label.
-            draw_proba_type: A str specifying the type of the draw probability.
+            draw_proba_type:
+                A str specifying the type of the draw probability.
                 It could be either "static" or "dynamic". The "static" probability type
-                requires an additional parameter draw_proba_static. The "dynamic" probability
-                type calculates the draw probability based on the learner's previous
-                engagement stats with educational resources.
-            draw_proba_static: The global draw probability.
-            draw_proba_factor: A factor that will be applied to both static and dynamic draw probability.
+                requires an additional parameter draw_proba_static.
+                The "dynamic" probability type calculates the draw probability
+                based on the learner's previous engagement stats
+                with educational resources.
+            draw_proba_static:
+                The global draw probability.
+            draw_proba_factor:
+                A factor that will be applied to both
+                static and dynamic draw probability.
 
         Raises:
             ValueError: If draw_proba_type is neither "static" nor "dynamic".
@@ -323,7 +343,8 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
 
         if draw_proba_type not in ("static", "dynamic"):
             raise ValueError(
-                f"The draw_proba_type should be either static or dynamic. Got {draw_proba_type} instead."
+                f"The draw_proba_type should be either static or dynamic."
+                f" Got {draw_proba_type} instead."
             )
 
         self._draw_proba_type = draw_proba_type
@@ -340,7 +361,8 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
             # delayed check as this can be potentially replaced by set_params
             if self._draw_proba_static is None:
                 raise ValueError(
-                    "When draw_proba_type is set to static, the draw_proba_static should not be None."
+                    "When draw_proba_type is set to static,"
+                    " the draw_proba_static should not be None."
                 )
             return self._draw_proba_static * self._draw_proba_factor
 
@@ -395,13 +417,15 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
     def _gather_trueskill_team(
         self, kcs: Iterable[AbstractKnowledgeComponent]
     ) -> tuple[trueskill.Rating]:
-        """Return a tuple of trueskill Rating created from the given iterable of knowledge components.
+        """Return a tuple of trueskill Rating \
+        created from the given iterable of knowledge components.
 
         Args:
             kcs: An iterable of knowledge components.
 
         Returns:
-            A tuple of trueskill Rating objects created from the given iterable of knowledge components.
+            A tuple of trueskill Rating objects
+            created from the given iterable of knowledge components.
         """
         return tuple(
             map(
@@ -423,7 +447,8 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
 
     @final
     def fit(self, x: EventModel, y: bool) -> Self:
-        # update the knowledge representation if positive_only is False or (it's true and y is true)
+        # if positive_only is False or (it's true and y is true)
+        # update the knowledge representation
         if not self._positive_only or y is True:
             self.__setup_env()
             self._update_knowledge_representation(x, y)
@@ -457,9 +482,7 @@ def team_sum_quality(
     team_content_variance = map(lambda kc: kc.variance, content_kcs)
 
     difference = sum(team_learner_mean) - sum(team_content_mean)
-    std = math.sqrt(
-        sum(team_learner_variance) + sum(team_content_variance) + beta
-    )
+    std = math.sqrt(sum(team_learner_variance) + sum(team_content_variance) + beta)
     return statistics.NormalDist(mu=0, sigma=std).cdf(difference)
 
 
@@ -470,14 +493,15 @@ def select_topic_kc_pairs(
     def_var: float,
     def_timestamp: float | None = None,
 ) -> Iterable[tuple[Hashable, AbstractKnowledgeComponent]]:
-    """Get topic_id and knowledge_component pairs in the learner's knowledge based on the knowledge of the learnable unit.
+    """Get topic_id and knowledge_component pairs in the learner's knowledge \
+    based on the knowledge of the learnable unit.
 
     Given the knowledge representation of the learnable unit, this method tries to get
     the corresponding knowledge representation from the Learner Model.
 
-    If it cannot find the corresponding knowledge component in learner's model, which means
-    the learner has never exposed to this knowledge component before, a new KC will be constructed
-    with initial skill and default variance.
+    If it cannot find the corresponding knowledge component in learner's model,
+    which means the learner has never exposed to this knowledge component before,
+    a new KC will be constructed with initial skill and default variance.
 
     Args:
         learner_model: A representation of the learner.
@@ -489,8 +513,9 @@ def select_topic_kc_pairs(
 
     Returns:
         An iterable of tuples consisting of (topic_id, knowledge_component) where
-        topic_id is a hashable object that uniquely identifies a knowledge component, and
-        the knowledge_component is the corresponding knowledge component of this topic_id.
+        topic_id is a hashable object that uniquely identifies a knowledge component,
+        and the knowledge_component is the corresponding knowledge component of
+        this topic_id.
     """
 
     def __topic_kc_pair_mapper(
@@ -499,15 +524,11 @@ def select_topic_kc_pairs(
         topic_id, kc = topic_kc_pair
         extracted_kc = learner_model.knowledge.get_kc(
             topic_id,
-            kc.clone(
-                mean=init_skill, variance=def_var, timestamp=def_timestamp
-            ),
+            kc.clone(mean=init_skill, variance=def_var, timestamp=def_timestamp),
         )
         return topic_id, extracted_kc
 
-    team_learner = map(
-        __topic_kc_pair_mapper, content_knowledge.topic_kc_pairs()
-    )
+    team_learner = map(__topic_kc_pair_mapper, content_knowledge.topic_kc_pairs())
     return team_learner
 
 
@@ -518,14 +539,15 @@ def select_kcs(
     def_var: float,
     def_timestamp: float | None = None,
 ) -> Iterable[AbstractKnowledgeComponent]:
-    """Get knowledge components in the learner's knowledge based on the knowledge of the learnable unit.
+    """Get knowledge components in the learner's knowledge \
+    based on the knowledge of the learnable unit.
 
     Given the knowledge representation of the learnable unit, this method tries to get
     the corresponding knowledge representation from the Learner Model.
 
-    If it cannot find the corresponding knowledge component in learner's model, which means
-    the learner has never exposed to this knowledge component before, a new KC will be constructed
-    with initial skill and default variance.
+    If it cannot find the corresponding knowledge component in learner's model,
+    which means the learner has never exposed to this knowledge component before,
+    a new KC will be constructed with initial skill and default variance.
 
     Args:
         learner_model: A representation of the learner.
@@ -545,9 +567,7 @@ def select_kcs(
         topic_id, kc = topic_kc_pair
         extracted_kc = learner_model.knowledge.get_kc(
             topic_id,
-            kc.clone(
-                mean=init_skill, variance=def_var, timestamp=def_timestamp
-            ),
+            kc.clone(mean=init_skill, variance=def_var, timestamp=def_timestamp),
         )
         return extracted_kc
 

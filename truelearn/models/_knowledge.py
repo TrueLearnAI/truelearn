@@ -8,12 +8,19 @@ class KnowledgeComponent(AbstractKnowledgeComponent):
     """A concrete class that implements AbstractKnowledgeComponent.
 
     Attributes:
-        mean: A float indicating the mean of the knowledge component.
-        variance: A float indicating the variance of the knowledge component.
-        timestamp: A float indicating the POSIX timestamp of the last update of the knowledge component.
-        title: An optional string storing the title of the knowledge component.
-        description: An optional string that describes the knowledge component.
-        url: An optional string storing the url of the knowledge component.
+        mean:
+            A float indicating the mean of the knowledge component.
+        variance:
+            A float indicating the variance of the knowledge component.
+        timestamp:
+            A float indicating the POSIX timestamp of the last update of
+            the knowledge component.
+        title:
+            An optional string storing the title of the knowledge component.
+        description:
+            An optional string that describes the knowledge component.
+        url:
+            An optional string storing the url of the knowledge component.
     """
 
     def __init__(
@@ -29,12 +36,22 @@ class KnowledgeComponent(AbstractKnowledgeComponent):
         """Init the KnowledgeComponent object.
 
         Args:
-            mean: A float indicating the mean of the knowledge component.
-            variance: A float indicating the variance of the knowledge component.
-            timestamp: A float indicating the POSIX timestamp of the last update of the knowledge component.
-            title: An optional string storing the title of the knowledge component.
-            description: An optional string that describes the knowledge component.
-            url: An optional string storing the url of the knowledge component.
+            mean:
+                A float indicating the mean of the knowledge component.
+            variance:
+                A float indicating the variance of the knowledge component.
+            timestamp:
+                A float indicating the POSIX timestamp of the last update of
+                the knowledge component.
+            title:
+                An optional string storing the title of the knowledge component.
+            description:
+                An optional string that describes the knowledge component.
+            url:
+                An optional string storing the url of the knowledge component.
+
+        Returns:
+            None.
         """
         super().__init__()
 
@@ -94,13 +111,18 @@ class KnowledgeComponent(AbstractKnowledgeComponent):
         variance: float,
         timestamp: float | None = None,
     ) -> Self:
-        """Generate a copy of the current knowledge component with given mean, variance and timestamp.
+        """Generate a copy of the current knowledge component with \
+        given mean, variance and timestamp.
 
         Args:
-            *: Use to reject positional arguments.
-            mean: The new mean of the AbstractKnowledgeComponent.
-            variance: The new variance of the AbstractKnowledgeComponent.
-            timestamp: An optional new POSIX timestamp of the AbstractKnowledgeComponent.
+            *:
+                Use to reject positional arguments.
+            mean:
+                The new mean of the AbstractKnowledgeComponent.
+            variance:
+                The new variance of the AbstractKnowledgeComponent.
+            timestamp:
+                An optional new POSIX timestamp of the AbstractKnowledgeComponent.
                 If None is given, the timestamp of the cloned knowledge component is
                 assigned to None.
 
@@ -162,7 +184,8 @@ class Knowledge:
             default: The default knowledge component to return.
 
         Returns:
-            The knowledge component extracted from the knowledge if the topic_id exists in the knowledge.
+            The knowledge component extracted from the knowledge
+            if the topic_id exists in the knowledge.
             Otherwise, the default value will be returned.
         """
         return self.__knowledge.get(topic_id, default)

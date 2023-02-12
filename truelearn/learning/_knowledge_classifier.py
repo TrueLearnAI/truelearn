@@ -11,23 +11,30 @@ from truelearn.models import EventModel, LearnerModel
 
 
 class KnowledgeClassifier(InterestNoveltyKnowledgeBaseClassifier):
-    """A classifier that models the learner's knowledge and makes prediction based on the knowledge.
+    """A classifier that models the learner's knowledge and \
+    makes prediction based on the knowledge.
 
-    During the training process, the classifier uses the idea of game matching established in TrueSkill.
-    It represents the learning process as a game of two teams. One team consists of all the knowledge
-    components from the learnable unit and the other consist of all the corresponding knowledge components
-    from the learner. Then, the classifier uses the given label to update the knowledge components of the learner.
+    During the training process, the classifier uses the idea of game matching
+    established in TrueSkill. It represents the learning process as a game of two teams.
+    One team consists of all the knowledge components from the learnable unit and
+    the other consist of all the corresponding knowledge components from the learner.
+    Then, the classifier uses the given label to update the knowledge components
+    of the learner.
 
-    The update of knowledge components is based on the assumption that if the learner engages with the
-    learnable unit, it means that the learner has a higher skill than the depth of the resource, which
+    The update of knowledge components is based on the assumption that
+    if the learner engages with the learnable unit, it means that
+    the learner has a higher skill than the depth of the resource, which
     means that the learner wins the game.
 
-    During the prediction process, the classifier uses cumulative density function of normal distribution
-    to calculate the probability that the learner engage in the learning event. It calculates the probability
-    of getting x in a Normal Distribution N(0, std) where x is the difference between the learner's skill (mean)
-    and the learnable unit's skill (mean) and std is the standard deviation of the new normal distribution as a
-    result of subtracting the two old normal distribution (learner and learnable unit). In TrueSkill's terminology,
-    this calculates the win probability that the learner will win the content.
+    During the prediction process, the classifier uses cumulative density function of
+    normal distribution to calculate the probability that the learner engage
+    in the learning event. It calculates the probability of getting x in a
+    Normal Distribution N(0, std) where x is the difference between
+    the learner's skill (mean) and the learnable unit's skill (mean) and
+    std is the standard deviation of the new normal distribution as a result of
+    subtracting the two old normal distribution (learner and learnable unit).
+    In TrueSkill's terminology, this calculates the win probability that
+    the learner will win the content.
     """
 
     DRAW_PROBA_STATIC: Final[float] = 1e-9
@@ -50,21 +57,33 @@ class KnowledgeClassifier(InterestNoveltyKnowledgeBaseClassifier):
         """Init KnowledgeClassifier object.
 
         Args:
-            learner_model: A representation of the learner.
-            threshold: A float that determines the prediction threshold.
+            *:
+                Use to reject positional arguments.
+            learner_model:
+                A representation of the learner.
+            threshold:
+                A float that determines the prediction threshold.
                 When the predict is called, the classifier will return True iff
                 the predicted probability is greater than the threshold.
-            init_skill: The initial mean of the learner's knowledge component.
-                It will be used when the learner interacts with some knowledge components
+            init_skill:
+                The initial mean of the learner's knowledge component.
+                It will be used when the learner interacts with knowledge components
                 at its first time.
-            def_var: The initial variance of the learner's knowledge component.
-                It will be used when the learner interacts with some knowledge components
+            def_var:
+                The initial variance of the learner's knowledge component.
+                It will be used when the learner interacts with knowledge components
                 at its first time.
-            beta: The noise factor.
-            tau: The dynamic factor of learner's learning process.
+            beta:
+                The noise factor.
+            tau:
+                The dynamic factor of learner's learning process.
                 It's used to avoid the halting of the learning process.
-            positive_only: A bool indicating whether the classifier only
+            positive_only:
+                A bool indicating whether the classifier only
                 updates the learner's knowledge when encountering a positive label.
+
+        Returns:
+            None
         """
         # the knowledge classifier doesn't rely on the draw probability
         # it utilizes different assumptions
@@ -113,9 +132,7 @@ class KnowledgeClassifier(InterestNoveltyKnowledgeBaseClassifier):
                 [team_content, team_learner], ranks=[0, 1]
             )
 
-        for topic_kc_pair, rating in zip(
-            learner_topic_kc_pairs, updated_team_learner
-        ):
+        for topic_kc_pair, rating in zip(learner_topic_kc_pairs, updated_team_learner):
             topic_id, kc = topic_kc_pair
             kc.update(mean=rating.mean, variance=rating.sigma**2)
             self._learner_model.knowledge.update_kc(topic_id, kc)

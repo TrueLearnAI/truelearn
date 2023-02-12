@@ -6,19 +6,25 @@ from abc import ABC, abstractmethod
 class AbstractKnowledgeComponent(ABC):
     """An interface defines an knowledge component of a learnable unit.
 
-    Each knowledge component can be represented as a Normal Distribution with certain skills (mu) and
-    standard deviation (sqrt{variance}).
+    Each knowledge component can be represented as a Normal Distribution with
+    certain skills (mu) and standard deviation (sqrt{variance}).
 
-    The variance of the knowledge component from the learnable unit will be a fixed small value
-    as we assume the skill (recourse depth) clearly and accurately measure the resourcefulness
-    of the learnable unit. The variance of the knowledge component from the learner will be a dynamic
-    value derived from the classifier's training process. This is to respect the fact that the skill
-    (model's understanding of the learner's knowledge) is not perfectly accurate.
+    The variance of the knowledge component from the learnable unit will be
+    a fixed small value as we assume the skill (recourse depth) clearly and
+    accurately measure the resourcefulness of the learnable unit.
+    The variance of the knowledge component from the learner will be a dynamic
+    value derived from the classifier's training process. This is to respect the
+    fact that the skill (model's understanding of the learner's knowledge) is
+    snot perfectly accurate.
 
     Attributes:
-        mean: A float indicating the mean of the knowledge component.
-        variance: A float indicating the variance of the knowledge component.
-        timestamp: A float indicating the POSIX timestamp of the last update of the knowledge component.
+        mean:
+            A float indicating the mean of the knowledge component.
+        variance:
+            A float indicating the variance of the knowledge component.
+        timestamp:
+            A float indicating the POSIX timestamp of the
+            last update of the knowledge component.
     """
 
     @property
@@ -50,10 +56,18 @@ class AbstractKnowledgeComponent(ABC):
         knowledge component will not be updated.
 
         Args:
-          *: Use to reject positional arguments.
-          mean: The new mean of the knowledge component.
-          variance: The new variance of the knowledge component.
-          timestamp: The new POSIX timestamp that indicates the update time of the knowledge component.
+            *:
+                Use to reject positional arguments.
+            mean:
+                The new mean of the knowledge component.
+            variance:
+                The new variance of the knowledge component.
+            timestamp:
+                The new POSIX timestamp that indicates the update time
+                of the knowledge component.
+
+        Returns:
+            None.
         """
 
     @abstractmethod
@@ -64,13 +78,18 @@ class AbstractKnowledgeComponent(ABC):
         variance: float,
         timestamp: float | None = None,
     ) -> Self:
-        """Generate a copy of the current knowledge component with given mean, variance and timestamp.
+        """Generate a copy of the current knowledge component with \
+        given mean, variance and timestamp.
 
         Args:
-            *: Use to reject positional arguments.
-            mean: The new mean of the AbstractKnowledgeComponent.
-            variance: The new variance of the AbstractKnowledgeComponent.
-            timestamp: An optional new POSIX timestamp of the AbstractKnowledgeComponent.
+            *:
+                Use to reject positional arguments.
+            mean:
+                The new mean of the AbstractKnowledgeComponent.
+            variance:
+                The new variance of the AbstractKnowledgeComponent.
+            timestamp:
+                An optional new POSIX timestamp of the AbstractKnowledgeComponent.
 
         Returns:
             A cloned knowledge component with given mean, variance and timestamp.

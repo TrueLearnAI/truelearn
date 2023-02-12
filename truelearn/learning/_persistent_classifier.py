@@ -6,7 +6,8 @@ from truelearn.models import EventModel
 
 
 class PersistentClassifier(BaseClassifier):
-    """A classifier that makes predictions based on whether the learner has engaged with the last learnable unit."""
+    """A classifier that makes predictions based on \
+    whether the learner has engaged with the last learnable unit."""
 
     _parameter_constraints: dict[str, Any] = {
         **BaseClassifier._parameter_constraints,
@@ -14,7 +15,11 @@ class PersistentClassifier(BaseClassifier):
     }
 
     def __init__(self, engage_with_last: bool = False) -> None:
-        """Init PersistentClassifier object."""
+        """Init PersistentClassifier object.
+
+        Args:
+            engage_with_last: whether the learner engages with the last learnable unit.
+        """
         super().__init__()
 
         self._engage_with_last = engage_with_last

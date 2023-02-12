@@ -14,14 +14,16 @@ import trueskill
 class INKClassifier(BaseClassifier):
     """A meta-classifier that combines KnowledgeClassifier and InterestClassifier.
 
-    During the training process, the meta-classifier individually trains the KnowledgeClassifier
-    and the InterestClassifier. After that, the classifier trains a set of weights by again
-    using the ideas of team matching. One team consists of the weights of the knowledge, interest
-    and bias and the other team consists of the threshold. Then, the classifier uses the given
-    label to adjust the weights accordingly.
+    During the training process, the meta-classifier individually trains
+    the KnowledgeClassifier and the InterestClassifier. After that, the
+    meta-classifier trains a set of weights by again using the ideas of team matching.
+    One team consists of the weights of the knowledge, interest and bias and
+    the other team consists of the threshold. Then, the meta-classifier
+    uses the given label to adjust the weights accordingly.
 
-    During the prediction process, the meta-classifier individually uses the predict function of
-    the KnowledgeClassifier and InterestClassifier. Then, it combines them by using the weights.
+    During the prediction process, the meta-classifier individually uses the predict
+    function of the KnowledgeClassifier and InterestClassifier.
+    Then, it combines them by using the weights.
     """
 
     DEFAULT_SIGMA: Final[float] = 1e-9
@@ -71,32 +73,52 @@ class INKClassifier(BaseClassifier):
         """Init INKClassifier object.
 
         Args:
-            learner_model: A representation of the learner.
-            threshold: A float that determines the prediction threshold.
+            *:
+                Use to reject positional arguments.
+            learner_model:
+                A representation of the learner.
+            threshold:
+                A float that determines the prediction threshold.
                 When the predict is called, the classifier will return True iff
                 the predicted probability is greater than the threshold.
-            k_init_skill: The initial mean of the learner's knowledge/novelty.
-            i_init_skill: The initial mean of the learner's interest.
-            k_def_var: The initial variance of the learner's knowledge/novelty.
-            i_def_var: The initial variance of the learner's interest.
-            k_beta: The noise factor for NoveltyClassifier.
-            i_beta: The noise factor for InterestClassifier.
-            tau: The dynamic factor of learner's learning process.
-            positive_only: A bool indicating whether the classifier only
+            k_init_skill:
+                The initial mean of the learner's knowledge/novelty.
+            i_init_skill:
+                The initial mean of the learner's interest.
+            k_def_var:
+                The initial variance of the learner's knowledge/novelty.
+            i_def_var:
+                The initial variance of the learner's interest.
+            k_beta:
+                The noise factor for NoveltyClassifier.
+            i_beta:
+                The noise factor for InterestClassifier.
+            tau:
+                The dynamic factor of learner's learning process.
+            positive_only:
+                A bool indicating whether the classifier only
                 updates the learner's knowledge when encountering a positive label.
-            draw_proba_type: A str specifying the type of the draw probability.
+            draw_proba_type:
+                A str specifying the type of the draw probability.
                 It could be either "static" or "dynamic". The "static" probability type
-                requires an additional parameter draw_proba_static. The "dynamic" probability
+                requires an additional parameter draw_proba_static.
+                The "dynamic" probability
                 type calculates the draw probability based on the learner's previous
                 engagement stats with educational resources.
             draw_proba_static: The global draw probability.
-            draw_proba_factor: A factor that will be applied to both static and dynamic draw probability.
-            decay_func_type: A str specifying the type of the interest decay function.
+            draw_proba_factor:
+                A factor that will be applied to both
+                static and dynamic draw probability.
+            decay_func_type:
+                A str specifying the type of the interest decay function.
                 The allowed values are "short" and "long".
-            decay_func_factor: A factor that will be used in both short and long
+            decay_func_factor:
+                A factor that will be used in both short and long
                 interest decay function.
-            greedy: A bool indicating whether the meta-learning should take the greedy approach.
-                In the greedy approach, only incorrect predictions lead to the update of the weights.
+            greedy:
+                A bool indicating whether the meta-learning should
+                take the greedy approach. In the greedy approach,
+                only incorrect predictions lead to the update of the weights.
 
         Raises:
             ValueError: If draw_proba_type is neither "static" nor "dynamic" or
@@ -193,12 +215,8 @@ class INKClassifier(BaseClassifier):
 
         # train
         team_experts = (
-            self._env.create_rating(
-                mu=mu_novelty, sigma=math.sqrt(var_novelty)
-            ),
-            self._env.create_rating(
-                mu=mu_interest, sigma=math.sqrt(var_interest)
-            ),
+            self._env.create_rating(mu=mu_novelty, sigma=math.sqrt(var_novelty)),
+            self._env.create_rating(mu=mu_interest, sigma=math.sqrt(var_interest)),
             self._env.create_rating(mu=mu_bias, sigma=math.sqrt(var_bias)),
         )
 

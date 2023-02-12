@@ -9,20 +9,26 @@ from truelearn.models import EventModel, LearnerModel
 
 
 class NoveltyClassifier(InterestNoveltyKnowledgeBaseClassifier):
-    """A classifier that models the learner's knowledge and makes prediction based on the knowledge.
+    """A classifier that models the learner's knowledge and \
+    makes prediction based on the knowledge.
 
-    During the training process, the classifier uses the idea of game matching established in TrueSkill.
-    It represents the learning process as a game of two teams. One team consists of all the knowledge
-    components from the learnable unit and the other consist of all the corresponding knowledge components
-    from the learner. Then, the classifier uses the given label to update the knowledge components of the learner.
+    During the training process, the classifier uses the idea of game matching
+    established in TrueSkill. It represents the learning process as a game of two teams.
+    One team consists of all the knowledge components from the learnable unit and
+    the other consist of all the corresponding knowledge components from the learner.
+    Then, the classifier uses the given label to update the knowledge components of
+    the learner.
 
-    The update of knowledge components is based on the assumption that if the learner engages with the
-    learnable unit, it means that the learner has skills similar to the depth of the resource, which
+    The update of knowledge components is based on the assumption that
+    if the learner engages with the learnable unit, it means that
+    the learner has skills similar to the depth of the resource, which
     means that the game is drawn.
 
-    During the prediction process, the classifier uses the TrueSkill quality mechanism to evaluate the quality of the game.
-    The idea is that if the quality of the game is high, this means that neither side can easily win the other.
-    Thus, a high quality game means that learners are likely to engage in learnable units based on our assumption.
+    During the prediction process, the classifier uses the TrueSkill quality mechanism
+    to evaluate the quality of the game. The idea is that if the quality of the game
+    is high, it means that neither side can easily win the other.
+    Thus, a high quality game means that learners are likely to engage with
+    learnable units based on our assumption.
     """
 
     _parameter_constraints: dict[str, Any] = {
@@ -46,28 +52,42 @@ class NoveltyClassifier(InterestNoveltyKnowledgeBaseClassifier):
         """Init NoveltyClassifier object.
 
         Args:
-            learner_model: A representation of the learner.
-            threshold: A float that determines the prediction threshold.
+            *:
+                Use to reject positional arguments.
+            learner_model:
+                A representation of the learner.
+            threshold:
+                A float that determines the prediction threshold.
                 When the predict is called, the classifier will return True iff
                 the predicted probability is greater than the threshold.
-            init_skill: The initial mean of the learner's knowledge component.
-                It will be used when the learner interacts with some knowledge components
+            init_skill:
+                The initial mean of the learner's knowledge component.
+                It will be used when the learner interacts with knowledge components
                 at its first time.
-            def_var: The initial variance of the learner's knowledge component.
-                It will be used when the learner interacts with some knowledge components
+            def_var:
+                The initial variance of the learner's knowledge component.
+                It will be used when the learner interacts with knowledge components
                 at its first time.
-            beta: The noise factor.
-            tau: The dynamic factor of learner's learning process.
+            beta:
+                The noise factor.
+            tau:
+                The dynamic factor of learner's learning process.
                 It's used to avoid the halting of the learning process.
-            positive_only: A bool indicating whether the classifier only
+            positive_only:
+                A bool indicating whether the classifier only
                 updates the learner's knowledge when encountering a positive label.
-            draw_proba_type: A str specifying the type of the draw probability.
-                It could be either "static" or "dynamic". The "static" probability type
-                requires an additional parameter draw_proba_static. The "dynamic" probability
-                type calculates the draw probability based on the learner's previous
-                engagement stats with educational resources.
-            draw_proba_static: The global draw probability.
-            draw_proba_factor: A factor that will be applied to both static and dynamic draw probability.
+            draw_proba_type:
+                A str specifying the type of the draw probability.
+                It could be either "static" or "dynamic". The "static"
+                probability type requires an additional parameterdraw_proba_static.
+                The "dynamic" probability type calculates the draw probability
+                based on the learner's previous engagement stats with
+                educational resources.
+            draw_proba_static:
+                The global draw probability.
+            draw_proba_factor:
+                A factor that will be applied to both static and dynamic
+                draw probability.
 
         Raises:
             ValueError: If draw_proba_type is neither "static" nor "dynamic".
@@ -109,12 +129,14 @@ class NoveltyClassifier(InterestNoveltyKnowledgeBaseClassifier):
         team_content_mean = map(lambda kc: kc.mean, content_kcs)
 
         if y:
-            # if learner wins, use pos_learner skill which is updated with them topics ;)
+            # if learner wins
+            # the game draws
             ranks = [0, 0]
         else:  # if the person is not engaged...
             difference = sum(team_learner_mean) - sum(team_content_mean)
 
-            # check if the winner is learner or content, uses the predicted skill representation
+            # check if the winner is learner or content,
+            # uses the predicted skill representation
             if difference > 0.0:  # learner wins --> boring content
                 ranks = [0, 1]
             elif difference < 0.0:  # learner loses --> intimidation
@@ -131,9 +153,7 @@ class NoveltyClassifier(InterestNoveltyKnowledgeBaseClassifier):
             updated_team_learner = team_learner
 
         # update the learner's knowledge representation
-        for topic_kc_pair, rating in zip(
-            learner_topic_kc_pairs, updated_team_learner
-        ):
+        for topic_kc_pair, rating in zip(learner_topic_kc_pairs, updated_team_learner):
             topic_id, kc = topic_kc_pair
             kc.update(mean=rating.mean, variance=rating.sigma**2)
             self._learner_model.knowledge.update_kc(topic_id, kc)

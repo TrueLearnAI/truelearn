@@ -8,9 +8,13 @@ class LearnerModel:
     """The model of a learner.
 
     Attributes:
-        knowledge: A representation of the learner's knowledge.
-        number_of_engagements: An int indicating how many educational resources learners are engaged with.
-        number_of_non_engagements: An int indicating how many educational resources learners are not engaged with.
+        knowledge:
+            A representation of the learner's knowledge.
+        number_of_engagements:
+            An int indicating how many educational resources learners are engaged with.
+        number_of_non_engagements:
+            An int indicating how many educational resources learners are not
+            engaged with.
     """
 
     knowledge: Knowledge = dataclasses.field(default_factory=Knowledge)
@@ -27,11 +31,18 @@ class MetaLearnerModel:
     interest-oriented or knowledge/novelty-oriented in the learning process.
 
     Attributes:
-        learner_novelty: A learner model that models the learner's knowledge/novelty.
-        learner_interest: A learner model that models the learner's interest.
-        novelty_weight: A dict that stores the "mean" and "variance" of the learner's knowledge/novelty weights.
-        interest_weight: A dict that stores the "mean" and "variance" of the learner's interest weights.
-        bias_weight: A dict that stores the "mean" and "variance" of a bias variable.
+        learner_novelty:
+            A learner model that models the learner's knowledge/novelty.
+        learner_interest:
+            A learner model that models the learner's interest.
+        novelty_weight:
+            A dict that stores the "mean" and "variance" of the learner's
+            knowledge/novelty weights.
+        interest_weight:
+            A dict that stores the "mean" and "variance" of the learner's
+            interest weights.
+        bias_weight:
+            A dict that stores the "mean" and "variance" of a bias variable.
     """
 
     learner_novelty: LearnerModel = dataclasses.field(
