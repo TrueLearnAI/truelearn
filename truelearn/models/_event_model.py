@@ -1,9 +1,9 @@
-from dataclasses import dataclass, field
+import dataclasses
 
 from ._knowledge import Knowledge
 
 
-@dataclass
+@dataclasses.dataclass
 class EventModel:
     """A class that models a learning event in TrueLearn algorithm.
 
@@ -26,5 +26,5 @@ class EventModel:
 
     """
 
-    knowledge: Knowledge = field(default_factory=Knowledge)
+    knowledge: Knowledge = dataclasses.field(default_factory=Knowledge)
     event_time: float | None = None

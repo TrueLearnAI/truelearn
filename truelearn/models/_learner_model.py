@@ -1,9 +1,9 @@
-from dataclasses import dataclass, field
+import dataclasses
 
 from ._knowledge import Knowledge
 
 
-@dataclass
+@dataclasses.dataclass
 class LearnerModel:
     """A class that models the learner in TrueLearn algorithm.
 
@@ -27,23 +27,23 @@ class LearnerModel:
 
     """
 
-    knowledge: Knowledge = field(default_factory=Knowledge)
+    knowledge: Knowledge = dataclasses.field(default_factory=Knowledge)
     number_of_engagements: int = 0
     number_of_non_engagements: int = 0
 
 
-@dataclass
+@dataclasses.dataclass
 class MetaLearnerModel:
     """Placeholder."""
 
-    learner_novelty: LearnerModel = field(default_factory=LearnerModel)
-    learner_interest: LearnerModel = field(default_factory=LearnerModel)
-    novelty_weight: dict[str, float] = field(
+    learner_novelty: LearnerModel = dataclasses.field(default_factory=LearnerModel)
+    learner_interest: LearnerModel = dataclasses.field(default_factory=LearnerModel)
+    novelty_weight: dict[str, float] = dataclasses.field(
         default_factory=lambda: {"mean": 0.0, "variance": 1}
     )
-    interest_weight: dict[str, float] = field(
+    interest_weight: dict[str, float] = dataclasses.field(
         default_factory=lambda: {"mean": 0.0, "variance": 1}
     )
-    bias_weight: dict[str, float] = field(
+    bias_weight: dict[str, float] = dataclasses.field(
         default_factory=lambda: {"mean": 0.0, "variance": 1}
     )
