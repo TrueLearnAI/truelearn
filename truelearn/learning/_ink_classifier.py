@@ -193,8 +193,12 @@ class INKClassifier(BaseClassifier):
 
         # train
         team_experts = (
-            self._env.create_rating(mu=mu_novelty, sigma=math.sqrt(var_novelty)),
-            self._env.create_rating(mu=mu_interest, sigma=math.sqrt(var_interest)),
+            self._env.create_rating(
+                mu=mu_novelty, sigma=math.sqrt(var_novelty)
+            ),
+            self._env.create_rating(
+                mu=mu_interest, sigma=math.sqrt(var_interest)
+            ),
             self._env.create_rating(mu=mu_bias, sigma=math.sqrt(var_bias)),
         )
 

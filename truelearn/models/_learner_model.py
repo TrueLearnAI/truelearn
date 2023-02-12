@@ -34,8 +34,12 @@ class MetaLearnerModel:
         bias_weight: A dict that stores the "mean" and "variance" of a bias variable.
     """
 
-    learner_novelty: LearnerModel = dataclasses.field(default_factory=LearnerModel)
-    learner_interest: LearnerModel = dataclasses.field(default_factory=LearnerModel)
+    learner_novelty: LearnerModel = dataclasses.field(
+        default_factory=LearnerModel
+    )
+    learner_interest: LearnerModel = dataclasses.field(
+        default_factory=LearnerModel
+    )
     novelty_weight: dict[str, float] = dataclasses.field(
         default_factory=lambda: {"mean": 0.0, "variance": 1}
     )
