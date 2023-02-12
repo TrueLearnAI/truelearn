@@ -169,10 +169,9 @@ class Knowledge:
         """
         super().__init__()
 
-        if knowledge is not None:
-            self.__knowledge = knowledge
-        else:
-            self.__knowledge: dict[Hashable, AbstractKnowledgeComponent] = {}
+        if knowledge is None:
+            knowledge = {}
+        self.__knowledge = knowledge
 
     def get_kc(
         self, topic_id: Hashable, default: AbstractKnowledgeComponent
