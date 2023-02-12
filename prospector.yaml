@@ -2,8 +2,6 @@ strictness: medium
 test-warnings: true
 doc-warnings: true
 
-ignore-paths:
-  - truelearn_experiments
 
 pep8:
   full: true
