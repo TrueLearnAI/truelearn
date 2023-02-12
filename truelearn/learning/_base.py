@@ -69,10 +69,6 @@ class BaseClassifier(ABC):
     Notice, the types in parameter constraints doesn't necessary need to be the
     type annotated in your __init__ method. It should be considered as post-conditions
     after you assign this given parameters to self.
-
-    If you don't want to do the constraint check, but want to support `get_params`,
-    you don't need to call the `self._validate_params()`.
-
     """
 
     __DEEP_PARAM_DELIMITER: Final[str] = "__"
@@ -80,69 +76,48 @@ class BaseClassifier(ABC):
 
     @abstractmethod
     def fit(self, x: EventModel, y: bool) -> Self:
-        """Train the model based on a given EventModel that represents a learning event.
+        """Train the model.
 
-        Parameters
-        ----------
-        x : EventModel
-            A representation of a learning event.
-        y : bool
-            Whether the learner engages in the given learning event.
+        Args:
+            x: A representation of a learning event.
+            y: A bool indicating whether the learner engages in the given learning event.
 
-        Returns
-        -------
-        Self
-            The updated classifier.
-
+        Returns:
+            The updated classifier object.
         """
 
     @abstractmethod
     def predict(self, x: EventModel) -> bool:
         """Predict whether the learner will engage in the given learning event.
 
-        Parameters
-        ----------
-        x : EventModel
-            A representation of a learning event.
+        Args:
+            x: A representation of a learning event.
 
-        Returns
-        -------
-        bool
-            Whether the learner will engage in the given learning event.
-
+        Returns:
+            A bool indicating whether the learner will engage in the learning event.
         """
 
     @abstractmethod
     def predict_proba(self, x: EventModel) -> float:
-        """Predict the probability of the learner's engagement in the given learning event.
+        """Predict the probability that the learner will engage in the learning event.
 
-        Parameters
-        ----------
-        x : EventModel
-            A representation of a learning event.
+        Args:
+            x: A representation of a learning event.
 
-        Returns
-        -------
-        float
-            The probability that the learner engages in the given learning event.
-
+        Returns:
+            A float indicating the probability that the learner will engage in the learning event.
         """
 
     @final
     def get_params(self, deep: bool = True):
         """Get parameters for this Classifier.
 
-        Parameters
-        ----------
-        deep : bool, default=True
-            If True, will return the parameters for this Classifier and
+        Args:
+            deep: If True, will return the parameters for this Classifier and
             contained sub-objects that inherits BaseClassifier class.
 
-        Returns
-        -------
-        params : dict
-            Parameter names mapped to their values.
-
+        Returns:
+            A dict mapping variable names to the corresponding objects.
         """
         param_names = list(self._parameter_constraints.keys())
         param_names.sort()
@@ -169,16 +144,13 @@ class BaseClassifier(ABC):
     def set_params(self, **params) -> Self:
         """Set the parameters of this Classifier.
 
-        Parameters
-        ----------
-        **params : dict[str, Any]
-            The parameters for Classifier.
+        Args:
+          **params: Keyword arguments.
+            The key should match the parameter names of the classifier.
+            The arguments should have the correct type.
 
-        Returns
-        -------
-        self : Self
-            The updated Classifier.
-
+        Returns:
+            The updated classifier.
         """
         # avoid running `self.get_params` if there is no given params
         if not params:
@@ -273,7 +245,6 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
 
     It defines the necessary instance variables and
     common methods to interact with the LearnerModel.
-
     """
 
     DEFAULT_CONTENT_SIGMA: Final[float] = 1e-9
@@ -308,6 +279,35 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
         draw_proba_static: float | None,
         draw_proba_factor: float,
     ) -> None:
+        """Init InterestNoveltyKnowledgeBaseClassifier object.
+
+        Args:
+            learner_model: A representation of the learner.
+            threshold: A float that determines the prediction threshold.
+                When the predict is called, the classifier will return True iff
+                the predicted probability is greater than the threshold.
+            init_skill: The initial mean of the learner's knowledge component.
+                It will be used when the learner interacts with some knowledge components
+                at its first time.
+            def_var: The initial variance of the learner's knowledge component.
+                It will be used when the learner interacts with some knowledge components
+                at its first time.
+            beta: The noise factor.
+            tau: The dynamic factor of learner's learning process.
+                It's used to avoid the halting of the learning process.
+            positive_only: A bool indicating whether the classifier only
+                updates the learner's knowledge when encountering a positive label.
+            draw_proba_type: A str specifying the type of the draw probability.
+                It could be either "static" or "dynamic". The "static" probability type
+                requires an additional parameter draw_proba_static. The "dynamic" probability
+                type calculates the draw probability based on the learner's previous
+                engagement stats with educational resources.
+            draw_proba_static: The global draw probability.
+            draw_proba_factor: A factor that will be applied to both static and dynamic draw probability.
+
+        Raises:
+            ValueError: If draw_proba_type is neither "static" nor "dynamic".
+        """
         super().__init__()
 
         if learner_model is None:
@@ -367,6 +367,7 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
 
     @final
     def __setup_env(self) -> None:
+        """Setup the trueskill environment used in the training process."""
         self.__calculate_draw_proba()
         trueskill.setup(
             mu=0.0,
@@ -380,6 +381,11 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
 
     @final
     def __update_engagement_stats(self, y: bool) -> None:
+        """Update the learner's engagement stats based on the given label.
+
+        Args:
+            y: A bool indicating whether the learner engage in the learning event.
+        """
         if y:
             self._learner_model.number_of_engagements += 1
         else:
@@ -389,6 +395,14 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
     def _gather_trueskill_team(
         self, kcs: Iterable[AbstractKnowledgeComponent]
     ) -> tuple[trueskill.Rating]:
+        """Return a tuple of trueskill Rating created from the given iterable of knowledge components.
+
+        Args:
+            kcs: An iterable of knowledge components.
+
+        Returns:
+            A tuple of trueskill Rating objects created from the given iterable of knowledge components.
+        """
         return tuple(
             map(
                 lambda kc: self._env.create_rating(
@@ -402,32 +416,13 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
     def _update_knowledge_representation(self, x: EventModel, y: bool) -> None:
         """Update the knowledge representation of the LearnerModel.
 
-        Parameters
-        ----------
-        x : EventModel
-            A representation of a learning event.
-        y : bool
-            Whether the learner engages in the given learning event.
-
+        Args:
+          x: A representation of the learning event.
+          y: A bool indicating whether the learner engages in the learning event.
         """
 
     @final
     def fit(self, x: EventModel, y: bool) -> Self:
-        """Train the model based on a given EventModel that represents a learning event.
-
-        Parameters
-        ----------
-        x : EventModel
-            A representation of a learning event.
-        y : bool
-            Whether the learner engages in the given learning event.
-
-        Returns
-        -------
-        Self
-            The updated Classifier.
-
-        """
         # update the knowledge representation if positive_only is False or (it's true and y is true)
         if not self._positive_only or y is True:
             self.__setup_env()
@@ -438,24 +433,6 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
 
     @final
     def predict(self, x: EventModel) -> bool:
-        """Predict whether the learner will engage in the given learning event.
-
-        The function will return True iff the probability that the learner engages
-        with the learnable unit is greater than the given threshold.
-
-        Refer to `predict_proba` for more details.
-
-        Parameters
-        ----------
-        x : EventModel
-            A representation of a learning event.
-
-        Returns
-        -------
-        bool
-            Whether the learner will engage in the given learning event.
-
-        """
         return self.predict_proba(x) > self._threshold
 
 
@@ -466,19 +443,13 @@ def team_sum_quality(
 ) -> float:
     """Return the probability that the learner engages with the learnable unit.
 
-    Parameters
-    ----------
-    learner_kcs : Iterable[AbstractKnowledgeComponent]
-        An iterable of learner's knowledge component.
-    content_kcs : Iterable[AbstractKnowledgeComponent]
-        An iterable of learnable unit's knowledge component.
-    beta : float
-        The noise factor, which is used in trueskill.
+    Args:
+        learner_kcs: An iterable of knowledge components that come from the learner.
+        content_kcs: An iterable of knowledge components that come from the content.
+        beta: The noise factor.
 
-    Returns
-    -------
-    float
-
+    Returns:
+        The probability that the learner engages with the learnable unit.
     """
     team_learner_mean = map(lambda kc: kc.mean, learner_kcs)
     team_learner_variance = map(lambda kc: kc.variance, learner_kcs)
@@ -499,35 +470,27 @@ def select_topic_kc_pairs(
     def_var: float,
     def_timestamp: float | None = None,
 ) -> Iterable[tuple[Hashable, AbstractKnowledgeComponent]]:
-    """Return an iterable representing the learner's knowledge in the topics specified by the learnable unit.
+    """Get topic_id and knowledge_component pairs in the learner's knowledge based on the knowledge of the learnable unit.
 
     Given the knowledge representation of the learnable unit, this method tries to get
     the corresponding knowledge representation from the Learner Model.
 
     If it cannot find the corresponding knowledge component in learner's model, which means
     the learner has never exposed to this knowledge component before, a new KC will be constructed
-    with initial skill and default variance. This will be done by using `__topic_kc_pair_mapper`.
+    with initial skill and default variance.
 
-    Parameters
-    ----------
-    learner_model : LearnerModel
-        A representation of the learner.
-    content_knowledge : AbstractKnowledge
-        The knowledge representation of a learnable unit.
-    init_skill: float
-        The initial skill (mean) of the learner given a new AbstractKnowledgeComponent.
-    def_var: float
-        The default variance of the new AbstractKnowledgeComponent.
-    def_timestamp: float | None, optional
-        The default timestamp of the new AbstractKnowledgeComponent.
-        It should be the event time for InterestClassifier.
-        This field could be left empty if InterestClassifier or any meta model
-        that uses InterestClassifier are not used.
+    Args:
+        learner_model: A representation of the learner.
+        content_knowledge: A representation of the knowledge of a learnable unit.
+        init_skill: The initial mean of the newly created knowledge component.
+        def_var: The initial variance of the newly created knowledge component.
+        def_timestamp: The initial timestamp of the newly created knowledge component.
+            If it's None, the newly created knowledge component has None as timestamp.
 
-    Returns
-    -------
-    Iterable[tuple[Hashable, AbstractKnowledgeComponent]]
-
+    Returns:
+        An iterable of tuples consisting of (topic_id, knowledge_component) where
+        topic_id is a hashable object that uniquely identifies a knowledge component, and
+        the knowledge_component is the corresponding knowledge component of this topic_id.
     """
 
     def __topic_kc_pair_mapper(
@@ -555,35 +518,25 @@ def select_kcs(
     def_var: float,
     def_timestamp: float | None = None,
 ) -> Iterable[AbstractKnowledgeComponent]:
-    """Return an iterable representing the learner's knowledge in the topics specified by the learnable unit.
+    """Get knowledge components in the learner's knowledge based on the knowledge of the learnable unit.
 
     Given the knowledge representation of the learnable unit, this method tries to get
     the corresponding knowledge representation from the Learner Model.
 
     If it cannot find the corresponding knowledge component in learner's model, which means
     the learner has never exposed to this knowledge component before, a new KC will be constructed
-    with initial skill and default variance. This will be done by using `__topic_kc_pair_mapper`.
+    with initial skill and default variance.
 
-    Parameters
-    ----------
-    learner_model : LearnerModel
-        A representation of the learner.
-    content_knowledge : AbstractKnowledge
-        The knowledge representation of a learnable unit.
-    init_skill: float
-        The initial skill (mean) of the learner given a new AbstractKnowledgeComponent.
-    def_var: float
-        The default variance of the new AbstractKnowledgeComponent.
-    def_timestamp: float | None, optional
-        The default timestamp of the new AbstractKnowledgeComponent.
-        It should be the event time for InterestClassifier.
-        This field could be left empty if InterestClassifier or any meta model
-        that uses InterestClassifier are not used.
+    Args:
+        learner_model: A representation of the learner.
+        content_knowledge: A representation of the knowledge of a learnable unit.
+        init_skill: The initial mean of the newly created knowledge component.
+        def_var: The initial variance of the newly created knowledge component.
+        def_timestamp: The initial timestamp of the newly created knowledge component.
+            If it's None, the newly created knowledge component has None as timestamp.
 
-    Returns
-    -------
-    Iterable[tuple[Hashable, AbstractKnowledgeComponent]]
-
+    Returns:
+        An iterable of knowledge components.
     """
 
     def __kc_mapper(

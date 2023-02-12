@@ -16,43 +16,25 @@ from truelearn.models import (
 
 
 class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
-    """An Interest Classifier.
+    """A classifier that models the learner's interest and makes prediction based on the interest.
 
-    # TODO: fix probability doc
+    Note, the knowledge component in this context means the interest of the learner/learnable unit.
 
-    Parameters
-    ----------
-    learner_model: LearnerModel | None, optional
-    threshold: float
-        Threshold for judging learner engagement. If the probability of the learner engagement is greater
-        than the threshold, the model will predict engagement.
-    init_skill: float
-        The initial skill (mean) of the learner given a new KnowledgeComponent.
-    def_var: float
-        The default variance of the new KnowledgeComponent.
-    beta: float
-        The noise factor, which is used in trueskill.
-    positive_only: bool
-        Whether the model updates itself only if encountering positive data.
+    During the training process, the classifier uses the idea of game matching established in TrueSkill.
+    It represents the learning process as a game of two teams. One team consists of all the knowledge
+    components from the learnable unit and the other consist of all the corresponding knowledge components
+    from the learner. Then, the classifier uses the given label to update the knowledge components of the learner.
 
-    # TODO: add missing parameters when switching to google style
-    # TODO: this section should be moved to __init__ later
+    The update of knowledge components is based on the assumption that if the learner engages with the
+    learnable unit, it means that the learner has a higher skill than the depth of the resource, which
+    means that the learner wins the game.
 
-    Methods
-    -------
-    fit(x, y)
-        Train the model based on the given event and label.
-    predict(x)
-        Predict whether the learner will engage.
-    predict_proba(x)
-        Predict the probability of learner engagement.
-    get_params()
-        Get the parameters associated with the model.
-    set_params(**kargs)
-        Set the parameters associated with the model.
-
-    # TODO: remove method section after switching to google style
-
+    During the prediction process, the classifier uses cumulative density function of normal distribution
+    to calculate the probability that the learner engage in the learning event. It calculates the probability
+    of getting x in a Normal Distribution N(0, std) where x is the difference between the learner's skill (mean)
+    and the learnable unit's skill (mean) and std is the standard deviation of the new normal distribution as a
+    result of subtracting the two old normal distribution (learner and learnable unit). In TrueSkill's terminology,
+    this calculates the win probability that the learner will win the content.
     """
 
     _parameter_constraints: dict[str, Any] = {
@@ -77,6 +59,33 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
         decay_func_type: str = "short",
         decay_func_factor: float = 0.0,
     ) -> None:
+        """Init InterestClassifier object.
+
+        Args:
+            learner_model: A representation of the learner.
+            threshold: A float that determines the prediction threshold.
+                When the predict is called, the classifier will return True iff
+                the predicted probability is greater than the threshold.
+            init_skill: The initial mean of the learner's knowledge component.
+                It will be used when the learner interacts with some knowledge components
+                at its first time.
+            def_var: The initial variance of the learner's knowledge component.
+                It will be used when the learner interacts with some knowledge components
+                at its first time.
+            beta: The noise factor.
+            tau: The dynamic factor of learner's learning process.
+                It's used to avoid the halting of the learning process.
+            positive_only: A bool indicating whether the classifier only
+                updates the learner's knowledge when encountering a positive label.
+            decay_func_type: A str specifying the type of the interest decay function.
+                The allowed values are "short" and "long".
+            decay_func_factor: A factor that will be used in both short and long
+                interest decay function.
+
+        Raises:
+            ValueError: If draw_proba_type is neither "static" nor "dynamic";
+                If decay_func_type is neither "short" nor "long".
+        """
         super().__init__(
             learner_model=learner_model,
             threshold=threshold,
@@ -102,15 +111,11 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
     def __get_decay_func(self) -> Callable[[float], float]:
         """Get decay function based on decay_func_type.
 
-        Returns
-        -------
-        Callable[float, float]
-            The resulting decay_function.
+        Returns:
+            A decay function based on given type.
 
-        Notes
-        -----
-        Equations from: https://link.springer.com/article/10.1007/s11227-020-03266-2
-
+        Notes:
+            Equations from: https://link.springer.com/article/10.1007/s11227-020-03266-2
         """
         if self._decay_func_type == "short":
             return lambda t_delta: min(

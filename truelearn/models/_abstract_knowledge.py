@@ -4,59 +4,37 @@ from abc import ABC, abstractmethod
 
 
 class AbstractKnowledgeComponent(ABC):
-    """An abstract class that represents a knowledge component (KC).
+    """An interface defines an knowledge component of a learnable unit.
 
-    Methods
-    -------
-    update(mean, variance, timestamp)
-        Update the mean and variance of the AbstractKnowledgeComponent
-    clone(mean, variance, timestamp)
-        Clone the AbstractKnowledgeComponent with new mean and variance
-    export(output_format)
-        Export the AbstractKnowledgeComponent into some format
+    Each knowledge component can be represented as a Normal Distribution with certain skills (mu) and
+    standard deviation (sqrt{variance}).
 
-    # TODO: remove method section after switching to google style
+    The variance of the knowledge component from the learnable unit will be a fixed small value
+    as we assume the skill (recourse depth) clearly and accurately measure the resourcefulness
+    of the learnable unit. The variance of the knowledge component from the learner will be a dynamic
+    value derived from the classifier's training process. This is to respect the fact that the skill
+    (model's understanding of the learner's knowledge) is not perfectly accurate.
 
-    Properties
-    ----------
-    mean
-    variance
-    timestamp
-
+    Attributes:
+        mean: A float indicating the mean of the knowledge component.
+        variance: A float indicating the variance of the knowledge component.
+        timestamp: A float indicating the POSIX timestamp of the last update of the knowledge component.
     """
 
     @property
     @abstractmethod
     def mean(self) -> float:
-        """Return the mean of this AbstractKnowledgeComponent.
-
-        Returns
-        -------
-        float
-
-        """
+        """The mean of the knowledge component."""
 
     @property
     @abstractmethod
     def variance(self) -> float:
-        """Return the variance of this AbstractKnowledgeComponent.
-
-        Returns
-        -------
-        float
-
-        """
+        """The variance of the knowledge component."""
 
     @property
     @abstractmethod
     def timestamp(self) -> float | None:
-        """Return the POSIX timestamp of the last update of this AbstractKnowledgeComponent.
-
-        Returns
-        -------
-        float | None
-
-        """
+        """The POSIX timestamp of the last update of the knowledge component."""
 
     @abstractmethod
     def update(
@@ -66,70 +44,48 @@ class AbstractKnowledgeComponent(ABC):
         variance: float | None = None,
         timestamp: float | None = None,
     ) -> None:
-        """Update the mean, variance, and timestamp of this AbstractKnowledgeComponent.
+        """Update the mean, variance, and timestamp of the current knowledge component.
 
-        Parameters
-        ----------
-        mean : float | None, optional
-            The new mean of the AbstractKnowledgeComponent.
-            If the given mean is None, it will not be updated.
-        variance : float | None, optional
-            The new variance of the AbstractKnowledgeComponent.
-            If the given variance is None, it will not be updated.
-        timestamp : float | None, optional
-            The new POSIX timestamp of the AbstractKnowledgeComponent.
-            If the timestamp is None, the timestamp of the AbstractKnowledgeComponent will not be updated.
+        If the given parameters are None, the corresponding attributes of the current
+        knowledge component will not be updated.
 
+        Args:
+          *: Use to reject positional arguments.
+          mean: The new mean of the knowledge component.
+          variance: The new variance of the knowledge component.
+          timestamp: The new POSIX timestamp that indicates the update time of the knowledge component.
         """
 
     @abstractmethod
     def clone(
         self,
         *,
-        mean: float | None = None,
-        variance: float | None = None,
+        mean: float,
+        variance: float,
         timestamp: float | None = None,
     ) -> Self:
-        """Generate a copy of the current AbstractKnowledgeComponent with given mean and variance.
+        """Generate a copy of the current knowledge component with given mean, variance and timestamp.
 
-        This function doesn't change the mean and variance of the current AbstractKnowledgeComponent.
+        Args:
+            *: Use to reject positional arguments.
+            mean: The new mean of the AbstractKnowledgeComponent.
+            variance: The new variance of the AbstractKnowledgeComponent.
+            timestamp: An optional new POSIX timestamp of the AbstractKnowledgeComponent.
 
-        Parameters
-        ----------
-        mean : float | None, optional
-            The new mean of the AbstractKnowledgeComponent.
-            If the given mean is None, it will not be updated.
-        variance : float | None, optional
-            The new variance of the AbstractKnowledgeComponent.
-            If the given variance is None, it will not be updated.
-        timestamp : float | None, optional
-            The new POSIX timestamp of the AbstractKnowledgeComponent.
-            If the timestamp is None, the timestamp of the AbstractKnowledgeComponent will not be updated.
-
-        Returns
-        -------
-        Self
-            A cloned version of the current knowledge with the given parameters.
-
+        Returns:
+            A cloned knowledge component with given mean, variance and timestamp.
         """
 
     @abstractmethod
     def export(self, output_format: str) -> Any:
         """Export the AbstractKnowledgeComponent into some formats.
 
-        Parameters
-        ----------
-        output_format : str
-            The name of the output format
+        Args:
+            output_format: The name of the output format.
 
-        Returns
-        -------
-        Any
-            The requested format
+        Returns:
+            The requested format.
 
-        Raises
-        ------
-        NotImplementedError
-            If the requested format is not available
-
+        Raises:
+            ValueError: An unsupported format is given.
         """

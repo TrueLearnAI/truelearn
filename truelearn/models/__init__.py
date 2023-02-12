@@ -1,4 +1,4 @@
-"""The :mod:`truelearn.models` implements the user model."""
+"""The truelearn.models implements the learner/event model."""
 
 from ._abstract_knowledge import AbstractKnowledgeComponent
 from ._event_model import EventModel

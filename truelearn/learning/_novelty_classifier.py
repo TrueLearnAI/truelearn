@@ -9,41 +9,20 @@ from truelearn.models import EventModel, LearnerModel
 
 
 class NoveltyClassifier(InterestNoveltyKnowledgeBaseClassifier):
-    """A Novelty Classifier.
+    """A classifier that models the learner's knowledge and makes prediction based on the knowledge.
 
-    # TODO: fix probability doc
+    During the training process, the classifier uses the idea of game matching established in TrueSkill.
+    It represents the learning process as a game of two teams. One team consists of all the knowledge
+    components from the learnable unit and the other consist of all the corresponding knowledge components
+    from the learner. Then, the classifier uses the given label to update the knowledge components of the learner.
 
-    Parameters
-    ----------
-    learner_model: LearnerModel | None, optional
-    threshold: float
-        Threshold for judging learner engagement. If the probability of the learner engagement is greater
-        than the threshold, the model will predict engagement.
-    init_skill: float
-        The initial skill (mean) of the learner given a new AbstractKnowledgeComponent.
-    def_var: float
-        The default variance of the new AbstractKnowledgeComponent.
-    beta: float
-        The noise factor, which is used in trueskill.
-    positive_only: bool
-        Whether the model updates itself only if encountering positive data.
+    The update of knowledge components is based on the assumption that if the learner engages with the
+    learnable unit, it means that the learner has skills similar to the depth of the resource, which
+    means that the game is drawn.
 
-    # TODO: add missing parameters when switching to google style
-    # TODO: this section should be moved to __init__ later
-
-    Methods
-    -------
-    fit(x, y)
-        Train the model based on the given event and label.
-    predict(x)
-        Predict whether the learner will engage.
-    predict_proba(x)
-        Predict the probability of learner engagement.
-    get_params()
-        Get parameters associated with the model.
-
-    # TODO: remove method section after switching to google style
-
+    During the prediction process, the classifier uses the TrueSkill quality mechanism to evaluate the quality of the game.
+    The idea is that if the quality of the game is high, this means that neither side can easily win the other.
+    Thus, a high quality game means that learners are likely to engage in learnable units based on our assumption.
     """
 
     _parameter_constraints: dict[str, Any] = {
@@ -64,6 +43,35 @@ class NoveltyClassifier(InterestNoveltyKnowledgeBaseClassifier):
         draw_proba_static: float = 0.5,
         draw_proba_factor: float = 0.1,
     ) -> None:
+        """Init NoveltyClassifier object.
+
+        Args:
+            learner_model: A representation of the learner.
+            threshold: A float that determines the prediction threshold.
+                When the predict is called, the classifier will return True iff
+                the predicted probability is greater than the threshold.
+            init_skill: The initial mean of the learner's knowledge component.
+                It will be used when the learner interacts with some knowledge components
+                at its first time.
+            def_var: The initial variance of the learner's knowledge component.
+                It will be used when the learner interacts with some knowledge components
+                at its first time.
+            beta: The noise factor.
+            tau: The dynamic factor of learner's learning process.
+                It's used to avoid the halting of the learning process.
+            positive_only: A bool indicating whether the classifier only
+                updates the learner's knowledge when encountering a positive label.
+            draw_proba_type: A str specifying the type of the draw probability.
+                It could be either "static" or "dynamic". The "static" probability type
+                requires an additional parameter draw_proba_static. The "dynamic" probability
+                type calculates the draw probability based on the learner's previous
+                engagement stats with educational resources.
+            draw_proba_static: The global draw probability.
+            draw_proba_factor: A factor that will be applied to both static and dynamic draw probability.
+
+        Raises:
+            ValueError: If draw_proba_type is neither "static" nor "dynamic".
+        """
         super().__init__(
             learner_model=learner_model,
             threshold=threshold,
@@ -131,21 +139,6 @@ class NoveltyClassifier(InterestNoveltyKnowledgeBaseClassifier):
             self._learner_model.knowledge.update_kc(topic_id, kc)
 
     def predict_proba(self, x: EventModel) -> float:
-        """Predict the probability of the learner's engagement in the given learning event.
-
-        # TODO: describe the draw probability
-
-        Parameters
-        ----------
-        x : EventModel
-            A representation of a learning event.
-
-        Returns
-        -------
-        float
-            The probability that the learner engages in the given learning event.
-
-        """
         learner_kcs = select_kcs(
             self._learner_model, x.knowledge, self._init_skill, self._def_var
         )
