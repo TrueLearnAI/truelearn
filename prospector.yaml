@@ -1,6 +1,7 @@
 strictness: medium
 test-warnings: true
 doc-warnings: true
+max-line-length: 80
 
 ignore-paths:
   - truelearn_experiments
@@ -9,10 +10,21 @@ pep8:
   full: true
 
 pydocstyle:
+  # disable checks that do not fit into the google convention
+  # see https://www.pydocstyle.org/en/stable/error_codes.html#default-conventions
   disable:
-    - D107 # init doc is placed in the class doc
-    - D203 # incompatible with D211
-    - D213 # incompatible with D212
+    - D203
+    - D204
+    - D213
+    - D215
+    - D400
+    - D401
+    - D404
+    - D406
+    - D407
+    - D408
+    - D409
+    - D413
 
 pylint:
   disable:

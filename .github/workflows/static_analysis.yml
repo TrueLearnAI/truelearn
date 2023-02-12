@@ -8,6 +8,7 @@ on:
     branches:
       - main
   workflow_dispatch:
+  workflow_call:
 
 jobs:
   Run_Prospector_Analysis:
@@ -20,7 +21,15 @@ jobs:
         uses: actions/setup-python@v4.4.0
         with:
           python-version: '3.7'
-          cache: 'pip' #Cache dependencies
+          cache: 'pip' # Cache dependencies
+          cache-dependency-path: '**/pyproject.toml'
+
+      - name: Install pip-tools and generate requirements.txt
+        run: |
+          pip install pip-tools
+          # Generates a requirements.txt file from pyproject.toml 
+          # This means that we dont have to install truelearn 
+          pip-compile --resolver=backtracking --output-file requirements.txt pyproject.toml
 
       - name: Install Project Dependencies
         run: pip install -r requirements.txt
@@ -30,18 +39,18 @@ jobs:
 
       - name: Run Prospector
         run: |
-          #Outputs the xunit report to project root
-          #USES prospector.yml config file
+          # Outputs the xunit report to project root
+          # Uses prospector.yml config file
           prospector --output-format xunit:prospector_report.xml
 
-      #NOTE: Because it expects Junit format, the line numberings on the annotation header defaults to 1
-      #However the error message shows the correct line numbering.
+      # NOTE: Because it expects Junit format, the line numberings on the annotation header defaults to 1
+      # However the error message shows the correct line numbering.
       - name: Convert test results to Github Annotations
         uses: mikepenz/action-junit-report@v3
-        #Use success()||failure() to allow for manual cancellation of an action (see docs)
+        # Use success()||failure() to allow for manual cancellation of an action (see docs)
         if: success()||failure()
         with:
-          #Report in project root
+          # Report in project root
           report_paths: ./prospector_report.xml
           check_name: "Prospector Analysis Report"
           detailed_summary: true
