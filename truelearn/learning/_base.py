@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Iterable, Hashable, Any, Union
+from typing import Iterable, Hashable, Any, Union, Tuple
 from typing_extensions import Self, Final, final
 import statistics
 import math
@@ -416,7 +416,7 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
     @final
     def _gather_trueskill_team(
         self, kcs: Iterable[AbstractKnowledgeComponent]
-    ) -> tuple[trueskill.Rating]:
+    ) -> Tuple[trueskill.Rating]:
         """Return a tuple of trueskill Rating \
         created from the given iterable of knowledge components.
 
@@ -492,7 +492,7 @@ def select_topic_kc_pairs(
     init_skill: float,
     def_var: float,
     def_timestamp: Union[float, None] = None,
-) -> Iterable[tuple[Hashable, AbstractKnowledgeComponent]]:
+) -> Iterable[Tuple[Hashable, AbstractKnowledgeComponent]]:
     """Get topic_id and knowledge_component pairs in the learner's knowledge \
     based on the knowledge of the learnable unit.
 
@@ -519,8 +519,8 @@ def select_topic_kc_pairs(
     """
 
     def __topic_kc_pair_mapper(
-        topic_kc_pair: tuple[Hashable, AbstractKnowledgeComponent]
-    ) -> tuple[Hashable, AbstractKnowledgeComponent]:
+        topic_kc_pair: Tuple[Hashable, AbstractKnowledgeComponent]
+    ) -> Tuple[Hashable, AbstractKnowledgeComponent]:
         topic_id, kc = topic_kc_pair
         extracted_kc = learner_model.knowledge.get_kc(
             topic_id,
@@ -562,7 +562,7 @@ def select_kcs(
     """
 
     def __kc_mapper(
-        topic_kc_pair: tuple[Hashable, AbstractKnowledgeComponent]
+        topic_kc_pair: Tuple[Hashable, AbstractKnowledgeComponent]
     ) -> AbstractKnowledgeComponent:
         topic_id, kc = topic_kc_pair
         extracted_kc = learner_model.knowledge.get_kc(

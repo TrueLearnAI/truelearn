@@ -1,3 +1,4 @@
+from typing import Dict
 import dataclasses
 
 from ._knowledge import Knowledge
@@ -51,12 +52,12 @@ class MetaLearnerModel:
     learner_interest: LearnerModel = dataclasses.field(
         default_factory=LearnerModel
     )
-    novelty_weight: dict[str, float] = dataclasses.field(
+    novelty_weight: Dict[str, float] = dataclasses.field(
         default_factory=lambda: {"mean": 0.0, "variance": 1}
     )
-    interest_weight: dict[str, float] = dataclasses.field(
+    interest_weight: Dict[str, float] = dataclasses.field(
         default_factory=lambda: {"mean": 0.0, "variance": 1}
     )
-    bias_weight: dict[str, float] = dataclasses.field(
+    bias_weight: Dict[str, float] = dataclasses.field(
         default_factory=lambda: {"mean": 0.0, "variance": 1}
     )
