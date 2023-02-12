@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Union
 from typing_extensions import Self, Final
 import math
 import statistics
@@ -53,7 +53,7 @@ class INKClassifier(BaseClassifier):
     def __init__(
         self,
         *,
-        learner_model: MetaLearnerModel | None = None,
+        learner_model: Union[MetaLearnerModel, None] = None,
         threshold: float = 0.5,
         k_init_skill: float = 0.0,
         i_init_skill: float = 0.0,

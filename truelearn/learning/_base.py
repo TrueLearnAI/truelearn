@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Iterable, Hashable, Any
+from typing import Iterable, Hashable, Any, Union
 from typing_extensions import Self, Final, final
 import statistics
 import math
@@ -274,7 +274,7 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
     def __init__(
         self,
         *,
-        learner_model: LearnerModel | None,
+        learner_model: Union[LearnerModel, None],
         threshold: float,
         init_skill: float,
         def_var: float,
@@ -282,7 +282,7 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
         tau: float,
         positive_only: bool,
         draw_proba_type: str,
-        draw_proba_static: float | None,
+        draw_proba_static: Union[float, None],
         draw_proba_factor: float,
     ) -> None:
         """Init InterestNoveltyKnowledgeBaseClassifier object.
@@ -491,7 +491,7 @@ def select_topic_kc_pairs(
     content_knowledge: Knowledge,
     init_skill: float,
     def_var: float,
-    def_timestamp: float | None = None,
+    def_timestamp: Union[float, None] = None,
 ) -> Iterable[tuple[Hashable, AbstractKnowledgeComponent]]:
     """Get topic_id and knowledge_component pairs in the learner's knowledge \
     based on the knowledge of the learnable unit.
@@ -537,7 +537,7 @@ def select_kcs(
     content_knowledge: Knowledge,
     init_skill: float,
     def_var: float,
-    def_timestamp: float | None = None,
+    def_timestamp: Union[float, None] = None,
 ) -> Iterable[AbstractKnowledgeComponent]:
     """Get knowledge components in the learner's knowledge \
     based on the knowledge of the learnable unit.

@@ -1,5 +1,5 @@
-from typing_extensions import Self
 from typing import Any
+from typing_extensions import Self
 
 from ._base import BaseClassifier
 from truelearn.models import EventModel

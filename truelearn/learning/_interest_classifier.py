@@ -1,4 +1,4 @@
-from typing import Callable, Any
+from typing import Callable, Any, Union
 from datetime import datetime as dt
 import math
 
@@ -54,7 +54,7 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
     def __init__(
         self,
         *,
-        learner_model: LearnerModel | None = None,
+        learner_model: Union[LearnerModel, None] = None,
         threshold: float = 0.5,
         init_skill: float = 0.0,
         def_var: float = 0.5,

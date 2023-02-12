@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Union
 from typing_extensions import Self
 from abc import ABC, abstractmethod
 
@@ -39,16 +39,16 @@ class AbstractKnowledgeComponent(ABC):
 
     @property
     @abstractmethod
-    def timestamp(self) -> float | None:
+    def timestamp(self) -> Union[float, None]:
         """The POSIX timestamp of the last update of the knowledge component."""
 
     @abstractmethod
     def update(
         self,
         *,
-        mean: float | None = None,
-        variance: float | None = None,
-        timestamp: float | None = None,
+        mean: Union[float, None] = None,
+        variance: Union[float, None] = None,
+        timestamp: Union[float, None] = None,
     ) -> None:
         """Update the mean, variance, and timestamp of the current knowledge component.
 
@@ -76,7 +76,7 @@ class AbstractKnowledgeComponent(ABC):
         *,
         mean: float,
         variance: float,
-        timestamp: float | None = None,
+        timestamp: Union[float, None] = None,
     ) -> Self:
         """Generate a copy of the current knowledge component with \
         given mean, variance and timestamp.
