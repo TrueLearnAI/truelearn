@@ -61,7 +61,8 @@ dev = ["prospector>=1.8.4","black>=23.1.0"]
 
 [tool.black]
 line-length = 80
-target-version = ['py37', 'py38', 'py39', 'py310', 'py311', 'py312']
+# Black doesnt yet support python 3.12 
+target-version = ['py37', 'py38', 'py39', 'py310', 'py311']
 
 # Support for Prospector config in pyproject.toml is not yet released.
 # See: https://github.com/PyCQA/prospector/issues/376
