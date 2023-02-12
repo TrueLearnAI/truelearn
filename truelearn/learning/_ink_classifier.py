@@ -12,36 +12,16 @@ import trueskill
 
 
 class INKClassifier(BaseClassifier):
-    """A INK (Interest, Novelty, Knowledge) Classifier.
+    """A meta-classifier that combines KnowledgeClassifier and InterestClassifier.
 
-    Parameters
-    ----------
-    learner_model: LearnerModel | None, optional
-    threshold: float
-        Threshold for judging learner engagement. If the probability of the learner engagement is greater
-        than the threshold, the model will predict engagement.
-    init_skill: float
-        The initial skill (mean) of the learner given a new AbstractKnowledgeComponent.
-    def_var: float
-        The default variance of the new AbstractKnowledgeComponent.
-    beta: float
-        The noise factor, which is used in trueskill.
-    positive_only: bool
-        Whether the model updates itself only if encountering positive data.
+    During the training process, the meta-classifier individually trains the KnowledgeClassifier
+    and the InterestClassifier. After that, the classifier trains a set of weights by again
+    using the ideas of team matching. One team consists of the weights of the knowledge, interest
+    and bias and the other team consists of the threshold. Then, the classifier uses the given
+    label to adjust the weights accordingly.
 
-    Methods
-    -------
-    fit(x, y)
-        Train the model based on the given event and label.
-    predict(x)
-        Predict whether the learner will engage.
-    predict_proba(x)
-        Predict the probability of learner engagement.
-    get_params()
-        Get the parameters associated with the model.
-    set_params(**kargs)
-        Set the parameters associated with the model.
-
+    During the prediction process, the meta-classifier individually uses the predict function of
+    the KnowledgeClassifier and InterestClassifier. Then, it combines them by using the weights.
     """
 
     DEFAULT_SIGMA: Final[float] = 1e-9
@@ -88,6 +68,40 @@ class INKClassifier(BaseClassifier):
         decay_func_factor: float = 0.0,
         greedy: bool = False,
     ) -> None:
+        """Init INKClassifier object.
+
+        Args:
+            learner_model: A representation of the learner.
+            threshold: A float that determines the prediction threshold.
+                When the predict is called, the classifier will return True iff
+                the predicted probability is greater than the threshold.
+            k_init_skill: The initial mean of the learner's knowledge/novelty.
+            i_init_skill: The initial mean of the learner's interest.
+            k_def_var: The initial variance of the learner's knowledge/novelty.
+            i_def_var: The initial variance of the learner's interest.
+            k_beta: The noise factor for NoveltyClassifier.
+            i_beta: The noise factor for InterestClassifier.
+            tau: The dynamic factor of learner's learning process.
+            positive_only: A bool indicating whether the classifier only
+                updates the learner's knowledge when encountering a positive label.
+            draw_proba_type: A str specifying the type of the draw probability.
+                It could be either "static" or "dynamic". The "static" probability type
+                requires an additional parameter draw_proba_static. The "dynamic" probability
+                type calculates the draw probability based on the learner's previous
+                engagement stats with educational resources.
+            draw_proba_static: The global draw probability.
+            draw_proba_factor: A factor that will be applied to both static and dynamic draw probability.
+            decay_func_type: A str specifying the type of the interest decay function.
+                The allowed values are "short" and "long".
+            decay_func_factor: A factor that will be used in both short and long
+                interest decay function.
+            greedy: A bool indicating whether the meta-learning should take the greedy approach.
+                In the greedy approach, only incorrect predictions lead to the update of the weights.
+
+        Raises:
+            ValueError: If draw_proba_type is neither "static" nor "dynamic" or
+                If decay_func_type is neither "short" nor "long".
+        """
         if learner_model is None:
             learner_model = MetaLearnerModel()
 
@@ -122,15 +136,15 @@ class INKClassifier(BaseClassifier):
     def __calculate_sum_prediction(
         self,
         *,
-        mu_novelty,
-        var_novelty,
-        pred_novelty,
-        mu_interest,
-        var_interest,
-        pred_interest,
-        mu_bias,
-        var_bias,
-        pred_bias,
+        mu_novelty: float,
+        var_novelty: float,
+        pred_novelty: float,
+        mu_interest: float,
+        var_interest: float,
+        pred_interest: float,
+        mu_bias: float,
+        var_bias: float,
+        pred_bias: float,
     ) -> float:
         difference = (
             (mu_novelty * pred_novelty)
@@ -146,7 +160,7 @@ class INKClassifier(BaseClassifier):
         return statistics.NormalDist(mu=0, sigma=std).cdf(difference)
 
     def __update_weights(
-        self, pred_novelty: bool, pred_interest: bool, pred_actual: bool
+        self, pred_novelty: float, pred_interest: float, pred_actual: float
     ) -> None:
         mu_novelty, var_novelty = (
             self._learner_model.novelty_weight["mean"],
@@ -170,7 +184,7 @@ class INKClassifier(BaseClassifier):
             pred_interest=pred_interest,
             mu_bias=mu_bias,
             var_bias=var_bias,
-            pred_bias=1,
+            pred_bias=1.0,
         )
 
         # if prediction is correct and greedy, don't train
@@ -179,17 +193,15 @@ class INKClassifier(BaseClassifier):
 
         # train
         team_experts = (
-            self._env.create_rating(
-                mu=mu_novelty, sigma=math.sqrt(var_novelty)
-            ),
-            self._env.create_rating(
-                mu=mu_interest, sigma=math.sqrt(var_interest)
-            ),
+            self._env.create_rating(mu=mu_novelty, sigma=math.sqrt(var_novelty)),
+            self._env.create_rating(mu=mu_interest, sigma=math.sqrt(var_interest)),
             self._env.create_rating(mu=mu_bias, sigma=math.sqrt(var_bias)),
         )
 
         team_threshold = (
-            self._env.create_rating(mu=0.5, sigma=INKClassifier.DEFAULT_SIGMA),
+            self._env.create_rating(
+                mu=self._threshold, sigma=INKClassifier.DEFAULT_SIGMA
+            ),
         )
 
         if pred_actual:  # weights need to be larger than threshold
@@ -220,21 +232,6 @@ class INKClassifier(BaseClassifier):
         ) = (new_team_experts[2].mu, new_team_experts[2].sigma ** 2)
 
     def fit(self, x: EventModel, y: bool) -> Self:
-        """Train the model based on the given event and labels.
-
-        Parameters
-        ----------
-        x : EventModel
-            A representation of a learning event.
-        y : bool
-            A label that is either True or False.
-
-        Returns
-        -------
-        Self
-            The updated Classifier.
-
-        """
         novelty_classifier = NoveltyClassifier(
             learner_model=self._learner_model.learner_novelty,
             threshold=self._threshold,
@@ -264,8 +261,8 @@ class INKClassifier(BaseClassifier):
         novelty_classifier.fit(x, y)
         interest_classifier.fit(x, y)
 
-        pred_novelty = novelty_classifier.predict(x)
-        pred_interest = interest_classifier.predict(x)
+        pred_novelty = novelty_classifier.predict_proba(x)
+        pred_interest = interest_classifier.predict_proba(x)
         self.__update_weights(pred_novelty, pred_interest, y)
 
         return self
@@ -274,19 +271,6 @@ class INKClassifier(BaseClassifier):
         return self.predict_proba(x) > self._threshold
 
     def predict_proba(self, x: EventModel) -> float:
-        """Predict the probability of learner engagement in the given learning event.
-
-        Parameters
-        ----------
-        x : EventModel
-            A representation of a learning event.
-
-        Returns
-        -------
-        float
-            The probability that the learner will engage in the given learning event.
-
-        """
         novelty_classifier = NoveltyClassifier(
             learner_model=self._learner_model.learner_novelty,
             threshold=self._threshold,
@@ -330,13 +314,13 @@ class INKClassifier(BaseClassifier):
         cur_pred = self.__calculate_sum_prediction(
             mu_novelty=mu_novelty,
             var_novelty=var_novelty,
-            pred_novelty=novelty_classifier.predict(x),
+            pred_novelty=novelty_classifier.predict_proba(x),
             mu_interest=mu_interest,
             var_interest=var_interest,
-            pred_interest=interest_classifier.predict(x),
+            pred_interest=interest_classifier.predict_proba(x),
             mu_bias=mu_bias,
             var_bias=var_bias,
-            pred_bias=1,
+            pred_bias=1.0,
         )
 
         return cur_pred
