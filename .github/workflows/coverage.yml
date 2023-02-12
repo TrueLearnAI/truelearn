@@ -22,6 +22,7 @@ jobs:
         with:
           python-version: '3.7'
           cache: 'pip' #Cache dependencies
+          cache-dependency-path: '**/pyproject.toml'
 
       - name: Install pip-tools and generate requirements.txt
         run: |
