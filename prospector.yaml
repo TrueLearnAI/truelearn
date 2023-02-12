@@ -2,17 +2,18 @@ strictness: medium
 test-warnings: true
 doc-warnings: true
 
+# Black line length convention
+# See https://black.readthedocs.io/en/stable/the_black_code_style/current_style.html#line-length
+max-line-length: 88
+
 ignore-paths:
   - truelearn_experiments
 
 pep8:
   full: true
 
-pycodestyle:
-  max-line-length: 80
-
 pydocstyle:
-  # disable checks that do not fit into the google convention
+  # Disable checks that do not fit into the Google convention
   # see https://www.pydocstyle.org/en/stable/error_codes.html#default-conventions
   disable:
     - D203
