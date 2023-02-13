@@ -57,9 +57,7 @@ class NoveltyClassifier(InterestNoveltyKnowledgeBaseClassifier):
             learner_model:
                 A representation of the learner.
             threshold:
-                A float that determines the prediction threshold.
-                When the predict is called, the classifier will return True iff
-                the predicted probability is greater than the threshold.
+                A float that determines the classification threshold.
             init_skill:
                 The initial mean of the learner's knowledge component.
                 It will be used when the learner interacts with knowledge components
@@ -79,10 +77,10 @@ class NoveltyClassifier(InterestNoveltyKnowledgeBaseClassifier):
             draw_proba_type:
                 A str specifying the type of the draw probability.
                 It could be either "static" or "dynamic". The "static"
-                probability type requires an additional parameterdraw_proba_static.
-                The "dynamic" probability type calculates the draw probability
-                based on the learner's previous engagement stats with
-                educational resources.
+                probability type requires an additional parameter
+                draw_proba_static. The "dynamic" probability type calculates
+                the draw probability based on the learner's previous engagement
+                stats with educational resources.
             draw_proba_static:
                 The global draw probability.
             draw_proba_factor:
@@ -130,14 +128,17 @@ class NoveltyClassifier(InterestNoveltyKnowledgeBaseClassifier):
             )
         )
         learner_kcs = list(
-            map(lambda topic_kc_pair: topic_kc_pair[1], learner_topic_kc_pairs)
+            map(
+                lambda learner_topic_kc_pair: learner_topic_kc_pair[1],
+                learner_topic_kc_pairs,
+            )
         )
         content_kcs = list(x.knowledge.knowledge_components())
 
         team_learner = self._gather_trueskill_team(learner_kcs)
         team_content = self._gather_trueskill_team(content_kcs)
-        team_learner_mean = map(lambda kc: kc.mean, learner_kcs)
-        team_content_mean = map(lambda kc: kc.mean, content_kcs)
+        team_learner_mean = map(lambda learner_kc: learner_kc.mean, learner_kcs)
+        team_content_mean = map(lambda content_kc: content_kc.mean, content_kcs)
 
         if y:
             # if learner wins

@@ -76,7 +76,7 @@ class BaseClassifier(ABC):
         """
 
     @final
-    def get_params(self, deep: bool = True):
+    def get_params(self, deep: bool = True) -> dict[str, Any]:
         """Get parameters for this Classifier.
 
         Args:
@@ -212,7 +212,7 @@ class BaseClassifier(ABC):
                     )
 
             if isinstance(expected_param_type, list):
-                # if match non of the type in the constraints
+                # if it matches none of the types in the constraints
                 if not any(
                     isinstance(param_value, param_type_unpacked)
                     for param_type_unpacked in list(expected_param_type)
@@ -283,9 +283,7 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
             learner_model:
                 A representation of the learner.
             threshold:
-                A float that determines the prediction threshold.
-                When the predict is called, the classifier will return True iff
-                the predicted probability is greater than the threshold.
+                A float that determines the classification threshold.
             init_skill:
                 The initial mean of the learner's knowledge component.
                 It will be used when the learner interacts with some
@@ -406,7 +404,7 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
     @final
     def _gather_trueskill_team(
         self, kcs: Iterable[AbstractKnowledgeComponent]
-    ) -> Tuple[trueskill.Rating]:
+    ) -> Tuple[trueskill.Rating, ...]:
         """Return a tuple of trueskill Rating \
         created from the given iterable of knowledge components.
 

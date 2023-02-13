@@ -62,9 +62,7 @@ class KnowledgeClassifier(InterestNoveltyKnowledgeBaseClassifier):
             learner_model:
                 A representation of the learner.
             threshold:
-                A float that determines the prediction threshold.
-                When the predict is called, the classifier will return True iff
-                the predicted probability is greater than the threshold.
+                A float that determines the classification threshold.
             init_skill:
                 The initial mean of the learner's knowledge component.
                 It will be used when the learner interacts with knowledge components
@@ -122,7 +120,8 @@ class KnowledgeClassifier(InterestNoveltyKnowledgeBaseClassifier):
             )
         )
         learner_kcs = map(
-            lambda topic_kc_pair: topic_kc_pair[1], learner_topic_kc_pairs
+            lambda learner_topic_kc_pair: learner_topic_kc_pair[1],
+            learner_topic_kc_pairs,
         )
         content_kcs = x.knowledge.knowledge_components()
 

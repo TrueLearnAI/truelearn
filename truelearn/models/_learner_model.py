@@ -24,7 +24,7 @@ class LearnerModel:
 
 
 @dataclasses.dataclass
-class MetaLearnerModel:
+class LearnerMetaModel:
     """The meta-model of a learner.
 
     It is modeled by using learner's knowledge/novelty and interests.

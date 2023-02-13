@@ -3,7 +3,7 @@
 from ._abstract_knowledge import AbstractKnowledgeComponent
 from ._event_model import EventModel
 from ._knowledge import KnowledgeComponent, Knowledge
-from ._learner_model import LearnerModel, MetaLearnerModel
+from ._learner_model import LearnerModel, LearnerMetaModel
 
 __all__ = [
     "AbstractKnowledgeComponent",
@@ -11,5 +11,5 @@ __all__ = [
     "Knowledge",
     "EventModel",
     "LearnerModel",
-    "MetaLearnerModel",
+    "LearnerMetaModel",
 ]

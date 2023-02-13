@@ -75,9 +75,7 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
             learner_model:
                 A representation of the learner.
             threshold:
-                A float that determines the prediction threshold.
-                When the predict is called, the classifier will return True iff
-                the predicted probability is greater than the threshold.
+                A float that determines the classification threshold.
             init_skill:
                 The initial mean of the learner's knowledge component.
                 It will be used when the learner interacts with knowledge components
@@ -179,23 +177,26 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
             )
         )
         learner_kcs = map(
-            lambda topic_kc_pair: topic_kc_pair[1], learner_topic_kc_pairs
+            lambda learner_topic_kc_pair: learner_topic_kc_pair[1],
+            learner_topic_kc_pairs,
         )
 
         # apply interest decay
         decay_func = self.__get_decay_func()
 
         def __apply_interest_decay(
-            kc: AbstractKnowledgeComponent,
+            learner_kc: AbstractKnowledgeComponent,
         ) -> AbstractKnowledgeComponent:
-            if kc.timestamp is None:
+            if learner_kc.timestamp is None:
                 raise ValueError(
                     "The timestamp field of knowledge component"
                     " should not be None if using InterestClassifier."
                 )
-            t_delta = (event_time_posix - dt.utcfromtimestamp(kc.timestamp)).days
-            kc.update(mean=kc.mean * decay_func(float(t_delta)))
-            return kc
+            t_delta = (
+                event_time_posix - dt.utcfromtimestamp(learner_kc.timestamp)
+            ).days
+            learner_kc.update(mean=learner_kc.mean * decay_func(float(t_delta)))
+            return learner_kc
 
         learner_kcs_decayed = map(__apply_interest_decay, learner_kcs)
 

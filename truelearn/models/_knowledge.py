@@ -5,23 +5,7 @@ from ._abstract_knowledge import AbstractKnowledgeComponent
 
 
 class KnowledgeComponent(AbstractKnowledgeComponent):
-    """A concrete class that implements AbstractKnowledgeComponent.
-
-    Attributes:
-        mean:
-            A float indicating the mean of the knowledge component.
-        variance:
-            A float indicating the variance of the knowledge component.
-        timestamp:
-            A float indicating the POSIX timestamp of the last update of
-            the knowledge component.
-        title:
-            An optional string storing the title of the knowledge component.
-        description:
-            An optional string that describes the knowledge component.
-        url:
-            An optional string storing the url of the knowledge component.
-    """
+    """A concrete class that implements AbstractKnowledgeComponent."""
 
     def __init__(
         self,

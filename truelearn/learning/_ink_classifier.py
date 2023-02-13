@@ -6,7 +6,7 @@ import statistics
 from ._base import BaseClassifier
 from ._novelty_classifier import NoveltyClassifier
 from ._interest_classifier import InterestClassifier
-from truelearn.models import EventModel, MetaLearnerModel
+from truelearn.models import EventModel, LearnerMetaModel
 
 import trueskill
 
@@ -46,8 +46,8 @@ class INKClassifier(BaseClassifier):
         *,
         novelty_classifier: Optional[NoveltyClassifier] = None,
         interest_classifier: Optional[InterestClassifier] = None,
-        tau: float = 0.5,
         threshold: float = 0.5,
+        tau: float = 0.5,
         greedy: bool = False,
         novelty_weight: Optional[Dict[str, float]] = None,
         interest_weight: Optional[Dict[str, float]] = None,
@@ -58,11 +58,25 @@ class INKClassifier(BaseClassifier):
         Args:
             *:
                 Use to reject positional arguments.
-
+            novelty_classifier:
+                The NoveltyClassifier.
+            interest_classifier:
+                The InterestClassifier.
+            threshold:
+                A float that determines the classification threshold.
+            tau:
+                The dynamic factor of learner's learning process.
+                It's used to avoid the halting of the learning process.
             greedy:
                 A bool indicating whether the meta-learning should
                 take the greedy approach. In the greedy approach,
                 only incorrect predictions lead to the update of the weights.
+            novelty_weight:
+                A dict containing the mean and variance of the novelty_weight.
+            interest_weight:
+                A dict containing the mean and variance of the interest_weight.
+            bias_weight:
+                A dict containing the mean and variance of the bias_weight.
 
         Raises:
             ValueError:
@@ -72,8 +86,8 @@ class INKClassifier(BaseClassifier):
         self._validate_params(
             novelty_classifier=novelty_classifier,
             interest_classifier=interest_classifier,
-            tau=tau,
             threshold=threshold,
+            tau=tau,
             greedy=greedy,
             novelty_weight=novelty_weight,
             interest_weight=interest_weight,
@@ -87,8 +101,8 @@ class INKClassifier(BaseClassifier):
 
         self.novelty_classifier = novelty_classifier
         self.interest_classifier = interest_classifier
-        self.tau = tau
         self.threshold = threshold
+        self.tau = tau
         self.greedy = greedy
 
         if novelty_weight is None:
@@ -151,9 +165,9 @@ class INKClassifier(BaseClassifier):
             - self.threshold
         )
         std = math.sqrt(
-            ((var_novelty) * pred_novelty)
-            + ((var_interest) * pred_interest)
-            + ((var_bias) * pred_bias)
+            (var_novelty) * pred_novelty
+            + (var_interest) * pred_interest
+            + (var_bias) * pred_bias
         )
         return statistics.NormalDist(mu=0, sigma=std).cdf(difference)
 
@@ -270,13 +284,13 @@ class INKClassifier(BaseClassifier):
 
         return cur_pred
 
-    def get_learner_model(self) -> MetaLearnerModel:
+    def get_learner_model(self) -> LearnerMetaModel:
         """Get the learner model associated with this classifier.
 
         Returns:
             A learner model associated with this classifier.
         """
-        return MetaLearnerModel(
+        return LearnerMetaModel(
             self.novelty_classifier.get_learner_model(),
             self.interest_classifier.get_learner_model(),
             self.novelty_weight,

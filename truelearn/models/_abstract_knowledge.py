@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 
 
 class AbstractKnowledgeComponent(ABC):
-    """An interface defines an knowledge component of a learnable unit.
+    """An interface defines a knowledge component of a learnable unit.
 
     Each knowledge component can be represented as a Normal Distribution with
     certain skills (mu) and standard deviation (sqrt{variance}).
@@ -16,15 +16,6 @@ class AbstractKnowledgeComponent(ABC):
     value derived from the classifier's training process. This is to respect the
     fact that the skill (model's understanding of the learner's knowledge) is
     snot perfectly accurate.
-
-    Attributes:
-        mean:
-            A float indicating the mean of the knowledge component.
-        variance:
-            A float indicating the variance of the knowledge component.
-        timestamp:
-            A float indicating the POSIX timestamp of the
-            last update of the knowledge component.
     """
 
     @property
