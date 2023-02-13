@@ -1,5 +1,5 @@
 import orjson
-from urllib import request, parse
+from urllib import request, parse, error
 
 from typing import Optional, Union, NoReturn
 Annotation = dict[str, Union[str, float, None]]
@@ -24,7 +24,10 @@ class Wikifier:
     """
 
     def __init__(self, api_key: str) -> None:
-        self.api_key = api_key
+        if isinstance(api_key, str):
+            self.api_key = api_key
+        else:
+            raise TypeError("api_key should be a string")   
 
     def wikify(
             self, text: str, df_ignore: int = 50,
@@ -51,32 +54,26 @@ class Wikifier:
         list[Annotation]
             the list of annotations obtained from the Wikifier API,
             or nothing if an exception is raised.
-        
+
         Raises
         ------
         ValueError
             If the Wikifier API returns an error in the response
             or the API key is not valid.
+        RuntimeError
+            If the HTTP request returns a status code that represents
+            an error
 
         """
         try:
             resp = self.__make_wikifier_request(
                 text, df_ignore, words_ignore
             )
-            resp['status'] = 'success'
-        except ValueError as e:
-            try:
-                STATUS_ = e.message
-            except:
-                STATUS_ = e.args[0]
-
-            raise ValueError(
-                "encountered an error when making the request to Wikifier: " +
-                STATUS_
-            )
+        except error.HTTPError as err:
+            raise RuntimeError(str(err)) from err
 
         return self.__format_wikifier_response(resp, top_n)
-    
+
     def __make_wikifier_request(
             self, text: str, df_ignore: int, words_ignore: int
         ) -> Union[WikifierResponse, NoReturn]:
@@ -105,6 +102,9 @@ class Wikifier:
         ValueError
             If the Wikifier API returns an error in the response
             or the API key is not valid.
+        urllib.error.HTTPError
+            If the HTTP request returns a status code that represents
+            an error
 
         """
         params = {
@@ -116,20 +116,15 @@ class Wikifier:
 
         data = parse.urlencode(params)
         url = "http://www.wikifier.org/annotate-article?" + data
-
         with request.urlopen(url) as r:
-            if r.getcode() == 200:
-                r = r.read()
-                resp = orjson.loads(r)
-                if 'error' in resp:
-                    raise ValueError(f"error in response : {resp['error']}")
-                if 'status' in resp:
-                    raise ValueError(resp['status'])
-                return resp
-            else:
-                raise ValueError(
-                    f"http status code 200 expected, got status code {r.status_code} instead"
-                )
+            resp = r.read()
+            resp = orjson.loads(resp)
+            if 'error' in resp:
+                raise ValueError(f"error in response : {resp['error']}")
+            if 'status' in resp:
+                # will trigger if key is not valid
+                raise ValueError(resp['status'])
+            return resp
 
     def __format_wikifier_response(
             self, resp: WikifierResponse, top_n: Optional[int] = None
