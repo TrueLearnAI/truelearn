@@ -21,6 +21,10 @@ class Wikifier:
     wikify(text, df_ignore, words_ignore)
         Annotates input text using the Wikifier API.
 
+    References
+    ----------
+    .. [1] Janez Brank, Gregor Leban, Marko Grobelnik. Annotating Documents with Relevant Wikipedia Concepts. Proceedings of the Slovenian Conference on Data Mining and Data Warehouses (SiKDD 2017), Ljubljana, Slovenia, 9 October 2017.
+
     """
 
     def __init__(self, api_key: str) -> None:
