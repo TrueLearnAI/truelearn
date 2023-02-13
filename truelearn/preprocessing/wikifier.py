@@ -1,8 +1,9 @@
+import orjson
 from urllib import request, parse
-import ujson as json
 
 from typing import Optional, Union, NoReturn
-WikifierAnnotations = dict[str, Union[str, float, None]]
+Annotation = dict[str, Union[str, float, None]]
+WikifierResponse = dict[str, Union[list[str], list[dict]]]
 
 
 class Wikifier:
@@ -14,38 +15,48 @@ class Wikifier:
     api_key: str
         the API key needed to make the request, get one from
         https://wikifier.org/register.html
-    
+
     Methods
     -------
     wikify(text, df_ignore, words_ignore)
         Annotates input text using the Wikifier API.
+
     """
 
     def __init__(self, api_key: str) -> None:
         self.api_key = api_key
 
     def wikify(
-            self, text: str, df_ignore: int = 50, words_ignore: int = 50
-        ) -> dict[str, Union[WikifierAnnotations, str]]:
+            self, text: str, df_ignore: int = 50,
+            words_ignore: int = 50, top_n: Optional[int] = None
+        ) -> Union[list[Annotation], NoReturn]:
         """Annotates input text using the Wikifier API.
 
         Parameters
         ----------
         text: str
-            the text to annotate
+            the text to annotate.
         df_ignore: int
             the nTopDfValuesToIgnore value from the Wikifier API,
-            used to ignore frequently-occurring words
+            used to ignore frequently-occurring words.
         words_ignore: int
             the nWordsToIgnoreFromList from the Wikifier API,
             also used to ignore frequently-occurring words.
-        
+        top_n: Optional[int] = None
+            the number of annotations to return, e.g. top_n = 5 would only
+            return the top 5 annotations by pageRank.
+
         Returns
         -------
-        dict[str, Union[WikifierAnnotations, str]]
-            a dictionary containing:
-            1 - the list of annotations obtained from the Wikifier API
-            2 - the status message of the response object
+        list[Annotation]
+            the list of annotations obtained from the Wikifier API,
+            or nothing if an exception is raised.
+        
+        Raises
+        ------
+        ValueError
+            If the Wikifier API returns an error in the response
+            or the API key is not valid.
 
         """
         try:
@@ -58,17 +69,19 @@ class Wikifier:
                 STATUS_ = e.message
             except:
                 STATUS_ = e.args[0]
-            return {
-                'status': STATUS_
-            }
 
-        return self.__format_wikifier_response(resp)
+            raise ValueError(
+                "encountered an error when making the request to Wikifier: " +
+                STATUS_
+            )
+
+        return self.__format_wikifier_response(resp, top_n)
     
     def __make_wikifier_request(
             self, text: str, df_ignore: int, words_ignore: int
-        ) -> Union[WikifierAnnotations, NoReturn]:
-        """Makes HTTP request to the Wikifier API, converts the JSON response to
-        a Python dictionary and returns it.
+        ) -> Union[WikifierResponse, NoReturn]:
+        """Makes HTTP request to the Wikifier API, converts the JSON response
+        to a Python dictionary and returns it.
 
         Parameters
         ----------
@@ -80,17 +93,18 @@ class Wikifier:
         words_ignore: int
             the nWordsToIgnoreFromList from the Wikifier API,
             also used to ignore frequently-occurring words.
-        
+
         Returns
         -------
-        Union[WikifierAnnotations, NoReturn]
+        Union[WikifierResponse, NoReturn]
             the response from the Wikifier API as a Python dictionary,
-            or nothing if an exception is raised
+            or nothing if an exception is raised.
 
         Raises
         ------
         ValueError
-            If the Wikifier API returns an error in the response.
+            If the Wikifier API returns an error in the response
+            or the API key is not valid.
 
         """
         params = {
@@ -105,38 +119,36 @@ class Wikifier:
 
         with request.urlopen(url) as r:
             if r.getcode() == 200:
-                r = r.read().decode('utf-8')
-                resp = json.loads(r)
+                r = r.read()
+                resp = orjson.loads(r)
                 if 'error' in resp:
-                    raise ValueError("error in response : {}".format(resp['error']))
+                    raise ValueError(f"error in response : {resp['error']}")
                 if 'status' in resp:
                     raise ValueError(resp['status'])
                 return resp
             else:
                 raise ValueError(
-                    "http status code 200 expected, got status code {} instead".format(r.status_code)
-                    )
+                    f"http status code 200 expected, got status code {r.status_code} instead"
+                )
 
     def __format_wikifier_response(
-            self, resp: WikifierAnnotations, top_n: Optional[int] = None
-        ) -> dict[str, Union[WikifierAnnotations, str]]:
+            self, resp: WikifierResponse, top_n: Optional[int] = None
+        ) -> list[Annotation]:
         """Simplifies the response dictionary so as to include only the
-        attributes we are interested in.
+        annotations, and the attributes we are interested in.
 
         Parameters
         ----------
-        resp: WikifierAnnotations
-            the response from the Wikifier API as a Python dictionary
+        resp: WikifierResponse
+            the response from the Wikifier API as a Python dictionary.
         top_n: Optional[int] = None
             the number of annotations to return, e.g. top_n = 5 would only
-            return the top 5 annotations by pageRank
-        
+            return the top 5 annotations by pageRank.
+
         Returns
         -------
-        dict[str, Union[WikifierAnnotations, str]]:
-            a dictionary containing:
-            1 - the list of annotations obtained from the Wikifier API
-            2 - the status message of the response object
+        list[Annotation]
+            the list of annotations obtained from the Wikifier API
 
         """
         annotations = list(
@@ -155,7 +167,4 @@ class Wikifier:
         if top_n is not None:
             annotations = list(annotations)[:top_n]
 
-        return {
-            'annotation_data': annotations,
-            'status': resp['status']
-        }
+        return annotations
