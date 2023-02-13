@@ -4,7 +4,6 @@ from ._base import (
     get_recall_score,
     get_accuracy_score,
     get_f1_score,
-    ConfusionMatrix,
 )
 
 __all__ = [
@@ -12,5 +11,4 @@ __all__ = [
     "get_recall_score",
     "get_accuracy_score",
     "get_f1_score",
-    "ConfusionMatrix",
 ]
