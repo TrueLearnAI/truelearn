@@ -172,32 +172,13 @@ class INKClassifier(BaseClassifier):
         return statistics.NormalDist(mu=0, sigma=std).cdf(difference)
 
     def __update_weights(
-        self, pred_novelty: float, pred_interest: float, pred_actual: float
+        self,
+        x: EventModel,
+        pred_novelty: float,
+        pred_interest: float,
+        pred_actual: float,
     ) -> None:
-        mu_novelty, var_novelty = (
-            self.novelty_weight["mean"],
-            self.novelty_weight["variance"],
-        )
-        mu_interest, var_interest = (
-            self.interest_weight["mean"],
-            self.interest_weight["variance"],
-        )
-        mu_bias, var_bias = (
-            self.bias_weight["mean"],
-            self.bias_weight["variance"],
-        )
-
-        cur_pred = self.__calculate_sum_prediction(
-            mu_novelty=mu_novelty,
-            var_novelty=var_novelty,
-            pred_novelty=pred_novelty,
-            mu_interest=mu_interest,
-            var_interest=var_interest,
-            pred_interest=pred_interest,
-            mu_bias=mu_bias,
-            var_bias=var_bias,
-            pred_bias=1.0,
-        )
+        cur_pred = self.predict_proba(x)
 
         # if prediction is correct and greedy, don't train
         if self.greedy and (cur_pred >= self.threshold) == pred_actual:
@@ -205,9 +186,18 @@ class INKClassifier(BaseClassifier):
 
         # train
         team_experts = (
-            self.__env.create_rating(mu=mu_novelty, sigma=math.sqrt(var_novelty)),
-            self.__env.create_rating(mu=mu_interest, sigma=math.sqrt(var_interest)),
-            self.__env.create_rating(mu=mu_bias, sigma=math.sqrt(var_bias)),
+            self.__env.create_rating(
+                mu=self.novelty_weight["mean"],
+                sigma=math.sqrt(self.novelty_weight["variance"]),
+            ),
+            self.__env.create_rating(
+                mu=self.interest_weight["mean"],
+                sigma=math.sqrt(self.interest_weight["variance"]),
+            ),
+            self.__env.create_rating(
+                mu=self.bias_weight["mean"],
+                sigma=math.sqrt(self.bias_weight["variance"]),
+            ),
         )
 
         team_threshold = (
@@ -249,7 +239,7 @@ class INKClassifier(BaseClassifier):
 
         pred_novelty = self.novelty_classifier.predict_proba(x)
         pred_interest = self.interest_classifier.predict_proba(x)
-        self.__update_weights(pred_novelty, pred_interest, y)
+        self.__update_weights(x, pred_novelty, pred_interest, y)
 
         return self
 
@@ -257,32 +247,17 @@ class INKClassifier(BaseClassifier):
         return self.predict_proba(x) > self.threshold
 
     def predict_proba(self, x: EventModel) -> float:
-        mu_novelty, var_novelty = (
-            self.novelty_weight["mean"],
-            self.novelty_weight["variance"],
-        )
-        mu_interest, var_interest = (
-            self.interest_weight["mean"],
-            self.interest_weight["variance"],
-        )
-        mu_bias, var_bias = (
-            self.bias_weight["mean"],
-            self.bias_weight["variance"],
-        )
-
-        cur_pred = self.__calculate_sum_prediction(
-            mu_novelty=mu_novelty,
-            var_novelty=var_novelty,
+        return self.__calculate_sum_prediction(
+            mu_novelty=self.novelty_weight["mean"],
+            var_novelty=self.novelty_weight["variance"],
             pred_novelty=self.novelty_classifier.predict_proba(x),
-            mu_interest=mu_interest,
-            var_interest=var_interest,
+            mu_interest=self.interest_weight["mean"],
+            var_interest=self.interest_weight["variance"],
             pred_interest=self.interest_classifier.predict_proba(x),
-            mu_bias=mu_bias,
-            var_bias=var_bias,
+            mu_bias=self.bias_weight["mean"],
+            var_bias=self.bias_weight["variance"],
             pred_bias=1.0,
         )
-
-        return cur_pred
 
     def get_learner_model(self) -> LearnerMetaModel:
         """Get the learner model associated with this classifier.
