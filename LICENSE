@@ -22,14 +22,14 @@ SOFTWARE.
 
 ---
 
-The PEEK dataset is licensed for non-commercial research usage. Code that utilizes
-PEEK dataset is licensed under MIT unless explicitly stated.
+The PEEK dataset is licensed for non-commercial research use.
+Code for loading the PEEK Dataset is licensed under MIT unless explicitly stated.
 
 ---
 
 The download_file and RemoteFileMetaData in truelearn.datasets and get_params and
 set_params in truelearn.learning are licensed under BSD 3-clause. A copy of the
-origin license is shown below:
+original license is shown below:
 
 BSD 3-Clause License
 
