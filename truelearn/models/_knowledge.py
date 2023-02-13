@@ -1,4 +1,4 @@
-from typing import Iterable, Hashable, Any, Union
+from typing import Iterable, Hashable, Any, Optional
 from typing_extensions import Self
 
 from ._abstract_knowledge import AbstractKnowledgeComponent
@@ -28,10 +28,10 @@ class KnowledgeComponent(AbstractKnowledgeComponent):
         *,
         mean: float,
         variance: float,
-        timestamp: Union[float, None] = None,
-        title: Union[str, None] = None,
-        description: Union[str, None] = None,
-        url: Union[str, None] = None,
+        timestamp: Optional[float] = None,
+        title: Optional[str] = None,
+        description: Optional[str] = None,
+        url: Optional[str] = None,
     ) -> None:
         """Init the KnowledgeComponent object.
 
@@ -64,17 +64,17 @@ class KnowledgeComponent(AbstractKnowledgeComponent):
         self.__timestamp = timestamp
 
     @property
-    def title(self) -> Union[str, None]:
+    def title(self) -> Optional[str]:
         """The title of the knowledge component."""
         return self.__title
 
     @property
-    def description(self) -> Union[str, None]:
+    def description(self) -> Optional[str]:
         """The description of the knowledge component."""
         return self.__description
 
     @property
-    def url(self) -> Union[str, None]:
+    def url(self) -> Optional[str]:
         """The url of the knowledge component."""
         return self.__url
 
@@ -87,15 +87,15 @@ class KnowledgeComponent(AbstractKnowledgeComponent):
         return self.__variance
 
     @property
-    def timestamp(self) -> Union[float, None]:
+    def timestamp(self) -> Optional[float]:
         return self.__timestamp
 
     def update(
         self,
         *,
-        mean: Union[float, None] = None,
-        variance: Union[float, None] = None,
-        timestamp: Union[float, None] = None,
+        mean: Optional[float] = None,
+        variance: Optional[float] = None,
+        timestamp: Optional[float] = None,
     ) -> None:
         if mean is not None:
             self.__mean = mean
@@ -109,7 +109,7 @@ class KnowledgeComponent(AbstractKnowledgeComponent):
         *,
         mean: float,
         variance: float,
-        timestamp: Union[float, None] = None,
+        timestamp: Optional[float] = None,
     ) -> Self:
         """Generate a copy of the current knowledge component with \
         given mean, variance and timestamp.
@@ -157,7 +157,7 @@ class Knowledge:
 
     def __init__(
         self,
-        knowledge: Union[dict[Hashable, AbstractKnowledgeComponent], None] = None,
+        knowledge: Optional[dict[Hashable, AbstractKnowledgeComponent]] = None,
     ) -> None:
         """Init the Knowledge object.
 

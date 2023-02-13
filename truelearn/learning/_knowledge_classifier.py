@@ -1,4 +1,4 @@
-from typing import Any, Union
+from typing import Any, Optional
 from typing_extensions import Final
 
 from ._base import (
@@ -46,7 +46,7 @@ class KnowledgeClassifier(InterestNoveltyKnowledgeBaseClassifier):
     def __init__(
         self,
         *,
-        learner_model: Union[LearnerModel, None] = None,
+        learner_model: Optional[LearnerModel] = None,
         threshold: float = 0.5,
         init_skill: float = 0.0,
         def_var: float = 0.5,

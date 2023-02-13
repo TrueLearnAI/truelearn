@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Optional
 import dataclasses
 
 from ._knowledge import Knowledge
@@ -14,4 +14,4 @@ class EventModel:
     """
 
     knowledge: Knowledge = dataclasses.field(default_factory=Knowledge)
-    event_time: Union[float, None] = None
+    event_time: Optional[float] = None
