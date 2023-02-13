@@ -464,6 +464,10 @@ def team_sum_quality(
     Returns:
         The probability that the learner engages with the learnable unit.
     """
+    # make them list because we use them more than one time later
+    learner_kcs = list(learner_kcs)
+    content_kcs = list(content_kcs)
+
     team_learner_mean = map(lambda kc: kc.mean, learner_kcs)
     team_learner_variance = map(lambda kc: kc.variance, learner_kcs)
     team_content_mean = map(lambda kc: kc.mean, content_kcs)
