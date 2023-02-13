@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import Iterable, Hashable, Any
 
-from _abstract_knowledge import AbstractKnowledgeComponent, AbstractKnowledge
+from ._abstract_knowledge import AbstractKnowledgeComponent, AbstractKnowledge
 
 
 class KnowledgeComponent(AbstractKnowledgeComponent):
