@@ -23,7 +23,10 @@ class Wikifier:
 
     References
     ----------
-    .. [1] Janez Brank, Gregor Leban, Marko Grobelnik. Annotating Documents with Relevant Wikipedia Concepts. Proceedings of the Slovenian Conference on Data Mining and Data Warehouses (SiKDD 2017), Ljubljana, Slovenia, 9 October 2017.
+    .. [1] Janez Brank, Gregor Leban, Marko Grobelnik. Annotating Documents
+    with Relevant Wikipedia Concepts. Proceedings of the Slovenian Conference
+    on Data Mining and Data Warehouses (SiKDD 2017), Ljubljana, Slovenia,
+    9 October 2017.
 
     """
 
