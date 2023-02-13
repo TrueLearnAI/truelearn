@@ -189,9 +189,7 @@ class Knowledge:
         """
         return self.__knowledge.get(topic_id, default)
 
-    def update_kc(
-        self, topic_id: Hashable, kc: AbstractKnowledgeComponent
-    ) -> None:
+    def update_kc(self, topic_id: Hashable, kc: AbstractKnowledgeComponent) -> None:
         """Update the knowledge component associated with the given topic_id.
 
         If the topic_id doesn't exist in the AbstractKnowledge, the mapping
