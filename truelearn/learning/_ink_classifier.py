@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any, Optional, Dict
 from typing_extensions import Self, Final
 import math
 import statistics
@@ -31,118 +31,80 @@ class INKClassifier(BaseClassifier):
 
     _parameter_constraints: dict[str, Any] = {
         **BaseClassifier._parameter_constraints,
-        "_learner_model": MetaLearnerModel,
         "_threshold": float,
-        "_k_init_skill": float,
-        "_i_init_skill": float,
-        "_k_def_var": float,
-        "_i_def_var": float,
-        "_k_beta": float,
-        "_i_beta": float,
         "_tau": float,
-        "_positive_only": bool,
-        "_draw_proba_type": str,
-        "_draw_proba_static": float,
-        "_draw_proba_factor": float,
-        "_decay_func_type": str,
-        "_decay_func_factor": float,
         "_greedy": bool,
     }
 
-    # pylint: disable=too-many-locals
     def __init__(
         self,
         *,
-        learner_model: Optional[MetaLearnerModel] = None,
-        threshold: float = 0.5,
-        k_init_skill: float = 0.0,
-        i_init_skill: float = 0.0,
-        k_def_var: float = 0.5,
-        i_def_var: float = 0.5,
-        k_beta: float = 0.1,
-        i_beta: float = 0.1,
+        novelty_classifier: Optional[NoveltyClassifier] = None,
+        interest_classifier: Optional[InterestClassifier] = None,
         tau: float = 0.5,
-        positive_only: bool = True,
-        draw_proba_type: str = "dynamic",
-        draw_proba_static: float = 0.5,
-        draw_proba_factor: float = 0.1,
-        decay_func_type: str = "short",
-        decay_func_factor: float = 0.0,
+        threshold: float = 0.5,
         greedy: bool = False,
+        novelty_weight: Optional[Dict[str, float]] = None,
+        interest_weight: Optional[Dict[str, float]] = None,
+        bias_weight: Optional[Dict[str, float]] = None,
     ) -> None:
         """Init INKClassifier object.
 
         Args:
             *:
                 Use to reject positional arguments.
-            learner_model:
-                A representation of the learner.
-            threshold:
-                A float that determines the prediction threshold.
-                When the predict is called, the classifier will return True iff
-                the predicted probability is greater than the threshold.
-            k_init_skill:
-                The initial mean of the learner's knowledge/novelty.
-            i_init_skill:
-                The initial mean of the learner's interest.
-            k_def_var:
-                The initial variance of the learner's knowledge/novelty.
-            i_def_var:
-                The initial variance of the learner's interest.
-            k_beta:
-                The noise factor for NoveltyClassifier.
-            i_beta:
-                The noise factor for InterestClassifier.
-            tau:
-                The dynamic factor of learner's learning process.
-            positive_only:
-                A bool indicating whether the classifier only
-                updates the learner's knowledge when encountering a positive label.
-            draw_proba_type:
-                A str specifying the type of the draw probability.
-                It could be either "static" or "dynamic". The "static" probability type
-                requires an additional parameter draw_proba_static.
-                The "dynamic" probability
-                type calculates the draw probability based on the learner's previous
-                engagement stats with educational resources.
-            draw_proba_static: The global draw probability.
-            draw_proba_factor:
-                A factor that will be applied to both
-                static and dynamic draw probability.
-            decay_func_type:
-                A str specifying the type of the interest decay function.
-                The allowed values are "short" and "long".
-            decay_func_factor:
-                A factor that will be used in both short and long
-                interest decay function.
+
             greedy:
                 A bool indicating whether the meta-learning should
                 take the greedy approach. In the greedy approach,
                 only incorrect predictions lead to the update of the weights.
 
         Raises:
-            ValueError: If draw_proba_type is neither "static" nor "dynamic" or
+            ValueError:
+                If draw_proba_type is neither "static" nor "dynamic" or
                 If decay_func_type is neither "short" nor "long".
         """
-        if learner_model is None:
-            learner_model = MetaLearnerModel()
+        if novelty_classifier is None:
+            novelty_classifier = NoveltyClassifier()
+        if interest_classifier is None:
+            interest_classifier = InterestClassifier()
 
-        self._learner_model = learner_model
-        self._threshold = threshold
-        self._k_init_skill = k_init_skill
-        self._i_init_skill = i_init_skill
-        self._k_def_var = k_def_var
-        self._i_def_var = i_def_var
-        self._k_beta = k_beta
-        self._i_beta = i_beta
+        self._novelty_classifier = novelty_classifier
+        self._interest_classifier = interest_classifier
         self._tau = tau
-        self._positive_only = positive_only
-        self._draw_proba_type = draw_proba_type
-        self._draw_proba_static = draw_proba_static
-        self._draw_proba_factor = draw_proba_factor
-        self._decay_func_type = decay_func_type
-        self._decay_func_factor = decay_func_factor
+        self._threshold = threshold
         self._greedy = greedy
+
+        if novelty_weight is None:
+            novelty_weight = {"mean": 0.0, "variance": 1.0}
+        else:
+            if "mean" not in novelty_weight or "variance" not in novelty_weight:
+                raise ValueError(
+                    f'The novelty_weight must contain "mean" and "variance".'
+                    f" Got {novelty_weight} instead."
+                )
+
+        if interest_weight is None:
+            interest_weight = {"mean": 0.0, "variance": 1.0}
+        else:
+            if "mean" not in interest_weight or "variance" not in interest_weight:
+                raise ValueError(
+                    f'The interest_weight must contain "mean" and "variance".'
+                    f" Got {interest_weight} instead."
+                )
+
+        if bias_weight is None:
+            bias_weight = {"mean": 0.0, "variance": 1.0}
+        else:
+            if "mean" not in bias_weight or "variance" not in bias_weight:
+                raise ValueError(
+                    f'The bias_weight must contain "mean" and "variance".'
+                    f" Got {bias_weight} instead."
+                )
+
+        self._novelty_weight: Dict[str, float] = novelty_weight
+        self._interest_weight: Dict[str, float] = interest_weight
+        self._bias_weight: Dict[str, float] = bias_weight
 
         self._env = trueskill.setup(
             mu=0.0,
@@ -185,16 +147,16 @@ class INKClassifier(BaseClassifier):
         self, pred_novelty: float, pred_interest: float, pred_actual: float
     ) -> None:
         mu_novelty, var_novelty = (
-            self._learner_model.novelty_weight["mean"],
-            self._learner_model.novelty_weight["variance"],
+            self._novelty_weight["mean"],
+            self._novelty_weight["variance"],
         )
         mu_interest, var_interest = (
-            self._learner_model.interest_weight["mean"],
-            self._learner_model.interest_weight["variance"],
+            self._interest_weight["mean"],
+            self._interest_weight["variance"],
         )
         mu_bias, var_bias = (
-            self._learner_model.bias_weight["mean"],
-            self._learner_model.bias_weight["variance"],
+            self._bias_weight["mean"],
+            self._bias_weight["variance"],
         )
 
         cur_pred = self.__calculate_sum_prediction(
@@ -241,50 +203,24 @@ class INKClassifier(BaseClassifier):
 
         # update skills
         (
-            self._learner_model.novelty_weight["mean"],
-            self._learner_model.novelty_weight["variance"],
+            self._novelty_weight["mean"],
+            self._novelty_weight["variance"],
         ) = (new_team_experts[0].mu, new_team_experts[0].sigma ** 2)
         (
-            self._learner_model.interest_weight["mean"],
-            self._learner_model.interest_weight["variance"],
+            self._interest_weight["mean"],
+            self._interest_weight["variance"],
         ) = (new_team_experts[1].mu, new_team_experts[1].sigma ** 2)
         (
-            self._learner_model.bias_weight["mean"],
-            self._learner_model.bias_weight["variance"],
+            self._bias_weight["mean"],
+            self._bias_weight["variance"],
         ) = (new_team_experts[2].mu, new_team_experts[2].sigma ** 2)
 
     def fit(self, x: EventModel, y: bool) -> Self:
-        novelty_classifier = NoveltyClassifier(
-            learner_model=self._learner_model.learner_novelty,
-            threshold=self._threshold,
-            init_skill=self._k_init_skill,
-            def_var=self._k_def_var,
-            tau=self._tau,
-            beta=self._k_beta,
-            positive_only=self._positive_only,
-            draw_proba_type=self._draw_proba_type,
-            draw_proba_static=self._draw_proba_static,
-            draw_proba_factor=self._draw_proba_factor,
-        )
-        interest_classifier = InterestClassifier(
-            learner_model=self._learner_model.learner_interest,
-            threshold=self._threshold,
-            init_skill=self._i_init_skill,
-            def_var=self._i_def_var,
-            tau=self._tau,
-            beta=self._i_beta,
-            positive_only=self._positive_only,
-            draw_proba_type=self._draw_proba_type,
-            draw_proba_static=self._draw_proba_static,
-            draw_proba_factor=self._draw_proba_factor,
-            decay_func_type=self._decay_func_type,
-            decay_func_factor=self._decay_func_factor,
-        )
-        novelty_classifier.fit(x, y)
-        interest_classifier.fit(x, y)
+        self._novelty_classifier.fit(x, y)
+        self._interest_classifier.fit(x, y)
 
-        pred_novelty = novelty_classifier.predict_proba(x)
-        pred_interest = interest_classifier.predict_proba(x)
+        pred_novelty = self._novelty_classifier.predict_proba(x)
+        pred_interest = self._interest_classifier.predict_proba(x)
         self.__update_weights(pred_novelty, pred_interest, y)
 
         return self
@@ -293,56 +229,43 @@ class INKClassifier(BaseClassifier):
         return self.predict_proba(x) > self._threshold
 
     def predict_proba(self, x: EventModel) -> float:
-        novelty_classifier = NoveltyClassifier(
-            learner_model=self._learner_model.learner_novelty,
-            threshold=self._threshold,
-            init_skill=self._k_init_skill,
-            def_var=self._k_def_var,
-            tau=self._tau,
-            beta=self._k_beta,
-            positive_only=self._positive_only,
-            draw_proba_type=self._draw_proba_type,
-            draw_proba_static=self._draw_proba_static,
-            draw_proba_factor=self._draw_proba_factor,
-        )
-        interest_classifier = InterestClassifier(
-            learner_model=self._learner_model.learner_interest,
-            threshold=self._threshold,
-            init_skill=self._i_init_skill,
-            def_var=self._i_def_var,
-            tau=self._tau,
-            beta=self._i_beta,
-            positive_only=self._positive_only,
-            draw_proba_type=self._draw_proba_type,
-            draw_proba_static=self._draw_proba_static,
-            draw_proba_factor=self._draw_proba_factor,
-            decay_func_type=self._decay_func_type,
-            decay_func_factor=self._decay_func_factor,
-        )
-
         mu_novelty, var_novelty = (
-            self._learner_model.novelty_weight["mean"],
-            self._learner_model.novelty_weight["variance"],
+            self._novelty_weight["mean"],
+            self._novelty_weight["variance"],
         )
         mu_interest, var_interest = (
-            self._learner_model.interest_weight["mean"],
-            self._learner_model.interest_weight["variance"],
+            self._interest_weight["mean"],
+            self._interest_weight["variance"],
         )
         mu_bias, var_bias = (
-            self._learner_model.bias_weight["mean"],
-            self._learner_model.bias_weight["variance"],
+            self._bias_weight["mean"],
+            self._bias_weight["variance"],
         )
 
         cur_pred = self.__calculate_sum_prediction(
             mu_novelty=mu_novelty,
             var_novelty=var_novelty,
-            pred_novelty=novelty_classifier.predict_proba(x),
+            pred_novelty=self._novelty_classifier.predict_proba(x),
             mu_interest=mu_interest,
             var_interest=var_interest,
-            pred_interest=interest_classifier.predict_proba(x),
+            pred_interest=self._interest_classifier.predict_proba(x),
             mu_bias=mu_bias,
             var_bias=var_bias,
             pred_bias=1.0,
         )
 
         return cur_pred
+
+    def get_learner_model(self) -> MetaLearnerModel:
+        """Get the learner model associated with this classifier.
+
+        Returns:
+            A learner model associated with this classifier.
+        """
+        return MetaLearnerModel(
+            self._novelty_classifier.get_learner_model(),
+            self._interest_classifier.get_learner_model(),
+            self._novelty_weight,
+            self._interest_weight,
+            self._bias_weight,
+        )

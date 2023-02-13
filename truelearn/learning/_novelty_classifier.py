@@ -168,3 +168,11 @@ class NoveltyClassifier(InterestNoveltyKnowledgeBaseClassifier):
         team_content = self._gather_trueskill_team(content_kcs)
 
         return self._env.quality([team_learner, team_content])
+
+    def get_learner_model(self) -> LearnerModel:
+        """Get the learner model associated with this classifier.
+
+        Returns:
+            A learner model associated with this classifier.
+        """
+        return self._learner_model

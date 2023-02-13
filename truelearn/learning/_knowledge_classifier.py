@@ -143,3 +143,11 @@ class KnowledgeClassifier(InterestNoveltyKnowledgeBaseClassifier):
         )
         content_kcs = x.knowledge.knowledge_components()
         return team_sum_quality(learner_kcs, content_kcs, self._beta)
+
+    def get_learner_model(self) -> LearnerModel:
+        """Get the learner model associated with this classifier.
+
+        Returns:
+            A learner model associated with this classifier.
+        """
+        return self._learner_model
