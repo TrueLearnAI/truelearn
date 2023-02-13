@@ -2,4 +2,4 @@ numpy
 trueskill
 mpmath
 scikit-learn
-ujson
+orjson
