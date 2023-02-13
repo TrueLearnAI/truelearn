@@ -1,4 +1,4 @@
-from typing import Iterable, Hashable, Any, Optional
+from typing import Iterable, Hashable, Any, Optional, Dict, Tuple
 from typing_extensions import Self
 
 from ._abstract_knowledge import AbstractKnowledgeComponent
@@ -157,7 +157,7 @@ class Knowledge:
 
     def __init__(
         self,
-        knowledge: Optional[dict[Hashable, AbstractKnowledgeComponent]] = None,
+        knowledge: Optional[Dict[Hashable, AbstractKnowledgeComponent]] = None,
     ) -> None:
         """Init the Knowledge object.
 
@@ -203,7 +203,7 @@ class Knowledge:
 
     def topic_kc_pairs(
         self,
-    ) -> Iterable[tuple[Hashable, AbstractKnowledgeComponent]]:
+    ) -> Iterable[Tuple[Hashable, AbstractKnowledgeComponent]]:
         """Return an iterable of the (topic_id, knowledge_component) pair."""
         return self.__knowledge.items()
 

@@ -1,4 +1,4 @@
-from typing import Callable, Any, Optional
+from typing import Callable, Any, Optional, Dict
 from datetime import datetime as dt
 import math
 
@@ -45,10 +45,10 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
     the learner will win the content.
     """
 
-    _parameter_constraints: dict[str, Any] = {
+    _parameter_constraints: Dict[str, Any] = {
         **InterestNoveltyKnowledgeBaseClassifier._parameter_constraints,
-        "_decay_func_type": str,
-        "_decay_func_factor": float,
+        "decay_func_type": str,
+        "decay_func_factor": float,
     }
 
     def __init__(
@@ -106,6 +106,21 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
                 If draw_proba_type is neither "static" nor "dynamic";
                 If decay_func_type is neither "short" nor "long".
         """
+        self._validate_params(
+            learner_model=learner_model,
+            threshold=threshold,
+            init_skill=init_skill,
+            def_var=def_var,
+            beta=beta,
+            tau=tau,
+            positive_only=positive_only,
+            draw_proba_type=draw_proba_type,
+            draw_proba_static=draw_proba_static,
+            draw_proba_factor=draw_proba_factor,
+            decay_func_type=decay_func_type,
+            decay_func_factor=decay_func_factor,
+        )
+
         super().__init__(
             learner_model=learner_model,
             threshold=threshold,
@@ -124,10 +139,8 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
                 f"The decay_func_type must be either short or long."
                 f" Got {decay_func_type} instead."
             )
-        self._decay_func_type = decay_func_type
-        self._decay_func_factor = decay_func_factor
-
-        self._validate_params()
+        self.decay_func_type = decay_func_type
+        self.decay_func_factor = decay_func_factor
 
     def __get_decay_func(self) -> Callable[[float], float]:
         """Get decay function based on decay_func_type.
@@ -138,12 +151,12 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
         Notes:
             Equations from: https://link.springer.com/article/10.1007/s11227-020-03266-2
         """
-        if self._decay_func_type == "short":
+        if self.decay_func_type == "short":
             return lambda t_delta: min(
-                2 / (1 + math.exp(self._decay_func_factor * t_delta)), 1.0
+                2 / (1 + math.exp(self.decay_func_factor * t_delta)), 1.0
             )
 
-        return lambda t_delta: min(math.exp(-self._decay_func_factor * t_delta), 1.0)
+        return lambda t_delta: min(math.exp(-self.decay_func_factor * t_delta), 1.0)
 
     # pylint: disable=too-many-locals
     def _update_knowledge_representation(self, x: EventModel, y: bool) -> None:
@@ -158,10 +171,10 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
         # select topic_kc_pairs with default event time = x.event_time
         learner_topic_kc_pairs = list(
             select_topic_kc_pairs(
-                self._learner_model,
+                self.learner_model,
                 x.knowledge,
-                self._init_skill,
-                self._def_var,
+                self.init_skill,
+                self.def_var,
                 x.event_time,
             )
         )
@@ -190,7 +203,7 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
         team_content = self._gather_trueskill_team(x.knowledge.knowledge_components())
 
         # learner always wins in interest
-        updated_team_learner, _ = self._env.rate(
+        updated_team_learner, _ = self.__env.rate(
             [team_learner, team_content], ranks=[0, 1]
         )
 
@@ -203,14 +216,14 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
                 variance=rating.sigma**2,
                 timestamp=x.event_time,
             )
-            self._learner_model.knowledge.update_kc(topic_id, kc)
+            self.learner_model.knowledge.update_kc(topic_id, kc)
 
     def predict_proba(self, x: EventModel) -> float:
         learner_kcs = select_kcs(
-            self._learner_model, x.knowledge, self._init_skill, self._def_var
+            self.learner_model, x.knowledge, self.init_skill, self.def_var
         )
         content_kcs = x.knowledge.knowledge_components()
-        return team_sum_quality(learner_kcs, content_kcs, self._beta)
+        return team_sum_quality(learner_kcs, content_kcs, self.beta)
 
     def get_learner_model(self) -> LearnerModel:
         """Get the learner model associated with this classifier.
@@ -218,4 +231,4 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
         Returns:
             A learner model associated with this classifier.
         """
-        return self._learner_model
+        return self.learner_model

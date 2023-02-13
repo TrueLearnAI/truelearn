@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any, Optional, Dict
 
 from ._base import (
     InterestNoveltyKnowledgeBaseClassifier,
@@ -31,7 +31,7 @@ class NoveltyClassifier(InterestNoveltyKnowledgeBaseClassifier):
     learnable units based on our assumption.
     """
 
-    _parameter_constraints: dict[str, Any] = {
+    _parameter_constraints: Dict[str, Any] = {
         **InterestNoveltyKnowledgeBaseClassifier._parameter_constraints,
     }
 
@@ -92,6 +92,19 @@ class NoveltyClassifier(InterestNoveltyKnowledgeBaseClassifier):
         Raises:
             ValueError: If draw_proba_type is neither "static" nor "dynamic".
         """
+        self._validate_params(
+            learner_model=learner_model,
+            threshold=threshold,
+            init_skill=init_skill,
+            def_var=def_var,
+            tau=tau,
+            beta=beta,
+            positive_only=positive_only,
+            draw_proba_type=draw_proba_type,
+            draw_proba_static=draw_proba_static,
+            draw_proba_factor=draw_proba_factor,
+        )
+
         super().__init__(
             learner_model=learner_model,
             threshold=threshold,
@@ -105,17 +118,15 @@ class NoveltyClassifier(InterestNoveltyKnowledgeBaseClassifier):
             draw_proba_factor=draw_proba_factor,
         )
 
-        self._validate_params()
-
     # pylint: disable=too-many-locals
     def _update_knowledge_representation(self, x: EventModel, y: bool) -> None:
         # make them list because we use them more than one time later
         learner_topic_kc_pairs = list(
             select_topic_kc_pairs(
-                self._learner_model,
+                self.learner_model,
                 x.knowledge,
-                self._init_skill,
-                self._def_var,
+                self.init_skill,
+                self.def_var,
             )
         )
         learner_kcs = list(
@@ -146,7 +157,7 @@ class NoveltyClassifier(InterestNoveltyKnowledgeBaseClassifier):
 
         # update the rating based on the rank
         if ranks is not None:
-            updated_team_learner, _ = self._env.rate(
+            updated_team_learner, _ = self.__env.rate(
                 [team_learner, team_content], ranks=ranks
             )
         else:
@@ -156,18 +167,18 @@ class NoveltyClassifier(InterestNoveltyKnowledgeBaseClassifier):
         for topic_kc_pair, rating in zip(learner_topic_kc_pairs, updated_team_learner):
             topic_id, kc = topic_kc_pair
             kc.update(mean=rating.mean, variance=rating.sigma**2)
-            self._learner_model.knowledge.update_kc(topic_id, kc)
+            self.learner_model.knowledge.update_kc(topic_id, kc)
 
     def predict_proba(self, x: EventModel) -> float:
         learner_kcs = select_kcs(
-            self._learner_model, x.knowledge, self._init_skill, self._def_var
+            self.learner_model, x.knowledge, self.init_skill, self.def_var
         )
         content_kcs = x.knowledge.knowledge_components()
 
         team_learner = self._gather_trueskill_team(learner_kcs)
         team_content = self._gather_trueskill_team(content_kcs)
 
-        return self._env.quality([team_learner, team_content])
+        return self.__env.quality([team_learner, team_content])
 
     def get_learner_model(self) -> LearnerModel:
         """Get the learner model associated with this classifier.
@@ -175,4 +186,4 @@ class NoveltyClassifier(InterestNoveltyKnowledgeBaseClassifier):
         Returns:
             A learner model associated with this classifier.
         """
-        return self._learner_model
+        return self.learner_model

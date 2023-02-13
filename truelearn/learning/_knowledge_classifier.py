@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any, Optional, Dict
 from typing_extensions import Final
 
 from ._base import (
@@ -39,7 +39,7 @@ class KnowledgeClassifier(InterestNoveltyKnowledgeBaseClassifier):
 
     DRAW_PROBA_STATIC: Final[float] = 1e-9
 
-    _parameter_constraints: dict[str, Any] = {
+    _parameter_constraints: Dict[str, Any] = {
         **InterestNoveltyKnowledgeBaseClassifier._parameter_constraints,
     }
 
@@ -85,6 +85,16 @@ class KnowledgeClassifier(InterestNoveltyKnowledgeBaseClassifier):
         Returns:
             None
         """
+        self._validate_params(
+            learner_model=learner_model,
+            threshold=threshold,
+            init_skill=init_skill,
+            def_var=def_var,
+            tau=tau,
+            beta=beta,
+            positive_only=positive_only,
+        )
+
         # the knowledge classifier doesn't rely on the draw probability
         # it utilizes different assumptions
         # so, we set draw probability to a very small value to avoid its impact
@@ -101,16 +111,14 @@ class KnowledgeClassifier(InterestNoveltyKnowledgeBaseClassifier):
             draw_proba_factor=0.1,
         )
 
-        self._validate_params()
-
     def _update_knowledge_representation(self, x: EventModel, y: bool) -> None:
         # make it a list because we need to use it more than one time later
         learner_topic_kc_pairs = list(
             select_topic_kc_pairs(
-                self._learner_model,
+                self.learner_model,
                 x.knowledge,
-                self._init_skill,
-                self._def_var,
+                self.init_skill,
+                self.def_var,
             )
         )
         learner_kcs = map(
@@ -123,26 +131,26 @@ class KnowledgeClassifier(InterestNoveltyKnowledgeBaseClassifier):
 
         if y:
             # learner wins: lower rank == winning
-            updated_team_learner, _ = self._env.rate(
+            updated_team_learner, _ = self.__env.rate(
                 [team_learner, team_content], ranks=[0, 1]
             )
         else:
             # content wins
-            _, updated_team_learner = self._env.rate(
+            _, updated_team_learner = self.__env.rate(
                 [team_content, team_learner], ranks=[0, 1]
             )
 
         for topic_kc_pair, rating in zip(learner_topic_kc_pairs, updated_team_learner):
             topic_id, kc = topic_kc_pair
             kc.update(mean=rating.mean, variance=rating.sigma**2)
-            self._learner_model.knowledge.update_kc(topic_id, kc)
+            self.learner_model.knowledge.update_kc(topic_id, kc)
 
     def predict_proba(self, x: EventModel) -> float:
         learner_kcs = select_kcs(
-            self._learner_model, x.knowledge, self._init_skill, self._def_var
+            self.learner_model, x.knowledge, self.init_skill, self.def_var
         )
         content_kcs = x.knowledge.knowledge_components()
-        return team_sum_quality(learner_kcs, content_kcs, self._beta)
+        return team_sum_quality(learner_kcs, content_kcs, self.beta)
 
     def get_learner_model(self) -> LearnerModel:
         """Get the learner model associated with this classifier.
@@ -150,4 +158,4 @@ class KnowledgeClassifier(InterestNoveltyKnowledgeBaseClassifier):
         Returns:
             A learner model associated with this classifier.
         """
-        return self._learner_model
+        return self.learner_model

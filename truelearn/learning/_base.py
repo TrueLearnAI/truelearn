@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Iterable, Hashable, Any, Optional, Tuple
+from typing import Iterable, Hashable, Any, Optional, Tuple, Dict
 from typing_extensions import Self, Final, final
 import statistics
 import math
@@ -66,14 +66,10 @@ class BaseClassifier(ABC):
     as it's possible for a type to accept more than one type.
     To do the constraint check based on this, simply call `self._validate_params`
     in your classifier.
-
-    Notice, the types in parameter constraints doesn't necessary need to be the
-    type annotated in your __init__ method. It should be considered as post-conditions
-    after you assign this given parameters to self.
     """
 
     __DEEP_PARAM_DELIMITER: Final[str] = "__"
-    _parameter_constraints: dict[str, Any] = {}
+    _parameter_constraints: Dict[str, Any] = {}
 
     @abstractmethod
     def fit(self, x: EventModel, y: bool) -> Self:
@@ -145,19 +141,30 @@ class BaseClassifier(ABC):
         return out
 
     @final
-    def set_params(self, **params) -> Self:
+    def set_params(self, **args) -> Self:
         """Set the parameters of this Classifier.
 
+        A value can be reset only if the given parameter
+        has the same type as the original value.
+
         Args:
-          **params: Keyword arguments.
+          **args:
+            Keyword arguments.
             The key should match the parameter names of the classifier.
             The arguments should have the correct type.
 
         Returns:
             The updated classifier.
+
+        Raises:
+            TypeError:
+                If the given value doesn't have the same type
+                as the original value.
+            ValueError:
+                If the given argument name is not in the class.
         """
         # avoid running `self.get_params` if there is no given params
-        if not params:
+        if not args:
             return self
 
         valid_params = self.get_params(deep=True)
@@ -167,7 +174,7 @@ class BaseClassifier(ABC):
         # { nested_classifier_name => {key => value} }
         nested_params = collections.defaultdict(dict)
 
-        for key, value in params.items():
+        for key, value in args.items():
             key, delim, sub_key = key.partition(BaseClassifier.__DEEP_PARAM_DELIMITER)
             if key not in valid_params:
                 raise ValueError(
@@ -178,6 +185,15 @@ class BaseClassifier(ABC):
             if delim:
                 nested_params[key][sub_key] = value
             else:
+                # ensure that they have the same type
+                if not isinstance(value, type(valid_params[key])):
+                    raise TypeError(
+                        f"The given parameter {key}"
+                        " doesn't have the same type"
+                        " as the original value."
+                        f" Expected {type(valid_params[key])}."
+                        f" Got {type(value)}."
+                    )
                 setattr(self, key, value)
                 valid_params[key] = value
 
@@ -187,20 +203,26 @@ class BaseClassifier(ABC):
         return self
 
     @final
-    def _validate_params(self) -> None:
-        """Validate types of constructor parameters."""
-        params = self.get_params(deep=False)
+    def _validate_params(self, **kargs) -> None:
+        """Validate types of given arguments in __init__.
 
+        Args:
+            **kargs: A dict of (param_name, param_value) pair.
+
+        Raises:
+            TypeError:
+                param_value or value in _parameter_constraints are
+                not valid types.
+        """
         for (
             param_name,
-            expected_param_type,
-        ) in self._parameter_constraints.items():
+            param_value,
+        ) in kargs.items():
             # ensure param_name is in the valid params dictionary
-            if param_name not in params:
-                raise ValueError(
-                    f"The {param_name} parameter is not"
-                    f" in the class {self.__class__.__name__}."
-                )
+            if param_name not in self._parameter_constraints:
+                continue
+
+            expected_param_type = self._parameter_constraints.get(param_name)
 
             # ensure expected_param_type is properly set
             # `isinstance(expected_param_type, type)` works for python 3
@@ -216,16 +238,14 @@ class BaseClassifier(ABC):
             else:
                 # check if expected_param_type is a class
                 if not isinstance(expected_param_type, type):
-                    raise ValueError(
+                    raise TypeError(
                         f"The given constraint {expected_param_type} is not a class."
                     )
-
-            param = getattr(self, param_name)
 
             if isinstance(expected_param_type, list):
                 # if match non of the type in the constraints
                 if not any(
-                    isinstance(param, param_type_unpacked)
+                    isinstance(param_value, param_type_unpacked)
                     for param_type_unpacked in list(expected_param_type)
                 ):
                     param_classname_expected = list(
@@ -233,15 +253,16 @@ class BaseClassifier(ABC):
                     )
                     raise TypeError(
                         f"The {param_name} parameter of {self.__class__.__name__}"
-                        f" must be one of the classes in {param_classname_expected}."
-                        f" Got {param.__class__.__name__} instead."
+                        f" __init__ function must be one of the classes"
+                        f" in {param_classname_expected}."
+                        f" Got {param_value.__class__.__name__} instead."
                     )
             else:
-                if not isinstance(param, expected_param_type):
+                if not isinstance(param_value, expected_param_type):
                     raise TypeError(
                         f"The {param_name} parameter of {self.__class__.__name__}"
                         f" must be {expected_param_type.__name__}."
-                        f" Got {param.__class__.__name__} instead."
+                        f" Got {param_value.__class__.__name__} instead."
                     )
 
 
@@ -257,18 +278,18 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
     DEFAULT_DRAW_PROBA_LOW: Final[float] = 1e-9
     DEFAULT_DRAW_PROBA_HIGH: Final[float] = 0.999999999
 
-    _parameter_constraints: dict[str, Any] = {
+    _parameter_constraints: Dict[str, Any] = {
         **BaseClassifier._parameter_constraints,
-        "_learner_model": LearnerModel,
-        "_threshold": float,
-        "_init_skill": float,
-        "_def_var": float,
-        "_tau": float,
-        "_beta": float,
-        "_positive_only": bool,
-        "_draw_proba_type": str,
-        "_draw_proba_static": [float, type(None)],
-        "_draw_proba_factor": float,
+        "learner_model": [LearnerModel, type(None)],
+        "threshold": float,
+        "init_skill": float,
+        "def_var": float,
+        "tau": float,
+        "beta": float,
+        "positive_only": bool,
+        "draw_proba_type": str,
+        "draw_proba_static": [float, type(None)],
+        "draw_proba_factor": float,
     }
 
     def __init__(
@@ -331,15 +352,15 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
         super().__init__()
 
         if learner_model is None:
-            self._learner_model = LearnerModel()
+            self.learner_model = LearnerModel()
         else:
-            self._learner_model = learner_model
-        self._threshold = threshold
-        self._init_skill = init_skill
-        self._def_var = def_var
-        self._tau = tau
-        self._beta = beta
-        self._positive_only = positive_only
+            self.learner_model = learner_model
+        self.threshold = threshold
+        self.init_skill = init_skill
+        self.def_var = def_var
+        self.tau = tau
+        self.beta = beta
+        self.positive_only = positive_only
 
         if draw_proba_type not in ("static", "dynamic"):
             raise ValueError(
@@ -347,32 +368,32 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
                 f" Got {draw_proba_type} instead."
             )
 
-        self._draw_proba_type = draw_proba_type
-        self._draw_proba_factor = draw_proba_factor
-        self._draw_proba_static = draw_proba_static
-        self._draw_probability = self.__calculate_draw_proba()
+        self.draw_proba_type = draw_proba_type
+        self.draw_proba_factor = draw_proba_factor
+        self.draw_proba_static = draw_proba_static
+        self.draw_probability = self.__calculate_draw_proba()
 
         # create an environment in which training will take place
-        self._env = trueskill.TrueSkill()
+        self.__env = trueskill.TrueSkill()
 
     @final
     def __calculate_draw_proba(self) -> float:
-        if self._draw_proba_type == "static":
+        if self.draw_proba_type == "static":
             # delayed check as this can be potentially replaced by set_params
-            if self._draw_proba_static is None:
+            if self.draw_proba_static is None:
                 raise ValueError(
                     "When draw_proba_type is set to static,"
                     " the draw_proba_static should not be None."
                 )
-            return self._draw_proba_static * self._draw_proba_factor
+            return self.draw_proba_static * self.draw_proba_factor
 
         total_engagement_stats = max(
             1,
-            self._learner_model.number_of_engagements
-            + self._learner_model.number_of_non_engagements,
+            self.learner_model.number_of_engagements
+            + self.learner_model.number_of_non_engagements,
         )
         draw_probability = float(
-            self._learner_model.number_of_engagements / total_engagement_stats
+            self.learner_model.number_of_engagements / total_engagement_stats
         )
 
         # clamp the value between [DEFAULT_DRAW_PROBA_LOW, DEFAULT_DRAW_PROBA_HIGH]
@@ -385,7 +406,7 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
         )
 
         # draw_proba_param is a factor if the type is dynamic
-        return draw_probability * self._draw_proba_factor
+        return draw_probability * self.draw_proba_factor
 
     @final
     def __setup_env(self) -> None:
@@ -394,11 +415,11 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
         trueskill.setup(
             mu=0.0,
             sigma=InterestNoveltyKnowledgeBaseClassifier.DEFAULT_CONTENT_SIGMA,
-            beta=self._beta,
-            tau=self._tau,
-            draw_probability=self._draw_probability,
+            beta=self.beta,
+            tau=self.tau,
+            draw_probability=self.draw_probability,
             backend="mpmath",
-            env=self._env,
+            env=self.__env,
         )
 
     @final
@@ -409,9 +430,9 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
             y: A bool indicating whether the learner engage in the learning event.
         """
         if y:
-            self._learner_model.number_of_engagements += 1
+            self.learner_model.number_of_engagements += 1
         else:
-            self._learner_model.number_of_non_engagements += 1
+            self.learner_model.number_of_non_engagements += 1
 
     @final
     def _gather_trueskill_team(
@@ -429,7 +450,7 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
         """
         return tuple(
             map(
-                lambda kc: self._env.create_rating(
+                lambda kc: self.__env.create_rating(
                     mu=kc.mean, sigma=math.sqrt(kc.variance)
                 ),
                 kcs,
@@ -449,7 +470,7 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
     def fit(self, x: EventModel, y: bool) -> Self:
         # if positive_only is False or (it's true and y is true)
         # update the knowledge representation
-        if not self._positive_only or y is True:
+        if not self.positive_only or y is True:
             self.__setup_env()
             self._update_knowledge_representation(x, y)
 
@@ -458,7 +479,7 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
 
     @final
     def predict(self, x: EventModel) -> bool:
-        return self.predict_proba(x) > self._threshold
+        return self.predict_proba(x) > self.threshold
 
 
 def team_sum_quality(

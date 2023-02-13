@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Dict
 from typing_extensions import Self
 
 from ._base import BaseClassifier
@@ -14,10 +14,10 @@ class MajorityClassifier(BaseClassifier):
     otherwise, it predicts Non-Engage (False).
     """
 
-    _parameter_constraints: dict[str, Any] = {
+    _parameter_constraints: Dict[str, Any] = {
         **BaseClassifier._parameter_constraints,
-        "_engagement": int,
-        "_non_engagement": int,
+        "engagement": int,
+        "non_engagement": int,
     }
 
     def __init__(self, *, engagement: int = 0, non_engagement: int = 0) -> None:
@@ -28,23 +28,26 @@ class MajorityClassifier(BaseClassifier):
             engagement: The number of learner's engagement.
             non_engagement: The number of learner's non_engagement.
         """
+        self._validate_params(
+            engagement=engagement,
+            non_engagement=non_engagement,
+        )
+
         super().__init__()
 
-        self._engagement = engagement
-        self._non_engagement = non_engagement
-
-        self._validate_params()
+        self.engagement = engagement
+        self.non_engagement = non_engagement
 
     def fit(self, _x: EventModel, y: bool) -> Self:
         if y:
-            self._engagement += 1
+            self.engagement += 1
         else:
-            self._non_engagement += 1
+            self.non_engagement += 1
 
         return self
 
     def predict(self, _x: EventModel) -> bool:
-        return self._engagement > self._non_engagement
+        return self.engagement > self.non_engagement
 
     def predict_proba(self, _x: EventModel) -> float:
-        return self._engagement > self._non_engagement
+        return self.engagement > self.non_engagement
