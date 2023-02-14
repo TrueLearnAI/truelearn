@@ -1,7 +1,10 @@
-import orjson
-from urllib import request, parse, error
-
 from typing import Optional, Union
+from urllib import request
+from urllib import parse
+from urllib import error
+
+import orjson
+
 Annotation = dict[str, Union[str, float, None]]
 WikifierResponse = dict[str, Union[list[str], list[dict]]]
 
