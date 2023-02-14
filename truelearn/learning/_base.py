@@ -1,11 +1,11 @@
+import math
+import collections
 from abc import ABC, abstractmethod
 from typing import Iterable, Hashable, Any, Optional, Tuple, Dict
 from typing_extensions import Self, Final, final
-import statistics
-import math
-import collections
 
 import trueskill
+import mpmath
 
 from truelearn.models import (
     EventModel,
@@ -76,7 +76,7 @@ class BaseClassifier(ABC):
         """
 
     @final
-    def get_params(self, deep: bool = True) -> dict[str, Any]:
+    def get_params(self, deep: bool = True) -> Dict[str, Any]:
         """Get parameters for this Classifier.
 
         Args:
@@ -475,7 +475,7 @@ def team_sum_quality(
 
     difference = sum(team_learner_mean) - sum(team_content_mean)
     std = math.sqrt(sum(team_learner_variance) + sum(team_content_variance) + beta)
-    return statistics.NormalDist(mu=0, sigma=std).cdf(difference)
+    return float(mpmath.ncdf(difference, mu=0, sigma=std))
 
 
 def select_topic_kc_pairs(

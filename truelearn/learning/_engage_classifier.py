@@ -1,8 +1,8 @@
 from typing import Dict, Any
 from typing_extensions import Self
 
-from ._base import BaseClassifier
 from truelearn.models import EventModel
+from ._base import BaseClassifier
 
 
 class EngageClassifier(BaseClassifier):

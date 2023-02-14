@@ -1,17 +1,17 @@
+import math
 from typing import Callable, Any, Optional, Dict
 from datetime import datetime as dt
-import math
 
+from truelearn.models import (
+    EventModel,
+    LearnerModel,
+    AbstractKnowledgeComponent,
+)
 from ._base import (
     InterestNoveltyKnowledgeBaseClassifier,
     team_sum_quality,
     select_kcs,
     select_topic_kc_pairs,
-)
-from truelearn.models import (
-    EventModel,
-    LearnerModel,
-    AbstractKnowledgeComponent,
 )
 
 

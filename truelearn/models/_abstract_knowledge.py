@@ -1,6 +1,6 @@
+from abc import ABC, abstractmethod
 from typing import Any, Optional
 from typing_extensions import Self
-from abc import ABC, abstractmethod
 
 
 class AbstractKnowledgeComponent(ABC):

@@ -1,11 +1,11 @@
 from typing import Any, Optional, Dict
 
+from truelearn.models import EventModel, LearnerModel
 from ._base import (
     InterestNoveltyKnowledgeBaseClassifier,
     select_kcs,
     select_topic_kc_pairs,
 )
-from truelearn.models import EventModel, LearnerModel
 
 
 class NoveltyClassifier(InterestNoveltyKnowledgeBaseClassifier):

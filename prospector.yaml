@@ -29,6 +29,8 @@ pydocstyle:
 pylint:
   disable:
     - missing-module-docstring
+  options:
+    py-version: 3.7
 
 bandit:
   run: true
