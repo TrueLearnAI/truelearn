@@ -1,81 +1,28 @@
-from __future__ import annotations
+from typing import Dict, Any
+from typing_extensions import Self
+
+from ._base import BaseClassifier
+from truelearn.models import EventModel
 
 
-class EngageClassifier:
-    """A Classifier that always makes positive prediction.
+class EngageClassifier(BaseClassifier):
+    """A Classifier that always makes positive prediction."""
 
-    Methods
-    -------
-    fit(x, y)
-        Train the model based on the given data and label.
-    predict(x)
-        Predict whether the learner will engage.
-    predict_proba(x)
-        Predict the probability of learner engagement.
-
-    """
+    _parameter_constraints: Dict[str, Any] = {
+        **BaseClassifier._parameter_constraints,
+    }
 
     def __init__(self) -> None:
-        pass
+        """Init EngageClassifier object."""
+        self._validate_params()
 
-    def fit(self, _x, _y) -> EngageClassifier:
-        """Train the model based on the given data and labels.
+        super().__init__()
 
-        Parameters
-        ----------
-        _x: AbstractKnowledge
-            A knowledge representation of a learnable unit.
-        _y: bool
-            A label that is either True or False.
-
-        Returns
-        -------
-        EngageClassifier
-            The updated model.
-
-        Notes
-        -----
-        Given the nature of this classifier, the input _x and _y are not used.
-
-        """
+    def fit(self, _x: EventModel, _y: bool) -> Self:
         return self
 
-    def predict(self, _x) -> bool:
-        """Predict whether the learner will engage.
-
-        Parameters
-        ----------
-        _x: AbstractKnowledge
-            A knowledge representation of a learnable unit.
-
-        Returns
-        -------
-        bool
-            Whether the learner will engage with the given learnable unit.
-
-        Notes
-        -----
-        Given the nature of this classifier, the input _x is not used.
-
-        """
+    def predict(self, _x: EventModel) -> bool:
         return True
 
-    def predict_proba(self, _x) -> float:
-        """Predict the probability of learner engagement.
-
-        Parameters
-        ----------
-        _x: AbstractKnowledge
-            A knowledge representation of a learnable unit.
-
-        Returns
-        -------
-        float
-            The probability that the learner will engage with the given learnable unit.
-
-        Notes
-        -----
-        Given the nature of this classifier, the input _x is not used.
-
-        """
-        return 1.
+    def predict_proba(self, _x: EventModel) -> float:
+        return 1.0

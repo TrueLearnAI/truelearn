@@ -1,303 +1,160 @@
-from __future__ import annotations
-from typing import Iterable, Hashable
-import math
+from typing import Any, Optional, Dict
+from typing_extensions import Final
 
-import trueskill
+from ._base import (
+    InterestNoveltyKnowledgeBaseClassifier,
+    team_sum_quality,
+    select_kcs,
+    select_topic_kc_pairs,
+)
+from truelearn.models import EventModel, LearnerModel
 
-from truelearn.models import AbstractKnowledge, AbstractKnowledgeComponent, LearnerModel
 
+class KnowledgeClassifier(InterestNoveltyKnowledgeBaseClassifier):
+    """A classifier that models the learner's knowledge and \
+    makes prediction based on the knowledge.
 
-class KnowledgeClassifier:
-    """A Knowledge Classifier.
+    During the training process, the classifier uses the idea of game matching
+    established in TrueSkill. It represents the learning process as a game of two teams.
+    One team consists of all the knowledge components from the learnable unit and
+    the other consist of all the corresponding knowledge components from the learner.
+    Then, the classifier uses the given label to update the knowledge components
+    of the learner.
 
-    Parameters
-    ----------
-    learner_model: LearnerModel | None, optional
-    threshold: float
-        Threshold for judging learner engagement. If the probability of the learner engagement is greater
-        than the threshold, the model will predict engagement.
-    init_skill: float
-        The initial skill (mean) of the learner given a new KnowledgeComponent.
-    def_var: float
-        The default variance of the new KnowledgeComponent.
-    beta: float
-        The noise factor, which is used in trueskill.
-    positive_only: bool
-        Whether the model updates itself only if encountering positive data.
+    The update of knowledge components is based on the assumption that
+    if the learner engages with the learnable unit, it means that
+    the learner has a higher skill than the depth of the resource, which
+    means that the learner wins the game.
 
-    Methods
-    -------
-    fit(x, y)
-        Train the model based on the given data and label.
-    predict(x)
-        Predict whether the learner will engage.
-    predict_proba(x)
-        Predict the probability of learner engagement.
-    get_params()
-        Get parameters associated with the model.
-
+    During the prediction process, the classifier uses cumulative density function of
+    normal distribution to calculate the probability that the learner engage
+    in the learning event. It calculates the probability of getting x in a
+    Normal Distribution N(0, std) where x is the difference between
+    the learner's skill (mean) and the learnable unit's skill (mean) and
+    std is the standard deviation of the new normal distribution as a result of
+    subtracting the two old normal distribution (learner and learnable unit).
+    In TrueSkill's terminology, this calculates the win probability that
+    the learner will win the content.
     """
 
-    CONTENT_VARIANCE = 1e-9
+    DRAW_PROBA_STATIC: Final[float] = 1e-9
 
-    def __init__(self, *, learner_model: LearnerModel | None = None, threshold: float = 0.5,
-                 init_skill=0., def_var=0.5, beta: float = 0.5, positive_only=True) -> None:
-        if learner_model is None:
-            self.__learner_model = LearnerModel()
-        else:
-            self.__learner_model = learner_model
-        self.__threshold = threshold
-        self.__init_skill = init_skill
-        self.__def_var = def_var
-        self.__beta = beta
-        self.__positive_only = positive_only
+    _parameter_constraints: Dict[str, Any] = {
+        **InterestNoveltyKnowledgeBaseClassifier._parameter_constraints,
+    }
 
-        # initialize an environment in which training will take place
-        self.__env = trueskill.TrueSkill()
-        trueskill.setup(mu=0., sigma=KnowledgeClassifier.CONTENT_VARIANCE, beta=float(self.__beta),
-                        tau=float(self.__learner_model.tau), draw_probability=0.,
-                        backend="mpmath", env=self.__env)
+    def __init__(
+        self,
+        *,
+        learner_model: Optional[LearnerModel] = None,
+        threshold: float = 0.5,
+        init_skill: float = 0.0,
+        def_var: float = 0.5,
+        beta: float = 0.1,
+        tau: float = 0.1,
+        positive_only: bool = True,
+    ) -> None:
+        """Init KnowledgeClassifier object.
 
-    def __topic_kc_pair_mapper(self, topic_kc_pair: tuple[Hashable, AbstractKnowledgeComponent])\
-            -> tuple[Hashable, AbstractKnowledgeComponent]:
-        """Retrieve a (topic_id, AbstractKnowledgeComponent) pair from learner model.
+        Args:
+            *:
+                Use to reject positional arguments.
+            learner_model:
+                A representation of the learner.
+            threshold:
+                A float that determines the classification threshold.
+            init_skill:
+                The initial mean of the learner's knowledge component.
+                It will be used when the learner interacts with knowledge components
+                at its first time.
+            def_var:
+                The initial variance of the learner's knowledge component.
+                It will be used when the learner interacts with knowledge components
+                at its first time.
+            beta:
+                The noise factor.
+            tau:
+                The dynamic factor of learner's learning process.
+                It's used to avoid the halting of the learning process.
+            positive_only:
+                A bool indicating whether the classifier only
+                updates the learner's knowledge when encountering a positive label.
 
-        If the AbstractKnowledge of the learner doesn't contain the topic_id,
-        a new KC will be constructed via `kc.clone(self.__init_skill, self.__def_var)`.
-
-        Parameters
-        ----------
-        topic_kc_pair : tuple[Hashable, AbstractKnowledgeComponent]
-            The (topic_id, AbstractKnowledgeComponent) pair from the learnable unit.
-
-        Returns
-        -------
-        tuple[Hashable, AbstractKnowledgeComponent]
-
+        Returns:
+            None
         """
-        topic_id, kc = topic_kc_pair
-        extracted_kc = self.__learner_model.knowledge.get_kc(
-            topic_id, kc.clone(self.__init_skill, self.__def_var))
-        return topic_id, extracted_kc
+        self._validate_params(
+            learner_model=learner_model,
+            threshold=threshold,
+            init_skill=init_skill,
+            def_var=def_var,
+            tau=tau,
+            beta=beta,
+            positive_only=positive_only,
+        )
 
-    def __kc_mapper(self, topic_kc_pair: tuple[Hashable, AbstractKnowledgeComponent]) -> AbstractKnowledgeComponent:
-        """Retrieve a KC from learner model.
+        # the knowledge classifier doesn't rely on the draw probability
+        # it utilizes different assumptions
+        # so, we set draw probability to a very small value to avoid its impact
+        super().__init__(
+            learner_model=learner_model,
+            threshold=threshold,
+            init_skill=init_skill,
+            def_var=def_var,
+            tau=tau,
+            beta=beta,
+            positive_only=positive_only,
+            draw_proba_type="static",
+            draw_proba_static=KnowledgeClassifier.DRAW_PROBA_STATIC,
+            draw_proba_factor=0.1,
+        )
 
-        If the AbstractKnowledge of the learner doesn't contain the topic_id,
-        a new KC will be constructed via `kc.clone(self.__init_skill, self.__def_var)`.
-
-        Parameters
-        ----------
-        topic_kc_pair : tuple[Hashable, AbstractKnowledgeComponent]
-            The (topic_id, AbstractKnowledgeComponent) pair from the learnable unit.
-
-        Returns
-        -------
-        AbstractKnowledgeComponent
-
-        """
-        topic_id, kc = topic_kc_pair
-        extracted_kc = self.__learner_model.knowledge.get_kc(
-            topic_id, kc.clone(self.__init_skill, self.__def_var))
-        return extracted_kc
-
-    def __select_topic_kc_pairs(self, content_knowledge: AbstractKnowledge)\
-            -> Iterable[tuple[Hashable, AbstractKnowledgeComponent]]:
-        """Return an iterable representing the learner's knowledge in the topics specified by the learnable unit.
-
-        Given the knowledge representation of the learnable unit, this method tries to get
-        the corresponding knowledge representation from the Learner Model.
-
-        If it cannot find the corresponding knowledge component in learner's model, which means
-        the learner has never exposed to this knowledge component before, a new KC will be constructed
-        with initial skill and default variance. This will be done by using `__topic_kc_pair_mapper`.
-
-        Parameters
-        ----------
-        content_knowledge : AbstractKnowledge
-            The knowledge representation of a learnable unit.
-
-        Returns
-        -------
-        Iterable[tuple[Hashable, AbstractKnowledgeComponent]]
-
-        """
-        team_learner = map(self.__topic_kc_pair_mapper,
-                           content_knowledge.topic_kc_pairs())
-        return team_learner
-
-    def __select_kcs(self, content_knowledge: AbstractKnowledge) -> Iterable[AbstractKnowledgeComponent]:
-        """Return an iterable of the AbstractKnowledgeComponent representing the learner's knowledge\
-        in the topic specified by the learnable unit.
-
-        Given the knowledge representation of the learnable unit, this method tries to get
-        the corresponding knowledge representation from the Learner Model.
-
-        If it cannot find the corresponding knowledge component in learner's model, which means
-        the learner has never exposed to this knowledge component before, a new KC will be constructed
-        with initial skill and default variance. This will be done by using `__kc_mapper`.
-
-        Parameters
-        ----------
-        content_knowledge : AbstractKnowledge
-            The knowledge representation of a learnable unit.
-
-        Returns
-        -------
-        Iterable[AbstractKnowledgeComponent]
-
-        """
-        team_learner = map(self.__kc_mapper,
-                           content_knowledge.topic_kc_pairs())
-        return team_learner
-
-    def __team_sum_quality(self, learner_kcs: Iterable[AbstractKnowledgeComponent],
-                           content_kcs: Iterable[AbstractKnowledgeComponent]) -> float:
-        """Return the probability that the learner engages with the learnable unit.
-
-        Parameters
-        ----------
-        learner_kcs : Iterable[AbstractKnowledgeComponent]
-            An iterable of learner's knowledge component.
-        content_kcs : Iterable[AbstractKnowledgeComponent]
-            An iterable of learnable unit's knowledge component.
-
-        Returns
-        -------
-        float
-
-        """
-        team_learner_mean = map(lambda kc: kc.mean, learner_kcs)
-        team_learner_variance = map(lambda kc: kc.variance, learner_kcs)
-        team_content_mean = map(lambda kc: kc.mean, content_kcs)
-        team_content_variance = map(lambda kc: kc.variance, content_kcs)
-
-        difference = sum(team_learner_mean) - sum(team_content_mean)
-        std = math.sqrt(sum(team_learner_variance) +
-                        sum(team_content_variance) + self.__beta)
-        return float(self.__env.
-                     cdf(difference, 0, std))  # type: ignore
-
-    def fit(self, x: AbstractKnowledge, y: bool) -> KnowledgeClassifier:
-        """Train the model based on a given AbstractKnowledge that represents a learnable unit.
-
-        Parameters
-        ----------
-        x : AbstractKnowledge
-            A knowledge representation of a learnable unit.
-        y : bool
-            Whether the learner engages with the learnable unit.
-
-        Returns
-        -------
-        KnowledgeClassifier
-            The updated KnowledgeClassifier.
-
-        References
-        ----------
-        [1] Bulathwela, S. et al. (2020) “TrueLearn: A Family of Bayesian algorithms to match lifelong learners
-        to open educational resources,” Proceedings of the AAAI Conference on Artificial Intelligence, 34(01),
-        pp. 565-573. Available at: https://doi.org/10.1609/aaai.v34i01.5395.
-
-        """
-        if self.__positive_only and x is False:
-            return self
-
-        learner_topic_kc_pairs = list(self.__select_topic_kc_pairs(x))
-        content_kcs = x.knowledge_components()
-
-        team_learner = tuple(
-            map(
-                lambda topic_kc_learner_pair: self.__env.create_rating(
-                    mu=topic_kc_learner_pair[1].mean, sigma=math.sqrt(topic_kc_learner_pair[1].variance)),
-                learner_topic_kc_pairs
+    def _update_knowledge_representation(self, x: EventModel, y: bool) -> None:
+        # make it a list because we need to use it more than one time later
+        learner_topic_kc_pairs = list(
+            select_topic_kc_pairs(
+                self.learner_model,
+                x.knowledge,
+                self.init_skill,
+                self.def_var,
             )
         )
-        team_content = tuple(
-            map(
-                lambda content_kc: self.__env.create_rating(
-                    mu=content_kc.mean, sigma=math.sqrt(content_kc.variance)),
-                content_kcs
-            )
+        learner_kcs = map(
+            lambda learner_topic_kc_pair: learner_topic_kc_pair[1],
+            learner_topic_kc_pairs,
         )
+        content_kcs = x.knowledge.knowledge_components()
+
+        team_learner = self._gather_trueskill_team(learner_kcs)
+        team_content = self._gather_trueskill_team(content_kcs)
 
         if y:
             # learner wins: lower rank == winning
             updated_team_learner, _ = self.__env.rate(
-                [team_learner, team_content], ranks=[0, 1])
+                [team_learner, team_content], ranks=[0, 1]
+            )
         else:
             # content wins
             _, updated_team_learner = self.__env.rate(
-                [team_content, team_learner], ranks=[0, 1])
+                [team_content, team_learner], ranks=[0, 1]
+            )
 
         for topic_kc_pair, rating in zip(learner_topic_kc_pairs, updated_team_learner):
             topic_id, kc = topic_kc_pair
-            kc.update(rating.mean, rating.sigma ** 2)
-            self.__learner_model.knowledge.update_kc(topic_id, kc)
+            kc.update(mean=rating.mean, variance=rating.sigma**2)
+            self.learner_model.knowledge.update_kc(topic_id, kc)
 
-        return self
+    def predict_proba(self, x: EventModel) -> float:
+        learner_kcs = select_kcs(
+            self.learner_model, x.knowledge, self.init_skill, self.def_var
+        )
+        content_kcs = x.knowledge.knowledge_components()
+        return team_sum_quality(learner_kcs, content_kcs, self.beta)
 
-    def predict(self, x: AbstractKnowledge) -> bool:
-        """Predict whether the learner will engage with the given learnable unit.
+    def get_learner_model(self) -> LearnerModel:
+        """Get the learner model associated with this classifier.
 
-        The function will return True iff the probability that the learner engages
-        with the learnable unit is greater than the given threshold.
-
-        Refer to `predict_proba` for more details.
-
-        Parameters
-        ----------
-        x : AbstractKnowledge
-            A knowledge representation of a learnable unit.
-
-        Returns
-        -------
-        bool
-            Whether the learner will engage with the given learnable unit.
-
+        Returns:
+            A learner model associated with this classifier.
         """
-        return self.predict_proba(x) > self.__threshold
-
-    def predict_proba(self, x: AbstractKnowledge) -> float:
-        """Predict the probability of the learner's engagement with the given learnable unit.
-
-        Learner and Learnable Unit is can be represented as a Normal Distribution with certain skills (mu) and
-        standard deviation (sqrt{variance}).
-
-        The algorithm uses cumulative density function of normal distribution to calculate the probability.
-        It calculates the probability of getting x in a Normal Distribution N(0, std) where x is the difference
-        between the learner's skill (mean) and the learnable unit's skill (mean) and std is the standard deviation
-        of the new normal distribution as a result of subtracting the two old normal distribution (learner and
-        learnable unit).
-
-        Parameters
-        ----------
-        x : AbstractKnowledge
-            A knowledge representation of a learnable unit.
-
-        Returns
-        -------
-        float
-            The probability that the learner engages with the given learnable unit.
-
-        """
-        learner_kcs = self.__select_kcs(x)
-        content_kcs = x.knowledge_components()
-        return self.__team_sum_quality(learner_kcs, content_kcs)
-
-    def get_params(self) -> dict[str, float]:
-        """Get the parameters associated with the model.
-
-        Returns
-        -------
-        dict[str, float]
-            A parameter name and value pair.
-
-        """
-        return {
-            "threshold": self.__threshold,
-            "init_skill": self.__init_skill,
-            "def_var": self.__def_var,
-            "beta": self.__beta,
-            "positive_only": self.__positive_only
-        }
+        return self.learner_model

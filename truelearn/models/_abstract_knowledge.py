@@ -1,197 +1,101 @@
-from __future__ import annotations
-from typing import Iterable, Hashable, Any
+from typing import Any, Optional
+from typing_extensions import Self
 from abc import ABC, abstractmethod
 
 
 class AbstractKnowledgeComponent(ABC):
-    """An abstract class that represents a knowledge component (KC).
+    """An interface defines a knowledge component of a learnable unit.
 
-    Methods
-    -------
-    update(mean, variance)
-        Update the mean and variance of the AbstractKnowledgeComponent
-    clone(mean, variance)
-        Clone the AbstractKnowledgeComponent with new mean and variance
-    export(output_format)
-        Export the AbstractKnowledgeComponent into some format
+    Each knowledge component can be represented as a Normal Distribution with
+    certain skills (mu) and standard deviation (sqrt{variance}).
 
-    Properties
-    ----------
-    mean
-    variance
-
+    The variance of the knowledge component from the learnable unit will be
+    a fixed small value as we assume the skill (recourse depth) clearly and
+    accurately measure the resourcefulness of the learnable unit.
+    The variance of the knowledge component from the learner will be a dynamic
+    value derived from the classifier's training process. This is to respect the
+    fact that the skill (model's understanding of the learner's knowledge) is
+    snot perfectly accurate.
     """
 
     @property
     @abstractmethod
     def mean(self) -> float:
-        """Return the mean of this AbstractKnowledgeComponent.
-
-        Returns
-        -------
-        float
-
-        """
+        """The mean of the knowledge component."""
 
     @property
     @abstractmethod
     def variance(self) -> float:
-        """Return the variance of this AbstractKnowledgeComponent.
+        """The variance of the knowledge component."""
 
-        Returns
-        -------
-        float
+    @property
+    @abstractmethod
+    def timestamp(self) -> Optional[float]:
+        """The POSIX timestamp of the last update of the knowledge component."""
 
+    @abstractmethod
+    def update(
+        self,
+        *,
+        mean: Optional[float] = None,
+        variance: Optional[float] = None,
+        timestamp: Optional[float] = None,
+    ) -> None:
+        """Update the mean, variance, and timestamp of the current knowledge component.
+
+        If the given parameters are None, the corresponding attributes of the current
+        knowledge component will not be updated.
+
+        Args:
+            *:
+                Use to reject positional arguments.
+            mean:
+                The new mean of the knowledge component.
+            variance:
+                The new variance of the knowledge component.
+            timestamp:
+                The new POSIX timestamp that indicates the update time
+                of the knowledge component.
+
+        Returns:
+            None.
         """
 
     @abstractmethod
-    def update(self, mean, variance) -> None:
-        """Update the mean and variance of this AbstractKnowledgeComponent.
+    def clone(
+        self,
+        *,
+        mean: float,
+        variance: float,
+        timestamp: Optional[float] = None,
+    ) -> Self:
+        """Generate a copy of the current knowledge component with \
+        given mean, variance and timestamp.
 
-        Parameters
-        ----------
-        mean : float
-            The new mean of the AbstractKnowledgeComponent.
-        variance : float
-            The new variance of the AbstractKnowledgeComponent.
+        Args:
+            *:
+                Use to reject positional arguments.
+            mean:
+                The new mean of the AbstractKnowledgeComponent.
+            variance:
+                The new variance of the AbstractKnowledgeComponent.
+            timestamp:
+                An optional new POSIX timestamp of the AbstractKnowledgeComponent.
 
-        Returns
-        -------
-        None
-
-        """
-
-    @abstractmethod
-    def clone(self, mean, variance) -> AbstractKnowledgeComponent:
-        """Generate a copy of the current AbstractKnowledgeComponent with given mean and variance.
-
-        This function doesn't change the mean and variance of the current AbstractKnowledgeComponent.
-
-        Parameters
-        ----------
-        mean : float
-            The mean of the cloned AbstractKnowledgeComponent.
-        variance : float
-            The variance of the cloned AbstractKnowledgeComponent.
-
-        Returns
-        -------
-        None
-
+        Returns:
+            A cloned knowledge component with given mean, variance and timestamp.
         """
 
     @abstractmethod
     def export(self, output_format: str) -> Any:
         """Export the AbstractKnowledgeComponent into some formats.
 
-        Parameters
-        ----------
-        output_format : str
-            The name of the output format
+        Args:
+            output_format: The name of the output format.
 
-        Returns
-        -------
-        Any
-            The requested format
+        Returns:
+            The requested format.
 
-        Raises
-        ------
-        NotImplementedError
-            If the requested format is not available
-
-        """
-
-
-class AbstractKnowledge(ABC):
-    """An abstract class that represents the knowledge.
-
-    The class can be used to represent 1) the learner's knowledge and
-    2) the topics in a learnable unit and the depth of knowledge of those topics.
-
-    Methods
-    -------
-    get(topic_id, default)
-        Get the AbstractKnowledgeComponent associated with the topic_id.
-        If the topic_id is not included in learner's knowledge, the default is returned.
-    update(topic_id, kc)
-        Update the AbstractKnowledgeComponent associated with the topic_id
-    topic_kc_pairs()
-        Return an iterable of (topic_id, AbstractKnowledgeComponent) pairs.
-    knowledge_components()
-        Return an iterable of AbstractKnowledgeComponents.
-
-    """
-
-    @abstractmethod
-    def get_kc(self, topic_id: Hashable, default: AbstractKnowledgeComponent) -> AbstractKnowledgeComponent:
-        """Get the AbstractKnowledgeComponent associated with the topic_id if the AbstractKnowledgeComponent is in
-        the AbstractKnowledge, else return default.
-
-        Parameters
-        ----------
-        topic_id : Hashable
-            The id that uniquely identifies a topic.
-        default : AbstractKnowledgeComponent
-            The default AbstractKnowledgeComponent to return
-
-        Returns
-        -------
-        AbstractKnowledgeComponent
-
-        """
-
-    @abstractmethod
-    def update_kc(self, topic_id: Hashable, kc: AbstractKnowledgeComponent) -> None:
-        """Update the AbstractKnowledgeComponent associated with the topic_id.
-
-        If the topic_id doesn't exist in the AbstractKnowledge, the mapping will be created.
-
-        Parameters
-        ----------
-        topic_id : Hashable
-            The id that uniquely identifies a topic.
-        kc: AbstractKnowledgeComponent
-            The new AbstractKnowledgeComponents.
-
-        """
-
-    @abstractmethod
-    def topic_kc_pairs(self) -> Iterable[tuple[Hashable, AbstractKnowledgeComponent]]:
-        """Return an iterable of the (topic_id, AbstractKnowledgeComponent) pair.
-
-        Returns
-        -------
-        Iterable[tuple[Hashable, AbstractKnowledgeComponent]]
-
-        """
-
-    @abstractmethod
-    def knowledge_components(self) -> Iterable[AbstractKnowledgeComponent]:
-        """Return an iterable of the AbstractKnowledgeComponents.
-
-        Returns
-        -------
-        Iterable[AbstractKnowledgeComponent]
-
-        """
-
-    @abstractmethod
-    def export(self, output_format: str) -> Any:
-        """Export the AbstractKnowledge into some formats.
-
-        Parameters
-        ----------
-        output_format : str
-            The name of the output format
-
-        Returns
-        -------
-        Any
-            The requested format
-
-        Raises
-        ------
-        NotImplementedError
-            If the requested format is not available
-
+        Raises:
+            ValueError: An unsupported format is given.
         """

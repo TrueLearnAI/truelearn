@@ -40,9 +40,11 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Module",
 ]
 dependencies = [
+    'typing-extensions>=4.4.0',
     'trueskill>=0.4.5',
     'scikit-learn>=1.0.2',
     'orjson>=3.8.6',
+    'mpmath>=1.2.1'
 ]
 
 [tool.setuptools.dynamic]
@@ -57,11 +59,11 @@ packages = ["truelearn"]
 [project.optional-dependencies]
 tests = ["pytest>=7.2.1"]
 docs = ["sphinx>=6.1.3", "furo>=2022.12.7"]
-dev = ["prospector>=1.8.4","black>=23.1.0"]
+dev = ["prospector[with_bandit,with_mypy]>=1.8.4","black>=22.12.0", "truelearn[tests]"]
 
 [tool.black]
 line-length = 88
-# Black doesnt yet support python 3.12 
+# Black doesnt yet support python 3.12
 target-version = ['py37', 'py38', 'py39', 'py310', 'py311']
 
 # Support for Prospector config in pyproject.toml is not yet released.

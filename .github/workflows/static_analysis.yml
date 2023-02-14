@@ -27,15 +27,15 @@ jobs:
       - name: Install pip-tools and generate requirements.txt
         run: |
           pip install pip-tools
-          # Generates a requirements.txt file from pyproject.toml 
-          # This means that we dont have to install truelearn 
+          # Generates a requirements.txt file from pyproject.toml
+          # This means that we dont have to install truelearn
           pip-compile --resolver=backtracking --output-file requirements.txt pyproject.toml
 
       - name: Install Project Dependencies
         run: pip install -r requirements.txt
 
       - name: Install Prospector
-        run: pip install prospector
+        run: pip install prospector[with_bandit,with_mypy]
 
       - name: Run Prospector
         run: |
@@ -54,4 +54,3 @@ jobs:
           report_paths: ./prospector_report.xml
           check_name: "Prospector Analysis Report"
           detailed_summary: true
-

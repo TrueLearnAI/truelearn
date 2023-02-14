@@ -1,84 +1,65 @@
-from __future__ import annotations
-from typing import Iterable, Hashable, Any
+from typing import Iterable, Hashable, Any, Optional, Dict, Tuple
+from typing_extensions import Self
 
-from ._abstract_knowledge import AbstractKnowledgeComponent, AbstractKnowledge
+from ._abstract_knowledge import AbstractKnowledgeComponent
 
 
 class KnowledgeComponent(AbstractKnowledgeComponent):
-    """A concrete class that implements AbstractKnowledgeComponent which represents a knowledge component.
+    """A concrete class that implements AbstractKnowledgeComponent."""
 
-    Parameters
-    ----------
-    mean: float
-    variance: float
-    title: str
-    description: str
-    url: str
+    def __init__(
+        self,
+        *,
+        mean: float,
+        variance: float,
+        timestamp: Optional[float] = None,
+        title: Optional[str] = None,
+        description: Optional[str] = None,
+        url: Optional[str] = None,
+    ) -> None:
+        """Init the KnowledgeComponent object.
 
-    Methods
-    -------
-    update(mean, variance)
-        Update the mean and variance of the KnowledgeComponent
-    clone(mean, variance)
-        Clone the KnowledgeComponent with new mean and variance
-    export(output_format)
-        Export the KnowledgeComponent into some format
+        Args:
+            mean:
+                A float indicating the mean of the knowledge component.
+            variance:
+                A float indicating the variance of the knowledge component.
+            timestamp:
+                A float indicating the POSIX timestamp of the last update of
+                the knowledge component.
+            title:
+                An optional string storing the title of the knowledge component.
+            description:
+                An optional string that describes the knowledge component.
+            url:
+                An optional string storing the url of the knowledge component.
 
-    Properties
-    ----------
-    title
-    description
-    url
-    mean
-    variance
-
-    """
-
-    def __init__(self, *, mean: float, variance: float, title: str | None = None,
-                 description: str | None = None, url: str | None = None
-                 ) -> None:
+        Returns:
+            None.
+        """
         super().__init__()
 
         self.__title = title
         self.__description = description
         self.__url = url
+
         self.__mean = mean
         self.__variance = variance
+        self.__timestamp = timestamp
 
     @property
-    def title(self):
-        """Return the title of the KnowledgeComponent.
-
-        Returns
-        -------
-        str | None
-            An optional string that is the title of the KnowledgeComponent.
-
-        """
+    def title(self) -> Optional[str]:
+        """The title of the knowledge component."""
         return self.__title
 
     @property
-    def description(self) -> str | None:
-        """Return the description of the KnowledgeComponent.
-
-        Returns
-        -------
-        str | None
-            An optional string that is the description of the KnowledgeComponent.
-
-        """
+    def description(self) -> Optional[str]:
+        """The description of the knowledge component."""
         return self.__description
 
     @property
-    def url(self) -> str | None:
-        """Return the url of the KnowledgeComponent.
-
-        Returns
-        -------
-        str | None
-            An optional string that is the url of the KnowledgeComponent.
-
-        """
+    def url(self) -> Optional[str]:
+        """The url of the knowledge component."""
         return self.__url
 
     @property
@@ -89,63 +70,143 @@ class KnowledgeComponent(AbstractKnowledgeComponent):
     def variance(self) -> float:
         return self.__variance
 
-    def update(self, mean: float, variance: float) -> None:
-        self.__mean = mean
-        self.__variance = variance
+    @property
+    def timestamp(self) -> Optional[float]:
+        return self.__timestamp
 
-    def clone(self, mean, variance) -> KnowledgeComponent:
-        return KnowledgeComponent(mean=mean, variance=variance, title=self.__title,
-                                  description=self.__description, url=self.__url)
+    def update(
+        self,
+        *,
+        mean: Optional[float] = None,
+        variance: Optional[float] = None,
+        timestamp: Optional[float] = None,
+    ) -> None:
+        if mean is not None:
+            self.__mean = mean
+        if variance is not None:
+            self.__variance = variance
+        if timestamp is not None:
+            self.__timestamp = timestamp
+
+    def clone(
+        self,
+        *,
+        mean: float,
+        variance: float,
+        timestamp: Optional[float] = None,
+    ) -> Self:
+        """Generate a copy of the current knowledge component with \
+        given mean, variance and timestamp.
+
+        Args:
+            *:
+                Use to reject positional arguments.
+            mean:
+                The new mean of the AbstractKnowledgeComponent.
+            variance:
+                The new variance of the AbstractKnowledgeComponent.
+            timestamp:
+                An optional new POSIX timestamp of the AbstractKnowledgeComponent.
+                If None is given, the timestamp of the cloned knowledge component is
+                assigned to None.
+
+        Returns:
+            A cloned knowledge component with given mean, variance and timestamp.
+
+        """
+        return KnowledgeComponent(
+            mean=mean,
+            variance=variance,
+            timestamp=timestamp,
+            title=self.__title,
+            description=self.__description,
+            url=self.__url,
+        )
 
     def export(self, output_format: str) -> Any:
         raise NotImplementedError(
-            f"The export function for {output_format} is not yet implemented")
+            f"The export function for {output_format} is not yet implemented."
+        )
 
 
-class Knowledge(AbstractKnowledge):
-    """A concrete class that implements AbstractKnowledge which represents the knowledge.
+class Knowledge:
+    """The representation of the learner's knowledge.
+
+    In TrueLearn, we assume every learner's knowledge consists of many different
+    knowledge components. The Knowledge class is used to represent this relationship.
 
     The class can be used to represent 1) the learner's knowledge and
-    2) the topics in a learnable unit and the depth of knowledge of those topics.
-
-    Parameters
-    ----------
-    knowledge: dict[Hashable, AbstractKnowledgeComponent]
-
-    Methods
-    -------
-    get(topic_id, default)
-        Get the AbstractKnowledgeComponent associated with the topic_id.
-        If the topic_id is not included in learner's knowledge, the default is returned.
-    update(topic_id, kc)
-        Update the AbstractKnowledgeComponent associated with the topic_id
-    topic_kc_pairs()
-        Return an iterable of (topic_id, AbstractKnowledgeComponent) pairs
-    knowledge_components()
-        Return an iterable of AbstractKnowledgeComponents.
-
+    2) the knowledge of a learnable unit.
     """
 
-    def __init__(self, knowledge: dict[Hashable, AbstractKnowledgeComponent] | None = None) -> None:
+    def __init__(
+        self,
+        knowledge: Optional[Dict[Hashable, AbstractKnowledgeComponent]] = None,
+    ) -> None:
+        """Init the Knowledge object.
+
+        If the given knowledge is None, the knowledge will be initialized emptily.
+
+        Args:
+            knowledge: A dict mapping a hashable id of the knowledge component
+                to the corresponding knowledge component object. Defaults to None.
+        """
         super().__init__()
 
-        if knowledge is not None:
-            self.__knowledge = knowledge
-        else:
-            self.__knowledge: dict[Hashable, AbstractKnowledgeComponent] = {}
+        if knowledge is None:
+            knowledge = {}
+        self.__knowledge = knowledge
 
-    def get_kc(self, topic_id: Hashable, default: AbstractKnowledgeComponent) -> AbstractKnowledgeComponent:
+    def get_kc(
+        self, topic_id: Hashable, default: AbstractKnowledgeComponent
+    ) -> AbstractKnowledgeComponent:
+        """Get the knowledge component associated with the given id.
+
+        Args:
+            topic_id: The id that uniquely identifies a knowledge component.
+            default: The default knowledge component to return.
+
+        Returns:
+            The knowledge component extracted from the knowledge
+            if the topic_id exists in the knowledge.
+            Otherwise, the default value will be returned.
+        """
         return self.__knowledge.get(topic_id, default)
 
     def update_kc(self, topic_id: Hashable, kc: AbstractKnowledgeComponent) -> None:
+        """Update the knowledge component associated with the given topic_id.
+
+        If the topic_id doesn't exist in the AbstractKnowledge, the mapping
+        from the topic_id to the knowledge component will be created.
+
+        Args:
+          topic_id: Hashable:
+          kc: AbstractKnowledgeComponent:
+        """
         self.__knowledge[topic_id] = kc
 
-    def topic_kc_pairs(self) -> Iterable[tuple[Hashable, AbstractKnowledgeComponent]]:
+    def topic_kc_pairs(
+        self,
+    ) -> Iterable[Tuple[Hashable, AbstractKnowledgeComponent]]:
+        """Return an iterable of the (topic_id, knowledge_component) pair."""
         return self.__knowledge.items()
 
     def knowledge_components(self) -> Iterable[AbstractKnowledgeComponent]:
+        """Return an iterable of the knowledge component."""
         return self.__knowledge.values()
 
     def export(self, output_format: str) -> Any:
+        """Export the knowledge into some formats.
+
+        Args:
+          output_format: The name of the output format
+
+        Returns:
+          Any: The requested format
+
+        Raises:
+            ValueError: An unsupported format is given.
+        """
         raise NotImplementedError(
-            f"The export function for {output_format} is not yet implemented")
+            f"The export function for {output_format} is not yet implemented."
+        )
