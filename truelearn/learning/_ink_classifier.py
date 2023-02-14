@@ -1,7 +1,6 @@
 from typing import Any, Optional, Dict
 from typing_extensions import Self, Final
 import math
-import statistics
 
 from ._base import BaseClassifier
 from ._novelty_classifier import NoveltyClassifier
@@ -9,6 +8,7 @@ from ._interest_classifier import InterestClassifier
 from truelearn.models import EventModel, LearnerMetaModel
 
 import trueskill
+import mpmath
 
 
 class INKClassifier(BaseClassifier):
@@ -169,7 +169,7 @@ class INKClassifier(BaseClassifier):
             + var_interest * pred_interest
             + var_bias * pred_bias
         )
-        return statistics.NormalDist(mu=0, sigma=std).cdf(difference)
+        return float(mpmath.ncdf(difference, mu=0, sigma=std))
 
     def __update_weights(
         self,
