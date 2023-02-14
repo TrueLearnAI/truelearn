@@ -165,9 +165,9 @@ class INKClassifier(BaseClassifier):
             - self.threshold
         )
         std = math.sqrt(
-            (var_novelty) * pred_novelty
-            + (var_interest) * pred_interest
-            + (var_bias) * pred_bias
+            var_novelty * pred_novelty
+            + var_interest * pred_interest
+            + var_bias * pred_bias
         )
         return statistics.NormalDist(mu=0, sigma=std).cdf(difference)
 
