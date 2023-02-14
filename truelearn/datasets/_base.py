@@ -39,9 +39,7 @@ def _sha256sum(filepath) -> str:
     return h.hexdigest()
 
 
-def download_file(
-    *, remote_file: RemoteFileMetaData, dirname: Optional[str] = None
-) -> str:
+def _download_file(*, filepath: str, url: str, sha256sum: str) -> str:
     """Download a remote file and check the sha256.
 
     Args:
@@ -53,26 +51,19 @@ def download_file(
     Returns:
         Full path of the created file.
     """
-    filepath = (
-        remote_file.filename
-        if dirname is None
-        else path.join(dirname, remote_file.filename)
-    )
-    if remote_file.url.lower().startswith("http"):
-        print(f"Downloading {remote_file.url} into {filepath}")
+    if url.lower().startswith("http"):
+        print(f"Downloading {url} into {filepath}")
         # the bandit warning is suppressed here
         # because we have checked whether the url starts with http
-        request.urlretrieve(remote_file.url, filepath)  # nosec
+        request.urlretrieve(url, filepath)  # nosec
     else:
-        raise ValueError(
-            f"The given url {remote_file.url} is not a valid http/https url."
-        )
+        raise ValueError(f"The given url {url} is not a valid http/https url.")
 
     sha256_actual = _sha256sum(filepath)
-    if remote_file.sha256 != sha256_actual:
+    if sha256sum != sha256_actual:
         raise IOError(
             f"{filepath} has an SHA256 checksum ({sha256_actual}) "
-            f"differing from expected ({remote_file.sha256}), "
+            f"differing from expected ({sha256sum}), "
             "file may be corrupted."
         )
 
@@ -110,4 +101,6 @@ def check_and_download_file(
     ):
         return filepath
 
-    return download_file(remote_file=remote_file, dirname=dirname)
+    return _download_file(
+        filepath=filepath, url=remote_file.url, sha256sum=remote_file.sha256
+    )
