@@ -1,36 +1,26 @@
 import orjson
 from urllib import request, parse, error
 
-from typing import Optional, Union, NoReturn
+from typing import Optional, Union
 Annotation = dict[str, Union[str, float, None]]
 WikifierResponse = dict[str, Union[list[str], list[dict]]]
 
 
 class Wikifier:
-    """
-    A class for making requests to the Wikifier API
+    """Used to make requests to the Wikifier API.
 
-    Attributes
-    ----------
-    api_key: str
-        the API key needed to make the request, get one from
-        https://wikifier.org/register.html
+    Attributes:
+        api_key: string representing the API key needed to make the
+          request, get one from https://wikifier.org/register.html
 
-    Methods
-    -------
-    wikify(text, df_ignore, words_ignore)
-        Annotates input text using the Wikifier API.
-
-    References
-    ----------
     .. [1] Janez Brank, Gregor Leban, Marko Grobelnik. Annotating Documents
-    with Relevant Wikipedia Concepts. Proceedings of the Slovenian Conference
-    on Data Mining and Data Warehouses (SiKDD 2017), Ljubljana, Slovenia,
-    9 October 2017.
-
+       with Relevant Wikipedia Concepts. Proceedings of the Slovenian Conference
+       on Data Mining and Data Warehouses (SiKDD 2017), Ljubljana, Slovenia,
+       9 October 2017.
     """
 
     def __init__(self, api_key: str) -> None:
+        """Inits Wikifier class with api_key."""
         if isinstance(api_key, str):
             self.api_key = api_key
         else:
@@ -39,38 +29,27 @@ class Wikifier:
     def wikify(
             self, text: str, df_ignore: int = 50,
             words_ignore: int = 50, top_n: Optional[int] = None
-        ) -> Union[list[Annotation], NoReturn]:
+        ) -> list[Annotation]:
         """Annotates input text using the Wikifier API.
 
-        Parameters
-        ----------
-        text: str
-            the text to annotate.
-        df_ignore: int
-            the nTopDfValuesToIgnore value from the Wikifier API,
-            used to ignore frequently-occurring words.
-        words_ignore: int
-            the nWordsToIgnoreFromList from the Wikifier API,
-            also used to ignore frequently-occurring words.
-        top_n: Optional[int] = None
-            the number of annotations to return, e.g. top_n = 5 would only
-            return the top 5 annotations by pageRank.
+        Args:
+            text: string representing the text to annotate.
+            df_ignore: int representing the nTopDfValuesToIgnore value from
+              the Wikifier API, used to ignore frequently-occurring words.
+            words_ignore: int representing the nWordsToIgnoreFromList from the
+              Wikifier API, also used to ignore frequently-occurring words.
+            top_n: the number of annotations to return, e.g. top_n = 5 would
+              only return the top 5 annotations by pageRank.
 
-        Returns
-        -------
-        list[Annotation]
-            the list of annotations obtained from the Wikifier API,
+        Returns:
+            The list of annotations obtained from the Wikifier API,
             or nothing if an exception is raised.
 
-        Raises
-        ------
-        ValueError
-            If the Wikifier API returns an error in the response
-            or the API key is not valid.
-        RuntimeError
-            If the HTTP request returns a status code that represents
-            an error
-
+        Raises:
+            ValueError: The response from Wikifier contained an error message
+              or the API key is not valid.
+            RuntimeError: The HTTP request returns a status code representing
+              an error
         """
         try:
             resp = self.__make_wikifier_request(
@@ -83,36 +62,15 @@ class Wikifier:
 
     def __make_wikifier_request(
             self, text: str, df_ignore: int, words_ignore: int
-        ) -> Union[WikifierResponse, NoReturn]:
-        """Makes HTTP request to the Wikifier API, converts the JSON response
-        to a Python dictionary and returns it.
+        ) -> WikifierResponse:
+        """Makes HTTP request to the Wikifier API.
+        
+        Requests annotations to the Wikifier API using the args from wikify(),
+        loads the response JSON to a dictionary and returns all of it.
 
-        Parameters
-        ----------
-        text: str
-            the text to annotate
-        df_ignore: int
-            the nTopDfValuesToIgnore value from the Wikifier API,
-            used to ignore frequently-occurring words.
-        words_ignore: int
-            the nWordsToIgnoreFromList from the Wikifier API,
-            also used to ignore frequently-occurring words.
-
-        Returns
-        -------
-        Union[WikifierResponse, NoReturn]
-            the response from the Wikifier API as a Python dictionary,
-            or nothing if an exception is raised.
-
-        Raises
-        ------
-        ValueError
-            If the Wikifier API returns an error in the response
-            or the API key is not valid.
-        urllib.error.HTTPError
-            If the HTTP request returns a status code that represents
-            an error
-
+        Raises:
+            ValueError: The response from Wikifier contained an error message
+              or the API key is not valid.
         """
         params = {
             'text': text,
@@ -136,22 +94,19 @@ class Wikifier:
     def __format_wikifier_response(
             self, resp: WikifierResponse, top_n: Optional[int] = None
         ) -> list[Annotation]:
-        """Simplifies the response dictionary so as to include only the
-        annotations, and the attributes we are interested in.
+        """Extracts annotations from response object.
 
-        Parameters
-        ----------
-        resp: WikifierResponse
-            the response from the Wikifier API as a Python dictionary.
-        top_n: Optional[int] = None
-            the number of annotations to return, e.g. top_n = 5 would only
-            return the top 5 annotations by pageRank.
+        Builds a list of annotations from the response object and simplifies
+        them by getting rid of the attributes we have no interest in.
 
-        Returns
-        -------
-        list[Annotation]
-            the list of annotations obtained from the Wikifier API
+        Args:
+            resp: the response from the Wikifier API as a Python dictionary.
+            top_n: the number of annotations to return, e.g. top_n = 5 would
+              only return the top 5 annotations by pageRank.
 
+        Returns:
+            The list of annotations obtained from the Wikifier API, sorted by
+            the pageRank attribute.
         """
         annotations = list(
             sorted(
