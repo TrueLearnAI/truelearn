@@ -39,17 +39,16 @@ def _sha256sum(filepath) -> str:
     return h.hexdigest()
 
 
-def _download_file(*, filepath: str, url: str, sha256sum: str) -> str:
+def _download_file(*, filepath: str, url: str, sha256sum: str) -> None:
     """Download a remote file and check the sha256.
 
     Args:
-        remote_file:
-            Some metadata about the remote file.
-        dirname:
-            An optional path that specifies the location of the downloaded file.
-
-    Returns:
-        Full path of the created file.
+        filepath:
+            The full path of the created file.
+        url:
+            The url of the file.
+        sha256sum:
+            The expected sha256sum of the file.
     """
     if url.lower().startswith("http"):
         print(f"Downloading {url} into {filepath}")
@@ -66,8 +65,6 @@ def _download_file(*, filepath: str, url: str, sha256sum: str) -> str:
             f"differing from expected ({sha256sum}), "
             "file may be corrupted."
         )
-
-    return filepath
 
 
 def check_and_download_file(
@@ -101,6 +98,8 @@ def check_and_download_file(
     ):
         return filepath
 
-    return _download_file(
+    _download_file(
         filepath=filepath, url=remote_file.url, sha256sum=remote_file.sha256
     )
+
+    return filepath
