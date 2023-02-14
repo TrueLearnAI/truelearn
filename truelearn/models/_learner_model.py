@@ -1,5 +1,5 @@
-from typing import Dict
 import dataclasses
+from typing import Dict
 
 from ._knowledge import Knowledge
 

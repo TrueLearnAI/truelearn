@@ -1,5 +1,5 @@
-from typing import Optional
 import dataclasses
+from typing import Optional
 
 from ._knowledge import Knowledge
 

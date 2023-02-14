@@ -1,8 +1,8 @@
 from typing import Any, Dict
 from typing_extensions import Self
 
-from ._base import BaseClassifier
 from truelearn.models import EventModel
+from ._base import BaseClassifier
 
 
 class MajorityClassifier(BaseClassifier):

@@ -1,8 +1,8 @@
+import math
+import collections
 from abc import ABC, abstractmethod
 from typing import Iterable, Hashable, Any, Optional, Tuple, Dict
 from typing_extensions import Self, Final, final
-import math
-import collections
 
 import trueskill
 import mpmath

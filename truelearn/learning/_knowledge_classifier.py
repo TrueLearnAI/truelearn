@@ -1,13 +1,13 @@
 from typing import Any, Optional, Dict
 from typing_extensions import Final
 
+from truelearn.models import EventModel, LearnerModel
 from ._base import (
     InterestNoveltyKnowledgeBaseClassifier,
     team_sum_quality,
     select_kcs,
     select_topic_kc_pairs,
 )
-from truelearn.models import EventModel, LearnerModel
 
 
 class KnowledgeClassifier(InterestNoveltyKnowledgeBaseClassifier):
