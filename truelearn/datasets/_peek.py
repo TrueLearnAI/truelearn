@@ -111,7 +111,7 @@ def _restructure_data(
                     filter(lambda idx: idx[0] % 2 == 0, enumerate(topics)),
                 )
             )
-            # extract topic_skills from topicss
+            # extract topic_skills from topics
             topic_skills = list(
                 map(
                     lambda topic_skill: float(topic_skill[1]),
