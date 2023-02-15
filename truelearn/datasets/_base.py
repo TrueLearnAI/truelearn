@@ -28,11 +28,11 @@ class RemoteFileMetaData:
 
 
 def _sha256sum(filepath) -> str:
-    buf_size = 65536
+    chunk_size = 65536
     h = hashlib.sha256()
-    with open(filepath, "rb", buffering=0) as file:
+    with open(filepath, "rb") as file:
         while True:
-            chunk = file.read(buf_size)
+            chunk = file.read(chunk_size)
             if not chunk:
                 break
             h.update(chunk)
