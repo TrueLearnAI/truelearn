@@ -24,5 +24,6 @@ jobs:
         uses: strumwolf/delete-deployment-environment@v2.2.3
         with:
           # Use a JWT created with your GitHub App's private key
+          # ⚠️ The provided token needs permission for admin write:org
           token: ${{ steps.get-token.outputs.token }}
           environment: github-pages
