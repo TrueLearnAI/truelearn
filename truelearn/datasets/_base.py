@@ -50,7 +50,7 @@ def _download_file(*, filepath: str, url: str, expected_sha256: str) -> None:
         expected_sha256:
             The expected sha256 sum of the file.
     """
-    if url.lower().startswith("http"):
+    if url.lower().startswith("https"):
         print(f"Downloading {url} into {filepath}")
         # the bandit warning is suppressed here
         # because we have checked whether the url starts with http
