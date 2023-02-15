@@ -25,5 +25,4 @@ jobs:
         with:
           # Use a JWT created with your GitHub App's private key
           token: ${{ steps.get-token.outputs.token }}
-          environment: pr-${{ github.event.number }}
-          ref: ${{ github.ref_name }}
+          environment: github-pages
