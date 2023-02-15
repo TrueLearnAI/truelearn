@@ -19,12 +19,12 @@ class RemoteFileMetaData:
     Args:
         url: The url of the file.
         filename: The filename of the downloaded file.
-        sha256_expected: The expected sha256 sum of the file.
+        expected_sha256: The expected sha256 sum of the file.
     """
 
     url: str
     filename: str
-    sha256: str
+    expected_sha256: str
 
 
 def _sha256sum(filepath) -> str:
@@ -39,7 +39,7 @@ def _sha256sum(filepath) -> str:
     return h.hexdigest()
 
 
-def _download_file(*, filepath: str, url: str, sha256sum: str) -> None:
+def _download_file(*, filepath: str, url: str, expected_sha256: str) -> None:
     """Download a remote file and check the sha256.
 
     Args:
@@ -47,8 +47,8 @@ def _download_file(*, filepath: str, url: str, sha256sum: str) -> None:
             The full path of the created file.
         url:
             The url of the file.
-        sha256sum:
-            The expected sha256sum of the file.
+        expected_sha256:
+            The expected sha256 sum of the file.
     """
     if url.lower().startswith("http"):
         print(f"Downloading {url} into {filepath}")
@@ -58,11 +58,11 @@ def _download_file(*, filepath: str, url: str, sha256sum: str) -> None:
     else:
         raise ValueError(f"The given url {url} is not a valid http/https url.")
 
-    sha256_actual = _sha256sum(filepath)
-    if sha256sum != sha256_actual:
+    actual_sha256 = _sha256sum(filepath)
+    if expected_sha256 != actual_sha256:
         raise IOError(
-            f"{filepath} has an SHA256 checksum ({sha256_actual}) "
-            f"differing from expected ({sha256sum}), "
+            f"{filepath} has an SHA256 checksum ({actual_sha256}) "
+            f"differing from expected ({expected_sha256}), "
             "file may be corrupted."
         )
 
@@ -94,12 +94,14 @@ def check_and_download_file(
     if (
         path.exists(filepath)
         and path.isfile(filepath)
-        and remote_file.sha256 == _sha256sum(filepath)
+        and remote_file.expected_sha256 == _sha256sum(filepath)
     ):
         return filepath
 
     _download_file(
-        filepath=filepath, url=remote_file.url, sha256sum=remote_file.sha256
+        filepath=filepath,
+        url=remote_file.url,
+        expected_sha256=remote_file.expected_sha256,
     )
 
     return filepath

@@ -19,21 +19,21 @@ PEEK_TRAIN = RemoteFileMetaData(
     url="https://raw.githubusercontent.com/sahanbull/PEEK-Dataset"
     "/1740aa04aeb019494fd3593d4f708fd519fa101a/datasets/v1/train.csv",
     filename="peek.train.csv",
-    sha256="291afa33dacec5b1f9751788cf4d2ba38cb495936f20d2edcda5c88a6e2539c8",
+    expected_sha256="291afa33dacec5b1f9751788cf4d2ba38cb495936f20d2edcda5c88a6e2539c8",
 )
 
 PEEK_TEST = RemoteFileMetaData(
     url="https://raw.githubusercontent.com/sahanbull/PEEK-Dataset"
     "/1740aa04aeb019494fd3593d4f708fd519fa101a/datasets/v1/test.csv",
     filename="peek.test.csv",
-    sha256="315d267fad18dcdf2300ede2fc0877c71cfc11c983a788ecf89bf69e3b4d2129",
+    expected_sha256="315d267fad18dcdf2300ede2fc0877c71cfc11c983a788ecf89bf69e3b4d2129",
 )
 
 PEEK_MAPPING = RemoteFileMetaData(
     url="https://raw.githubusercontent.com/sahanbull/PEEK-Dataset"
     "/1740aa04aeb019494fd3593d4f708fd519fa101a/datasets/v1/id_to_wiki_url_mapping.csv",
     filename="peek.mapping.csv",
-    sha256="568e23b43517dea6649cc140e492468717c53e7f7d97e42f9a4672b9becba835",
+    expected_sha256="568e23b43517dea6649cc140e492468717c53e7f7d97e42f9a4672b9becba835",
 )
 
 
@@ -195,6 +195,14 @@ def load_peek_dataset(
     Args:
         dirname:
             The directory name. Defaults to ".".
+        variance:
+            The default variance of the knowledge components in PEEKDataset.
+        kc_init_func:
+            A function that creates a knowledge component.
+            This can be customized to work with different kinds
+            of knowledge components, as long as they follow the
+            AbstractKnowledge protocol. The default is to initialize
+            the KnowledgeComponent instance.
         train_limit:
             The number of lines to load from the training data.
             A negative number denotes unlimited (load all).
