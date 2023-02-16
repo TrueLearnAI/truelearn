@@ -43,6 +43,14 @@ jobs:
           # Uses prospector.yml config file
           prospector --output-format xunit:prospector_report.xml
 
+      - name: Convert test results to Github Annotations
+        uses: check-run-reporter/action@v2.11.1
+        if: success()||failure()
+        with:
+          token: ${{ secrets.CHECK_RUN_REPORTER_TOKEN }}
+          report: './prospector_report.xml'
+          label: "Prospector Analysis Report"
+
       # NOTE: Because it expects Junit format, the line numberings on the annotation header defaults to 1
       # However the error message shows the correct line numbering.
       - name: Convert test results to Github Annotations
