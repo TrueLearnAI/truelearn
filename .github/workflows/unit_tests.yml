@@ -40,7 +40,7 @@ jobs:
         # Pytest generates an XML report
       - name: Execute tests
         run: |
-         python -m pytest ./truelearn/tests --junitxml=unit_test_report.xml -v
+         pytest --junitxml=unit_test_report.xml
 
         # Convert the XML report to GitHub annotations
       - name: Convert test results to Github Annotations

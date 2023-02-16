@@ -42,9 +42,9 @@ jobs:
         run: pip install pytest-cov
 
       - name: Calculate coverage
-        # Inc. branch + statement coverage
         run: |
-          pytest --cov-branch --cov-report "xml:coverage.xml" --cov=truelearn ./truelearn/tests
+          # Config in pyproject.toml
+          pytest --cov --cov-report "xml:coverage.xml" 
 
       - name: Update CodeCov
         uses: codecov/codecov-action@v3
