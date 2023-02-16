@@ -41,7 +41,7 @@ jobs:
         run: |
           # Outputs the xunit report to project root
           # Uses prospector.yml config file
-          prospector --output-format xunit:prospector_report.json
+          prospector --output-format xunit:prospector_report.xml
 
      # Keep this commented out for now until prospector output format is fixed
      # - name: Convert test results to Github Annotations
