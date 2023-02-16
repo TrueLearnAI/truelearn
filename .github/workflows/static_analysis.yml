@@ -49,7 +49,7 @@ jobs:
        # if: success()||failure()
         #with:
          # token: ${{ secrets.CHECK_RUN_REPORTER_TOKEN }}
-          #report: './prospector_report.json'
+          #report: './prospector_report.xml'
           #label: "Prospector Analysis Report"
 
       # NOTE: Because it expects Junit format, the line numberings on the annotation header defaults to 1
