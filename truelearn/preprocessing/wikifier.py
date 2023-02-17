@@ -88,7 +88,6 @@ class Wikifier:
         cosines = [ann['cosine'] for ann in annotations]
         return statistics.stdev(cosines)
 
-
     def __make_wikifier_request(
             self, text: str, df_ignore: int, words_ignore: int
         ) -> WikifierResponse:
