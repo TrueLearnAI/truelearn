@@ -1,7 +1,8 @@
+import statistics
 from typing import Optional, Union
-from urllib import request
-from urllib import parse
 from urllib import error
+from urllib import parse
+from urllib import request
 
 import orjson
 
@@ -62,6 +63,31 @@ class Wikifier:
             raise RuntimeError(str(err)) from err
 
         return self.__format_wikifier_response(resp, top_n)
+
+    def get_cosines_mean(self, annotations: list[Annotation]) -> float:
+        """Calculates the mean of the annotations' cosine values.
+
+        Args:
+            annotations: the list of Annotation objects returned by wikify()
+        
+        Returns:
+            The mean of the cosine values in the annotations.
+        """
+        cosines = [ann['cosine'] for ann in annotations]
+        return statistics.mean(cosines)
+    
+    def get_cosines_std(self, annotations: list[Annotation]) -> float:
+        """Calculates the standard deviation from the annotations' cosine values.
+
+        Args:
+            annotations: the list of Annotation objects returned by wikify().
+        
+        Returns:
+            The standard deviation of the cosine values in the annotations.
+        """
+        cosines = [ann['cosine'] for ann in annotations]
+        return statistics.stdev(cosines)
+
 
     def __make_wikifier_request(
             self, text: str, df_ignore: int, words_ignore: int
