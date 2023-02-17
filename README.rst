@@ -1,8 +1,8 @@
 *********
 TrueLearn
 *********
-|PyPi| |License| |Unit tests| |Static analysis| |codecov|
-|FOSSA Status| |docs|
+|PyPi| |License| |docs| |Unit tests| |Static analysis| |codecov|
+|FOSSA Status|
 
 .. |PyPi| image:: https://img.shields.io/pypi/pyversions/truelearn?label=Python&style=flat
    :target: https://pypi.org/project/truelearn/
