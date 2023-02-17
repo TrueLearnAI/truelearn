@@ -2,7 +2,7 @@
 TrueLearn
 *********
 |PyPi| |License| |Unit tests| |Static analysis| |codecov|
-|FOSSA Status|
+|FOSSA Status| |docs|
 
 .. |PyPi| image:: https://img.shields.io/pypi/pyversions/truelearn?label=Python&style=flat
    :target: https://pypi.org/project/truelearn/
@@ -29,6 +29,10 @@ TrueLearn
 .. |FOSSA Status| image:: https://app.fossa.com/api/projects/git%2Bgithub.com%2Fcomp0016-group1%2FTrueLearn-python-library.svg?type=small
    :target: https://app.fossa.com/projects/git%2Bgithub.com%2Fcomp0016-group1%2FTrueLearn-python-library?ref=badge_small
    :alt: FOSSA Status
+   
+.. |docs| image:: https://readthedocs.org/projects/truelearn/badge/?version=latest
+   :target: https://truelearn.readthedocs.io/en/latest/?badge=latest
+   :alt: Documentation Status
 
 
 Installation
