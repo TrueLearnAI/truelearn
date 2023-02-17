@@ -108,7 +108,7 @@ class Wikifier:
         }
 
         data = parse.urlencode(params)
-        url = "http://www.wikifier.org/annotate-article?" + data
+        url = "https://www.wikifier.org/annotate-article?" + data
         with request.urlopen(url) as r:
             resp = r.read()
             resp = orjson.loads(resp)
