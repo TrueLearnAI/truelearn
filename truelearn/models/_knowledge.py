@@ -124,10 +124,15 @@ class KnowledgeComponent(AbstractKnowledgeComponent):
             url=self.__url,
         )
 
-    def export(self, output_format: str) -> Any:
-        raise NotImplementedError(
-            f"The export function for {output_format} is not yet implemented."
-        )
+    def export_as_dict(self) -> Any:
+        return {
+            "mean": self.__mean,
+            "variance": self.__variance,
+            "timestamp": self.__timestamp,
+            "title": self.__title,
+            "description": self.__description,
+            "url": self.__url,
+        }
 
 
 class HistoryAwareKnowledgeComponent(KnowledgeComponent):
@@ -224,10 +229,8 @@ class HistoryAwareKnowledgeComponent(KnowledgeComponent):
             history_limit=self.__history.maxlen,
         )
 
-    def export(self, output_format: str) -> Any:
-        raise NotImplementedError(
-            f"The export function for {output_format} is not yet implemented."
-        )
+    def export_as_dict(self) -> Any:
+        return {**super().export_as_dict(), "history": self.__history}
 
 
 class Knowledge:

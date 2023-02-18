@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import Any, Optional
+from typing import Any, Optional, Dict
 from typing_extensions import Self, Protocol
 
 
@@ -87,15 +87,13 @@ class AbstractKnowledgeComponent(Protocol):
         """
 
     @abstractmethod
-    def export(self, output_format: str) -> Any:
-        """Export the knowledge component into some formats.
+    def export_as_dict(self) -> Dict[str, Any]:
+        """Export the knowledge component into a dictionary.
 
         Args:
             output_format: The name of the output format.
 
         Returns:
-            The requested format.
-
-        Raises:
-            ValueError: An unsupported format is given.
+            A dictionary mapping the name of the variables to
+            their value.
         """
