@@ -76,11 +76,11 @@ class AbstractKnowledgeComponent(Protocol):
             *:
                 Use to reject positional arguments.
             mean:
-                The new mean of the AbstractKnowledgeComponent.
+                The new mean of the knowledge component.
             variance:
-                The new variance of the AbstractKnowledgeComponent.
+                The new variance of the knowledge component.
             timestamp:
-                An optional new POSIX timestamp of the AbstractKnowledgeComponent.
+                An optional new POSIX timestamp of the knowledge component.
 
         Returns:
             A cloned knowledge component with given mean, variance and timestamp.
@@ -88,7 +88,7 @@ class AbstractKnowledgeComponent(Protocol):
 
     @abstractmethod
     def export(self, output_format: str) -> Any:
-        """Export the AbstractKnowledgeComponent into some formats.
+        """Export the knowledge component into some formats.
 
         Args:
             output_format: The name of the output format.
