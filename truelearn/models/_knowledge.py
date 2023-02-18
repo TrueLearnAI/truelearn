@@ -194,19 +194,3 @@ class Knowledge:
     def knowledge_components(self) -> Iterable[AbstractKnowledgeComponent]:
         """Return an iterable of the knowledge component."""
         return self.__knowledge.values()
-
-    def export(self, output_format: str) -> Any:
-        """Export the knowledge into some formats.
-
-        Args:
-          output_format: The name of the output format
-
-        Returns:
-          Any: The requested format
-
-        Raises:
-            ValueError: An unsupported format is given.
-        """
-        raise NotImplementedError(
-            f"The export function for {output_format} is not yet implemented."
-        )
