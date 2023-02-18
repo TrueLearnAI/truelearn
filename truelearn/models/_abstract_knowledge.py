@@ -1,9 +1,9 @@
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from typing import Any, Optional
-from typing_extensions import Self
+from typing_extensions import Self, Protocol
 
 
-class AbstractKnowledgeComponent(ABC):
+class AbstractKnowledgeComponent(Protocol):
     """An interface defines a knowledge component of a learnable unit.
 
     Each knowledge component can be represented as a Normal Distribution with
