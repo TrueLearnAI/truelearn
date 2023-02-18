@@ -124,7 +124,7 @@ class KnowledgeComponent(AbstractKnowledgeComponent):
             url=self.__url,
         )
 
-    def export_as_dict(self) -> Any:
+    def export_as_dict(self) -> Dict[str, Any]:
         return {
             "mean": self.__mean,
             "variance": self.__variance,
@@ -229,7 +229,7 @@ class HistoryAwareKnowledgeComponent(KnowledgeComponent):
             history_limit=self.__history.maxlen,
         )
 
-    def export_as_dict(self) -> Any:
+    def export_as_dict(self) -> Dict[str, Any]:
         return {**super().export_as_dict(), "history": self.__history}
 
 

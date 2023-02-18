@@ -90,9 +90,6 @@ class AbstractKnowledgeComponent(Protocol):
     def export_as_dict(self) -> Dict[str, Any]:
         """Export the knowledge component into a dictionary.
 
-        Args:
-            output_format: The name of the output format.
-
         Returns:
             A dictionary mapping the name of the variables to
             their value.
