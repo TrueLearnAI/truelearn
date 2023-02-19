@@ -1,4 +1,5 @@
-from typing import Iterable, Hashable, Any, Optional, Dict, Tuple
+import collections
+from typing import Iterable, Hashable, Any, Optional, Dict, Tuple, Deque
 from typing_extensions import Self
 
 from ._abstract_knowledge import AbstractKnowledgeComponent
@@ -123,10 +124,113 @@ class KnowledgeComponent(AbstractKnowledgeComponent):
             url=self.__url,
         )
 
-    def export(self, output_format: str) -> Any:
-        raise NotImplementedError(
-            f"The export function for {output_format} is not yet implemented."
+    def export_as_dict(self) -> Dict[str, Any]:
+        return {
+            "mean": self.__mean,
+            "variance": self.__variance,
+            "timestamp": self.__timestamp,
+            "title": self.__title,
+            "description": self.__description,
+            "url": self.__url,
+        }
+
+
+class HistoryAwareKnowledgeComponent(KnowledgeComponent):
+    """A knowledge component that keeps a history about how it was updated."""
+
+    def __init__(
+        self,
+        *,
+        mean: float,
+        variance: float,
+        timestamp: Optional[float] = None,
+        title: Optional[str] = None,
+        description: Optional[str] = None,
+        url: Optional[str] = None,
+        history_limit: Optional[int] = None,
+        history: Optional[Deque[Tuple[float, float, Optional[float]]]] = None,
+    ) -> None:
+        """Init the KnowledgeComponent object.
+
+        Args:
+            mean:
+                A float indicating the mean of the knowledge component.
+            variance:
+                A float indicating the variance of the knowledge component.
+            timestamp:
+                A float indicating the POSIX timestamp of the last update of
+                the knowledge component.
+            title:
+                An optional string storing the title of the knowledge component.
+            description:
+                An optional string that describes the knowledge component.
+            url:
+                An optional string storing the url of the knowledge component.
+            history_limit:
+                A positive int that specifies the number of entries stored in the
+                history. If the limit is None, it means there is no limit.
+                Defaults to None.
+            history:
+                A queue that stores the update history of the knowledge component.
+                Each entry in the queue is a tuple (mean, variance, timestamp)
+                which records the mean and variance of this knowledge component
+                at the given timestamp.
+
+        Returns:
+            None.
+        """
+        super().__init__(
+            mean=mean,
+            variance=variance,
+            timestamp=timestamp,
+            title=title,
+            description=description,
+            url=url,
         )
+
+        if history is None:
+            history = collections.deque(maxlen=history_limit)
+        else:
+            if history.maxlen != history_limit:
+                history = collections.deque(history, maxlen=history_limit)
+        self.__history = history
+
+    @property
+    def history(self) -> Deque[Tuple[float, float, Optional[float]]]:
+        """The update history of the current knowledge component."""
+        return self.__history
+
+    def update(
+        self,
+        *,
+        mean: Optional[float] = None,
+        variance: Optional[float] = None,
+        timestamp: Optional[float] = None,
+    ) -> None:
+        self.__history.append((self.mean, self.variance, self.timestamp))
+
+        super().update(mean=mean, variance=variance, timestamp=timestamp)
+
+    def clone(
+        self,
+        *,
+        mean: float,
+        variance: float,
+        timestamp: Optional[float] = None,
+    ) -> Self:
+        return HistoryAwareKnowledgeComponent(
+            mean=mean,
+            variance=variance,
+            timestamp=timestamp,
+            title=self.__title,
+            description=self.__description,
+            url=self.__url,
+            history=self.__history.copy(),
+            history_limit=self.__history.maxlen,
+        )
+
+    def export_as_dict(self) -> Dict[str, Any]:
+        return {**super().export_as_dict(), "history": self.__history}
 
 
 class Knowledge:
@@ -194,19 +298,3 @@ class Knowledge:
     def knowledge_components(self) -> Iterable[AbstractKnowledgeComponent]:
         """Return an iterable of the knowledge component."""
         return self.__knowledge.values()
-
-    def export(self, output_format: str) -> Any:
-        """Export the knowledge into some formats.
-
-        Args:
-          output_format: The name of the output format
-
-        Returns:
-          Any: The requested format
-
-        Raises:
-            ValueError: An unsupported format is given.
-        """
-        raise NotImplementedError(
-            f"The export function for {output_format} is not yet implemented."
-        )

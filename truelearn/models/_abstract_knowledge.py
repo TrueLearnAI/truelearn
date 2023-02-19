@@ -1,9 +1,9 @@
-from abc import ABC, abstractmethod
-from typing import Any, Optional
-from typing_extensions import Self
+from abc import abstractmethod
+from typing import Any, Optional, Dict
+from typing_extensions import Self, Protocol
 
 
-class AbstractKnowledgeComponent(ABC):
+class AbstractKnowledgeComponent(Protocol):
     """An interface defines a knowledge component of a learnable unit.
 
     Each knowledge component can be represented as a Normal Distribution with
@@ -76,26 +76,21 @@ class AbstractKnowledgeComponent(ABC):
             *:
                 Use to reject positional arguments.
             mean:
-                The new mean of the AbstractKnowledgeComponent.
+                The new mean of the knowledge component.
             variance:
-                The new variance of the AbstractKnowledgeComponent.
+                The new variance of the knowledge component.
             timestamp:
-                An optional new POSIX timestamp of the AbstractKnowledgeComponent.
+                An optional new POSIX timestamp of the knowledge component.
 
         Returns:
             A cloned knowledge component with given mean, variance and timestamp.
         """
 
     @abstractmethod
-    def export(self, output_format: str) -> Any:
-        """Export the AbstractKnowledgeComponent into some formats.
-
-        Args:
-            output_format: The name of the output format.
+    def export_as_dict(self) -> Dict[str, Any]:
+        """Export the knowledge component into a dictionary.
 
         Returns:
-            The requested format.
-
-        Raises:
-            ValueError: An unsupported format is given.
+            A dictionary mapping the name of the variables to
+            their value.
         """
