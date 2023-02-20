@@ -75,7 +75,7 @@ target-version = ['py37', 'py38', 'py39', 'py310', 'py311']
 # Pytest config
 # See: https://docs.pytest.org/en/stable/customize.html
 [tool.pytest.ini_options]
-addopts = "--verbose"
+addopts = "--verbose --doctest-modules"
 testpaths = ["tests"]
 
 # Pytest-cov config (uses coverage.py)
