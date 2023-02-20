@@ -1,4 +1,5 @@
 import collections
+import itertools
 from typing import Iterable, Hashable, Any, Optional, Dict, Tuple, Deque
 from typing_extensions import Self
 
@@ -213,17 +214,25 @@ class HistoryAwareKnowledgeComponent(KnowledgeComponent):
 
         Args:
             n_max_object:
-                An int specifying the maximum number of
+                A positive int specifying the maximum number of
                 history records to be printed.
                 Defaults to 1.
 
         Returns:
             A string description of the HistoryAwareKnowledgeComponent object.
+
+        Raises:
+            ValueError:
+                If the n_max_object is less than 0.
         """
-        history_to_format = []
+        if n_max_object < 0:
+            raise ValueError(
+                f"Expected n_max_object>=0. Got n_max_object={n_max_object} instead."
+            )
+
         printed_number = min(len(self.history), n_max_object)
-        for i in range(printed_number):
-            history_to_format.append(repr(self.history[i]))
+        history_to_format = map(repr, itertools.islice(self.history, printed_number))
+
         if len(self.history) == printed_number:
             history_fmt_str = f"[{','.join(history_to_format)}]"
         else:
@@ -310,19 +319,27 @@ class Knowledge:
 
         Args:
             n_max_object:
-                An int specifying the maximum number of
+                A positive int specifying the maximum number of
                 knowledge components to be printed.
                 Defaults to 1.
 
         Returns:
             A string description of the Knowledge object.
+
+        Raises:
+            ValueError:
+                If the n_max_object is less than 0.
         """
-        kc_to_format = []
+        if n_max_object < 0:
+            raise ValueError(
+                f"Expected n_max_object>=0. Got n_max_object={n_max_object} instead."
+            )
+
         printed_number = min(len(self.__knowledge), n_max_object)
-        for idx, (key, value) in enumerate(self.__knowledge.items()):
-            if idx >= printed_number:
-                break
-            kc_to_format.append(f"{key!r}: {value!r}")
+        kc_to_format = map(
+            lambda kv_pair: f"{kv_pair[0]}: {kv_pair[1]}",
+            itertools.islice(self.__knowledge.items(), printed_number),
+        )
 
         if len(self.__knowledge) == printed_number:
             knowledge_fmt_str = f"{{{','.join(kc_to_format)}}}"
