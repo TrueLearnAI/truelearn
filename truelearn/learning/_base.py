@@ -348,10 +348,8 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
         self.draw_proba_type = draw_proba_type
         self.draw_proba_factor = draw_proba_factor
         self.draw_proba_static = draw_proba_static
-        self.draw_probability = self.__calculate_draw_proba()
 
-        # create an environment in which training will take place
-        self._env = trueskill.TrueSkill()
+        self.__setup_env()
 
     @final
     def __calculate_draw_proba(self) -> float:
@@ -388,15 +386,14 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
     @final
     def __setup_env(self) -> None:
         """Setup the trueskill environment used in the training process."""
-        self.__calculate_draw_proba()
-        trueskill.setup(
+        draw_probability = self.__calculate_draw_proba()
+        self._env = trueskill.TrueSkill(
             mu=0.0,
             sigma=InterestNoveltyKnowledgeBaseClassifier.DEFAULT_CONTENT_SIGMA,
             beta=self.beta,
             tau=self.tau,
-            draw_probability=self.draw_probability,
+            draw_probability=draw_probability,
             backend="mpmath",
-            env=self._env,
         )
 
     @final
@@ -448,10 +445,10 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
         # if positive_only is False or (it's true and y is true)
         # update the knowledge representation
         if not self.positive_only or y is True:
-            self.__setup_env()
             self._update_knowledge_representation(x, y)
 
         self.__update_engagement_stats(y)
+        self.__setup_env()
         return self
 
     @final
