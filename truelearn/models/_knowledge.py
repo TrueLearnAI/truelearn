@@ -56,9 +56,9 @@ class KnowledgeComponent(AbstractKnowledgeComponent):
             It prints all the attributes of this object.
         """
         return (
-            f"KnowledgeComponent(mean={self.mean}, variance={self.variance}, "
-            f"timestamp={self.timestamp}, title={self.title}, "
-            f"description={self.description}, url={self.url})"
+            f"KnowledgeComponent(mean={self.mean!r}, variance={self.variance!r}, "
+            f"timestamp={self.timestamp!r}, title={self.title!r}, "
+            f"description={self.description!r}, url={self.url!r})"
         )
 
     @property
@@ -229,16 +229,14 @@ class HistoryAwareKnowledgeComponent(KnowledgeComponent):
         else:
             history_fmt_str = f"[{','.join(history_to_format)}, ...]"
 
-        history_maxlen_fmt_str = "inf"
-        if self.history.maxlen is not None:
-            history_maxlen_fmt_str = str(self.history.maxlen)
-
         return (
-            f"HistoryAwareKnowledgeComponent(mean={self.mean}, "
-            f"variance={self.variance}, "
-            f"timestamp={self.timestamp}, title={self.title}, "
-            f"description={self.description}, url={self.url}, "
-            f"history=deque({history_fmt_str}, maxlen={history_maxlen_fmt_str}))"
+            f"HistoryAwareKnowledgeComponent(mean={self.mean!r}, "
+            f"variance={self.variance!r}, "
+            f"timestamp={self.timestamp!r}, title={self.title!r}, "
+            f"description={self.description!r}, url={self.url!r}, "
+            # history_fmt_str is a deque formatted to string
+            # we don't need to use !r to add quotes around it
+            f"history=deque({history_fmt_str}, maxlen={self.history.maxlen!r}))"
         )
 
     @property
@@ -331,7 +329,7 @@ class Knowledge:
         else:
             knowledge_fmt_str = f"{{{','.join(kc_to_format)}, ...}}"
 
-        return f"Knowledge({knowledge_fmt_str})"
+        return f"Knowledge(knowledge={knowledge_fmt_str})"
 
     def get_kc(
         self, topic_id: Hashable, default: AbstractKnowledgeComponent
