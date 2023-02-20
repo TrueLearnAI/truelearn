@@ -35,4 +35,3 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
 # Install furo theme with pip install furo
 html_theme = 'furo'
-html_static_path = ['_static']
