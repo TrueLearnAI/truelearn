@@ -27,8 +27,8 @@ jobs:
       - name: Install pip-tools and generate requirements.txt
         run: |
           pip install pip-tools
-          # Generates a requirements.txt file from pyproject.toml 
-          # This means that we dont have to install truelearn 
+          # Generates a requirements.txt file from pyproject.toml
+          # This means that we dont have to install truelearn
           pip-compile --resolver=backtracking --output-file requirements.txt pyproject.toml
 
       - name: Install Project Dependencies
@@ -40,7 +40,7 @@ jobs:
         # Pytest generates an XML report
       - name: Execute tests
         run: |
-         pytest --junitxml=unit_test_report.xml
+          pytest --doctest-modules --junitxml=unit_test_report.xml truelearn
 
         # Convert the XML report to GitHub annotations
       - name: Convert test results to Github Annotations
