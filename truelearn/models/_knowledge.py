@@ -234,9 +234,9 @@ class HistoryAwareKnowledgeComponent(KnowledgeComponent):
         history_to_format = map(repr, itertools.islice(self.history, printed_number))
 
         if len(self.history) == printed_number:
-            history_fmt_str = f"[{','.join(history_to_format)}]"
+            history_fmt_str = f"[{', '.join(history_to_format)}]"
         else:
-            history_fmt_str = f"[{','.join(history_to_format)}, ...]"
+            history_fmt_str = f"[{', '.join(history_to_format)}, ...]"
 
         return (
             f"HistoryAwareKnowledgeComponent(mean={self.mean!r}, "
@@ -337,15 +337,16 @@ class Knowledge:
 
         printed_number = min(len(self.__knowledge), n_max_object)
         kc_to_format = map(
-            lambda kv_pair: f"{kv_pair[0]}: {kv_pair[1]}",
+            lambda kv_pair: f"{kv_pair[0]!r}: {kv_pair[1]!r}",
             itertools.islice(self.__knowledge.items(), printed_number),
         )
 
         if len(self.__knowledge) == printed_number:
-            knowledge_fmt_str = f"{{{','.join(kc_to_format)}}}"
+            knowledge_fmt_str = f"{{{', '.join(kc_to_format)}}}"
         else:
-            knowledge_fmt_str = f"{{{','.join(kc_to_format)}, ...}}"
+            knowledge_fmt_str = f"{{{', '.join(kc_to_format)}, ...}}"
 
+        # don't need to add !r as we format a dict to str
         return f"Knowledge(knowledge={knowledge_fmt_str})"
 
     def get_kc(
