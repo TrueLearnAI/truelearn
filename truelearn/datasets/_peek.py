@@ -193,8 +193,8 @@ def _get_knowledge_component(
 def load_peek_dataset(
     *,
     dirname: Optional[str] = ".",
-    variance=1e-9,
-    kc_init_func=_get_knowledge_component,
+    variance: float = 1e-9,
+    kc_init_func: PEEKKnowledgeComponentGenerator = _get_knowledge_component,
     train_limit: int = -1,
     test_limit: int = -1,
 ) -> Tuple[PEEKData, PEEKData, Dict[int, str]]:
