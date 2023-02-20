@@ -222,9 +222,9 @@ class HistoryAwareKnowledgeComponent(KnowledgeComponent):
             mean=mean,
             variance=variance,
             timestamp=timestamp,
-            title=self.__title,
-            description=self.__description,
-            url=self.__url,
+            title=self.title,
+            description=self.description,
+            url=self.url,
             history=self.__history.copy(),
             history_limit=self.__history.maxlen,
         )

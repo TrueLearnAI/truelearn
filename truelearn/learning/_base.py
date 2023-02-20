@@ -341,7 +341,7 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
         self.draw_probability = self.__calculate_draw_proba()
 
         # create an environment in which training will take place
-        self.__env = trueskill.TrueSkill()
+        self._env = trueskill.TrueSkill()
 
     @final
     def __calculate_draw_proba(self) -> float:
@@ -386,7 +386,7 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
             tau=self.tau,
             draw_probability=self.draw_probability,
             backend="mpmath",
-            env=self.__env,
+            env=self._env,
         )
 
     @final
@@ -417,7 +417,7 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
         """
         return tuple(
             map(
-                lambda kc: self.__env.create_rating(
+                lambda kc: self._env.create_rating(
                     mu=kc.mean, sigma=math.sqrt(kc.variance)
                 ),
                 kcs,
