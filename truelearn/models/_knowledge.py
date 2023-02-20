@@ -208,11 +208,11 @@ class HistoryAwareKnowledgeComponent(KnowledgeComponent):
                 history = collections.deque(history, maxlen=history_limit)
         self.__history = history
 
-    def __repr__(self, N_MAX_OBJ: int = 1) -> str:
+    def __repr__(self, n_max_object: int = 1) -> str:
         """Get a description of the history aware classifier object.
 
         Args:
-            N_MAX_OBJ:
+            n_max_object:
                 An int specifying the maximum number of
                 history records to be printed.
                 Defaults to 1.
@@ -221,7 +221,7 @@ class HistoryAwareKnowledgeComponent(KnowledgeComponent):
             A string description of the HistoryAwareKnowledgeComponent object.
         """
         history_to_format = []
-        printed_number = min(len(self.history), N_MAX_OBJ)
+        printed_number = min(len(self.history), n_max_object)
         for i in range(printed_number):
             history_to_format.append(repr(self.history[i]))
         if len(self.history) == printed_number:
@@ -307,11 +307,11 @@ class Knowledge:
             knowledge = {}
         self.__knowledge = knowledge
 
-    def __repr__(self, N_MAX_OBJ: int = 1) -> str:
+    def __repr__(self, n_max_object: int = 1) -> str:
         """Print the Knowledge object.
 
         Args:
-            N_MAX_OBJ:
+            n_max_object:
                 An int specifying the maximum number of
                 knowledge components to be printed.
                 Defaults to 1.
@@ -320,7 +320,7 @@ class Knowledge:
             A string description of the Knowledge object.
         """
         kc_to_format = []
-        printed_number = min(len(self.__knowledge), N_MAX_OBJ)
+        printed_number = min(len(self.__knowledge), n_max_object)
         for idx, (key, value) in enumerate(self.__knowledge.items()):
             if idx >= printed_number:
                 break
