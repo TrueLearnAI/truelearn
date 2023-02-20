@@ -376,14 +376,14 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
     @final
     def __setup_env(self) -> None:
         """Setup the trueskill environment used in the training process."""
-        self.draw_probability = self.__calculate_draw_proba()
+        draw_probability = self.__calculate_draw_proba()
         self._env = trueskill.TrueSkill(
             mu=0.0,
             sigma=InterestNoveltyKnowledgeBaseClassifier.DEFAULT_CONTENT_SIGMA,
             beta=self.beta,
             tau=self.tau,
-            draw_probability=self.draw_probability,
-            backend="mpmath"
+            draw_probability=draw_probability,
+            backend="mpmath",
         )
 
     @final
