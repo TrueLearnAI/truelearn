@@ -40,7 +40,10 @@ jobs:
         # Pytest generates an XML report
       - name: Execute tests
         run: |
-          pytest --doctest-modules --junitxml=unit_test_report.xml truelearn
+          # Config in pyproject.toml
+          # Calling via python adds the current directory to sys path
+          # Prevents module not found errors
+          python -m pytest --junitxml=unit_test_report.xml
 
         # Convert the XML report to GitHub annotations
       - name: Convert test results to Github Annotations
