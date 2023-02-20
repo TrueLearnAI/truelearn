@@ -1,3 +1,14 @@
+"""This module downloads data from PEEK-Dataset.
+
+PEEK-Dataset is a Large Dataset of Learner Engagement with Educational Videos.
+It contains data of a mapping from wikipedia id to wikipedia url, and events
+separated into train and test data.
+
+The columns of PEEK-Dataset mapping look like this: (id, url).
+
+The columns of PEEK-Dataset train and test data look like this:
+(slug, vid_id, part, time, timeframe, session, --topics--, label).
+"""
 import csv
 import collections
 from typing import Tuple, Dict, List, Optional
@@ -56,9 +67,6 @@ def _restructure_data(
     limit: int,
 ) -> PEEKData:
     """Restructure data from the PEEKDataset.
-
-    The data header of PEEKDataset looks like this:
-    (slug, vid_id, part, time, timeframe, session, --topics--, label)
 
     This function extracts the time, session (learner_id),
     topics, and label from the data, and constructs the appropriate
@@ -222,7 +230,7 @@ def load_peek_dataset(
         where event is an EventModel and label is a bool indicating whether
         the learner engages in this event.
 
-        The data looks like this::
+        The returned data looks like this::
 
             (
                 [
@@ -234,7 +242,7 @@ def load_peek_dataset(
                     ...
                 ],
                 {
-                    id: url,...
+                    0: "url",...  # 0 is wiki id
                 }
             )
     """
@@ -323,13 +331,13 @@ def load_peek_dataset_raw(
 
             (
                 [
-                    [slug, vid_id, ...],...
+                    [slug, vid_id, ...],...  # follow the structure of header
                 ],
                 [
                     ...
                 ],
                 {
-                    id: url,...
+                    0: "url",...  # 0 is wiki id
                 }
             )
     """
