@@ -29,6 +29,40 @@ class NoveltyClassifier(InterestNoveltyKnowledgeBaseClassifier):
     is high, it means that neither side can easily win the other.
     Thus, a high quality game means that learners are likely to engage with
     learnable units based on our assumption.
+
+    Examples:
+        >>> from truelearn.learning import NoveltyClassifier
+        >>> from truelearn.models import EventModel, Knowledge, KnowledgeComponent
+        >>> novelty_classifier = NoveltyClassifier()
+        >>> novelty_classifier
+        NoveltyClassifier()
+        >>> # prepare event model
+        >>> knowledges = [
+        ...     Knowledge({1: KnowledgeComponent(mean=0.57, variance=1e-9)}),
+        ...     Knowledge({
+        ...         2: KnowledgeComponent(mean=0.37, variance=1e-9),
+        ...         3: KnowledgeComponent(mean=0.41, variance=1e-9),
+        ...     }),
+        ...     Knowledge({
+        ...         1: KnowledgeComponent(mean=0.24, variance=1e-9),
+        ...         3: KnowledgeComponent(mean=0.67, variance=1e-9),
+        ...     }),
+        ... ]
+        >>> events = [EventModel(knowledge) for knowledge in knowledges]
+        >>> engage_stats = [False, True, False]
+        >>> for event, engage_stats in zip(events, engage_stats):
+        ...     novelty_classifier = novelty_classifier.fit(event, engage_stats)
+        ...     print(
+        ...         novelty_classifier.predict(event),
+        ...         novelty_classifier.predict_proba(event)
+        ...     )
+        ...
+        True 0.9883080903805624
+        True 0.9886737255459016
+        True 0.9871061329561849
+        >>> novelty_classifier.get_params()  # doctest:+ELLIPSIS
+        {..., 'learner_model': LearnerModel(knowledge=Knowledge(knowledge={2: \
+KnowledgeComponent(mean=0.00558..., variance=0.50331..., ...), ...}), ...}
     """
 
     _parameter_constraints: Dict[str, Any] = {
@@ -174,6 +208,7 @@ class NoveltyClassifier(InterestNoveltyKnowledgeBaseClassifier):
         learner_kcs = select_kcs(
             self.learner_model, x.knowledge, self.init_skill, self.def_var
         )
+        learner_kcs = list(learner_kcs)
         content_kcs = x.knowledge.knowledge_components()
 
         team_learner = self._gather_trueskill_team(learner_kcs)

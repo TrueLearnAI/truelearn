@@ -7,7 +7,28 @@ from ._abstract_knowledge import AbstractKnowledgeComponent
 
 
 class KnowledgeComponent(AbstractKnowledgeComponent):
-    """A concrete class that implements AbstractKnowledgeComponent."""
+    """A concrete class that implements AbstractKnowledgeComponent.
+
+    Examples:
+        >>> from truelearn.models import KnowledgeComponent
+        >>> kc = KnowledgeComponent(mean=0.0, variance=1.0)
+        >>> kc
+        KnowledgeComponent(mean=0.0, variance=1.0, timestamp=None, title=None, \
+description=None, url=None)
+        >>> KnowledgeComponent(mean=0.0, variance=1.0, title="Hello World", \
+description="First Program")
+        KnowledgeComponent(mean=0.0, variance=1.0, timestamp=None, \
+title='Hello World', description='First Program', url=None)
+        >>> # update the mean and variance
+        >>> kc.update(mean=1.0, variance=2.0)
+        >>> kc
+        KnowledgeComponent(mean=1.0, variance=2.0, timestamp=None, title=None, \
+description=None, url=None)
+        >>> # clone with new mean and variance
+        >>> kc.clone(mean=0.0, variance=1.0)
+        KnowledgeComponent(mean=0.0, variance=1.0, timestamp=None, title=None, \
+description=None, url=None)
+    """
 
     def __init__(
         self,
@@ -150,7 +171,24 @@ class KnowledgeComponent(AbstractKnowledgeComponent):
 
 
 class HistoryAwareKnowledgeComponent(KnowledgeComponent):
-    """A knowledge component that keeps a history about how it was updated."""
+    """A knowledge component that keeps a history about how it was updated.
+
+    Examples:
+        >>> from truelearn.models import HistoryAwareKnowledgeComponent
+        >>> hkc = HistoryAwareKnowledgeComponent(mean=0.0, variance=1.0)
+        >>> hkc
+        HistoryAwareKnowledgeComponent(mean=0.0, variance=1.0, timestamp=None, \
+title=None, description=None, url=None, history=deque([], maxlen=None))
+        >>> # update the mean and variance of the hkc
+        >>> hkc.update(mean=1.0, variance=2.0)
+        >>> hkc
+        HistoryAwareKnowledgeComponent(mean=1.0, variance=2.0, timestamp=None, \
+title=None, description=None, url=None, history=deque([(0.0, 1.0, None)], maxlen=None))
+        >>> # clone the history aware knowledge component with given mean and variance
+        >>> hkc.clone(mean=2.0, variance=3.0)
+        HistoryAwareKnowledgeComponent(mean=2.0, variance=3.0, timestamp=None, \
+title=None, description=None, url=None, history=deque([(0.0, 1.0, None)], maxlen=None))
+    """
 
     def __init__(
         self,
@@ -294,6 +332,29 @@ class Knowledge:
 
     The class can be used to represent 1) the learner's knowledge and
     2) the knowledge of a learnable unit.
+
+    Examples:
+        >>> from truelearn.models import Knowledge, KnowledgeComponent
+        >>> # construct an empty knowledge
+        >>> knowledge = Knowledge()
+        >>> knowledge
+        Knowledge(knowledge={})
+        >>> # add a new kc to knowledge
+        >>> knowledge.update_kc(1, KnowledgeComponent(mean=1.0, variance=2.0))
+        >>> knowledge
+        Knowledge(knowledge={1: KnowledgeComponent(mean=1.0, variance=2.0, \
+timestamp=None, title=None, description=None, url=None)})
+        >>> # get a kc from the knowledge
+        >>> knowledge.get_kc(1, KnowledgeComponent(mean=0.0, variance=1.0))
+        KnowledgeComponent(mean=1.0, variance=2.0, timestamp=None, title=None, \
+description=None, url=None)
+        >>> # get iterator of keys and (key, value) pairs
+        >>> knowledge.knowledge_components()
+        dict_values([KnowledgeComponent(mean=1.0, variance=2.0, timestamp=None, \
+title=None, description=None, url=None)])
+        >>> knowledge.topic_kc_pairs()
+        dict_items([(1, KnowledgeComponent(mean=1.0, variance=2.0, timestamp=None, \
+title=None, description=None, url=None))])
     """
 
     def __init__(

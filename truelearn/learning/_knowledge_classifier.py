@@ -35,6 +35,40 @@ class KnowledgeClassifier(InterestNoveltyKnowledgeBaseClassifier):
     subtracting the two old normal distribution (learner and learnable unit).
     In TrueSkill's terminology, this calculates the win probability that
     the learner will win the content.
+
+    Examples:
+        >>> from truelearn.learning import KnowledgeClassifier
+        >>> from truelearn.models import EventModel, Knowledge, KnowledgeComponent
+        >>> knowledge_classifier = KnowledgeClassifier()
+        >>> knowledge_classifier
+        KnowledgeClassifier()
+        >>> # prepare event model
+        >>> knowledges = [
+        ...     Knowledge({1: KnowledgeComponent(mean=0.57, variance=1e-9)}),
+        ...     Knowledge({
+        ...         2: KnowledgeComponent(mean=0.17, variance=1e-9),
+        ...         3: KnowledgeComponent(mean=0.41, variance=1e-9),
+        ...     }),
+        ...     Knowledge({
+        ...         1: KnowledgeComponent(mean=0.24, variance=1e-9),
+        ...         3: KnowledgeComponent(mean=0.67, variance=1e-9),
+        ...     }),
+        ... ]
+        >>> events = [EventModel(knowledge) for knowledge in knowledges]
+        >>> engage_stats = [False, True, False]
+        >>> for event, engage_stats in zip(events, engage_stats):
+        ...     knowledge_classifier = knowledge_classifier.fit(event, engage_stats)
+        ...     print(
+        ...         knowledge_classifier.predict(event),
+        ...         knowledge_classifier.predict_proba(event)
+        ...     )
+        ...
+        False 0.23090587110296315
+        False 0.32828417902240375
+        False 0.20818767096057902
+        >>> knowledge_classifier.get_params()  # doctest:+ELLIPSIS
+        {..., 'learner_model': LearnerModel(knowledge=Knowledge(knowledge={2: \
+KnowledgeComponent(mean=0.05587..., variance=0.50447..., ...), ...}), ...}
     """
 
     DRAW_PROBA_STATIC: Final[float] = 1e-9

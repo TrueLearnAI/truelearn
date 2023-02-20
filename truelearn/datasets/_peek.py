@@ -245,6 +245,27 @@ def load_peek_dataset(
                     0: "url",...  # 0 is wiki id
                 }
             )
+
+    Examples:
+        To load the data:
+
+        >>> from truelearn.datasets import load_peek_dataset
+        >>> train, test, mapping = load_peek_dataset()  # doctest:+ELLIPSIS
+        ...
+        >>> len(train)
+        14050
+        >>> train[0]  # doctest:+ELLIPSIS
+        (23128, [(EventModel(...), event_time=172.0), True), ..., (EventModel(...), \
+event_time=55932.0), True)])
+        >>> len(test)
+        5969
+        >>> test[0]  # doctest:+ELLIPSIS
+        (25623, [(EventModel(...), event_time=0.0), True), ..., (EventModel(...), \
+event_time=1590.0), True)])
+        >>> len(mapping)
+        30367
+        >>> mapping[0]
+        'https://en.wikipedia.org/wiki/"Hello,_World!"_program'
     """
     train_filepath = check_and_download_file(remote_file=PEEK_TRAIN, dirname=dirname)
     test_filepath = check_and_download_file(remote_file=PEEK_TEST, dirname=dirname)
@@ -340,6 +361,25 @@ def load_peek_dataset_raw(
                     0: "url",...  # 0 is wiki id
                 }
             )
+
+    Examples:
+        To load the data:
+
+        >>> from truelearn.datasets import load_peek_dataset_raw
+        >>> train, test, mapping = load_peek_dataset_raw()  # doctest:+ELLIPSIS
+        ...
+        >>> len(train)
+        203590
+        >>> train[0]  # doctest:+ELLIPSIS
+        ['4248', '1', '1', '172.0', ..., '1']
+        >>> len(test)
+        86945
+        >>> test[0]  # doctest:+ELLIPSIS
+        ['12730', '1', '1', '0.0', ..., '0']
+        >>> len(mapping)
+        30367
+        >>> mapping[0]
+        'https://en.wikipedia.org/wiki/"Hello,_World!"_program'
     """
     train_filepath = check_and_download_file(remote_file=PEEK_TRAIN, dirname=dirname)
     test_filepath = check_and_download_file(remote_file=PEEK_TEST, dirname=dirname)
