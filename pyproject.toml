@@ -76,7 +76,7 @@ target-version = ['py37', 'py38', 'py39', 'py310', 'py311']
 # See: https://docs.pytest.org/en/stable/customize.html
 [tool.pytest.ini_options]
 addopts = "--verbose --doctest-modules"
-testpaths = ["tests"]
+testpaths = ["truelearn"]
 
 # Pytest-cov config (uses coverage.py)
 # See: https://pytest-cov.readthedocs.io/en/latest/config.html
@@ -85,4 +85,3 @@ testpaths = ["tests"]
 branch = true
 source = ["truelearn"]
 omit = ["**/tests/*"]
-
