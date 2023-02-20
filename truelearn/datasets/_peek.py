@@ -193,6 +193,8 @@ def load_peek_dataset(
     """Download and Parse PEEKDataset.
 
     Args:
+        *:
+            Use to reject positional arguments.
         dirname:
             The directory name. Defaults to ".".
         variance:
@@ -220,20 +222,21 @@ def load_peek_dataset(
         where event is an EventModel and label is a bool indicating whether
         the learner engages in this event.
 
-        The data looks like this:
-        (
-            [
-                (leaner_id, [
-                    (event, label), ...
-                ]),...
-            ],
-            [
-                ...
-            ],
-            {
-                id: url,...
-            }
-        )
+        The data looks like this::
+
+            (
+                [
+                    (leaner_id, [
+                        (event, label), ...
+                    ]),...
+                ],
+                [
+                    ...
+                ],
+                {
+                    id: url,...
+                }
+            )
     """
     train_filepath = check_and_download_file(remote_file=PEEK_TRAIN, dirname=dirname)
     test_filepath = check_and_download_file(remote_file=PEEK_TEST, dirname=dirname)
@@ -297,6 +300,8 @@ def load_peek_dataset_raw(
     """Download and Load the raw PEEKDataset.
 
     Args:
+        *:
+            Use to reject positional arguments.
         dirname:
             The directory name. Defaults to ".".
         train_limit:
@@ -314,18 +319,19 @@ def load_peek_dataset_raw(
         Each line in train and test is a list of strings where each string is
         the value of the cell in the original csv.
 
-        The data looks like this:
-        (
-            [
-                [slug, vid_id, ...],...
-            ],
-            [
-                ...
-            ],
-            {
-                id: url,...
-            }
-        )
+        The data looks like this::
+
+            (
+                [
+                    [slug, vid_id, ...],...
+                ],
+                [
+                    ...
+                ],
+                {
+                    id: url,...
+                }
+            )
     """
     train_filepath = check_and_download_file(remote_file=PEEK_TRAIN, dirname=dirname)
     test_filepath = check_and_download_file(remote_file=PEEK_TEST, dirname=dirname)
