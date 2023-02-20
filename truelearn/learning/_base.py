@@ -40,6 +40,16 @@ class BaseClassifier(ABC):
     __DEEP_PARAM_DELIMITER: Final[str] = "__"
     _parameter_constraints: Dict[str, Any] = {}
 
+    def __repr__(self) -> str:
+        """Get a description of the classifier object.
+
+        Returns:
+            A string description of the classifier object.
+            Currently, this method only prints the name
+            of the classifier object.
+        """
+        return f"{self.__class__.__name__}()"
+
     @abstractmethod
     def fit(self, x: EventModel, y: bool) -> Self:
         """Train the model.
