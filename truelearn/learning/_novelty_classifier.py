@@ -158,7 +158,7 @@ class NoveltyClassifier(InterestNoveltyKnowledgeBaseClassifier):
 
         # update the rating based on the rank
         if ranks is not None:
-            updated_team_learner, _ = self.__env.rate(
+            updated_team_learner, _ = self._env.rate(
                 [team_learner, team_content], ranks=ranks
             )
         else:
@@ -167,7 +167,7 @@ class NoveltyClassifier(InterestNoveltyKnowledgeBaseClassifier):
         # update the learner's knowledge representation
         for topic_kc_pair, rating in zip(learner_topic_kc_pairs, updated_team_learner):
             topic_id, kc = topic_kc_pair
-            kc.update(mean=rating.mean, variance=rating.sigma**2)
+            kc.update(mean=rating.mu, variance=rating.sigma**2)
             self.learner_model.knowledge.update_kc(topic_id, kc)
 
     def predict_proba(self, x: EventModel) -> float:
@@ -179,7 +179,7 @@ class NoveltyClassifier(InterestNoveltyKnowledgeBaseClassifier):
         team_learner = self._gather_trueskill_team(learner_kcs)
         team_content = self._gather_trueskill_team(content_kcs)
 
-        return self.__env.quality([team_learner, team_content])
+        return self._env.quality([team_learner, team_content])
 
     def get_learner_model(self) -> LearnerModel:
         """Get the learner model associated with this classifier.
