@@ -338,10 +338,8 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
         self.draw_proba_type = draw_proba_type
         self.draw_proba_factor = draw_proba_factor
         self.draw_proba_static = draw_proba_static
-        self.draw_probability = self.__calculate_draw_proba()
 
-        # create an environment in which training will take place
-        self.__env = trueskill.TrueSkill()
+        self.__setup_env()
 
     @final
     def __calculate_draw_proba(self) -> float:
@@ -378,15 +376,14 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
     @final
     def __setup_env(self) -> None:
         """Setup the trueskill environment used in the training process."""
-        self.__calculate_draw_proba()
-        trueskill.setup(
+        draw_probability = self.__calculate_draw_proba()
+        self._env = trueskill.TrueSkill(
             mu=0.0,
             sigma=InterestNoveltyKnowledgeBaseClassifier.DEFAULT_CONTENT_SIGMA,
             beta=self.beta,
             tau=self.tau,
-            draw_probability=self.draw_probability,
+            draw_probability=draw_probability,
             backend="mpmath",
-            env=self.__env,
         )
 
     @final
@@ -417,7 +414,7 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
         """
         return tuple(
             map(
-                lambda kc: self.__env.create_rating(
+                lambda kc: self._env.create_rating(
                     mu=kc.mean, sigma=math.sqrt(kc.variance)
                 ),
                 kcs,
@@ -438,10 +435,10 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
         # if positive_only is False or (it's true and y is true)
         # update the knowledge representation
         if not self.positive_only or y is True:
-            self.__setup_env()
             self._update_knowledge_representation(x, y)
 
         self.__update_engagement_stats(y)
+        self.__setup_env()
         return self
 
     @final
@@ -483,7 +480,7 @@ def select_topic_kc_pairs(
     content_knowledge: Knowledge,
     init_skill: float,
     def_var: float,
-    def_timestamp: Optional[float] = None,
+    def_timestamp: Optional[float],
 ) -> Iterable[Tuple[Hashable, AbstractKnowledgeComponent]]:
     """Get topic_id and knowledge_component pairs in the learner's knowledge \
     based on the knowledge of the learnable unit.
@@ -529,7 +526,7 @@ def select_kcs(
     content_knowledge: Knowledge,
     init_skill: float,
     def_var: float,
-    def_timestamp: Optional[float] = None,
+    def_timestamp: Optional[float],
 ) -> Iterable[AbstractKnowledgeComponent]:
     """Get knowledge components in the learner's knowledge \
     based on the knowledge of the learnable unit.

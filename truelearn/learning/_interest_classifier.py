@@ -204,7 +204,7 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
         team_content = self._gather_trueskill_team(x.knowledge.knowledge_components())
 
         # learner always wins in interest
-        updated_team_learner, _ = self.__env.rate(
+        updated_team_learner, _ = self._env.rate(
             [team_learner, team_content], ranks=[0, 1]
         )
 
@@ -213,7 +213,7 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
             # need to update with timestamp=x.event_time
             # as there are old kcs in the pairs
             kc.update(
-                mean=rating.mean,
+                mean=rating.mu,
                 variance=rating.sigma**2,
                 timestamp=x.event_time,
             )
@@ -221,7 +221,7 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
 
     def predict_proba(self, x: EventModel) -> float:
         learner_kcs = select_kcs(
-            self.learner_model, x.knowledge, self.init_skill, self.def_var
+            self.learner_model, x.knowledge, self.init_skill, self.def_var, x.event_time
         )
         content_kcs = x.knowledge.knowledge_components()
         return team_sum_quality(learner_kcs, content_kcs, self.beta)
