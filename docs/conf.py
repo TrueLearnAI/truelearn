@@ -25,15 +25,22 @@ release = truelearn.__version__
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
+templates_path = ['templates']
 # Install autoapi with pip install sphinx-autoapi
-extensions = ['sphinx.ext.viewcode','autoapi.extension']
-templates_path = ['_templates']
+extensions = ['sphinx.ext.autodoc',
+              'sphinx.ext.viewcode',
+              'sphinx.ext.autosummary',
+              'sphinx.ext.napoleon',
+              'sphinx.ext.intersphinx',
+              'sphinx.ext.doctest',
+              ]
+templates_path = ['templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
-# -- Options for autoapi extension -------------------------------------------
-autoapi_dirs = ['../truelearn']
-autoapi_options = ['members', 'show-inheritance']
-autoapi_type = 'python'
+# -- Options for autodoc extension -------------------------------------------
+autodoc_mock_imports = ['trueskill',
+                        'sklearn',
+                        'mpmath']
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
