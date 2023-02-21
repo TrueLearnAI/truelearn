@@ -9,7 +9,6 @@ import mpmath
 
 from truelearn.models import (
     EventModel,
-    Knowledge,
     AbstractKnowledgeComponent,
     LearnerModel,
 )
@@ -244,6 +243,10 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
 
     It defines the necessary instance variables and
     common methods to interact with the LearnerModel.
+
+    All the classifiers that inherit this class should
+    define their own `__init__`, `_generate_ratings` and
+    `_eval_matching_quality` methods.
     """
 
     DEFAULT_CONTENT_SIGMA: Final[float] = 1e-9
@@ -263,6 +266,56 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
         "draw_proba_static": [float, type(None)],
         "draw_proba_factor": float,
     }
+
+    @staticmethod
+    def _team_sum_quality(
+        learner_kcs: Iterable[AbstractKnowledgeComponent],
+        content_kcs: Iterable[AbstractKnowledgeComponent],
+        beta: float,
+    ) -> float:
+        """Return the probability that the learner engages with the learnable unit.
+
+        Args:
+            learner_kcs: An iterable of knowledge components that come from the learner.
+            content_kcs: An iterable of knowledge components that come from the content.
+            beta: The noise factor.
+
+        Returns:
+            The probability that the learner engages with the learnable unit.
+        """
+        # make them list because we use them more than one time later
+        learner_kcs = list(learner_kcs)
+        content_kcs = list(content_kcs)
+
+        team_learner_mean = map(lambda kc: kc.mean, learner_kcs)
+        team_learner_variance = map(lambda kc: kc.variance, learner_kcs)
+        team_content_mean = map(lambda kc: kc.mean, content_kcs)
+        team_content_variance = map(lambda kc: kc.variance, content_kcs)
+
+        difference = sum(team_learner_mean) - sum(team_content_mean)
+        std = math.sqrt(sum(team_learner_variance) + sum(team_content_variance) + beta)
+        return float(mpmath.ncdf(difference, mu=0, sigma=std))
+
+    @staticmethod
+    def _gather_trueskill_team(
+        env: trueskill.TrueSkill, kcs: Iterable[AbstractKnowledgeComponent]
+    ) -> Tuple[trueskill.Rating, ...]:
+        """Return a tuple of trueskill Rating \
+        created from the given iterable of knowledge components.
+
+        Args:
+            kcs: An iterable of knowledge components.
+
+        Returns:
+            A tuple of trueskill Rating objects
+            created from the given iterable of knowledge components.
+        """
+        return tuple(
+            map(
+                lambda kc: env.create_rating(mu=kc.mean, sigma=math.sqrt(kc.variance)),
+                kcs,
+            )
+        )
 
     def __init__(
         self,
@@ -344,7 +397,6 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
 
         self.__setup_env()
 
-    @final
     def __calculate_draw_proba(self) -> float:
         if self.draw_proba_type == "static":
             # delayed check as this can be potentially replaced by set_params
@@ -376,7 +428,6 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
         # draw_proba_param is a factor if the type is dynamic
         return draw_probability * self.draw_proba_factor
 
-    @final
     def __setup_env(self) -> None:
         """Setup the trueskill environment used in the training process."""
         draw_probability = self.__calculate_draw_proba()
@@ -389,7 +440,6 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
             backend="mpmath",
         )
 
-    @final
     def __update_engagement_stats(self, y: bool) -> None:
         """Update the learner's engagement stats based on the given label.
 
@@ -401,44 +451,144 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
         else:
             self.learner_model.number_of_non_engagements += 1
 
-    @final
-    def _gather_trueskill_team(
-        self, kcs: Iterable[AbstractKnowledgeComponent]
-    ) -> Tuple[trueskill.Rating, ...]:
-        """Return a tuple of trueskill Rating \
-        created from the given iterable of knowledge components.
+    def __select_kcs(self, x: EventModel) -> Iterable[AbstractKnowledgeComponent]:
+        """Get knowledge components in the learner's knowledge \
+        based on the knowledge of the learnable unit.
+
+        Given the knowledge representation of the learnable unit,
+        this method tries to get the corresponding knowledge representation
+        from the Learner Model.
+
+        If it cannot find the corresponding knowledge component in learner's model,
+        which means the learner has never exposed to this knowledge component before,
+        a new KC will be constructed with initial skill and default variance.
 
         Args:
-            kcs: An iterable of knowledge components.
+            x: A representation of a learning event.
 
         Returns:
-            A tuple of trueskill Rating objects
-            created from the given iterable of knowledge components.
+            An iterable of knowledge components.
         """
-        return tuple(
-            map(
-                lambda kc: self._env.create_rating(
-                    mu=kc.mean, sigma=math.sqrt(kc.variance)
+
+        def __kc_mapper(
+            topic_kc_pair: Tuple[Hashable, AbstractKnowledgeComponent]
+        ) -> AbstractKnowledgeComponent:
+            topic_id, kc = topic_kc_pair
+            extracted_kc = self.learner_model.knowledge.get_kc(
+                topic_id,
+                kc.clone(
+                    mean=self.init_skill,
+                    variance=self.def_var,
+                    timestamp=x.event_time,
                 ),
-                kcs,
             )
-        )
+            return extracted_kc
+
+        team_learner = map(__kc_mapper, x.knowledge.topic_kc_pairs())
+        return team_learner
+
+    def __select_topic_kc_pairs(
+        self, x: EventModel
+    ) -> Iterable[Tuple[Hashable, AbstractKnowledgeComponent]]:
+        """Get topic_id and knowledge_component pairs in the learner's knowledge \
+        based on the knowledge of the learnable unit.
+
+        Given the knowledge representation of the learnable unit,
+        this method tries to get the corresponding knowledge representation
+        from the Learner Model.
+
+        If it cannot find the corresponding knowledge component in learner's model,
+        which means the learner has never exposed to this knowledge component before,
+        a new KC will be constructed with initial skill and default variance.
+
+        Args:
+            x: A representation of a learning event.
+
+        Returns:
+            An iterable of tuples consisting of (topic_id, knowledge_component) where
+            topic_id is a hashable object that uniquely identifies
+            a knowledge component, and the knowledge_component is the corresponding
+            knowledge component of this topic_id.
+        """
+
+        def __topic_kc_pair_mapper(
+            topic_kc_pair: Tuple[Hashable, AbstractKnowledgeComponent]
+        ) -> Tuple[Hashable, AbstractKnowledgeComponent]:
+            topic_id, kc = topic_kc_pair
+            extracted_kc = self.learner_model.knowledge.get_kc(
+                topic_id,
+                kc.clone(
+                    mean=self.init_skill, variance=self.def_var, timestamp=x.event_time
+                ),
+            )
+            return topic_id, extracted_kc
+
+        team_learner = map(__topic_kc_pair_mapper, x.knowledge.topic_kc_pairs())
+        return team_learner
 
     @abstractmethod
-    def _update_knowledge_representation(self, x: EventModel, y: bool) -> None:
+    def _generate_ratings(
+        self,
+        learner_kcs: Iterable[AbstractKnowledgeComponent],
+        content_kcs: Iterable[AbstractKnowledgeComponent],
+        event_time: Optional[float],
+        y: bool,
+    ) -> Iterable[trueskill.Rating]:
+        """Generate an iterable of the updated Rating for the learner.
+
+        The Rating is generated based on the label and optionally
+        event_time (for InterestClassifier).
+
+        Args:
+            learner_kcs:
+                An iterable of learner's knowledge components.
+            content_kcs:
+                An iterable of content's knowledge components.
+            event_time:
+                An optional float representing the event time.
+            y:
+                A bool indicating whether the learner engage in
+                the learning event.
+
+        Returns:
+            An iterable of trueskill.Rating.
+        """
+
+    def __update_knowledge_representation(self, x: EventModel, y: bool) -> None:
         """Update the knowledge representation of the LearnerModel.
 
         Args:
-          x: A representation of the learning event.
-          y: A bool indicating whether the learner engages in the learning event.
+            x: A representation of the learning event.
+            y: A bool indicating whether the learner engages in the learning event.
         """
+        # make it a list because it's used multiple times
+        learner_topic_kc_pairs = list(
+            self.__select_topic_kc_pairs(
+                x,
+            )
+        )
+        learner_kcs = map(
+            lambda learner_topic_kc_pair: learner_topic_kc_pair[1],
+            learner_topic_kc_pairs,
+        )
+        content_kcs = x.knowledge.knowledge_components()
+
+        for topic_kc_pair, rating in zip(
+            learner_topic_kc_pairs,
+            self._generate_ratings(learner_kcs, content_kcs, x.event_time, y),
+        ):
+            topic_id, kc = topic_kc_pair
+            kc.update(
+                mean=rating.mu, variance=rating.sigma**2, timestamp=x.event_time
+            )
+            self.learner_model.knowledge.update_kc(topic_id, kc)
 
     @final
     def fit(self, x: EventModel, y: bool) -> Self:
         # if positive_only is False or (it's true and y is true)
         # update the knowledge representation
         if not self.positive_only or y is True:
-            self._update_knowledge_representation(x, y)
+            self.__update_knowledge_representation(x, y)
 
         self.__update_engagement_stats(y)
         self.__setup_env()
@@ -448,120 +598,37 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
     def predict(self, x: EventModel) -> bool:
         return self.predict_proba(x) > self.threshold
 
+    @abstractmethod
+    def _eval_matching_quality(
+        self,
+        learner_kcs: Iterable[AbstractKnowledgeComponent],
+        content_kcs: Iterable[AbstractKnowledgeComponent],
+    ) -> float:
+        """Evaluate the matching quality of learner and content.
 
-def team_sum_quality(
-    learner_kcs: Iterable[AbstractKnowledgeComponent],
-    content_kcs: Iterable[AbstractKnowledgeComponent],
-    beta: float,
-) -> float:
-    """Return the probability that the learner engages with the learnable unit.
+        Args:
+            learner_kcs:
+                An iterable of learner's knowledge components.
+            content_kcs:
+                An iterable of content's knowledge components.
 
-    Args:
-        learner_kcs: An iterable of knowledge components that come from the learner.
-        content_kcs: An iterable of knowledge components that come from the content.
-        beta: The noise factor.
+        Returns:
+            A float between [0, 1], indicating the matching quality
+            of the learner and the content. The higher the value,
+            the better the match.
+        """
 
-    Returns:
-        The probability that the learner engages with the learnable unit.
-    """
-    # make them list because we use them more than one time later
-    learner_kcs = list(learner_kcs)
-    content_kcs = list(content_kcs)
+    @final
+    def predict_proba(self, x: EventModel) -> float:
+        learner_kcs = self.__select_kcs(x)
+        content_kcs = x.knowledge.knowledge_components()
+        return self._eval_matching_quality(learner_kcs, content_kcs)
 
-    team_learner_mean = map(lambda kc: kc.mean, learner_kcs)
-    team_learner_variance = map(lambda kc: kc.variance, learner_kcs)
-    team_content_mean = map(lambda kc: kc.mean, content_kcs)
-    team_content_variance = map(lambda kc: kc.variance, content_kcs)
+    @final
+    def get_learner_model(self) -> LearnerModel:
+        """Get the learner model associated with this classifier.
 
-    difference = sum(team_learner_mean) - sum(team_content_mean)
-    std = math.sqrt(sum(team_learner_variance) + sum(team_content_variance) + beta)
-    return float(mpmath.ncdf(difference, mu=0, sigma=std))
-
-
-def select_topic_kc_pairs(
-    learner_model: LearnerModel,
-    content_knowledge: Knowledge,
-    init_skill: float,
-    def_var: float,
-    def_timestamp: Optional[float],
-) -> Iterable[Tuple[Hashable, AbstractKnowledgeComponent]]:
-    """Get topic_id and knowledge_component pairs in the learner's knowledge \
-    based on the knowledge of the learnable unit.
-
-    Given the knowledge representation of the learnable unit, this method tries to get
-    the corresponding knowledge representation from the Learner Model.
-
-    If it cannot find the corresponding knowledge component in learner's model,
-    which means the learner has never exposed to this knowledge component before,
-    a new KC will be constructed with initial skill and default variance.
-
-    Args:
-        learner_model: A representation of the learner.
-        content_knowledge: A representation of the knowledge of a learnable unit.
-        init_skill: The initial mean of the newly created knowledge component.
-        def_var: The initial variance of the newly created knowledge component.
-        def_timestamp: The initial timestamp of the newly created knowledge component.
-            If it's None, the newly created knowledge component has None as timestamp.
-
-    Returns:
-        An iterable of tuples consisting of (topic_id, knowledge_component) where
-        topic_id is a hashable object that uniquely identifies a knowledge component,
-        and the knowledge_component is the corresponding knowledge component of
-        this topic_id.
-    """
-
-    def __topic_kc_pair_mapper(
-        topic_kc_pair: Tuple[Hashable, AbstractKnowledgeComponent]
-    ) -> Tuple[Hashable, AbstractKnowledgeComponent]:
-        topic_id, kc = topic_kc_pair
-        extracted_kc = learner_model.knowledge.get_kc(
-            topic_id,
-            kc.clone(mean=init_skill, variance=def_var, timestamp=def_timestamp),
-        )
-        return topic_id, extracted_kc
-
-    team_learner = map(__topic_kc_pair_mapper, content_knowledge.topic_kc_pairs())
-    return team_learner
-
-
-def select_kcs(
-    learner_model: LearnerModel,
-    content_knowledge: Knowledge,
-    init_skill: float,
-    def_var: float,
-    def_timestamp: Optional[float],
-) -> Iterable[AbstractKnowledgeComponent]:
-    """Get knowledge components in the learner's knowledge \
-    based on the knowledge of the learnable unit.
-
-    Given the knowledge representation of the learnable unit, this method tries to get
-    the corresponding knowledge representation from the Learner Model.
-
-    If it cannot find the corresponding knowledge component in learner's model,
-    which means the learner has never exposed to this knowledge component before,
-    a new KC will be constructed with initial skill and default variance.
-
-    Args:
-        learner_model: A representation of the learner.
-        content_knowledge: A representation of the knowledge of a learnable unit.
-        init_skill: The initial mean of the newly created knowledge component.
-        def_var: The initial variance of the newly created knowledge component.
-        def_timestamp: The initial timestamp of the newly created knowledge component.
-            If it's None, the newly created knowledge component has None as timestamp.
-
-    Returns:
-        An iterable of knowledge components.
-    """
-
-    def __kc_mapper(
-        topic_kc_pair: Tuple[Hashable, AbstractKnowledgeComponent]
-    ) -> AbstractKnowledgeComponent:
-        topic_id, kc = topic_kc_pair
-        extracted_kc = learner_model.knowledge.get_kc(
-            topic_id,
-            kc.clone(mean=init_skill, variance=def_var, timestamp=def_timestamp),
-        )
-        return extracted_kc
-
-    team_learner = map(__kc_mapper, content_knowledge.topic_kc_pairs())
-    return team_learner
+        Returns:
+            A learner model associated with this classifier.
+        """
+        return self.learner_model

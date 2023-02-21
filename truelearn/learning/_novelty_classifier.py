@@ -1,11 +1,9 @@
-from typing import Any, Optional, Dict, List
+from typing import Any, Optional, Dict, Iterable
 
-from truelearn.models import EventModel, LearnerModel, AbstractKnowledgeComponent
-from ._base import (
-    InterestNoveltyKnowledgeBaseClassifier,
-    select_kcs,
-    select_topic_kc_pairs,
-)
+from truelearn.models import LearnerModel, AbstractKnowledgeComponent
+from ._base import InterestNoveltyKnowledgeBaseClassifier
+
+import trueskill
 
 
 class NoveltyClassifier(InterestNoveltyKnowledgeBaseClassifier):
@@ -150,14 +148,22 @@ KnowledgeComponent(mean=0.36833..., variance=0.26916..., ...), ...}), ...}
             draw_proba_factor=draw_proba_factor,
         )
 
-    def __get_updated_team_learner(
+    def _generate_ratings(
         self,
-        learner_kcs: List[AbstractKnowledgeComponent],
-        content_kcs: List[AbstractKnowledgeComponent],
+        learner_kcs: Iterable[AbstractKnowledgeComponent],
+        content_kcs: Iterable[AbstractKnowledgeComponent],
+        _event_time: Optional[float],
         y: bool,
-    ):
-        team_learner = self._gather_trueskill_team(learner_kcs)
-        team_content = self._gather_trueskill_team(content_kcs)
+    ) -> Iterable[trueskill.Rating]:
+        # make it a list because we use them more than one time later
+        learner_kcs = list(learner_kcs)
+
+        team_learner = InterestNoveltyKnowledgeBaseClassifier._gather_trueskill_team(
+            self._env, learner_kcs
+        )
+        team_content = InterestNoveltyKnowledgeBaseClassifier._gather_trueskill_team(
+            self._env, content_kcs
+        )
         team_learner_mean = map(lambda learner_kc: learner_kc.mean, learner_kcs)
         team_content_mean = map(lambda content_kc: content_kc.mean, content_kcs)
 
@@ -186,54 +192,15 @@ KnowledgeComponent(mean=0.36833..., variance=0.26916..., ...), ...}), ...}
 
         return team_learner
 
-    def _update_knowledge_representation(self, x: EventModel, y: bool) -> None:
-        # make them list because we use them more than one time later
-        learner_topic_kc_pairs = list(
-            select_topic_kc_pairs(
-                self.learner_model,
-                x.knowledge,
-                self.init_skill,
-                self.def_var,
-                x.event_time,
-            )
+    def _eval_matching_quality(
+        self,
+        learner_kcs: Iterable[AbstractKnowledgeComponent],
+        content_kcs: Iterable[AbstractKnowledgeComponent],
+    ) -> float:
+        team_learner = InterestNoveltyKnowledgeBaseClassifier._gather_trueskill_team(
+            self._env, learner_kcs
         )
-        learner_kcs = list(
-            map(
-                lambda learner_topic_kc_pair: learner_topic_kc_pair[1],
-                learner_topic_kc_pairs,
-            )
+        team_content = InterestNoveltyKnowledgeBaseClassifier._gather_trueskill_team(
+            self._env, content_kcs
         )
-        content_kcs = list(x.knowledge.knowledge_components())
-
-        # update the learner's knowledge representation
-        for topic_kc_pair, rating in zip(
-            learner_topic_kc_pairs,
-            self.__get_updated_team_learner(learner_kcs, content_kcs, y),
-        ):
-            topic_id, kc = topic_kc_pair
-            kc.update(
-                mean=rating.mu,
-                variance=rating.sigma**2,
-                timestamp=x.event_time,
-            )
-            self.learner_model.knowledge.update_kc(topic_id, kc)
-
-    def predict_proba(self, x: EventModel) -> float:
-        learner_kcs = select_kcs(
-            self.learner_model, x.knowledge, self.init_skill, self.def_var, x.event_time
-        )
-        learner_kcs = list(learner_kcs)
-        content_kcs = x.knowledge.knowledge_components()
-
-        team_learner = self._gather_trueskill_team(learner_kcs)
-        team_content = self._gather_trueskill_team(content_kcs)
-
         return self._env.quality([team_learner, team_content])
-
-    def get_learner_model(self) -> LearnerModel:
-        """Get the learner model associated with this classifier.
-
-        Returns:
-            A learner model associated with this classifier.
-        """
-        return self.learner_model

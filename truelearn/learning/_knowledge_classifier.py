@@ -1,13 +1,10 @@
 from typing import Any, Optional, Dict, Iterable
 from typing_extensions import Final
 
-from truelearn.models import EventModel, LearnerModel, AbstractKnowledgeComponent
-from ._base import (
-    InterestNoveltyKnowledgeBaseClassifier,
-    team_sum_quality,
-    select_kcs,
-    select_topic_kc_pairs,
-)
+from truelearn.models import LearnerModel, AbstractKnowledgeComponent
+from ._base import InterestNoveltyKnowledgeBaseClassifier
+
+import trueskill
 
 
 class KnowledgeClassifier(InterestNoveltyKnowledgeBaseClassifier):
@@ -143,14 +140,19 @@ KnowledgeComponent(mean=0.58097..., variance=0.33159..., ...), ...}), ...}
             draw_proba_factor=0.1,
         )
 
-    def __get_updated_team_learner(
+    def _generate_ratings(
         self,
         learner_kcs: Iterable[AbstractKnowledgeComponent],
         content_kcs: Iterable[AbstractKnowledgeComponent],
+        _event_time: Optional[float],
         y: bool,
-    ):
-        team_learner = self._gather_trueskill_team(learner_kcs)
-        team_content = self._gather_trueskill_team(content_kcs)
+    ) -> Iterable[trueskill.Rating]:
+        team_learner = InterestNoveltyKnowledgeBaseClassifier._gather_trueskill_team(
+            self._env, learner_kcs
+        )
+        team_content = InterestNoveltyKnowledgeBaseClassifier._gather_trueskill_team(
+            self._env, content_kcs
+        )
 
         if y:
             # learner wins: lower rank == winning
@@ -165,44 +167,11 @@ KnowledgeComponent(mean=0.58097..., variance=0.33159..., ...), ...}), ...}
         )
         return updated_team_learner
 
-    def _update_knowledge_representation(self, x: EventModel, y: bool) -> None:
-        # make it a list because we need to use it more than one time later
-        learner_topic_kc_pairs = list(
-            select_topic_kc_pairs(
-                self.learner_model,
-                x.knowledge,
-                self.init_skill,
-                self.def_var,
-                x.event_time,
-            )
+    def _eval_matching_quality(
+        self,
+        learner_kcs: Iterable[AbstractKnowledgeComponent],
+        content_kcs: Iterable[AbstractKnowledgeComponent],
+    ) -> float:
+        return InterestNoveltyKnowledgeBaseClassifier._team_sum_quality(
+            learner_kcs, content_kcs, self.beta
         )
-        learner_kcs = map(
-            lambda learner_topic_kc_pair: learner_topic_kc_pair[1],
-            learner_topic_kc_pairs,
-        )
-        content_kcs = x.knowledge.knowledge_components()
-
-        for topic_kc_pair, rating in zip(
-            learner_topic_kc_pairs,
-            self.__get_updated_team_learner(learner_kcs, content_kcs, y),
-        ):
-            topic_id, kc = topic_kc_pair
-            kc.update(
-                mean=rating.mu, variance=rating.sigma**2, timestamp=x.event_time
-            )
-            self.learner_model.knowledge.update_kc(topic_id, kc)
-
-    def predict_proba(self, x: EventModel) -> float:
-        learner_kcs = select_kcs(
-            self.learner_model, x.knowledge, self.init_skill, self.def_var, x.event_time
-        )
-        content_kcs = x.knowledge.knowledge_components()
-        return team_sum_quality(learner_kcs, content_kcs, self.beta)
-
-    def get_learner_model(self) -> LearnerModel:
-        """Get the learner model associated with this classifier.
-
-        Returns:
-            A learner model associated with this classifier.
-        """
-        return self.learner_model

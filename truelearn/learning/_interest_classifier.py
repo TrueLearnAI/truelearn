@@ -1,18 +1,14 @@
 import math
-from typing import Callable, Any, Optional, Dict
+from typing import Callable, Any, Optional, Dict, Iterable, Tuple
 from datetime import datetime as dt
 
 from truelearn.models import (
-    EventModel,
     LearnerModel,
     AbstractKnowledgeComponent,
 )
-from ._base import (
-    InterestNoveltyKnowledgeBaseClassifier,
-    team_sum_quality,
-    select_kcs,
-    select_topic_kc_pairs,
-)
+from ._base import InterestNoveltyKnowledgeBaseClassifier
+
+import trueskill
 
 
 class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
@@ -194,54 +190,43 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
 
         return lambda t_delta: min(math.exp(-self.decay_func_factor * t_delta), 1.0)
 
-    def __get_udpated_team_learner(self, learner_kcs, content_kcs):
-        team_learner = self._gather_trueskill_team(learner_kcs)
-        team_content = self._gather_trueskill_team(content_kcs)
+    def _generate_ratings(
+        self,
+        learner_kcs: Iterable[AbstractKnowledgeComponent],
+        content_kcs: Iterable[AbstractKnowledgeComponent],
+        event_time: Optional[float],
+        _y: bool,
+    ) -> Iterable[trueskill.Rating]:
+        """Generate an iterable of the updated Rating for the learner.
 
-        # learner always wins in interest
-        updated_team_learner, _ = self._env.rate(
-            [team_learner, team_content], ranks=[0, 1]
-        )
-        return updated_team_learner
-
-    def _update_knowledge_representation(self, x: EventModel, _y: bool) -> None:
-        """Update the knowledge representation of the LearnerModel.
+        The Rating is generated based on the label and optionally
+        event_time (for InterestClassifier).
 
         Args:
-          x: A representation of the learning event.
-          y: A bool indicating whether the learner engages in the learning event.
+            learner_kcs:
+                An iterable of learner's knowledge components.
+            content_kcs:
+                An iterable of content's knowledge components.
+            event_time:
+                An optional float representing the event time.
+            y:
+                A bool indicating whether the learner engage in
+                the learning event.
+
+        Returns:
+            An iterable of trueskill.Rating.
 
         Raises:
             ValueError:
-                If the timestamp of event model is None, or
-                if any timestamp of the content knowledge component
-                is None.
-
-        Returns:
-            _description_
+                If the event timestamp is None or any timestamp of
+                the learner's knowledge components is None.
         """
-        if x.event_time is None:
+        if event_time is None:
             raise ValueError(
                 "The event time should not be None when using InterestClassifier."
             )
 
-        event_time_posix = dt.utcfromtimestamp(x.event_time)
-
-        # make it a list because we need to use it more than one time later
-        # select topic_kc_pairs with default event time = x.event_time
-        learner_topic_kc_pairs = list(
-            select_topic_kc_pairs(
-                self.learner_model,
-                x.knowledge,
-                self.init_skill,
-                self.def_var,
-                x.event_time,
-            )
-        )
-        learner_kcs = map(
-            lambda learner_topic_kc_pair: learner_topic_kc_pair[1],
-            learner_topic_kc_pairs,
-        )
+        event_time_posix = dt.utcfromtimestamp(event_time)
 
         # apply interest decay
         decay_func = self.__get_decay_func()
@@ -261,33 +246,29 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
             return learner_kc
 
         learner_kcs_decayed = map(__apply_interest_decay, learner_kcs)
-        content_kcs = x.knowledge.knowledge_components()
 
-        for topic_kc_pair, rating in zip(
-            learner_topic_kc_pairs,
-            self.__get_udpated_team_learner(learner_kcs_decayed, content_kcs),
-        ):
-            topic_id, kc = topic_kc_pair
-            # need to update with timestamp=x.event_time
-            # as there are old kcs in the pairs
-            kc.update(
-                mean=rating.mu,
-                variance=rating.sigma**2,
-                timestamp=x.event_time,
-            )
-            self.learner_model.knowledge.update_kc(topic_id, kc)
-
-    def predict_proba(self, x: EventModel) -> float:
-        learner_kcs = select_kcs(
-            self.learner_model, x.knowledge, self.init_skill, self.def_var, x.event_time
+        team_learner: Tuple[
+            trueskill.Rating, ...
+        ] = InterestNoveltyKnowledgeBaseClassifier._gather_trueskill_team(
+            self._env, learner_kcs_decayed
         )
-        content_kcs = x.knowledge.knowledge_components()
-        return team_sum_quality(learner_kcs, content_kcs, self.beta)
+        team_content: Tuple[
+            trueskill.Rating, ...
+        ] = InterestNoveltyKnowledgeBaseClassifier._gather_trueskill_team(
+            self._env, content_kcs
+        )
 
-    def get_learner_model(self) -> LearnerModel:
-        """Get the learner model associated with this classifier.
+        # learner always wins in interest
+        updated_team_learner, _ = self._env.rate(
+            [team_learner, team_content], ranks=[0, 1]
+        )
+        return updated_team_learner
 
-        Returns:
-            A learner model associated with this classifier.
-        """
-        return self.learner_model
+    def _eval_matching_quality(
+        self,
+        learner_kcs: Iterable[AbstractKnowledgeComponent],
+        content_kcs: Iterable[AbstractKnowledgeComponent],
+    ) -> float:
+        return InterestNoveltyKnowledgeBaseClassifier._team_sum_quality(
+            learner_kcs, content_kcs, self.beta
+        )
