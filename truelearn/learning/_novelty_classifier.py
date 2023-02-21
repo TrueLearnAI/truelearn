@@ -125,6 +125,7 @@ class NoveltyClassifier(InterestNoveltyKnowledgeBaseClassifier):
                 x.knowledge,
                 self.init_skill,
                 self.def_var,
+                x.event_time
             )
         )
         learner_kcs = list(
@@ -172,7 +173,7 @@ class NoveltyClassifier(InterestNoveltyKnowledgeBaseClassifier):
 
     def predict_proba(self, x: EventModel) -> float:
         learner_kcs = select_kcs(
-            self.learner_model, x.knowledge, self.init_skill, self.def_var
+            self.learner_model, x.knowledge, self.init_skill, self.def_var, x.event_time
         )
         content_kcs = x.knowledge.knowledge_components()
 
