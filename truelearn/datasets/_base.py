@@ -5,13 +5,6 @@ from urllib import request
 from os import path
 
 
-# pylint: disable=pointless-string-statement
-"""
-Copyright of `RemoteFileMetaData`, `download_file` are held by
-[BSD 3-Clause License, scikit-learn developers, 2007-2022].
-"""
-
-
 @dataclasses.dataclass
 class RemoteFileMetaData:
     """Remote file metadata.
@@ -29,14 +22,14 @@ class RemoteFileMetaData:
 
 def _sha256sum(filepath) -> str:
     chunk_size = 65536
-    h = hashlib.sha256()
+    hash_val = hashlib.sha256()
     with open(filepath, "rb") as file:
         while True:
             chunk = file.read(chunk_size)
             if not chunk:
                 break
-            h.update(chunk)
-    return h.hexdigest()
+            hash_val.update(chunk)
+    return hash_val.hexdigest()
 
 
 def _download_file(

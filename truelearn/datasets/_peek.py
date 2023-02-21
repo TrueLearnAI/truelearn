@@ -11,6 +11,7 @@ The columns of PEEK-Dataset train and test data look like this:
 """
 import csv
 import collections
+import itertools
 from typing import Tuple, Dict, List, Optional
 from typing_extensions import TypeAlias, Protocol
 
@@ -58,13 +59,12 @@ class PEEKKnowledgeComponentGenerator(Protocol):
         ...
 
 
-# pylint: disable=too-many-locals
-def _restructure_data(
+def __restructure_data(
     filepath: str,
     id_to_url_mapping: Dict[int, str],
     variance: float,
     kc_init_func: PEEKKnowledgeComponentGenerator,
-    limit: int,
+    limit: Optional[int],
 ) -> PEEKData:
     """Restructure data from the PEEKDataset.
 
@@ -86,6 +86,7 @@ def _restructure_data(
             The generator function of the knowledge component.
         limit:
             The number of lines to load from the file.
+            If None, it means load all the data.
 
     Returns:
         PEEKData. PEEKData is a list of tuples (learner_id, events) where
@@ -93,6 +94,53 @@ def _restructure_data(
         a list of tuples (event, label) where event is an EventModel and
         label is a bool indicating whether the learner engages in this event.
     """
+
+    def __restructure_line(line):
+        # unpack the data based on the format
+        _, _, _, event_time, learner_id, *topics, label = line
+
+        # sanitize the data
+        event_time = float(event_time)
+        learner_id = int(learner_id)
+        label = bool(label)
+
+        # extract topic_id from topics
+        topic_ids = list(
+            map(
+                lambda topic_id: int(float(topic_id[1])),
+                filter(lambda idx: idx[0] % 2 == 0, enumerate(topics)),
+            )
+        )
+        # extract topic_skills from topics
+        topic_skills = list(
+            map(
+                lambda topic_skill: float(topic_skill[1]),
+                filter(lambda idx: idx[0] % 2 == 1, enumerate(topics)),
+            )
+        )
+
+        # remove -1 (empty topic_id and skill)
+        topic_ids.append(-1)  # append -1 to avoid ValueError when calling .index
+        topic_ids = topic_ids[: topic_ids.index(-1)]  # drop useless ids
+        topic_skills = topic_skills[: len(topic_ids)]  # drop useless skills
+
+        # construct the knowledge based on the topics and mapping
+        knowledge = Knowledge(
+            {
+                topic_id: kc_init_func(
+                    mean=skill,
+                    variance=variance,
+                    timestamp=event_time,
+                    url=id_to_url_mapping[topic_id],
+                )
+                for topic_id, skill in zip(topic_ids, topic_skills)
+            }
+        )
+
+        # add the constructed EventModel and label to the list of events
+        # that belongs to the learner_id
+        return learner_id, EventModel(knowledge=knowledge, event_time=event_time), label
+
     with open(filepath, encoding="utf-8") as csv_file:
         reader = csv.reader(csv_file, delimiter=",")
 
@@ -100,63 +148,14 @@ def _restructure_data(
             int, List[Tuple[EventModel, bool]]
         ] = collections.defaultdict(list)
 
-        for line in reader:
-            if limit == 0:
-                break
-
-            # unpack the data based on the format
-            _, _, _, event_time, learner_id, *topics, label = line
-
-            # sanitize the data
-            event_time = float(event_time)
-            learner_id = int(learner_id)
-            label = bool(label)
-
-            # extract topic_id from topics
-            topic_ids = list(
-                map(
-                    lambda topic_id: int(float(topic_id[1])),
-                    filter(lambda idx: idx[0] % 2 == 0, enumerate(topics)),
-                )
-            )
-            # extract topic_skills from topics
-            topic_skills = list(
-                map(
-                    lambda topic_skill: float(topic_skill[1]),
-                    filter(lambda idx: idx[0] % 2 == 1, enumerate(topics)),
-                )
-            )
-
-            # remove -1 (empty topic_id and skill)
-            topic_ids.append(-1)  # append -1 to avoid ValueError when calling .index
-            topic_ids = topic_ids[: topic_ids.index(-1)]  # drop useless ids
-            topic_skills = topic_skills[: len(topic_ids)]  # drop useless skills
-
-            # construct the knowledge based on the topics and mapping
-            knowledge = Knowledge(
-                {
-                    topic_id: kc_init_func(
-                        mean=skill,
-                        variance=variance,
-                        timestamp=event_time,
-                        url=id_to_url_mapping[topic_id],
-                    )
-                    for topic_id, skill in zip(topic_ids, topic_skills)
-                }
-            )
-
-            # add the constructed EventModel and label to the list of events
-            # that belongs to the learner_id
-            learner_id_to_event_and_label[learner_id].append(
-                (EventModel(knowledge=knowledge, event_time=event_time), label)
-            )
-
-            limit -= 1
+        for line in itertools.islice(reader, limit):
+            learner_id, event, label = __restructure_line(line)
+            learner_id_to_event_and_label[learner_id].append((event, label))
 
         return list(learner_id_to_event_and_label.items())
 
 
-def _build_mapping(mapping_filepath: str) -> Dict[int, str]:
+def __build_mapping(mapping_filepath: str) -> Dict[int, str]:
     """Build the topic_id to url mapping.
 
     Args:
@@ -171,7 +170,7 @@ def _build_mapping(mapping_filepath: str) -> Dict[int, str]:
         return {int(topic_id): str(url) for topic_id, url in csv_reader}
 
 
-def _get_knowledge_component(
+def __get_knowledge_component(
     mean: float, variance: float, timestamp: float, url: str
 ) -> KnowledgeComponent:
     """The default generator function of the knowledge component.
@@ -194,9 +193,9 @@ def load_peek_dataset(
     *,
     dirname: Optional[str] = ".",
     variance: float = 1e-9,
-    kc_init_func: PEEKKnowledgeComponentGenerator = _get_knowledge_component,
-    train_limit: int = -1,
-    test_limit: int = -1,
+    kc_init_func: PEEKKnowledgeComponentGenerator = __get_knowledge_component,
+    train_limit: Optional[int] = None,
+    test_limit: Optional[int] = None,
     verbose: bool = True,
 ) -> Tuple[PEEKData, PEEKData, Dict[int, str]]:
     """Download and Parse PEEKDataset.
@@ -216,12 +215,12 @@ def load_peek_dataset(
             the KnowledgeComponent instance.
         train_limit:
             The number of lines to load from the training data.
-            A negative number denotes unlimited (load all).
-            Defaults to -1.
+            If None, it means load all the data.
+            Defaults to None.
         test_limit:
             The number of lines to load from the testing data.
-            A negative number denotes unlimited (load all).
-            Defaults to -1.
+            If None, it means load all the data.
+            Defaults to None.
         verbose:
             If True and the downloaded file doesn't exist, this function outputs some
             information about the downloaded file.
@@ -270,6 +269,13 @@ event_time=1590.0), True)])
         >>> mapping[0]
         'https://en.wikipedia.org/wiki/"Hello,_World!"_program'
     """
+    if train_limit is not None and train_limit < 0:
+        raise ValueError(
+            f"train_limit must >= 0. Got train_limit={train_limit} instead."
+        )
+    if test_limit is not None and test_limit < 0:
+        raise ValueError(f"test_limit must >= 0. Got test_limit={train_limit} instead.")
+
     train_filepath = check_and_download_file(
         remote_file=PEEK_TRAIN, dirname=dirname, verbose=verbose
     )
@@ -281,18 +287,18 @@ event_time=1590.0), True)])
     )
 
     # build mapping
-    id_to_url_mapping = _build_mapping(mapping_filepath=mapping_filepath)
+    id_to_url_mapping = __build_mapping(mapping_filepath=mapping_filepath)
 
     # load peek dataset helper
     return (
-        _restructure_data(
+        __restructure_data(
             filepath=train_filepath,
             id_to_url_mapping=id_to_url_mapping,
             variance=variance,
             kc_init_func=kc_init_func,
             limit=train_limit,
         ),
-        _restructure_data(
+        __restructure_data(
             filepath=test_filepath,
             id_to_url_mapping=id_to_url_mapping,
             variance=variance,
@@ -303,12 +309,16 @@ event_time=1590.0), True)])
     )
 
 
-def _load_data_raw(filepath: str, limit: int) -> List[List[str]]:
+def __load_data_raw(filepath: str, limit: Optional[int]) -> List[List[str]]:
     """Load the PEEKDataset file without any processing.
 
     Args:
-        filepath: The path of the PEEKDataset file.
-        It should be a csv file.
+        filepath:
+            The path of the PEEKDataset file.
+            It should be a csv file.
+        limit:
+            The number of lines to load from the given file.
+            If None, it means load all the data.
 
     Returns:
         A list of lines where line is represented as a
@@ -318,20 +328,14 @@ def _load_data_raw(filepath: str, limit: int) -> List[List[str]]:
     """
     with open(filepath, encoding="utf-8") as csv_file:
         reader = csv.reader(csv_file, delimiter=",")
-        lines = []
-        for line in reader:
-            if limit == 0:
-                break
-            lines.append(line)
-            limit -= 1
-        return lines
+        return list(itertools.islice(reader, limit))
 
 
 def load_peek_dataset_raw(
     *,
     dirname: Optional[str] = ".",
-    train_limit: int = -1,
-    test_limit: int = -1,
+    train_limit: Optional[int] = None,
+    test_limit: Optional[int] = None,
     verbose: bool = True,
 ) -> Tuple[List[List[str]], List[List[str]], Dict[int, str]]:
     """Download and Load the raw PEEKDataset.
@@ -343,12 +347,12 @@ def load_peek_dataset_raw(
             The directory name. Defaults to ".".
         train_limit:
             The number of lines to load from the training data.
-            A negative number denotes unlimited (load all).
-            Defaults to -1.
+            If None, it means load all the data.
+            Defaults to None.
         test_limit:
             The number of lines to load from the testing data.
-            A negative number denotes unlimited (load all).
-            Defaults to -1.
+            If None, it means load all the data.
+            Defaults to None.
         verbose:
             If True and the downloaded file doesn't exist, this function outputs some
             information about the downloaded file.
@@ -391,6 +395,13 @@ def load_peek_dataset_raw(
         >>> mapping[0]
         'https://en.wikipedia.org/wiki/"Hello,_World!"_program'
     """
+    if train_limit is not None and train_limit < 0:
+        raise ValueError(
+            f"train_limit must >= 0. Got train_limit={train_limit} instead."
+        )
+    if test_limit is not None and test_limit < 0:
+        raise ValueError(f"test_limit must >= 0. Got test_limit={train_limit} instead.")
+
     train_filepath = check_and_download_file(
         remote_file=PEEK_TRAIN, dirname=dirname, verbose=verbose
     )
@@ -402,10 +413,10 @@ def load_peek_dataset_raw(
     )
 
     return (
-        _load_data_raw(filepath=train_filepath, limit=train_limit),
-        _load_data_raw(
+        __load_data_raw(filepath=train_filepath, limit=train_limit),
+        __load_data_raw(
             filepath=test_filepath,
             limit=test_limit,
         ),
-        _build_mapping(mapping_filepath=mapping_filepath),
+        __build_mapping(mapping_filepath=mapping_filepath),
     )
