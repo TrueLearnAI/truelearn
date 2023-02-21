@@ -57,12 +57,12 @@ class NoveltyClassifier(InterestNoveltyKnowledgeBaseClassifier):
         ...         novelty_classifier.predict_proba(event)
         ...     )
         ...
-        True 0.9883080903805624
-        True 0.9886737255459016
-        True 0.9871061329561849
+        False 0.14349542647777908
+        False 0.26256454510369404
+        False 0.18547011328257132
         >>> novelty_classifier.get_params()  # doctest:+ELLIPSIS
         {..., 'learner_model': LearnerModel(knowledge=Knowledge(knowledge={2: \
-KnowledgeComponent(mean=0.00558..., variance=0.50331..., ...), ...}), ...}
+KnowledgeComponent(mean=0.36833..., variance=0.26916..., ...), ...}), ...}
     """
 
     _parameter_constraints: Dict[str, Any] = {

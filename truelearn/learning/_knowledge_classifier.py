@@ -64,11 +64,11 @@ class KnowledgeClassifier(InterestNoveltyKnowledgeBaseClassifier):
         ...     )
         ...
         False 0.23090587110296315
-        False 0.32828417902240375
-        False 0.20818767096057902
+        True 0.7473409927446046
+        False 0.36659215130436745
         >>> knowledge_classifier.get_params()  # doctest:+ELLIPSIS
         {..., 'learner_model': LearnerModel(knowledge=Knowledge(knowledge={2: \
-KnowledgeComponent(mean=0.05587..., variance=0.50447..., ...), ...}), ...}
+KnowledgeComponent(mean=0.58097..., variance=0.33159..., ...), ...}), ...}
     """
 
     DRAW_PROBA_STATIC: Final[float] = 1e-9
