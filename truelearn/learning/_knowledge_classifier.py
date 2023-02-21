@@ -117,7 +117,7 @@ class KnowledgeClassifier(InterestNoveltyKnowledgeBaseClassifier):
                 x.knowledge,
                 self.init_skill,
                 self.def_var,
-                x.event_time
+                x.event_time,
             )
         )
         learner_kcs = map(
