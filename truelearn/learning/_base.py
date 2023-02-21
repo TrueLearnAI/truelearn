@@ -480,7 +480,7 @@ def select_topic_kc_pairs(
     content_knowledge: Knowledge,
     init_skill: float,
     def_var: float,
-    def_timestamp: Optional[float] = None,
+    def_timestamp: Optional[float],
 ) -> Iterable[Tuple[Hashable, AbstractKnowledgeComponent]]:
     """Get topic_id and knowledge_component pairs in the learner's knowledge \
     based on the knowledge of the learnable unit.
@@ -526,7 +526,7 @@ def select_kcs(
     content_knowledge: Knowledge,
     init_skill: float,
     def_var: float,
-    def_timestamp: Optional[float] = None,
+    def_timestamp: Optional[float],
 ) -> Iterable[AbstractKnowledgeComponent]:
     """Get knowledge components in the learner's knowledge \
     based on the knowledge of the learnable unit.
