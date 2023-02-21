@@ -4,7 +4,7 @@ API Reference
 :mod:`truelearn.learning`: Contains the classifiers for learning
 ================================================================
 .. automodule:: truelearn.learning
-   :members:
+   :no-members:
    :show-inheritance:
 
 Classes
@@ -25,7 +25,7 @@ Classes
 :mod:`truelearn.models`: Contains the models for the knowledge components
 =========================================================================
 .. automodule:: truelearn.models
-   :members:
+   :no-members:
    :show-inheritance:
 
 Classes
@@ -44,7 +44,7 @@ Classes
 :mod:`truelearn.preprocessing`: Contains preprocessing functions
 ================================================================
 .. automodule:: truelearn.preprocessing
-   :members:
+   :no-members:
    :show-inheritance:
 
 Functions
@@ -56,7 +56,7 @@ Functions
 :mod:`truelearn.utils`: Contains utility functions and classes
 ==============================================================
 .. automodule:: truelearn.utils
-   :members:
+   :no-members:
    :show-inheritance:
 
 
