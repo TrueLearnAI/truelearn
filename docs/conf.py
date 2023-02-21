@@ -13,8 +13,8 @@ sys.path.insert(0, os.path.abspath('..'))
 
 project = 'TrueLearn'
 # pylint: disable=redefined-builtin
-copyright = '2023, KD-7,sahanbull,yuxqiu,deniselezi,aaneelshalman'
-author = 'KD-7,sahanbull,yuxqiu,deniselezi,aaneelshalman'
+copyright = '2023, TrueLearn'
+author = 'TrueLearn Team'
 
 # pylint: disable=wrong-import-position
 import truelearn
