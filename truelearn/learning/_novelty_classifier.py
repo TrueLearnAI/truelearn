@@ -168,7 +168,7 @@ class NoveltyClassifier(InterestNoveltyKnowledgeBaseClassifier):
         # update the learner's knowledge representation
         for topic_kc_pair, rating in zip(learner_topic_kc_pairs, updated_team_learner):
             topic_id, kc = topic_kc_pair
-            kc.update(mean=rating.mu, variance=rating.sigma**2)
+            kc.update(mean=rating.mu, variance=rating.sigma**2, timestamp=x.event_time,)
             self.learner_model.knowledge.update_kc(topic_id, kc)
 
     def predict_proba(self, x: EventModel) -> float:
