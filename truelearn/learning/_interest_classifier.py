@@ -194,8 +194,32 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
 
         return lambda t_delta: min(math.exp(-self.decay_func_factor * t_delta), 1.0)
 
-    # pylint: disable=too-many-locals
-    def _update_knowledge_representation(self, x: EventModel, y: bool) -> None:
+    def __get_udpated_team_learner(self, learner_kcs, content_kcs):
+        team_learner = self._gather_trueskill_team(learner_kcs)
+        team_content = self._gather_trueskill_team(content_kcs)
+
+        # learner always wins in interest
+        updated_team_learner, _ = self._env.rate(
+            [team_learner, team_content], ranks=[0, 1]
+        )
+        return updated_team_learner
+
+    def _update_knowledge_representation(self, x: EventModel, _y: bool) -> None:
+        """Update the knowledge representation of the LearnerModel.
+
+        Args:
+          x: A representation of the learning event.
+          y: A bool indicating whether the learner engages in the learning event.
+
+        Raises:
+            ValueError:
+                If the timestamp of event model is None, or
+                if any timestamp of the content knowledge component
+                is None.
+
+        Returns:
+            _description_
+        """
         if x.event_time is None:
             raise ValueError(
                 "The event time should not be None when using InterestClassifier."
@@ -237,16 +261,12 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
             return learner_kc
 
         learner_kcs_decayed = map(__apply_interest_decay, learner_kcs)
+        content_kcs = x.knowledge.knowledge_components()
 
-        team_learner = self._gather_trueskill_team(learner_kcs_decayed)
-        team_content = self._gather_trueskill_team(x.knowledge.knowledge_components())
-
-        # learner always wins in interest
-        updated_team_learner, _ = self._env.rate(
-            [team_learner, team_content], ranks=[0, 1]
-        )
-
-        for topic_kc_pair, rating in zip(learner_topic_kc_pairs, updated_team_learner):
+        for topic_kc_pair, rating in zip(
+            learner_topic_kc_pairs,
+            self.__get_udpated_team_learner(learner_kcs_decayed, content_kcs),
+        ):
             topic_id, kc = topic_kc_pair
             # need to update with timestamp=x.event_time
             # as there are old kcs in the pairs

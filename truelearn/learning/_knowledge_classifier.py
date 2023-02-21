@@ -1,7 +1,7 @@
-from typing import Any, Optional, Dict
+from typing import Any, Optional, Dict, Iterable
 from typing_extensions import Final
 
-from truelearn.models import EventModel, LearnerModel
+from truelearn.models import EventModel, LearnerModel, AbstractKnowledgeComponent
 from ._base import (
     InterestNoveltyKnowledgeBaseClassifier,
     team_sum_quality,
@@ -143,6 +143,28 @@ KnowledgeComponent(mean=0.58097..., variance=0.33159..., ...), ...}), ...}
             draw_proba_factor=0.1,
         )
 
+    def __get_updated_team_learner(
+        self,
+        learner_kcs: Iterable[AbstractKnowledgeComponent],
+        content_kcs: Iterable[AbstractKnowledgeComponent],
+        y: bool,
+    ):
+        team_learner = self._gather_trueskill_team(learner_kcs)
+        team_content = self._gather_trueskill_team(content_kcs)
+
+        if y:
+            # learner wins: lower rank == winning
+            updated_team_learner, _ = self._env.rate(
+                [team_learner, team_content], ranks=[0, 1]
+            )
+            return updated_team_learner
+
+        # content wins
+        _, updated_team_learner = self._env.rate(
+            [team_content, team_learner], ranks=[0, 1]
+        )
+        return updated_team_learner
+
     def _update_knowledge_representation(self, x: EventModel, y: bool) -> None:
         # make it a list because we need to use it more than one time later
         learner_topic_kc_pairs = list(
@@ -160,23 +182,14 @@ KnowledgeComponent(mean=0.58097..., variance=0.33159..., ...), ...}), ...}
         )
         content_kcs = x.knowledge.knowledge_components()
 
-        team_learner = self._gather_trueskill_team(learner_kcs)
-        team_content = self._gather_trueskill_team(content_kcs)
-
-        if y:
-            # learner wins: lower rank == winning
-            updated_team_learner, _ = self._env.rate(
-                [team_learner, team_content], ranks=[0, 1]
-            )
-        else:
-            # content wins
-            _, updated_team_learner = self._env.rate(
-                [team_content, team_learner], ranks=[0, 1]
-            )
-
-        for topic_kc_pair, rating in zip(learner_topic_kc_pairs, updated_team_learner):
+        for topic_kc_pair, rating in zip(
+            learner_topic_kc_pairs,
+            self.__get_updated_team_learner(learner_kcs, content_kcs, y),
+        ):
             topic_id, kc = topic_kc_pair
-            kc.update(mean=rating.mu, variance=rating.sigma**2, timestamp=x.event_time)
+            kc.update(
+                mean=rating.mu, variance=rating.sigma**2, timestamp=x.event_time
+            )
             self.learner_model.knowledge.update_kc(topic_id, kc)
 
     def predict_proba(self, x: EventModel) -> float:

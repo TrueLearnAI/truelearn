@@ -1,6 +1,6 @@
-from typing import Any, Optional, Dict
+from typing import Any, Optional, Dict, List
 
-from truelearn.models import EventModel, LearnerModel
+from truelearn.models import EventModel, LearnerModel, AbstractKnowledgeComponent
 from ._base import (
     InterestNoveltyKnowledgeBaseClassifier,
     select_kcs,
@@ -150,26 +150,12 @@ KnowledgeComponent(mean=0.36833..., variance=0.26916..., ...), ...}), ...}
             draw_proba_factor=draw_proba_factor,
         )
 
-    # pylint: disable=too-many-locals
-    def _update_knowledge_representation(self, x: EventModel, y: bool) -> None:
-        # make them list because we use them more than one time later
-        learner_topic_kc_pairs = list(
-            select_topic_kc_pairs(
-                self.learner_model,
-                x.knowledge,
-                self.init_skill,
-                self.def_var,
-                x.event_time,
-            )
-        )
-        learner_kcs = list(
-            map(
-                lambda learner_topic_kc_pair: learner_topic_kc_pair[1],
-                learner_topic_kc_pairs,
-            )
-        )
-        content_kcs = list(x.knowledge.knowledge_components())
-
+    def __get_updated_team_learner(
+        self,
+        learner_kcs: List[AbstractKnowledgeComponent],
+        content_kcs: List[AbstractKnowledgeComponent],
+        y: bool,
+    ):
         team_learner = self._gather_trueskill_team(learner_kcs)
         team_content = self._gather_trueskill_team(content_kcs)
         team_learner_mean = map(lambda learner_kc: learner_kc.mean, learner_kcs)
@@ -196,13 +182,40 @@ KnowledgeComponent(mean=0.36833..., variance=0.26916..., ...), ...}), ...}
             updated_team_learner, _ = self._env.rate(
                 [team_learner, team_content], ranks=ranks
             )
-        else:
-            updated_team_learner = team_learner
+            return updated_team_learner
+
+        return team_learner
+
+    def _update_knowledge_representation(self, x: EventModel, y: bool) -> None:
+        # make them list because we use them more than one time later
+        learner_topic_kc_pairs = list(
+            select_topic_kc_pairs(
+                self.learner_model,
+                x.knowledge,
+                self.init_skill,
+                self.def_var,
+                x.event_time,
+            )
+        )
+        learner_kcs = list(
+            map(
+                lambda learner_topic_kc_pair: learner_topic_kc_pair[1],
+                learner_topic_kc_pairs,
+            )
+        )
+        content_kcs = list(x.knowledge.knowledge_components())
 
         # update the learner's knowledge representation
-        for topic_kc_pair, rating in zip(learner_topic_kc_pairs, updated_team_learner):
+        for topic_kc_pair, rating in zip(
+            learner_topic_kc_pairs,
+            self.__get_updated_team_learner(learner_kcs, content_kcs, y),
+        ):
             topic_id, kc = topic_kc_pair
-            kc.update(mean=rating.mu, variance=rating.sigma**2, timestamp=x.event_time,)
+            kc.update(
+                mean=rating.mu,
+                variance=rating.sigma**2,
+                timestamp=x.event_time,
+            )
             self.learner_model.knowledge.update_kc(topic_id, kc)
 
     def predict_proba(self, x: EventModel) -> float:
