@@ -7,16 +7,12 @@ Welcome to TrueLearn's documentation!
 =====================================
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 2
    :caption: Contents:
 
-   modules
+   tutorial/quickstart
+   modules/classes
 
 
 
-Indices and tables
-==================
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
