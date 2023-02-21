@@ -15,13 +15,6 @@ from truelearn.models import (
 )
 
 
-# pylint: disable=pointless-string-statement
-"""
-Copyright of `get_params`, `set_params` are held by
-[BSD 3-Clause License, scikit-learn developers, 2007-2022].
-"""
-
-
 class BaseClassifier(ABC):
     """The base class of all the classifiers in TrueLearn.
 
