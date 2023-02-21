@@ -197,6 +197,7 @@ def load_peek_dataset(
     kc_init_func: PEEKKnowledgeComponentGenerator = _get_knowledge_component,
     train_limit: int = -1,
     test_limit: int = -1,
+    verbose: bool = True,
 ) -> Tuple[PEEKData, PEEKData, Dict[int, str]]:
     """Download and Parse PEEKDataset.
 
@@ -221,6 +222,9 @@ def load_peek_dataset(
             The number of lines to load from the testing data.
             A negative number denotes unlimited (load all).
             Defaults to -1.
+        verbose:
+            If True and the downloaded file doesn't exist, this function outputs some
+            information about the downloaded file.
 
     Returns:
         A tuple of (train, test, mapping) where train and test are PEEKData
@@ -250,8 +254,7 @@ def load_peek_dataset(
         To load the data:
 
         >>> from truelearn.datasets import load_peek_dataset
-        >>> train, test, mapping = load_peek_dataset()  # doctest:+ELLIPSIS
-        ...
+        >>> train, test, mapping = load_peek_dataset(verbose=False)
         >>> len(train)
         14050
         >>> train[0]  # doctest:+ELLIPSIS
@@ -267,10 +270,14 @@ event_time=1590.0), True)])
         >>> mapping[0]
         'https://en.wikipedia.org/wiki/"Hello,_World!"_program'
     """
-    train_filepath = check_and_download_file(remote_file=PEEK_TRAIN, dirname=dirname)
-    test_filepath = check_and_download_file(remote_file=PEEK_TEST, dirname=dirname)
+    train_filepath = check_and_download_file(
+        remote_file=PEEK_TRAIN, dirname=dirname, verbose=verbose
+    )
+    test_filepath = check_and_download_file(
+        remote_file=PEEK_TEST, dirname=dirname, verbose=verbose
+    )
     mapping_filepath = check_and_download_file(
-        remote_file=PEEK_MAPPING, dirname=dirname
+        remote_file=PEEK_MAPPING, dirname=dirname, verbose=verbose
     )
 
     # build mapping
@@ -325,6 +332,7 @@ def load_peek_dataset_raw(
     dirname: Optional[str] = ".",
     train_limit: int = -1,
     test_limit: int = -1,
+    verbose: bool = True,
 ) -> Tuple[List[List[str]], List[List[str]], Dict[int, str]]:
     """Download and Load the raw PEEKDataset.
 
@@ -341,6 +349,9 @@ def load_peek_dataset_raw(
             The number of lines to load from the testing data.
             A negative number denotes unlimited (load all).
             Defaults to -1.
+        verbose:
+            If True and the downloaded file doesn't exist, this function outputs some
+            information about the downloaded file.
 
     Returns:
         A tuple of (train, test, mapping) where train and test are list of
@@ -366,8 +377,7 @@ def load_peek_dataset_raw(
         To load the data:
 
         >>> from truelearn.datasets import load_peek_dataset_raw
-        >>> train, test, mapping = load_peek_dataset_raw()  # doctest:+ELLIPSIS
-        ...
+        >>> train, test, mapping = load_peek_dataset_raw(verbose=False)
         >>> len(train)
         203590
         >>> train[0]  # doctest:+ELLIPSIS
@@ -381,10 +391,14 @@ def load_peek_dataset_raw(
         >>> mapping[0]
         'https://en.wikipedia.org/wiki/"Hello,_World!"_program'
     """
-    train_filepath = check_and_download_file(remote_file=PEEK_TRAIN, dirname=dirname)
-    test_filepath = check_and_download_file(remote_file=PEEK_TEST, dirname=dirname)
+    train_filepath = check_and_download_file(
+        remote_file=PEEK_TRAIN, dirname=dirname, verbose=verbose
+    )
+    test_filepath = check_and_download_file(
+        remote_file=PEEK_TEST, dirname=dirname, verbose=verbose
+    )
     mapping_filepath = check_and_download_file(
-        remote_file=PEEK_MAPPING, dirname=dirname
+        remote_file=PEEK_MAPPING, dirname=dirname, verbose=verbose
     )
 
     return (
