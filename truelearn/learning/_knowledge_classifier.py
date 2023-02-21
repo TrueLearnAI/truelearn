@@ -151,6 +151,7 @@ KnowledgeComponent(mean=0.58097..., variance=0.33159..., ...), ...}), ...}
                 x.knowledge,
                 self.init_skill,
                 self.def_var,
+                x.event_time,
             )
         )
         learner_kcs = map(
@@ -175,12 +176,12 @@ KnowledgeComponent(mean=0.58097..., variance=0.33159..., ...), ...}), ...}
 
         for topic_kc_pair, rating in zip(learner_topic_kc_pairs, updated_team_learner):
             topic_id, kc = topic_kc_pair
-            kc.update(mean=rating.mu, variance=rating.sigma**2)
+            kc.update(mean=rating.mu, variance=rating.sigma**2, timestamp=x.event_time)
             self.learner_model.knowledge.update_kc(topic_id, kc)
 
     def predict_proba(self, x: EventModel) -> float:
         learner_kcs = select_kcs(
-            self.learner_model, x.knowledge, self.init_skill, self.def_var
+            self.learner_model, x.knowledge, self.init_skill, self.def_var, x.event_time
         )
         content_kcs = x.knowledge.knowledge_components()
         return team_sum_quality(learner_kcs, content_kcs, self.beta)
