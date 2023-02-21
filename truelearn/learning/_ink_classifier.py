@@ -24,6 +24,45 @@ class INKClassifier(BaseClassifier):
     During the prediction process, the meta-classifier individually uses the predict
     function of the KnowledgeClassifier and InterestClassifier.
     Then, it combines them by using the weights.
+
+    Examples:
+        >>> from truelearn.learning import INKClassifier
+        >>> from truelearn.models import EventModel, Knowledge, KnowledgeComponent
+        >>> ink_classifier = INKClassifier()
+        >>> ink_classifier
+        INKClassifier()
+        >>> # prepare event model
+        >>> knowledges = [
+        ...     Knowledge({1: KnowledgeComponent(mean=0.15, variance=1e-9)}),
+        ...     Knowledge({
+        ...         2: KnowledgeComponent(mean=0.87, variance=1e-9),
+        ...         3: KnowledgeComponent(mean=0.18, variance=1e-9),
+        ...     }),
+        ...     Knowledge({
+        ...         1: KnowledgeComponent(mean=0.34, variance=1e-9),
+        ...         3: KnowledgeComponent(mean=0.15, variance=1e-9),
+        ...     }),
+        ... ]
+        >>> times = [0, 10514, 53621]
+        >>> events = [
+        ...     EventModel(knowledge, time)
+        ...     for knowledge, time in zip(knowledges, times)
+        ... ]
+        >>> engage_stats = [True, False, True]
+        >>> for event, engage_stats in zip(events, engage_stats):
+        ...     ink_classifier = ink_classifier.fit(event, engage_stats)
+        ...     print(
+        ...         ink_classifier.predict(event),
+        ...         ink_classifier.predict_proba(event)
+        ...     )
+        ...
+        True 0.6182308411203978
+        False 0.3310655905740751
+        True 0.6669771468219884
+        >>> ink_classifier.get_params(deep=False)  # doctest:+ELLIPSIS
+        {'bias_weight': {'mean': 0.35199..., 'variance': 1.08906...}, ..., \
+'interest_weight': {'mean': 0.77060..., 'variance': 1.42270...}, ..., \
+'novelty_weight': {'mean': 0.52938..., 'variance': 1.59489...}
     """
 
     DEFAULT_SIGMA: Final[float] = 1e-9

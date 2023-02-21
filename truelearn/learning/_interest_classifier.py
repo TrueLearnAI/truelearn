@@ -43,6 +43,44 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
     subtracting the two old normal distribution (learner and learnable unit).
     In TrueSkill's terminology, this calculates the win probability that
     the learner will win the content.
+
+    Examples:
+        >>> from truelearn.learning import InterestClassifier
+        >>> from truelearn.models import EventModel, Knowledge, KnowledgeComponent
+        >>> interest_classifier = InterestClassifier()
+        >>> interest_classifier
+        InterestClassifier()
+        >>> # prepare event model
+        >>> knowledges = [
+        ...     Knowledge({1: KnowledgeComponent(mean=0.57, variance=1e-9)}),
+        ...     Knowledge({
+        ...         2: KnowledgeComponent(mean=0.07, variance=1e-9),
+        ...         3: KnowledgeComponent(mean=0.18, variance=1e-9),
+        ...     }),
+        ...     Knowledge({
+        ...         1: KnowledgeComponent(mean=0.34, variance=1e-9),
+        ...         3: KnowledgeComponent(mean=0.15, variance=1e-9),
+        ...     }),
+        ... ]
+        >>> times = [0, 1024, 5381]
+        >>> events = [
+        ...     EventModel(knowledge, time)
+        ...     for knowledge, time in zip(knowledges, times)
+        ... ]
+        >>> engage_stats = [False, True, False]
+        >>> for event, engage_stats in zip(events, engage_stats):
+        ...     interest_classifier = interest_classifier.fit(event, engage_stats)
+        ...     print(
+        ...         interest_classifier.predict(event),
+        ...         interest_classifier.predict_proba(event)
+        ...     )
+        ...
+        False 0.23090587110296315
+        True 0.781050012905867
+        False 0.4916615918925439
+        >>> interest_classifier.get_params()  # doctest:+ELLIPSIS
+        {..., 'learner_model': LearnerModel(knowledge=Knowledge(knowledge=\
+{2: KnowledgeComponent(mean=0.46968..., variance=0.34484..., ...), ...}), ...}
     """
 
     _parameter_constraints: Dict[str, Any] = {
