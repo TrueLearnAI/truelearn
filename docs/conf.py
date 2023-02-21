@@ -45,4 +45,6 @@ autodoc_mock_imports = ['trueskill',
 
 # Install furo theme with pip install furo
 html_theme = 'furo'
-html_static_path = ['_static']
+
+# See GitHub issue : https://github.com/readthedocs/readthedocs.org/issues/1776
+html_static_path = []
