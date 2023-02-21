@@ -136,7 +136,7 @@ class INKClassifier(BaseClassifier):
         self.interest_weight: Dict[str, float] = interest_weight
         self.bias_weight: Dict[str, float] = bias_weight
 
-        self.__env = trueskill.setup(
+        self.__env = trueskill.TrueSkill(
             mu=0.0,
             sigma=INKClassifier.DEFAULT_SIGMA,
             beta=1,
