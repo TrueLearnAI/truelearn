@@ -209,7 +209,7 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
                 An iterable of content's knowledge components.
             event_time:
                 An optional float representing the event time.
-            y:
+            _y:
                 A bool indicating whether the learner engage in
                 the learning event.
 

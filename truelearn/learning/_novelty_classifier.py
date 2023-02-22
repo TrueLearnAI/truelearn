@@ -152,7 +152,7 @@ KnowledgeComponent(mean=0.36833..., variance=0.26916..., ...), ...}), ...}
         self,
         learner_kcs: Iterable[AbstractKnowledgeComponent],
         content_kcs: Iterable[AbstractKnowledgeComponent],
-        _event_time: Optional[float],
+        event_time: Optional[float],
         y: bool,
     ) -> Iterable[trueskill.Rating]:
         # make it a list because we use them more than one time later

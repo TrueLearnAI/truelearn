@@ -144,7 +144,7 @@ KnowledgeComponent(mean=0.58097..., variance=0.33159..., ...), ...}), ...}
         self,
         learner_kcs: Iterable[AbstractKnowledgeComponent],
         content_kcs: Iterable[AbstractKnowledgeComponent],
-        _event_time: Optional[float],
+        event_time: Optional[float],
         y: bool,
     ) -> Iterable[trueskill.Rating]:
         team_learner = InterestNoveltyKnowledgeBaseClassifier._gather_trueskill_team(
