@@ -36,8 +36,13 @@ class LinePlotter(BasePlotter):
             the line chart.
         """
         content = []
-        for topic, kc in raw_data:
-            tr_data = (topic, kc['timestamp'], kc['mean'])
+        for topic, kc in raw_data.items():
+            timestamps = []
+            means = []
+            for mean, _, timestamp in kc['history']:
+                timestamps.append(timestamp)
+                means.append(mean)
+            tr_data = (topic, timestamps, means)
             content.append(tr_data)
         
         content.sort(
