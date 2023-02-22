@@ -2,7 +2,10 @@ from abc import ABC, abstractmethod
 from typing import Dict, Iterable, Union, Tuple
 from typing_extensions import final, Self
 
-import plotly.graph_objects as go
+from plotly import (
+    graph_objects as go,
+    basedatatypes as bdt
+)
 
 from truelearn.models import Knowledge
 
@@ -37,7 +40,7 @@ class BasePlotter(ABC):
         """
 
     @abstractmethod
-    def _trace(self, trace_data: Tuple) -> go.BaseTraceType:
+    def _trace(self, trace_data: Tuple) -> bdt.BaseTraceType:
         """Creates a trace to incorporate in the visualisation.
 
         Args:
