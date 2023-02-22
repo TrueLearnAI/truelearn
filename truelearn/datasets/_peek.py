@@ -43,9 +43,10 @@ PEEK_TEST = RemoteFileMetaData(
 
 PEEK_MAPPING = RemoteFileMetaData(
     url="https://raw.githubusercontent.com/sahanbull/PEEK-Dataset"
-    "/1740aa04aeb019494fd3593d4f708fd519fa101a/datasets/v1/id_to_wiki_url_mapping.csv",
+    "/213eee0ef6837468d12971a0d865de328ce69159/datasets/v2/"
+    "id_to_wiki_metadata_mapping.csv",
     filename="peek.mapping.csv",
-    expected_sha256="568e23b43517dea6649cc140e492468717c53e7f7d97e42f9a4672b9becba835",
+    expected_sha256="3240ac45661e8eefaaf120158f44a9aceba2e53117b07417ee5d3c055bb2d6c6",
 )
 
 
@@ -54,7 +55,14 @@ class PEEKKnowledgeComponentGenerator(Protocol):
     to the generator of the knowledge component."""
 
     def __call__(
-        self, mean: float, variance: float, timestamp: float, url: str
+        self,
+        *,
+        mean: float,
+        variance: float,
+        timestamp: float,
+        url: str,
+        title: str,
+        description: str,
     ) -> AbstractKnowledgeComponent:
         ...
 
@@ -114,7 +122,7 @@ def __download_files(dirname: str = ".", verbose: bool = True) -> Tuple[str, str
 
 def __restructure_line(
     line: List[str],
-    id_to_url_mapping: Dict[int, str],
+    id_to_url_mapping: Dict[int, Tuple[str, str, str]],
     variance: float,
     kc_init_func: PEEKKnowledgeComponentGenerator,
 ) -> Tuple[int, EventModel, bool]:
@@ -125,7 +133,7 @@ def __restructure_line(
             A line in the csv file.
         id_to_url_mapping:
             A dict mapping topic_id to
-            the url of the topic.
+            the (url, title, description) of the topic.
         variance:
             The variance of the knowledge
             component of the topic.
@@ -171,7 +179,9 @@ def __restructure_line(
                 mean=skill,
                 variance=variance,
                 timestamp=event_time,
-                url=id_to_url_mapping[topic_id],
+                url=id_to_url_mapping[topic_id][0],
+                title=id_to_url_mapping[topic_id][1],
+                description=id_to_url_mapping[topic_id][2],
             )
             for topic_id, skill in zip(topic_ids, topic_skills)
         }
@@ -184,7 +194,7 @@ def __restructure_line(
 
 def __restructure_data(
     filepath: str,
-    id_to_url_mapping: Dict[int, str],
+    id_to_url_mapping: Dict[int, Tuple[str, str, str]],
     variance: float,
     kc_init_func: PEEKKnowledgeComponentGenerator,
     limit: Optional[int],
@@ -201,7 +211,7 @@ def __restructure_data(
             It should be a csv file.
         id_to_url_mapping:
             A dict mapping topic_id to
-            the url of the topic.
+            the (url, title, description) of the topic.
         variance:
             The variance of the knowledge
             component of the topic.
@@ -233,23 +243,32 @@ def __restructure_data(
         return list(learner_id_to_event_and_label.items())
 
 
-def __build_mapping(mapping_filepath: str) -> Dict[int, str]:
+def __build_mapping(mapping_filepath: str) -> Dict[int, Tuple[str, str, str]]:
     """Build the topic_id to url mapping.
 
     Args:
         mapping_filepath: The filepath of the id_to_url_mapping in the PEEKDataset.
 
     Returns:
-        A dict mapping id to its corresponding url.
+        A dict mapping topic id to its corresponding (url, title, description).
     """
     with open(mapping_filepath, encoding="utf-8") as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=",")
         next(csv_reader)
-        return {int(topic_id): str(url) for topic_id, url in csv_reader}
+        return {
+            int(topic_id): (str(url), str(title), str(description))
+            for topic_id, url, title, description in csv_reader
+        }
 
 
 def __get_knowledge_component(
-    mean: float, variance: float, timestamp: float, url: str
+    *,
+    mean: float,
+    variance: float,
+    timestamp: float,
+    url: str,
+    title: str,
+    description: str,
 ) -> KnowledgeComponent:
     """The default generator function of the knowledge component.
 
@@ -258,12 +277,19 @@ def __get_knowledge_component(
         variance: The variance of the generated KnowledgeComponent.
         timestamp: The timestamp of the generated KnowledgeComponent.
         url: The url of the generated KnowledgeComponent.
+        title: The title of the generated KnowledgeComponent.
+        description: The description of the generated KnowledgeComponent.
 
     Returns:
         The generated KnowledgeComponent.
     """
     return KnowledgeComponent(
-        mean=mean, variance=variance, timestamp=timestamp, url=url
+        mean=mean,
+        variance=variance,
+        timestamp=timestamp,
+        url=url,
+        title=title,
+        description=description,
     )
 
 
@@ -297,7 +323,7 @@ def load_peek_dataset(
     train_limit: Optional[int] = None,
     test_limit: Optional[int] = None,
     verbose: bool = True,
-) -> Tuple[PEEKData, PEEKData, Dict[int, str]]:
+) -> Tuple[PEEKData, PEEKData, Dict[int, Tuple[str, str, str]]]:
     """Download and Parse PEEKDataset.
 
     Args:
@@ -327,11 +353,11 @@ def load_peek_dataset(
 
     Returns:
         A tuple of (train, test, mapping) where train and test are PEEKData
-        and mapping is a dict mapping topic_id to url. PEEKData is a list of
-        tuples (learner_id, events) where learner_id is the unique id that
-        identifies a learner and events are a list of tuples (event, label)
-        where event is an EventModel and label is a bool indicating whether
-        the learner engages in this event.
+        and mapping is a dict mapping topic_id to (url, title, description).
+        PEEKData is a list of tuples (learner_id, events) where learner_id
+        is the unique id that identifies a learner and events are a list of
+        tuples (event, label) where event is an EventModel and label is a bool
+        indicating whether the learner engages in this event.
 
         The returned data looks like this::
 
@@ -345,7 +371,7 @@ def load_peek_dataset(
                     ...
                 ],
                 {
-                    0: "url",...  # 0 is wiki id
+                    0: (url, title, description),...  # 0 is wiki id
                 }
             )
 
@@ -371,7 +397,8 @@ event_time=1590.0), True)])
         >>> len(mapping)
         30367
         >>> mapping[0]
-        'https://en.wikipedia.org/wiki/"Hello,_World!"_program'
+        ('https://en.wikipedia.org/wiki/"Hello,_World!"_program', \
+'"Hello, World!" program', "Traditional beginners' computer program")
     """
     __sanity_check(train_limit, test_limit)
     train_filepath, test_filepath, mapping_filepath = __download_files(dirname, verbose)
@@ -405,7 +432,7 @@ def load_peek_dataset_raw(
     train_limit: Optional[int] = None,
     test_limit: Optional[int] = None,
     verbose: bool = True,
-) -> Tuple[List[List[str]], List[List[str]], Dict[int, str]]:
+) -> Tuple[List[List[str]], List[List[str]], Dict[int, Tuple[str, str, str]]]:
     """Download and Load the raw PEEKDataset.
 
     Args:
@@ -427,7 +454,7 @@ def load_peek_dataset_raw(
 
     Returns:
         A tuple of (train, test, mapping) where train and test are list of
-        lines and mapping is a dict mapping topic_id to url.
+        lines and mapping is a dict mapping topic_id to (url, title, description).
         Each line in train and test is a list of strings where each string is
         the value of the cell in the original csv.
 
@@ -441,7 +468,7 @@ def load_peek_dataset_raw(
                     ...
                 ],
                 {
-                    0: "url",...  # 0 is wiki id
+                    0: (url, title, description),...  # 0 is wiki id
                 }
             )
 
@@ -465,7 +492,8 @@ def load_peek_dataset_raw(
         >>> len(mapping)
         30367
         >>> mapping[0]
-        'https://en.wikipedia.org/wiki/"Hello,_World!"_program'
+        ('https://en.wikipedia.org/wiki/"Hello,_World!"_program', \
+'"Hello, World!" program', "Traditional beginners' computer program")
     """
     __sanity_check(train_limit, test_limit)
     train_filepath, test_filepath, mapping_filepath = __download_files(dirname, verbose)
