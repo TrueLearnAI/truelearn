@@ -34,11 +34,11 @@ class EngageClassifier(BaseClassifier):
 
         super().__init__()
 
-    def fit(self, _x: EventModel, _y: bool) -> Self:
+    def fit(self, x: EventModel, y: bool) -> Self:
         return self
 
-    def predict(self, _x: EventModel) -> bool:
+    def predict(self, x: EventModel) -> bool:
         return True
 
-    def predict_proba(self, _x: EventModel) -> float:
+    def predict_proba(self, x: EventModel) -> float:
         return 1.0

@@ -1,5 +1,4 @@
 from typing import Any, Optional, Dict, Iterable
-from typing_extensions import Final
 
 from truelearn.models import LearnerModel, AbstractKnowledgeComponent
 from ._base import InterestNoveltyKnowledgeBaseClassifier
@@ -68,8 +67,6 @@ class KnowledgeClassifier(InterestNoveltyKnowledgeBaseClassifier):
 KnowledgeComponent(mean=0.58097..., variance=0.33159..., ...), ...}), ...}
     """
 
-    DRAW_PROBA_STATIC: Final[float] = 1e-9
-
     _parameter_constraints: Dict[str, Any] = {
         **InterestNoveltyKnowledgeBaseClassifier._parameter_constraints,
     }
@@ -84,6 +81,9 @@ KnowledgeComponent(mean=0.58097..., variance=0.33159..., ...), ...}), ...}
         beta: float = 0.1,
         tau: float = 0.1,
         positive_only: bool = True,
+        draw_proba_type: str = "dynamic",
+        draw_proba_static: float = 0.5,
+        draw_proba_factor: float = 0.1,
     ) -> None:
         """Init KnowledgeClassifier object.
 
@@ -110,6 +110,18 @@ KnowledgeComponent(mean=0.58097..., variance=0.33159..., ...), ...}), ...}
             positive_only:
                 A bool indicating whether the classifier only
                 updates the learner's knowledge when encountering a positive label.
+            draw_proba_type:
+                A str specifying the type of the draw probability.
+                It could be either "static" or "dynamic". The "static"
+                probability type requires an additional parameter
+                draw_proba_static. The "dynamic" probability type calculates
+                the draw probability based on the learner's previous engagement
+                stats with educational resources.
+            draw_proba_static:
+                The global draw probability.
+            draw_proba_factor:
+                A factor that will be applied to both static and dynamic
+                draw probability.
 
         Returns:
             None
@@ -122,6 +134,9 @@ KnowledgeComponent(mean=0.58097..., variance=0.33159..., ...), ...}), ...}
             tau=tau,
             beta=beta,
             positive_only=positive_only,
+            draw_proba_type=draw_proba_type,
+            draw_proba_static=draw_proba_static,
+            draw_proba_factor=draw_proba_factor,
         )
 
         # the knowledge classifier doesn't rely on the draw probability
@@ -135,9 +150,9 @@ KnowledgeComponent(mean=0.58097..., variance=0.33159..., ...), ...}), ...}
             tau=tau,
             beta=beta,
             positive_only=positive_only,
-            draw_proba_type="static",
-            draw_proba_static=KnowledgeClassifier.DRAW_PROBA_STATIC,
-            draw_proba_factor=0.1,
+            draw_proba_type=draw_proba_type,
+            draw_proba_static=draw_proba_static,
+            draw_proba_factor=draw_proba_factor,
         )
 
     def _generate_ratings(

@@ -65,8 +65,8 @@ class INKClassifier(BaseClassifier):
 'novelty_weight': {'mean': 0.52938..., 'variance': 1.59489...}
     """
 
-    DEFAULT_SIGMA: Final[float] = 1e-9
-    DEFAULT_DRAW_PROBA: Final[float] = 1e-9
+    __DEFAULT_GLOBAL_SIGMA: Final[float] = 1e-9
+    __DEFAULT_DRAW_PROBA: Final[float] = 1e-9
 
     _parameter_constraints: Dict[str, Any] = {
         **BaseClassifier._parameter_constraints,
@@ -177,10 +177,10 @@ class INKClassifier(BaseClassifier):
 
         self.__env = trueskill.TrueSkill(
             mu=0.0,
-            sigma=INKClassifier.DEFAULT_SIGMA,
+            sigma=INKClassifier.__DEFAULT_GLOBAL_SIGMA,
             beta=1,
             tau=tau,
-            draw_probability=INKClassifier.DEFAULT_DRAW_PROBA,
+            draw_probability=INKClassifier.__DEFAULT_DRAW_PROBA,
             backend="mpmath",
         )
 
@@ -242,7 +242,7 @@ class INKClassifier(BaseClassifier):
 
         team_threshold = (
             self.__env.create_rating(
-                mu=self.threshold, sigma=INKClassifier.DEFAULT_SIGMA
+                mu=self.threshold, sigma=INKClassifier.__DEFAULT_GLOBAL_SIGMA
             ),
         )
 

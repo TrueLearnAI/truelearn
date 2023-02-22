@@ -55,7 +55,7 @@ class MajorityClassifier(BaseClassifier):
         self.engagement = engagement
         self.non_engagement = non_engagement
 
-    def fit(self, _x: EventModel, y: bool) -> Self:
+    def fit(self, x: EventModel, y: bool) -> Self:
         if y:
             self.engagement += 1
         else:
@@ -63,8 +63,8 @@ class MajorityClassifier(BaseClassifier):
 
         return self
 
-    def predict(self, _x: EventModel) -> bool:
+    def predict(self, x: EventModel) -> bool:
         return self.engagement > self.non_engagement
 
-    def predict_proba(self, _x: EventModel) -> float:
+    def predict_proba(self, x: EventModel) -> float:
         return self.engagement > self.non_engagement

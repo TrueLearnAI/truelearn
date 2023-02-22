@@ -126,6 +126,18 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
             positive_only:
                 A bool indicating whether the classifier only
                 updates the learner's knowledge when encountering a positive label.
+            draw_proba_type:
+                A str specifying the type of the draw probability.
+                It could be either "static" or "dynamic". The "static"
+                probability type requires an additional parameter
+                draw_proba_static. The "dynamic" probability type calculates
+                the draw probability based on the learner's previous engagement
+                stats with educational resources.
+            draw_proba_static:
+                The global draw probability.
+            draw_proba_factor:
+                A factor that will be applied to both static and dynamic
+                draw probability.
             decay_func_type:
                 A str specifying the type of the interest decay function.
                 The allowed values are "short" and "long".

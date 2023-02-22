@@ -44,12 +44,12 @@ class PersistentClassifier(BaseClassifier):
 
         self.engage_with_last = engage_with_last
 
-    def fit(self, _x: EventModel, y: bool) -> Self:
+    def fit(self, x: EventModel, y: bool) -> Self:
         self.engage_with_last = y
         return self
 
-    def predict(self, _x: EventModel) -> bool:
+    def predict(self, x: EventModel) -> bool:
         return self.engage_with_last
 
-    def predict_proba(self, _x: EventModel) -> float:
+    def predict_proba(self, x: EventModel) -> float:
         return float(self.engage_with_last)

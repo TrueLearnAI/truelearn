@@ -249,9 +249,9 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
     `_eval_matching_quality` methods.
     """
 
-    DEFAULT_CONTENT_SIGMA: Final[float] = 1e-9
-    DEFAULT_DRAW_PROBA_LOW: Final[float] = 1e-9
-    DEFAULT_DRAW_PROBA_HIGH: Final[float] = 0.999999999
+    __DEFAULT_GLOBAL_SIGMA: Final[float] = 1e-9
+    __DEFAULT_DRAW_PROBA_LOW: Final[float] = 1e-9
+    __DEFAULT_DRAW_PROBA_HIGH: Final[float] = 0.999999999
 
     _parameter_constraints: Dict[str, Any] = {
         **BaseClassifier._parameter_constraints,
@@ -419,10 +419,10 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
         # clamp the value between [DEFAULT_DRAW_PROBA_LOW, DEFAULT_DRAW_PROBA_HIGH]
         draw_probability = max(
             min(
-                InterestNoveltyKnowledgeBaseClassifier.DEFAULT_DRAW_PROBA_HIGH,
+                InterestNoveltyKnowledgeBaseClassifier.__DEFAULT_DRAW_PROBA_HIGH,
                 draw_probability,
             ),
-            InterestNoveltyKnowledgeBaseClassifier.DEFAULT_DRAW_PROBA_LOW,
+            InterestNoveltyKnowledgeBaseClassifier.__DEFAULT_DRAW_PROBA_LOW,
         )
 
         # draw_proba_param is a factor if the type is dynamic
@@ -433,7 +433,7 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
         draw_probability = self.__calculate_draw_proba()
         self._env = trueskill.TrueSkill(
             mu=0.0,
-            sigma=InterestNoveltyKnowledgeBaseClassifier.DEFAULT_CONTENT_SIGMA,
+            sigma=InterestNoveltyKnowledgeBaseClassifier.__DEFAULT_GLOBAL_SIGMA,
             beta=self.beta,
             tau=self.tau,
             draw_probability=draw_probability,
