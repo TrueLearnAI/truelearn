@@ -1,0 +1,88 @@
+# pyproject.toml
+# See https://setuptools.pypa.io/en/latest/userguide/pyproject_config.html
+# for more information about the pyproject.toml file.
+
+# Recommended Packaging Guide
+# Run:
+# 1. `pip install --upgrade build` to install the build package.
+# 2. `python -m build` to build the package.
+# 3. `twine upload dist/*` to upload the package to PyPI.
+
+[build-system]
+requires = ["setuptools>=60"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "truelearn"
+dynamic = ["version"]
+description = "A Machine learning library for recommending open educational resources"
+readme = "README.rst"
+requires-python = ">=3.7"
+keywords = ["machine learning", "python", "statistics", "probability"]
+license = {file = "LICENSE"}
+authors = [
+    {name = "Sahanbull"},
+    {name = "KD-7"},
+    {name = "yuxqiu"},
+    {name = "deniselezi"},
+    {name = "aaneelshalman"},
+]
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Software Development :: Libraries :: Python Module",
+]
+dependencies = [
+    'typing-extensions>=4.4.0',
+    'trueskill>=0.4.5',
+    'scikit-learn>=1.0.2',
+    'orjson>=3.8.6',
+    'mpmath>=1.2.1'
+]
+
+[tool.setuptools.dynamic]
+version = {attr = "truelearn.__version__"}
+
+[tool.setuptools]
+packages = ["truelearn"]
+
+# You install the optional dependencies by doing:
+# pip install truelearn[name_of_optional_dependency]
+# e.g. pip install truelearn[dev] will install the tests dependencies
+[project.optional-dependencies]
+tests = ["pytest>=7.2.1"]
+docs = ["sphinx>=5.3.0", "furo>=2022.12.7"]
+dev = ["prospector[with_bandit,with_mypy]>=1.8.4","black>=22.12.0", "truelearn[tests]"]
+
+[tool.black]
+line-length = 88
+# Black doesnt yet support python 3.12
+target-version = ['py37', 'py38', 'py39', 'py310', 'py311']
+
+# Support for Prospector config in pyproject.toml is not yet released.
+# See: https://github.com/PyCQA/prospector/issues/376
+# When released move the config to the [tool.prospector] section from prospector.yml
+
+# ReadTheDocs have stated they wont support pyproject.toml config
+# See: https://github.com/readthedocs/readthedocs.org/issues/7065
+
+# Pytest config
+# See: https://docs.pytest.org/en/stable/customize.html
+[tool.pytest.ini_options]
+addopts = "--verbose"
+testpaths = ["tests"]
+
+# Pytest-cov config (uses coverage.py)
+# See: https://pytest-cov.readthedocs.io/en/latest/config.html
+[tool.coverage.run]
+# Include branch coverage (as well as statement coverage)
+branch = true
+source = ["truelearn"]
+omit = ["**/tests/*"]
+

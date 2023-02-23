@@ -1,17 +1,13 @@
-name: Unit tests
+# Ensures that the docs build correctly
+name: 'Docs Build'
 on:
-  push:
-    branches:
-      - main
-      - setup-ci
   pull_request:
     branches:
       - main
   workflow_dispatch:
-  workflow_call:
 
 jobs:
-  Run-Unit-Tests:
+  Sphinx_Build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
@@ -29,25 +25,26 @@ jobs:
           pip install pip-tools
           # Generates a requirements.txt file from pyproject.toml 
           # This means that we dont have to install truelearn 
+          # so this workflow can use the same cache as the other workflows
           pip-compile --resolver=backtracking --output-file requirements.txt pyproject.toml
 
       - name: Install Project Dependencies
-        run:  pip install -r requirements.txt
+        run: pip install -r requirements.txt
 
-      - name: Install Pytest
-        run: pip install pytest
-
-        # Pytest generates an XML report
-      - name: Execute tests
+      - name: Install Doc Dependencies
         run: |
-         pytest --junitxml=unit_test_report.xml
+          pip install .[docs]
 
-        # Convert the XML report to GitHub annotations
-      - name: Convert test results to Github Annotations
-        uses: mikepenz/action-junit-report@v3
-        # Use success()||failure() to allow for manual cancellation of an action (see docs)
-        if: success()||failure()
-        with:
-          report_paths: unit_test_report.xml
-          check_name: "Unit test Report"
-          detailed_summary: true
+      - name: Sphinx Problem Matcher
+        uses: ammaraskar/sphinx-problem-matcher@master
+
+      - name: Sphinx direct build
+        run: |
+          sphinx-apidoc -f -o docs/ truelearn
+          cd ./docs
+           
+          # Treat warnings as errors by setting the SPHINXOPTS variable to -W.
+          # --keep-going is for not stopping at the first error
+          # -n is for nitpicky mode warns about all missing references
+          make html -e SPHINXOPTS="-W --keep-going -n"
+

@@ -12,6 +12,7 @@ on:
 jobs:
   Code_Coverage:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v3
@@ -19,8 +20,16 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v4.4.0
         with:
-          python-version: '3.10'
-          cache: 'pip' #Cache dependencies
+          python-version: '3.7'
+          cache: 'pip' # Cache dependencies
+          cache-dependency-path: '**/pyproject.toml'
+
+      - name: Install pip-tools and generate requirements.txt
+        run: |
+          pip install pip-tools
+          # Generates a requirements.txt file from pyproject.toml 
+          # This means that we dont have to install truelearn 
+          pip-compile --resolver=backtracking --output-file requirements.txt pyproject.toml
 
       - name: Install Project Dependencies
         run: pip install -r requirements.txt
@@ -28,14 +37,14 @@ jobs:
       - name: Install Pytest
         run: pip install pytest
 
-      #Note PyCov is an extended form of coverage.py
+      # PyCov is an extended form of coverage.py
       - name: Install Pytest-cov
         run: pip install pytest-cov
 
       - name: Calculate coverage
-        #Inc. branch + statement coverage
         run: |
-          pytest --cov-branch --cov-report "xml:coverage.xml" --cov=truelearn_experiments ./tests
+          # Config in pyproject.toml
+          pytest --cov --cov-report "xml:coverage.xml" 
 
       - name: Update CodeCov
         uses: codecov/codecov-action@v3
