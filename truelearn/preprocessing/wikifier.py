@@ -1,3 +1,4 @@
+import itertools
 from typing import Optional, Union, Dict, List, Iterable, Callable, cast
 from urllib import parse, request
 
@@ -180,18 +181,13 @@ class Wikifier:
                 "wikiDataItemId": annotation["wikiDataItemId"],
             }
 
-        annotations = list(
-            sorted(
-                map(
-                    __restructure_annotation,
-                    cast(Iterable[Annotation], resp["annotations"]),
-                ),
-                key=key_fn,
-                reverse=True,
-            )
+        annotations = sorted(
+            map(
+                __restructure_annotation,
+                cast(Iterable[Annotation], resp["annotations"]),
+            ),
+            key=key_fn,
+            reverse=True,
         )
 
-        if top_n is not None:
-            return annotations[:top_n]
-
-        return annotations
+        return list(itertools.islice(annotations, top_n))
