@@ -28,8 +28,10 @@ Code for loading the PEEK Dataset is licensed under MIT unless explicitly stated
 ---
 
 The download_file and RemoteFileMetaData in truelearn.datasets and get_params and
-set_params in truelearn.learning are licensed under BSD 3-clause. A copy of the
-original license is shown below:
+set_params in truelearn.learning are licensed under BSD 3-clause. Copyright of
+them are held by [BSD 3-Clause License, scikit-learn developers, 2007-2022].
+
+A copy of the original license is shown below:
 
 BSD 3-Clause License
 
