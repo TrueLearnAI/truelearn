@@ -45,8 +45,8 @@ jobs:
         # Convert the XML report to GitHub annotations
       - name: Convert test results to Github Annotations
         uses: mikepenz/action-junit-report@v3
-        # Use success()||failure() to allow for manual cancellation of an action (see docs)
-        if: success()||failure()
+        # Only produce check run annotations if the tests fail
+        if: failure()
         with:
           report_paths: unit_test_report.xml
           check_name: "Unit test Report"
