@@ -44,7 +44,9 @@ jobs:
       - name: Calculate coverage
         run: |
           # Config in pyproject.toml
-          pytest --cov --cov-report "xml:coverage.xml" 
+          # Calling via python adds the current directory to sys path
+          # Prevents module not found errors
+          python -m pytest --cov --cov-report "xml:coverage.xml" 
 
       - name: Update CodeCov
         uses: codecov/codecov-action@v3
