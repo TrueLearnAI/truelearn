@@ -46,6 +46,7 @@ jobs:
      # Keep this commented out for now until prospector output format is fixed
      # - name: Convert test results to Github Annotations
       #  uses: check-run-reporter/action@v2.11.1
+       # Change to failure() only if you want to only report on failures
        # if: success()||failure()
         #with:
          # token: ${{ secrets.CHECK_RUN_REPORTER_TOKEN }}
@@ -56,8 +57,8 @@ jobs:
       # However the error message shows the correct line numbering.
       - name: Convert test results to Github Annotations
         uses: mikepenz/action-junit-report@v3
-        # Use success()||failure() to allow for manual cancellation of an action (see docs)
-        if: success()||failure()
+        # Only produce check run annotations if the tests fail
+        if: failure()
         with:
           # Report in project root
           report_paths: ./prospector_report.xml
