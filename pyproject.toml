@@ -85,3 +85,9 @@ testpaths = ["truelearn"]
 branch = true
 source = ["truelearn"]
 omit = ["**/tests/*"]
+
+# prospector.yaml doesn't support this yet
+[tool.bandit]
+# use of asserts detected
+# disable this because of tests
+skips = ["B101"]
