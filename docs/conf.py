@@ -8,21 +8,35 @@
 
 import inspect
 import os
+import shutil
 import subprocess
 import sys
 
 sys.path.insert(0, os.path.abspath('..'))
+
+# If we are on Read the Docs we need to clean up the generated folder
+# before building the docs (it's not done automatically), otherwise
+# old files will be left in the generated folder and Sphinx will not
+# rebuild them.
+# Code to check whether RTD is building our project is taken from
+# http://read-the-docs.readthedocs.org/en/latest/faq.html
+if os.environ.get('READTHEDOCS', None) == 'True':
+    generated_path = os.path.join(os.path.dirname(__file__), 'generated')
+    if os.path.exists(generated_path):
+        shutil.rmtree(generated_path)
+
 
 project = 'TrueLearn'
 # pylint: disable=redefined-builtin
 copyright = '2023, TrueLearn'
 author = 'TrueLearn Team'
 
+
 # pylint: disable=wrong-import-position
 import truelearn
 
 version = truelearn.__version__
-release = truelearn.__version__
+# release = truelearn.__version__
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
