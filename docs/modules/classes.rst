@@ -12,6 +12,7 @@ Classes
 .. currentmodule:: truelearn
 .. autosummary::
     :toctree: generated/
+    :template: class.rst
 
     learning.INKClassifier
     learning.InterestClassifier
@@ -33,6 +34,7 @@ Classes
 .. currentmodule:: truelearn
 .. autosummary::
     :toctree: generated/
+    :template: class.rst
 
     models.AbstractKnowledgeComponent
     models.KnowledgeComponent
