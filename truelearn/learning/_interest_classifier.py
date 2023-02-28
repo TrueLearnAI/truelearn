@@ -1,5 +1,5 @@
 import math
-from typing import Callable, Any, Optional, Dict, Iterable, Tuple
+from typing import Callable, Any, Optional, Dict, Iterable
 from datetime import datetime as dt
 
 from truelearn.models import (
@@ -96,7 +96,7 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
         tau: float = 0.1,
         positive_only: bool = True,
         draw_proba_type: str = "dynamic",
-        draw_proba_static: float = 0.5,
+        draw_proba_static: Optional[float] = None,
         draw_proba_factor: float = 0.1,
         decay_func_type: str = "short",
         decay_func_factor: float = 0.0,
@@ -259,14 +259,10 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
 
         learner_kcs_decayed = map(__apply_interest_decay, learner_kcs)
 
-        team_learner: Tuple[
-            trueskill.Rating, ...
-        ] = InterestNoveltyKnowledgeBaseClassifier._gather_trueskill_team(
+        team_learner = InterestNoveltyKnowledgeBaseClassifier._gather_trueskill_team(
             self._env, learner_kcs_decayed
         )
-        team_content: Tuple[
-            trueskill.Rating, ...
-        ] = InterestNoveltyKnowledgeBaseClassifier._gather_trueskill_team(
+        team_content = InterestNoveltyKnowledgeBaseClassifier._gather_trueskill_team(
             self._env, content_kcs
         )
 

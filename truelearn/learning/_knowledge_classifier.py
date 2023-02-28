@@ -82,7 +82,7 @@ KnowledgeComponent(mean=0.58097..., variance=0.33159..., ...), ...}), ...}
         tau: float = 0.1,
         positive_only: bool = True,
         draw_proba_type: str = "dynamic",
-        draw_proba_static: float = 0.5,
+        draw_proba_static: Optional[float] = None,
         draw_proba_factor: float = 0.1,
     ) -> None:
         """Init KnowledgeClassifier object.
