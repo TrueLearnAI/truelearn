@@ -3,7 +3,6 @@ on:
   push:
     branches:
       - main
-      - setup-ci
   pull_request:
     branches:
       - main
@@ -25,7 +24,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip' # cache dependencies
-          cache-dependency-path: '**/pyproject.toml'
+          cache-dependency-path: 'pyproject.toml'
 
       - name: Install Project Dependencies
         run:  |
