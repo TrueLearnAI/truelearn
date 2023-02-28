@@ -66,8 +66,8 @@ intersphinx_mapping = {
 # Code below from:
 # https://github.com/Lasagne/Lasagne/blob/master/docs/conf.py#L114
 
-# Determine the URL corresponding to the source code
 def linkcode_resolve(domain, info):
+    """Determine the URL corresponding to the sourcecode"""
     def find_source():
         # Find the file and line number, based on code from numpy:
         # https://github.com/numpy/numpy/blob/master/doc/source/conf.py#L286
