@@ -18,7 +18,8 @@ sys.path.insert(0, os.path.abspath('..'))
 # before building the docs (it's not done automatically), otherwise
 # old files will be left in the generated folder and Sphinx will not
 # rebuild them.
-if os.environ.get('READTHEDOCS', None):
+if os.environ.get('READTHEDOCS'):
+    print("debug: cleaning up generated folder")
     path = Path('./modules/generated/')
     if path.exists():
         shutil.rmtree(str(path))
