@@ -27,8 +27,6 @@ jobs:
       - name: Install Project Dependencies
         run:  |
             pip install ."[linters]"
-            # prevents caching truelearn itself
-            pip uninstall -y truelearn
 
       - name: Run Prospector
         run: |

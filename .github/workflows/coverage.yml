@@ -27,8 +27,6 @@ jobs:
       - name: Install Project Dependencies
         run:  |
             pip install ."[tests]"
-            # prevents caching truelearn itself
-            pip uninstall -y truelearn
 
       - name: Calculate coverage
         run: |

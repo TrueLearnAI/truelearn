@@ -27,8 +27,6 @@ jobs:
       - name: Install Project Dependencies
         run:  |
             pip install ."[tests]"
-            # prevents caching truelearn itself
-            pip uninstall -y truelearn
 
         # Pytest generates an XML report
       - name: Execute tests
