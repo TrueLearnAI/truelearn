@@ -10,7 +10,7 @@ on:
   workflow_call:
 
 jobs:
-  Run_Prospector_Analysis:
+  Run-Prospector-Analysis:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
