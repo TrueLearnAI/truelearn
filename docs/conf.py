@@ -56,52 +56,27 @@ intersphinx_mapping = {
 # -- Options for linkcode extension ------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/extensions/linkcode.html
 # Code below from:
-# https://github.com/DisnakeDev/disnake/blob/7853da70b13fcd2978c39c0b7efa59b34d298186
-# /docs/conf.py#L192
-
-def git(*args):
-    return subprocess.check_output(["git", *args]).strip().decode()
-
-
-# Current git reference. Uses branch/tag name if found, otherwise uses commit hash
-git_ref = None
-try:
-    git_ref = git("name-rev", "--name-only", "--no-undefined", "HEAD")
-    git_ref = re.sub(r"^(remotes/[^/]+|tags)/", "", git_ref)
-except Exception:
-    pass
-
-# (if no name found or relative ref, use commit hash instead)
-if not git_ref or re.search(r"[\^~]", git_ref):
-    try:
-        git_ref = git("rev-parse", "HEAD")
-    except Exception:
-        git_ref = "main"
-
-
+# https://github.com/Lasagne/Lasagne/blob/master/docs/conf.py#L114
 def linkcode_resolve(domain, info):
-    if domain != "py":
-        return None
-
-    try:
-        obj: Any = sys.modules[info["module"]]
-        for part in info["fullname"].split("."):
+    def find_source():
+        # try to find the file and line number, based on code from numpy:
+        # https://github.com/numpy/numpy/blob/master/doc/source/conf.py#L286
+        obj = sys.modules[info['module']]
+        for part in info['fullname'].split('.'):
             obj = getattr(obj, part)
-        obj = inspect.unwrap(obj)
+        fn = inspect.getsourcefile(obj)
+        fn = os.path.relpath(fn, start=os.path.dirname(truelearn.__file__))
+        source, lineno = inspect.getsourcelines(obj)
+        return fn, lineno, lineno + len(source) - 1
 
-        if isinstance(obj, property):
-            obj = inspect.unwrap(obj.fget)  # type: ignore
-
-        path = os.path.relpath(inspect.getsourcefile(obj),
-                               start=_disnake_module_path)  # type: ignore
-        src, lineno = inspect.getsourcelines(obj)
-    except Exception:
+    if domain != 'py' or not info['module']:
         return None
-
-    path = f"{path}#L{lineno}-L{lineno + len(src) - 1}"
-    return f"https://github.com/comp0016-group1/truelearn/blob/{git_ref}/truelearn/" \
-           f"{path}"
-
+    try:
+        filename = 'truelearn/%s#L%d-L%d' % find_source()
+    except Exception:
+        filename = info['module'].replace('.', '/') + '.py'
+    tag = subprocess.check_output(['git', 'rev-parse', 'HEAD']).decode('ascii').strip()
+    return "https://github.com/comp0016-group1/truelearn/blob/%s/%s" % (tag, filename)
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
