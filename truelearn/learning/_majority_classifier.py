@@ -67,4 +67,4 @@ class MajorityClassifier(BaseClassifier):
         return self.engagement > self.non_engagement
 
     def predict_proba(self, x: EventModel) -> float:
-        return self.engagement > self.non_engagement
+        return float(self.engagement > self.non_engagement)
