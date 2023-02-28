@@ -19,16 +19,10 @@ jobs:
 
       - name: Setup Python
         uses: actions/setup-python@v4.4.0
-        id: cache-pip
         with:
           python-version: '3.7'
           cache: 'pip' # cache dependencies
           cache-dependency-path: '**/pyproject.toml'
-
-      - if: ${{ steps.cache-pip.outputs.cache-hit != 'true' }}
-        name: List the state of pip modules
-        continue-on-error: true
-        run: pip list
 
       - name: Install Project Dependencies
         run:  |
