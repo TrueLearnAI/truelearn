@@ -6,12 +6,10 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-import os
 import inspect
-import sys
+import os
 import subprocess
-import re
-from typing import Any
+import sys
 
 sys.path.insert(0, os.path.abspath('..'))
 
@@ -77,6 +75,7 @@ def linkcode_resolve(domain, info):
         filename = info['module'].replace('.', '/') + '.py'
     tag = subprocess.check_output(['git', 'rev-parse', 'HEAD']).decode('ascii').strip()
     return "https://github.com/comp0016-group1/truelearn/blob/%s/%s" % (tag, filename)
+
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
