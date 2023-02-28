@@ -9,7 +9,6 @@
 import inspect
 import os
 import shutil
-import subprocess
 import sys
 from pathlib import Path
 sys.path.insert(0, os.path.abspath('..'))
@@ -32,7 +31,7 @@ author = 'TrueLearn Team'
 # pylint: disable=wrong-import-position
 import truelearn
 
-version = truelearn.__version__
+version = truelearn.__version__ + 'dev'
 # release = truelearn.__version__
 
 # -- General configuration ---------------------------------------------------
@@ -66,10 +65,13 @@ intersphinx_mapping = {
 # https://www.sphinx-doc.org/en/master/usage/extensions/linkcode.html
 # Code below from:
 # https://github.com/Lasagne/Lasagne/blob/master/docs/conf.py#L114
+
+# Determine the URL corresponding to the source code
 def linkcode_resolve(domain, info):
     def find_source():
-        # try to find the file and line number, based on code from numpy:
+        # Find the file and line number, based on code from numpy:
         # https://github.com/numpy/numpy/blob/master/doc/source/conf.py#L286
+
         obj = sys.modules[info['module']]
         for part in info['fullname'].split('.'):
             obj = getattr(obj, part)
@@ -81,11 +83,12 @@ def linkcode_resolve(domain, info):
     if domain != 'py' or not info['module']:
         return None
     try:
-        filename = 'truelearn/%s#L%d-L%d' % find_source()
+        source_info = find_source()
+        filename = f"truelearn/{source_info[0]}#L{source_info[1]}-L{source_info[2]}"
     except Exception:
         filename = info['module'].replace('.', '/') + '.py'
-    tag = subprocess.check_output(['git', 'rev-parse', 'HEAD']).decode('ascii').strip()
-    return "https://github.com/comp0016-group1/truelearn/blob/%s/%s" % (tag, filename)
+    tag = 'main' if 'dev' in version else 'v' + version
+    return f"https://github.com/comp0016-group1/truelearn/blob/{tag}/{filename}"
 
 
 # -- Options for HTML output -------------------------------------------------

@@ -11,10 +11,6 @@ build:
   tools:
     python: "3.7"
 
-
-
-
-      # Build documentation in the docs/ directory with Sphinx
 sphinx:
    configuration: docs/conf.py
    fail_on_warning: true
