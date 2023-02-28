@@ -21,21 +21,13 @@ jobs:
         uses: actions/setup-python@v4.4.0
         with:
           python-version: '3.7'
-          cache: 'pip' # Cache dependencies
-          cache-dependency-path: '**/pyproject.toml'
-
-      - name: Install pip-tools and generate requirements.txt
-        run: |
-          pip install pip-tools
-          # Generates a requirements.txt file from pyproject.toml
-          # This means that we dont have to install truelearn
-          pip-compile --resolver=backtracking --output-file requirements.txt pyproject.toml
+          cache: 'pip' # cache dependencies
 
       - name: Install Project Dependencies
-        run:  pip install -r requirements.txt
-
-      - name: Install Pytest
-        run: pip install pytest
+        run:  |
+            pip install ."[tests]"
+            # prevents caching truelearn itself
+            pip uninstall -y truelearn
 
         # Pytest generates an XML report
       - name: Execute tests
