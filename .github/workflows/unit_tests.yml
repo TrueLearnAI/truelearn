@@ -3,7 +3,6 @@ on:
   push:
     branches:
       - main
-      - setup-ci
   pull_request:
     branches:
       - main
@@ -13,29 +12,23 @@ on:
 jobs:
   Run-Unit-Tests:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v3
 
-      - name: Setup Python
+      - name: Setup Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4.4.0
         with:
-          python-version: '3.7'
-          cache: 'pip' # Cache dependencies
-          cache-dependency-path: '**/pyproject.toml'
-
-      - name: Install pip-tools and generate requirements.txt
-        run: |
-          pip install pip-tools
-          # Generates a requirements.txt file from pyproject.toml
-          # This means that we dont have to install truelearn
-          pip-compile --resolver=backtracking --output-file requirements.txt pyproject.toml
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip' # cache dependencies
+          cache-dependency-path: 'pyproject.toml'
 
       - name: Install Project Dependencies
-        run:  pip install -r requirements.txt
-
-      - name: Install Pytest
-        run: pip install pytest
+        run:  |
+            pip install ."[tests]"
 
         # Pytest generates an XML report
       - name: Execute tests

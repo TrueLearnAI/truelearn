@@ -56,9 +56,10 @@ packages = ["truelearn"]
 # pip install truelearn[name_of_optional_dependency]
 # e.g. pip install truelearn[dev] will install the tests dependencies
 [project.optional-dependencies]
-tests = ["pytest>=7.2.1", "pytest-socket>=0.6.0"]
+tests = ["pytest>=7.2.1", "pytest-cov>=4.0.0"]
+linters = ["prospector[with_bandit,with_mypy]>=1.8.4"]
 docs = ["sphinx>=5.3.0", "furo>=2022.12.7"]
-dev = ["prospector[with_bandit,with_mypy]>=1.8.4","black>=22.12.0", "truelearn[tests]"]
+dev = ["truelearn[tests, linters]","black>=22.12.0"]
 
 [tool.black]
 line-length = 88
