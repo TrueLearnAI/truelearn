@@ -4,7 +4,7 @@ from typing_extensions import Self
 
 import plotly.graph_objects as go
 
-from ._base import (
+from truelearn.utils.visualisations._base import (
     BasePlotter,
     knowledge_to_dict,
     KnowledgeDict
