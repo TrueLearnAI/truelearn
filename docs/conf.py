@@ -31,8 +31,7 @@ author = 'TrueLearn Team'
 # pylint: disable=wrong-import-position
 import truelearn
 
-version = truelearn.__version__ + 'dev'
-# release = truelearn.__version__
+version = truelearn.__version__
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
