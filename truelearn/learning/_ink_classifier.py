@@ -164,43 +164,66 @@ class INKClassifier(BaseClassifier):
         self.interest_weight: Dict[str, float] = interest_weight
         self.bias_weight: Dict[str, float] = bias_weight
 
-        self.__env = trueskill.TrueSkill(
-            mu=0.0,
-            sigma=INKClassifier.__DEFAULT_GLOBAL_SIGMA,
-            beta=1,
-            tau=tau,
-            draw_probability=INKClassifier.__DEFAULT_DRAW_PROBA,
-            backend="mpmath",
-        )
-
         self._validate_params()
 
-    def __calculate_sum_prediction(
+    def __eval_matching_quality(
         self,
         *,
-        mu_novelty: float,
-        var_novelty: float,
+        novelty_weight: Dict[str, float],
         pred_novelty: float,
-        mu_interest: float,
-        var_interest: float,
+        interest_weight: Dict[str, float],
         pred_interest: float,
-        mu_bias: float,
-        var_bias: float,
+        bias_weight: Dict[str, float],
         pred_bias: float,
     ) -> float:
+        """Evaluate the matching quality of learner and content given the weights.
+
+        Args:
+            novelty_weight:
+                A dict containing the mean and variance of the novelty_weight.
+            pred_novelty:
+                The predicted probability of the learner's engagement by using
+                NoveltyClassifier.
+            interest_weight:
+                A dict containing the mean and variance of the interest_weight.
+            pred_interest:
+                The predicted probability of the learner's engagement by using
+                InterestClassifier.
+            bias_weight:
+                A dict containing the mean and variance of the bias_weight.
+            pred_bias:
+                The predicted probability of the learner's engagement by using
+                bias. This value is always 1.0.
+
+        Returns:
+            A float between [0, 1], indicating the matching quality
+            of the learner and the content. The higher the value,
+            the better the match.
+        """
         difference = (
-            (mu_novelty * pred_novelty)
-            + (mu_interest * pred_interest)
-            + (mu_bias * pred_bias)
+            (novelty_weight["mean"] * pred_novelty)
+            + (interest_weight["mean"] * pred_interest)
+            + (bias_weight["mean"] * pred_bias)
             - self.threshold
         )
         std = math.sqrt(
-            var_novelty * pred_novelty
-            + var_interest * pred_interest
-            + var_bias * pred_bias
+            novelty_weight["variance"] * pred_novelty
+            + interest_weight["variance"] * pred_interest
+            + bias_weight["variance"] * pred_bias
         )
 
         return float(mpmath.ncdf(difference, mu=0, sigma=std))
+
+    def __create_env(self):
+        """Create the trueskill environment used in the training/prediction process."""
+        return trueskill.TrueSkill(
+            mu=0.0,
+            sigma=INKClassifier.__DEFAULT_GLOBAL_SIGMA,
+            beta=1,
+            tau=self.tau,
+            draw_probability=INKClassifier.__DEFAULT_DRAW_PROBA,
+            backend="mpmath",
+        )
 
     def __update_weights(
         self,
@@ -209,6 +232,21 @@ class INKClassifier(BaseClassifier):
         pred_interest: float,
         pred_actual: float,
     ) -> None:
+        """Update the weights of novelty, interest and bias.
+
+        Args:
+            x:
+                A representation of the learning event.
+            pred_novelty:
+                The predicted probability of the learner's engagement by using
+                NoveltyClassifier.
+            pred_interest:
+                The predicted probability of the learner's engagement by using
+                InterestClassifier.
+            pred_actual:
+                Whether the learner actually engage in the given event. This value is
+                either 0 or 1.
+        """
         cur_pred = self.predict_proba(x)
 
         # if prediction is correct and greedy, don't train
@@ -216,35 +254,36 @@ class INKClassifier(BaseClassifier):
             return
 
         # train
+        env = self.__create_env()
         team_experts = (
-            self.__env.create_rating(
+            env.create_rating(
                 mu=self.novelty_weight["mean"],
                 sigma=math.sqrt(self.novelty_weight["variance"]),
             ),
-            self.__env.create_rating(
+            env.create_rating(
                 mu=self.interest_weight["mean"],
                 sigma=math.sqrt(self.interest_weight["variance"]),
             ),
-            self.__env.create_rating(
+            env.create_rating(
                 mu=self.bias_weight["mean"],
                 sigma=math.sqrt(self.bias_weight["variance"]),
             ),
         )
 
         team_threshold = (
-            self.__env.create_rating(
+            env.create_rating(
                 mu=self.threshold, sigma=INKClassifier.__DEFAULT_GLOBAL_SIGMA
             ),
         )
 
         if pred_actual:  # weights need to be larger than threshold
-            new_team_experts, _ = self.__env.rate(
+            new_team_experts, _ = env.rate(
                 [team_experts, team_threshold],
                 weights=[(pred_novelty, pred_interest, 1), (1,)],
                 ranks=[0, 1],
             )
         else:
-            new_team_experts, _ = self.__env.rate(
+            new_team_experts, _ = env.rate(
                 [team_experts, team_threshold],
                 weights=[(pred_novelty, pred_interest, 1), (1,)],
                 ranks=[1, 0],
@@ -270,23 +309,20 @@ class INKClassifier(BaseClassifier):
 
         pred_novelty = self.novelty_classifier.predict_proba(x)
         pred_interest = self.interest_classifier.predict_proba(x)
-        self.__update_weights(x, pred_novelty, pred_interest, y)
 
+        self.__update_weights(x, pred_novelty, pred_interest, y)
         return self
 
     def predict(self, x: EventModel) -> bool:
         return self.predict_proba(x) > self.threshold
 
     def predict_proba(self, x: EventModel) -> float:
-        return self.__calculate_sum_prediction(
-            mu_novelty=self.novelty_weight["mean"],
-            var_novelty=self.novelty_weight["variance"],
+        return self.__eval_matching_quality(
+            novelty_weight=self.novelty_weight,
             pred_novelty=self.novelty_classifier.predict_proba(x),
-            mu_interest=self.interest_weight["mean"],
-            var_interest=self.interest_weight["variance"],
+            interest_weight=self.interest_weight,
             pred_interest=self.interest_classifier.predict_proba(x),
-            mu_bias=self.bias_weight["mean"],
-            var_bias=self.bias_weight["variance"],
+            bias_weight=self.bias_weight,
             pred_bias=1.0,
         )
 
