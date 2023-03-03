@@ -36,20 +36,15 @@ class BarPlotter(BasePlotter):
             the bar chart.
         """
         content = []
-        for topic, kc in raw_data.items():
-            # means = []
-            # variances = []
-            # for mean, variance, _ in kc['history']:
-            #   means.append(mean)
-            #   variances.append(variance)
+        for _, kc in raw_data.items():
             urls=kc['url']
             means=kc['mean']
             variances=kc['variance']
-            data = (topic, means, variances, urls)
+            data = (means, variances, urls)
             content.append(data)
         
         content.sort(
-            key=lambda data: data[1],  # sort based on mean
+            key=lambda data: data[0],  # sort based on mean
             reverse=True
         )
         print(content[:top_n])
@@ -60,7 +55,7 @@ class BarPlotter(BasePlotter):
     def plot(
             self,
             layout_data: Tuple[str, str, str],
-            content: Iterable[Tuple[str, Iterable, Iterable, str]]
+            content: Iterable[Tuple[Iterable, Iterable, str]]
         ) -> go.Bar:
 
         """
@@ -82,18 +77,16 @@ class BarPlotter(BasePlotter):
         """
 
         layout = self._layout(layout_data)
-        
-        topic = [lst[0] for lst in content]
 
-        mean = [lst[1] for lst in content]
+        mean = [lst[0] for lst in content]
 
-        variance = [lst[2] for lst in content]
+        variance = [lst[1] for lst in content]
 
         var_min = min(variance) - 0.05
 
         var_max = max(variance) + 0.05
 
-        url = [lst[3] for lst in content]
+        url = [lst[2] for lst in content]
         
         subjects = []
         for x in url:
