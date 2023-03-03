@@ -37,8 +37,8 @@ class LinePlotter(BasePlotter):
             the line chart.
         """
         content = []
-        for topic, kc in raw_data.items():
-            _, title, _ = topic  
+        for _, kc in raw_data.items():
+            title = kc['title']
             means = []
             timestamps = []
             for mean, _, timestamp in kc['history']:

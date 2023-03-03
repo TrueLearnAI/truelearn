@@ -39,17 +39,17 @@ class BasePlotter(ABC):
             data: the data to be used to plot the visualisation.
         """
 
-    # @abstractmethod
-    # def _trace(self, trace_data: Tuple) -> bdt.BaseTraceType:
-    #     """Creates a trace to incorporate in the visualisation.
+    @abstractmethod
+    def _trace(self, trace_data: Tuple) -> bdt.BaseTraceType:
+        """Creates a trace to incorporate in the visualisation.
 
-    #     Args:
-    #         trace_data: the data used to create the trace. This has the same
-    #           type as the tuples in the iterable of the plot() method.
+        Args:
+            trace_data: the data used to create the trace. This has the same
+              type as the tuples in the iterable of the plot() method.
         
-    #     Returns:
-    #         the trace object generated from trace_data.
-    #     """
+        Returns:
+            the trace object generated from trace_data.
+        """
 
     @final
     def _layout(self, layout_data: Tuple[str, str, str]) -> go.Layout:

@@ -67,13 +67,14 @@ class DotPlotter(BasePlotter):
         Args:
             layout: a tuple of the form (title, x_label, y_label) where
               title is the what the visualisation will be named,
-              x_label will be the label of the x-axis,
-              y_label will be the label of the y-axis.
-            content: an iterable of tuples, where each tuple is used to plot
-              a line (represented through Plotly traces). Each tuple is in the
-              form (name, x-values, y_values) where name is the name of the line,
-              x_values are the values to plot along the x-axis and y_values
-              are the values to plot along the y-axis. 
+              subjects will be the label of the x-axis,
+              mean will be the label of the y-axis,
+              variance will be represented by the colour of the bars.
+              content: an iterable of tuples, where each tuple is used to plot
+              bars. Each tuple is in the form (mean, variance, url) where 
+              mean is the TrueSkill rating of the user for a specific subject,
+              variance represents the certainty of the model in this mean and 
+              url which is used to extract the subject as a string without https 
         """
 
         layout = self._layout(layout_data)
@@ -111,3 +112,5 @@ class DotPlotter(BasePlotter):
             layout = layout)
 
         return self
+    def _trace():
+        pass

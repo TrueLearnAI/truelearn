@@ -17,12 +17,12 @@ class BarPlotter(BasePlotter):
     
     def clean_data(
             self, raw_data: KnowledgeDict, top_n: int
-        ) -> Iterable[Tuple[str, Iterable, Iterable]]:
+        ) -> Iterable[Tuple[Iterable, Iterable, str]]:
         """Converts an object of KnowledgeDict type to one suitable for plot().
         
         Optional utility function that converts the dictionary representation
         of the learner's knowledge (obtainable via the knowledge_to_dict()
-        function) to the Iterable[Tuple[str, Iterable, Iterable]] used by plot.
+        function) to the Iterable[Tuple[Iterable, Iterable, str]] used by plot.
 
         Args:
             raw_data: dictionary representation of the learner's knowledge and
@@ -67,13 +67,14 @@ class BarPlotter(BasePlotter):
         Args:
             layout: a tuple of the form (title, x_label, y_label) where
               title is the what the visualisation will be named,
-              x_label will be the label of the x-axis,
-              y_label will be the label of the y-axis.
-            content: an iterable of tuples, where each tuple is used to plot
-              a line (represented through Plotly traces). Each tuple is in the
-              form (name, x-values, y_values) where name is the name of the line,
-              x_values are the values to plot along the x-axis and y_values
-              are the values to plot along the y-axis. 
+              subjects will be the label of the x-axis,
+              mean will be the label of the y-axis,
+              variance will be represented by the colour of the bars.
+              content: an iterable of tuples, where each tuple is used to plot
+              bars. Each tuple is in the form (mean, variance, url) where 
+              mean is the TrueSkill rating of the user for a specific subject,
+              variance represents the certainty of the model in this mean and 
+              url which is used to extract the subject as a string without https 
         """
 
         layout = self._layout(layout_data)
@@ -111,3 +112,6 @@ class BarPlotter(BasePlotter):
         ), layout=layout)
 
         return self
+
+    def _trace():
+        pass
