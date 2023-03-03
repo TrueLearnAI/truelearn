@@ -56,13 +56,13 @@ class INKClassifier(BaseClassifier):
         ...         ink_classifier.predict_proba(event)
         ...     )
         ...
-        True 0.6182308411203978
-        False 0.3310655905740751
-        True 0.6669771468219884
+        True 0.5519515387629774
+        False 0.3042337221090127
+        True 0.6278686231266752
         >>> ink_classifier.get_params(deep=False)  # doctest:+ELLIPSIS
-        {'bias_weight': {'mean': 0.35199..., 'variance': 1.08906...}, ..., \
-'interest_weight': {'mean': 0.77060..., 'variance': 1.42270...}, ..., \
-'novelty_weight': {'mean': 0.52938..., 'variance': 1.59489...}
+        {'bias_weight': {'mean': 0.32119..., 'variance': 0.88150...}, ..., \
+'interest_weight': {'mean': 0.58194..., 'variance': 1.07022...}, ..., \
+'novelty_weight': {'mean': 0.39332..., 'variance': 1.16897...}
     """
 
     __DEFAULT_GLOBAL_SIGMA: Final[float] = 1e-9

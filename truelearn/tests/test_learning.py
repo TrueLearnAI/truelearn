@@ -636,7 +636,7 @@ def test_ink_classifier(train_cases, test_events):
     for event, label in zip(train_events, train_labels):
         classifier.fit(event, label)
 
-    expected_results = [0.2526088264078084, 0.21809021973655365, 0.22199445662986067]
+    expected_results = [0.24337755209294626, 0.21257650005484793, 0.2160900839287269]
     actual_results = [classifier.predict_proba(event) for event in test_events]
 
     assert expected_results == actual_results
