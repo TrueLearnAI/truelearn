@@ -11,6 +11,9 @@ Welcome to TrueLearn's documentation!
 
    tutorial/quickstart
    modules/classes
+   developers/index
+
+
 
 |PyPi| |License| |Version| |codecov|
 
