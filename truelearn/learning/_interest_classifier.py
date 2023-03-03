@@ -200,6 +200,7 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
 
     def _generate_ratings(
         self,
+        env: trueskill.TrueSkill,
         learner_kcs: Iterable[AbstractKnowledgeComponent],
         content_kcs: Iterable[AbstractKnowledgeComponent],
         event_time: Optional[float],
@@ -211,6 +212,8 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
         event_time (for InterestClassifier).
 
         Args:
+            env:
+                The trueskill environment where the training/prediction happens.
             learner_kcs:
                 An iterable of learner's knowledge components.
             content_kcs:
@@ -256,20 +259,19 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
         learner_kcs_decayed = map(__apply_interest_decay, learner_kcs)
 
         team_learner = InterestNoveltyKnowledgeBaseClassifier._gather_trueskill_team(
-            self._env, learner_kcs_decayed
+            env, learner_kcs_decayed
         )
         team_content = InterestNoveltyKnowledgeBaseClassifier._gather_trueskill_team(
-            self._env, content_kcs
+            env, content_kcs
         )
 
         # learner always wins in interest
-        updated_team_learner, _ = self._env.rate(
-            [team_learner, team_content], ranks=[0, 1]
-        )
+        updated_team_learner, _ = env.rate([team_learner, team_content], ranks=[0, 1])
         return updated_team_learner
 
     def _eval_matching_quality(
         self,
+        env: trueskill.TrueSkill,
         learner_kcs: Iterable[AbstractKnowledgeComponent],
         content_kcs: Iterable[AbstractKnowledgeComponent],
     ) -> float:

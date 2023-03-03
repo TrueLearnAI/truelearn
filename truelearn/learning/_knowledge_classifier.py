@@ -155,35 +155,35 @@ KnowledgeComponent(mean=0.58097..., variance=0.33159..., ...), ...}), ...}
             draw_proba_factor=draw_proba_factor,
         )
 
-    def _generate_ratings(
+    def _generate_ratings(  # pylint: disable=too-many-arguments
         self,
+        env: trueskill.TrueSkill,
         learner_kcs: Iterable[AbstractKnowledgeComponent],
         content_kcs: Iterable[AbstractKnowledgeComponent],
         event_time: Optional[float],
         y: bool,
     ) -> Iterable[trueskill.Rating]:
         team_learner = InterestNoveltyKnowledgeBaseClassifier._gather_trueskill_team(
-            self._env, learner_kcs
+            env, learner_kcs
         )
         team_content = InterestNoveltyKnowledgeBaseClassifier._gather_trueskill_team(
-            self._env, content_kcs
+            env, content_kcs
         )
 
         if y:
             # learner wins: lower rank == winning
-            updated_team_learner, _ = self._env.rate(
+            updated_team_learner, _ = env.rate(
                 [team_learner, team_content], ranks=[0, 1]
             )
             return updated_team_learner
 
         # content wins
-        _, updated_team_learner = self._env.rate(
-            [team_content, team_learner], ranks=[0, 1]
-        )
+        _, updated_team_learner = env.rate([team_content, team_learner], ranks=[0, 1])
         return updated_team_learner
 
     def _eval_matching_quality(
         self,
+        env: trueskill.TrueSkill,
         learner_kcs: Iterable[AbstractKnowledgeComponent],
         content_kcs: Iterable[AbstractKnowledgeComponent],
     ) -> float:

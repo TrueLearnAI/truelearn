@@ -148,8 +148,9 @@ KnowledgeComponent(mean=0.36833..., variance=0.26916..., ...), ...}), ...}
             draw_proba_factor=draw_proba_factor,
         )
 
-    def _generate_ratings(
+    def _generate_ratings(  # pylint: disable=too-many-arguments
         self,
+        env: trueskill.TrueSkill,
         learner_kcs: Iterable[AbstractKnowledgeComponent],
         content_kcs: Iterable[AbstractKnowledgeComponent],
         event_time: Optional[float],
@@ -159,10 +160,10 @@ KnowledgeComponent(mean=0.36833..., variance=0.26916..., ...), ...}), ...}
         learner_kcs = list(learner_kcs)
 
         team_learner = InterestNoveltyKnowledgeBaseClassifier._gather_trueskill_team(
-            self._env, learner_kcs
+            env, learner_kcs
         )
         team_content = InterestNoveltyKnowledgeBaseClassifier._gather_trueskill_team(
-            self._env, content_kcs
+            env, content_kcs
         )
         team_learner_mean = map(lambda learner_kc: learner_kc.mean, learner_kcs)
         team_content_mean = map(lambda content_kc: content_kc.mean, content_kcs)
@@ -185,7 +186,7 @@ KnowledgeComponent(mean=0.36833..., variance=0.26916..., ...), ...}), ...}
 
         # update the rating based on the rank
         if ranks is not None:
-            updated_team_learner, _ = self._env.rate(
+            updated_team_learner, _ = env.rate(
                 [team_learner, team_content], ranks=ranks
             )
             return updated_team_learner
@@ -194,13 +195,14 @@ KnowledgeComponent(mean=0.36833..., variance=0.26916..., ...), ...}), ...}
 
     def _eval_matching_quality(
         self,
+        env: trueskill.TrueSkill,
         learner_kcs: Iterable[AbstractKnowledgeComponent],
         content_kcs: Iterable[AbstractKnowledgeComponent],
     ) -> float:
         team_learner = InterestNoveltyKnowledgeBaseClassifier._gather_trueskill_team(
-            self._env, learner_kcs
+            env, learner_kcs
         )
         team_content = InterestNoveltyKnowledgeBaseClassifier._gather_trueskill_team(
-            self._env, content_kcs
+            env, content_kcs
         )
-        return self._env.quality([team_learner, team_content])
+        return env.quality([team_learner, team_content])

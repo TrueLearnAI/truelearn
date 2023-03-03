@@ -315,6 +315,7 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
         created from the given iterable of knowledge components.
 
         Args:
+            env: The trueskill environment where the training/prediction happens.
             kcs: An iterable of knowledge components.
 
         Returns:
@@ -400,8 +401,6 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
         self.draw_proba_factor = draw_proba_factor
         self.draw_proba_static = draw_proba_static
 
-        self.__setup_env()
-
     def __calculate_draw_proba(self) -> float:
         if self.draw_proba_type == "static":
             # delayed check as draw_proba_type can be potentially replaced by set_params
@@ -435,10 +434,10 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
         # draw_proba_param is a factor if the type is dynamic
         return draw_probability * self.draw_proba_factor
 
-    def __setup_env(self) -> None:
-        """Setup the trueskill environment used in the training process."""
+    def __create_env(self) -> trueskill.TrueSkill:
+        """Create the trueskill environment used in the training/prediction process."""
         draw_probability = self.__calculate_draw_proba()
-        self._env = trueskill.TrueSkill(
+        return trueskill.TrueSkill(
             mu=0.0,
             sigma=InterestNoveltyKnowledgeBaseClassifier.__DEFAULT_GLOBAL_SIGMA,
             beta=self.beta,
@@ -534,8 +533,9 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
         return team_learner
 
     @abstractmethod
-    def _generate_ratings(
+    def _generate_ratings(  # pylint: disable=too-many-arguments
         self,
+        env: trueskill.TrueSkill,
         learner_kcs: Iterable[AbstractKnowledgeComponent],
         content_kcs: Iterable[AbstractKnowledgeComponent],
         event_time: Optional[float],
@@ -547,6 +547,7 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
         event_time (for InterestClassifier).
 
         Args:
+            env: The trueskill environment where the training/prediction happens.
             learner_kcs:
                 An iterable of learner's knowledge components.
             content_kcs:
@@ -561,10 +562,13 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
             An iterable of trueskill.Rating.
         """
 
-    def __update_knowledge_representation(self, x: EventModel, y: bool) -> None:
+    def __update_knowledge_representation(
+        self, env: trueskill.TrueSkill, x: EventModel, y: bool
+    ) -> None:
         """Update the knowledge representation of the LearnerModel.
 
         Args:
+            env: The trueskill environment where the training/prediction happens.
             x: A representation of the learning event.
             y: A bool indicating whether the learner engages in the learning event.
         """
@@ -582,7 +586,7 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
 
         for topic_kc_pair, rating in zip(
             learner_topic_kc_pairs,
-            self._generate_ratings(learner_kcs, content_kcs, x.event_time, y),
+            self._generate_ratings(env, learner_kcs, content_kcs, x.event_time, y),
         ):
             topic_id, kc = topic_kc_pair
             kc.update(
@@ -595,10 +599,10 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
         # if positive_only is False or (it's true and y is true)
         # update the knowledge representation
         if not self.positive_only or y is True:
-            self.__update_knowledge_representation(x, y)
+            env = self.__create_env()
+            self.__update_knowledge_representation(env, x, y)
 
         self.__update_engagement_stats(y)
-        self.__setup_env()
         return self
 
     @final
@@ -608,12 +612,15 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
     @abstractmethod
     def _eval_matching_quality(
         self,
+        env: trueskill.TrueSkill,
         learner_kcs: Iterable[AbstractKnowledgeComponent],
         content_kcs: Iterable[AbstractKnowledgeComponent],
     ) -> float:
         """Evaluate the matching quality of learner and content.
 
         Args:
+            env:
+                The trueskill environment where the training/prediction happens.
             learner_kcs:
                 An iterable of learner's knowledge components.
             content_kcs:
@@ -627,12 +634,11 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
 
     @final
     def predict_proba(self, x: EventModel) -> float:
-        # update env in case that the parameters are changed via set_params
-        self.__setup_env()
-
+        env = self.__create_env()
         learner_kcs = self.__select_kcs(x)
         content_kcs = x.knowledge.knowledge_components()
-        return self._eval_matching_quality(learner_kcs, content_kcs)
+
+        return self._eval_matching_quality(env, learner_kcs, content_kcs)
 
     @final
     def get_learner_model(self) -> LearnerModel:
