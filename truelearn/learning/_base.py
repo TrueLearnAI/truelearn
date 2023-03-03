@@ -1,4 +1,3 @@
-# pylint: disable=using-final-decorator-in-unsupported-version
 import math
 import collections
 from abc import ABC, abstractmethod
