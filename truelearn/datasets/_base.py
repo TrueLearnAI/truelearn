@@ -53,9 +53,10 @@ def _download_file(
 
     if verbose:
         print(f"Downloading {url} into {filepath}")
-        # the bandit warning is suppressed here
-        # because we have checked whether the url starts with http
-        request.urlretrieve(url, filepath)  # nosec
+
+    # the bandit warning is suppressed here
+    # because we have checked whether the url starts with http
+    request.urlretrieve(url, filepath)  # nosec
 
     actual_sha256 = _sha256sum(filepath)
     if expected_sha256 != actual_sha256:
