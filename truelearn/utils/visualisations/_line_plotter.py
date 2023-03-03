@@ -38,6 +38,7 @@ class LinePlotter(BasePlotter):
         """
         content = []
         for topic, kc in raw_data.items():
+            _, title, _ = topic  
             means = []
             timestamps = []
             for mean, _, timestamp in kc['history']:
@@ -48,7 +49,7 @@ class LinePlotter(BasePlotter):
                 lambda t: datetime.datetime.utcfromtimestamp(t).strftime("%Y-%m-%d"),
                 timestamps
             ))
-            tr_data = (topic, means, timestamps)
+            tr_data = (title, means, timestamps)
             content.append(tr_data)
         
         content.sort(
@@ -56,7 +57,7 @@ class LinePlotter(BasePlotter):
             reverse=True
         )
 
-        return content[:top_n]        
+        return content[:top_n]
 
     def plot(
             self,
@@ -91,6 +92,8 @@ class LinePlotter(BasePlotter):
         return self
     
     def _trace(self, tr_data: Tuple[str, Iterable, Iterable]) -> go.Scatter:
+        print("-------------------")
+        print(tr_data)
         name, y_values, x_values = tr_data
 
         trace = go.Scatter(

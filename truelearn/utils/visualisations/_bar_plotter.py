@@ -37,14 +37,14 @@ class BarPlotter(BasePlotter):
         """
         content = []
         for _, kc in raw_data.items():
-            urls=kc['url']
-            means=kc['mean']
-            variances=kc['variance']
-            data = (means, variances, urls)
+            title = kc['title']
+            mean = kc['mean']
+            variance = kc['variance']
+            data = (title, mean, variance)
             content.append(data)
         
         content.sort(
-            key=lambda data: data[0],  # sort based on mean
+            key=lambda data: data[1],  # sort based on mean
             reverse=True
         )
         print(content[:top_n])
@@ -78,35 +78,30 @@ class BarPlotter(BasePlotter):
 
         layout = self._layout(layout_data)
 
-        mean = [lst[0] for lst in content]
+        means = [lst[1] for lst in content]
 
-        variance = [lst[1] for lst in content]
+        variances = [lst[2] for lst in content]
 
-        var_min = min(variance) - 0.05
+        var_min = min(variances) - 0.05
 
-        var_max = max(variance) + 0.05
+        var_max = max(variances) + 0.05
 
-        url = [lst[2] for lst in content]
-        
-        subjects = []
-        for x in url:
-            s = x.split("/")
-            subjects.append(s[-1].replace("_", " "))
+        titles = [lst[0] for lst in content]
 
         self.figure = go.Figure(go.Bar(
-            x=subjects,
-            y=mean,
+            x=titles,
+            y=means,
             width=0.5,
             marker=dict(
                 cmax=var_max,
                 cmin=var_min,
-                color=variance,
+                color=variances,
                 colorbar=dict(
                     title="Variance"
                 ),
                 colorscale="Viridis"
             ),
-            customdata = variance,
+            customdata = variances,
             hovertemplate="<br>".join([
                     "Topic: %{x}",
                     "Mean: %{y}",
@@ -116,5 +111,3 @@ class BarPlotter(BasePlotter):
         ), layout=layout)
 
         return self
-
-
