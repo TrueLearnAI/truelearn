@@ -1,3 +1,4 @@
+import datetime
 from typing import Dict, Iterable, Union, Tuple
 from typing_extensions import Self
 
@@ -37,21 +38,25 @@ class LinePlotter(BasePlotter):
         """
         content = []
         for topic, kc in raw_data.items():
-            timestamps = []
             means = []
+            timestamps = []
             for mean, _, timestamp in kc['history']:
-                timestamps.append(timestamp)
                 means.append(mean)
-            tr_data = (topic, timestamps, means)
+                timestamps.append(timestamp)
+            
+            timestamps = list(map(
+                lambda t: datetime.datetime.utcfromtimestamp(t).strftime("%Y-%m-%d"),
+                timestamps
+            ))
+            tr_data = (topic, means, timestamps)
             content.append(tr_data)
         
         content.sort(
-            key=lambda tr_data: tr_data[2],  # sort based on mean
+            key=lambda tr_data: tr_data[1],  # sort based on mean
             reverse=True
         )
 
-        return content[:top_n]
-
+        return content[:top_n]        
 
     def plot(
             self,
@@ -72,7 +77,7 @@ class LinePlotter(BasePlotter):
               a line (represented through Plotly traces). Each tuple is in the
               form (name, x-values, y_values) where name is the name of the line,
               x_values are the values to plot along the x-axis and y_values
-              are the values to plot along the y-axis. 
+              are the values to plot along the y-axis.
         """
         traces = [self._trace(tr_data) for tr_data in content]
 
@@ -86,7 +91,7 @@ class LinePlotter(BasePlotter):
         return self
     
     def _trace(self, tr_data: Tuple[str, Iterable, Iterable]) -> go.Scatter:
-        name, x_values, y_values = tr_data
+        name, y_values, x_values = tr_data
 
         trace = go.Scatter(
             name=name,
