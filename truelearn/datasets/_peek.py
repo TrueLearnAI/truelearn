@@ -74,11 +74,11 @@ def __sanity_check(train_limit: Optional[int], test_limit: Optional[int]):
         train_limit:
             An optional non-negative integer specifying the
             maximum number of lines to read from the train file.
-            If None, it means no limit. Defaults to None.
+            If None, it means no limit.
         test_limit:
             An optional non-negative integer specifying the
             maximum number of lines to read from the test file.
-            If None, it means no limit. Defaults to None.
+            If None, it means no limit.
 
     Raises:
         ValueError:
@@ -98,11 +98,9 @@ def __download_files(dirname: str = ".", verbose: bool = True) -> Tuple[str, str
     Args:
         dirname:
             The destination directory of the downloaded file.
-            Defaults to ".".
         verbose:
             Whether download in verbose mode.
             Verbose mode produces info about the downloaded files.
-            Defaults to True.
 
     Returns:
         A tuple of (train_filepath, test_filepath, mapping_filepath).
@@ -330,7 +328,7 @@ def load_peek_dataset(
         *:
             Use to reject positional arguments.
         dirname:
-            The directory name. Defaults to ".".
+            The directory name.
         variance:
             The default variance of the knowledge components in PEEKDataset.
         kc_init_func:
@@ -342,11 +340,11 @@ def load_peek_dataset(
         train_limit:
             An optional non-negative integer specifying the
             maximum number of lines to read from the train file.
-            If None, it means no limit. Defaults to None.
+            If None, it means no limit.
         test_limit:
             An optional non-negative integer specifying the
             maximum number of lines to read from the test file.
-            If None, it means no limit. Defaults to None.
+            If None, it means no limit.
         verbose:
             If True and the downloaded file doesn't exist, this function outputs some
             information about the downloaded file.
@@ -439,15 +437,15 @@ def load_peek_dataset_raw(
         *:
             Use to reject positional arguments.
         dirname:
-            The directory name. Defaults to ".".
+            The directory name.
         train_limit:
             An optional non-negative integer specifying the
             maximum number of lines to read from the train file.
-            If None, it means no limit. Defaults to None.
+            If None, it means no limit.
         test_limit:
             An optional non-negative integer specifying the
             maximum number of lines to read from the test file.
-            If None, it means no limit. Defaults to None.
+            If None, it means no limit.
         verbose:
             If True and the downloaded file doesn't exist, this function outputs some
             information about the downloaded file.

@@ -143,7 +143,8 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
                 The allowed values are "short" and "long".
             decay_func_factor:
                 A factor that will be used in both short and long
-                interest decay function.
+                interest decay function. Defaults to 0, which disables
+                the interest decay function.
 
         Raises:
             ValueError:
