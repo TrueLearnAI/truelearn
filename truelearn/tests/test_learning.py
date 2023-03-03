@@ -248,7 +248,7 @@ def test_knowledge_throw():
     with pytest.raises(ValueError) as excinfo:
         learning.KnowledgeClassifier(
             draw_proba_type="static", draw_proba_static=None
-        ).fit(models.EventModel(), True)
+        )
     assert (
         "When draw_proba_type is set to static, the draw_proba_static should not be "
         "None." == str(excinfo.value)
@@ -351,7 +351,7 @@ def test_novelty_throw():
     with pytest.raises(ValueError) as excinfo:
         learning.NoveltyClassifier(
             draw_proba_type="static", draw_proba_static=None
-        ).fit(models.EventModel(), True)
+        )
     assert (
         "When draw_proba_type is set to static, the draw_proba_static should not be "
         "None." == str(excinfo.value)
@@ -454,7 +454,7 @@ def test_interest_throw():
     with pytest.raises(ValueError) as excinfo:
         learning.InterestClassifier(
             draw_proba_type="static", draw_proba_static=None
-        ).fit(models.EventModel(), True)
+        )
     assert (
         "When draw_proba_type is set to static, the draw_proba_static should not be "
         "None." == str(excinfo.value)

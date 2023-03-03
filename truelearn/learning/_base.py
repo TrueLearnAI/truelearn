@@ -378,6 +378,13 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
         self.draw_proba_factor = draw_proba_factor
         self.draw_proba_static = draw_proba_static
 
+        # check to ensure that the constructed classifier is not in corrupt state
+        if self.draw_proba_type == "static" and self.draw_proba_static is None:
+            raise ValueError(
+                "When draw_proba_type is set to static,"
+                " the draw_proba_static should not be None."
+            )
+
     def __calculate_draw_proba(self) -> float:
         if self.draw_proba_type == "static":
             # delayed check as draw_proba_type can be potentially replaced by set_params
