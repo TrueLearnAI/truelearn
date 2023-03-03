@@ -66,14 +66,14 @@ class LearnerMetaModel:
         >>> # construct an empty learner meta model
         >>> LearnerMetaModel()  # doctest:+ELLIPSIS
         LearnerMetaModel(learner_novelty=..., learner_interest=..., \
-novelty_weight={'mean': 0.0, 'variance': 1.0}, interest_weight=..., bias_weight=...)
+novelty_weight={'mean': 0.0, 'variance': 0.5}, interest_weight=..., bias_weight=...)
         >>> # construct a learner meta model with given learner models
         >>> learner_novelty = LearnerModel()
         >>> learner_interest = LearnerModel()
         >>> LearnerMetaModel(learner_novelty=learner_novelty,\
 learner_interest=learner_novelty)
         LearnerMetaModel(learner_novelty=..., learner_interest=..., \
-novelty_weight={'mean': 0.0, 'variance': 1.0}, interest_weight=..., bias_weight=...)
+novelty_weight={'mean': 0.0, 'variance': 0.5}, interest_weight=..., bias_weight=...)
         >>> # construct a learner meta model with custom weights
         >>> LearnerMetaModel(bias_weight={"mean": 1.0, "variance": 2.0})
         LearnerMetaModel(learner_novelty=..., learner_interest=..., \
@@ -83,11 +83,11 @@ novelty_weight=..., interest_weight=..., bias_weight={'mean': 1.0, 'variance': 2
     learner_novelty: LearnerModel = dataclasses.field(default_factory=LearnerModel)
     learner_interest: LearnerModel = dataclasses.field(default_factory=LearnerModel)
     novelty_weight: Dict[str, float] = dataclasses.field(
-        default_factory=lambda: {"mean": 0.0, "variance": 1.0}
+        default_factory=lambda: {"mean": 0.0, "variance": 0.5}
     )
     interest_weight: Dict[str, float] = dataclasses.field(
-        default_factory=lambda: {"mean": 0.0, "variance": 1.0}
+        default_factory=lambda: {"mean": 0.0, "variance": 0.5}
     )
     bias_weight: Dict[str, float] = dataclasses.field(
-        default_factory=lambda: {"mean": 0.0, "variance": 1.0}
+        default_factory=lambda: {"mean": 0.0, "variance": 0.5}
     )

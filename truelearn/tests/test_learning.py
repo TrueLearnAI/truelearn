@@ -171,8 +171,7 @@ def test_knowledge_get_set_params():
         "tau",
         "threshold",
     )
-    for key in classifier.get_params():
-        assert key in params
+    assert params == tuple(classifier.get_params())
 
     classifier.set_params(tau=0.2)
     assert classifier.get_params()["tau"] == 0.2
@@ -246,9 +245,7 @@ def test_knowledge_throw():
     )
 
     with pytest.raises(ValueError) as excinfo:
-        learning.KnowledgeClassifier(
-            draw_proba_type="static", draw_proba_static=None
-        )
+        learning.KnowledgeClassifier(draw_proba_type="static", draw_proba_static=None)
     assert (
         "When draw_proba_type is set to static, the draw_proba_static should not be "
         "None." == str(excinfo.value)
@@ -287,6 +284,35 @@ def test_novelty_positive_only_no_update(train_cases):
     assert learner_model.number_of_engagements == 0
     assert learner_model.number_of_non_engagements == len(train_events)
     assert not list(learner_model.knowledge.knowledge_components())
+
+
+def test_novelty_get_set_params():
+    classifier = learning.NoveltyClassifier(draw_proba_type="dynamic")
+
+    params = (
+        "beta",
+        "def_var",
+        "draw_proba_factor",
+        "draw_proba_static",
+        "draw_proba_type",
+        "init_skill",
+        "learner_model",
+        "positive_only",
+        "tau",
+        "threshold",
+    )
+    assert params == tuple(classifier.get_params())
+
+    classifier.set_params(tau=0.2)
+    assert classifier.get_params()["tau"] == 0.2
+
+    with pytest.raises(ValueError) as excinfo:
+        classifier.set_params(draw_proba_type="static")
+        classifier.predict_proba(models.EventModel())
+    assert (
+        "When draw_proba_type is set to static, "
+        "the draw_proba_static should not be None." == str(excinfo.value)
+    )
 
 
 def test_novelty_positive_easy():
@@ -349,9 +375,7 @@ def test_novelty_throw():
     )
 
     with pytest.raises(ValueError) as excinfo:
-        learning.NoveltyClassifier(
-            draw_proba_type="static", draw_proba_static=None
-        )
+        learning.NoveltyClassifier(draw_proba_type="static", draw_proba_static=None)
     assert (
         "When draw_proba_type is set to static, the draw_proba_static should not be "
         "None." == str(excinfo.value)
@@ -392,8 +416,39 @@ def test_interest_positive_only_no_update(train_cases):
     assert not list(learner_model.knowledge.knowledge_components())
 
 
+def test_interest_get_set_params():
+    classifier = learning.InterestClassifier(draw_proba_type="dynamic")
+
+    params = (
+        "beta",
+        "decay_func_factor",
+        "decay_func_type",
+        "def_var",
+        "draw_proba_factor",
+        "draw_proba_static",
+        "draw_proba_type",
+        "init_skill",
+        "learner_model",
+        "positive_only",
+        "tau",
+        "threshold",
+    )
+    assert params == tuple(classifier.get_params())
+
+    classifier.set_params(tau=0.2)
+    assert classifier.get_params()["tau"] == 0.2
+
+    with pytest.raises(ValueError) as excinfo:
+        classifier.set_params(draw_proba_type="static")
+        classifier.predict_proba(models.EventModel())
+    assert (
+        "When draw_proba_type is set to static, "
+        "the draw_proba_static should not be None." == str(excinfo.value)
+    )
+
+
 def test_interest_positive_easy():
-    classifier = learning.InterestClassifier(beta=0.0)
+    classifier = learning.KnowledgeClassifier()
 
     knowledge = models.Knowledge({1: models.KnowledgeComponent(mean=0.0, variance=0.5)})
     event = models.EventModel(knowledge)
@@ -452,9 +507,7 @@ def test_interest_throw():
     )
 
     with pytest.raises(ValueError) as excinfo:
-        learning.InterestClassifier(
-            draw_proba_type="static", draw_proba_static=None
-        )
+        learning.InterestClassifier(draw_proba_type="static", draw_proba_static=None)
     assert (
         "When draw_proba_type is set to static, the draw_proba_static should not be "
         "None." == str(excinfo.value)
@@ -499,4 +552,91 @@ def test_interest_classifier(train_cases, test_events):
     assert expected_results == actual_results
 
 
-# test get/set params
+def test_ink_default_value():
+    classifier = learning.INKClassifier()
+
+    learner_model = classifier.get_learner_model()
+    assert (
+        learner_model.bias_weight
+        == learner_model.interest_weight
+        == learner_model.novelty_weight
+        == {"mean": 0.0, "variance": 0.5}
+    )
+    assert not list(
+        learner_model.learner_novelty.knowledge.knowledge_components()
+    ) and not list(learner_model.learner_interest.knowledge.knowledge_components())
+
+
+def test_ink_get_set_params():
+    classifier = learning.INKClassifier()
+
+    params = (
+        "bias_weight",
+        "greedy",
+        "interest_classifier",
+        "interest_weight",
+        "novelty_classifier",
+        "novelty_weight",
+        "tau",
+        "threshold",
+    )
+    assert params == tuple(classifier.get_params(deep=False))
+
+    # set simple parameter
+    classifier.set_params(greedy=True)
+    assert classifier.get_params()["greedy"]
+
+    # set nested parameter
+    classifier.set_params(novelty_classifier__tau=0.2)
+    assert classifier.get_params()["novelty_classifier__tau"] == 0.2
+
+
+def test_ink_throw():
+    with pytest.raises(TypeError) as excinfo:
+        learning.INKClassifier(threshold=0)
+    assert (
+        "The threshold parameter of "
+        "<class 'truelearn.learning._ink_classifier.INKClassifier'> "
+        "must be <class 'float'>. Got <class 'int'> instead." == str(excinfo.value)
+    )
+
+    with pytest.raises(TypeError) as excinfo:
+        learning.INKClassifier(tau=1)
+    assert (
+        "The tau parameter of "
+        "<class 'truelearn.learning._ink_classifier.INKClassifier'> "
+        "must be <class 'float'>. Got <class 'int'> instead." == str(excinfo.value)
+    )
+
+    with pytest.raises(ValueError) as excinfo:
+        learning.INKClassifier(novelty_weight={})
+    assert (
+        'The novelty_weight must contain "mean" and "variance". Got {} instead.'
+        == str(excinfo.value)
+    )
+
+    with pytest.raises(ValueError) as excinfo:
+        learning.INKClassifier(interest_weight={})
+    assert (
+        'The interest_weight must contain "mean" and "variance". Got {} instead.'
+        == str(excinfo.value)
+    )
+
+    with pytest.raises(ValueError) as excinfo:
+        learning.INKClassifier(bias_weight={})
+    assert 'The bias_weight must contain "mean" and "variance". Got {} instead.' == str(
+        excinfo.value
+    )
+
+
+def test_ink_classifier(train_cases, test_events):
+    classifier = learning.INKClassifier()
+
+    train_events, train_labels = train_cases
+    for event, label in zip(train_events, train_labels):
+        classifier.fit(event, label)
+
+    expected_results = [0.2526088264078084, 0.21809021973655365, 0.22199445662986067]
+    actual_results = [classifier.predict_proba(event) for event in test_events]
+
+    assert expected_results == actual_results

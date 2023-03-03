@@ -134,7 +134,7 @@ class INKClassifier(BaseClassifier):
         self.greedy = greedy
 
         if novelty_weight is None:
-            novelty_weight = {"mean": 0.0, "variance": 1.0}
+            novelty_weight = {"mean": 0.0, "variance": 0.5}
         else:
             if "mean" not in novelty_weight or "variance" not in novelty_weight:
                 raise ValueError(
@@ -143,7 +143,7 @@ class INKClassifier(BaseClassifier):
                 )
 
         if interest_weight is None:
-            interest_weight = {"mean": 0.0, "variance": 1.0}
+            interest_weight = {"mean": 0.0, "variance": 0.5}
         else:
             if "mean" not in interest_weight or "variance" not in interest_weight:
                 raise ValueError(
@@ -152,7 +152,7 @@ class INKClassifier(BaseClassifier):
                 )
 
         if bias_weight is None:
-            bias_weight = {"mean": 0.0, "variance": 1.0}
+            bias_weight = {"mean": 0.0, "variance": 0.5}
         else:
             if "mean" not in bias_weight or "variance" not in bias_weight:
                 raise ValueError(
