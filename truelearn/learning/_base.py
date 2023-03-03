@@ -230,21 +230,21 @@ class BaseClassifier(ABC):
                     raise TypeError(
                         f"The {param_name} parameter of class {type(self)}"
                         f" __init__ function must be one of the classes"
-                        f" in {param_classname_expected}."
+                        f" in {param_classname_expected!r}."
                         f" Got {type(param_value)} instead."
                     )
             elif isinstance(expected_param_type, tuple):
                 if param_value not in expected_param_type:
                     raise ValueError(
                         f"The {param_name} parameter of {type(self)}"
-                        f" must be one of the value inside tuple {expected_param_type}."
-                        f" Got {param_value!r} instead."
+                        " must be one of the value inside "
+                        f"tuple {expected_param_type!r}. Got {param_value!r} instead."
                     )
             else:
                 if not isinstance(param_value, expected_param_type):
                     raise TypeError(
                         f"The {param_name} parameter of {type(self)}"
-                        f" must be {expected_param_type.__name__}."
+                        f" must be {expected_param_type!r}."
                         f" Got {type(param_value)} instead."
                     )
 
