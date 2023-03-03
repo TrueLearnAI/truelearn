@@ -151,21 +151,6 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
                 If draw_proba_type is neither "static" nor "dynamic";
                 If decay_func_type is neither "short" nor "long".
         """
-        self._validate_params(
-            learner_model=learner_model,
-            threshold=threshold,
-            init_skill=init_skill,
-            def_var=def_var,
-            beta=beta,
-            tau=tau,
-            positive_only=positive_only,
-            draw_proba_type=draw_proba_type,
-            draw_proba_static=draw_proba_static,
-            draw_proba_factor=draw_proba_factor,
-            decay_func_type=decay_func_type,
-            decay_func_factor=decay_func_factor,
-        )
-
         super().__init__(
             learner_model=learner_model,
             threshold=threshold,
@@ -181,6 +166,8 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
 
         self.decay_func_type = decay_func_type
         self.decay_func_factor = decay_func_factor
+
+        self._validate_params()
 
     def __get_decay_func(self) -> Callable[[float], float]:
         """Get decay function based on decay_func_type.

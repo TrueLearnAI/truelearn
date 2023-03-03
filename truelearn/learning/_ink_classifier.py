@@ -122,17 +122,6 @@ class INKClassifier(BaseClassifier):
                 If draw_proba_type is neither "static" nor "dynamic" or
                 If decay_func_type is neither "short" nor "long".
         """
-        self._validate_params(
-            novelty_classifier=novelty_classifier,
-            interest_classifier=interest_classifier,
-            threshold=threshold,
-            tau=tau,
-            greedy=greedy,
-            novelty_weight=novelty_weight,
-            interest_weight=interest_weight,
-            bias_weight=bias_weight,
-        )
-
         if novelty_classifier is None:
             novelty_classifier = NoveltyClassifier()
         if interest_classifier is None:
@@ -183,6 +172,8 @@ class INKClassifier(BaseClassifier):
             draw_probability=INKClassifier.__DEFAULT_DRAW_PROBA,
             backend="mpmath",
         )
+
+        self._validate_params()
 
     def __calculate_sum_prediction(
         self,

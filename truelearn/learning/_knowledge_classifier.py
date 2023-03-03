@@ -126,19 +126,6 @@ KnowledgeComponent(mean=0.58097..., variance=0.33159..., ...), ...}), ...}
         Returns:
             None
         """
-        self._validate_params(
-            learner_model=learner_model,
-            threshold=threshold,
-            init_skill=init_skill,
-            def_var=def_var,
-            tau=tau,
-            beta=beta,
-            positive_only=positive_only,
-            draw_proba_type=draw_proba_type,
-            draw_proba_static=draw_proba_static,
-            draw_proba_factor=draw_proba_factor,
-        )
-
         # the knowledge classifier doesn't rely on the draw probability
         # it utilizes different assumptions
         # so, we set draw probability to a very small value to avoid its impact
@@ -154,6 +141,8 @@ KnowledgeComponent(mean=0.58097..., variance=0.33159..., ...), ...}), ...}
             draw_proba_static=draw_proba_static,
             draw_proba_factor=draw_proba_factor,
         )
+
+        self._validate_params()
 
     def _generate_ratings(  # pylint: disable=too-many-arguments
         self,

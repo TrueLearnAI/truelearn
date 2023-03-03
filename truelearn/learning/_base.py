@@ -24,8 +24,8 @@ class BaseClassifier(ABC):
 
     The `_parameter_constraints` is a dictionary that maps parameter
     names to its expected type. The expected type can be a list or a single type
-    as it's possible for a type to accept more than one type.
-    To do the constraint check based on this, simply call `self._validate_params`
+    or a tuple of values as it's possible for a type to accept more than one type/value.
+    To do the constraint check based on this, simply call `self._validate_params()`
     in your classifier.
     """
 
@@ -160,20 +160,19 @@ class BaseClassifier(ABC):
             if delim:
                 nested_params[key][sub_key] = value
             else:
-                # ensure that the new value satisfies the constraint
-                arg = {key: value}
-                self._validate_params(**arg)
-
                 setattr(self, key, value)
                 valid_params[key] = value
 
         for key, sub_params in nested_params.items():
             valid_params[key].set_params(**sub_params)
 
+        # verify that the new parameters are valid
+        self._validate_params()
+
         return self
 
     @final
-    def _validate_params(self, **kargs) -> None:
+    def _validate_params(self) -> None:
         """Validate types of given arguments in __init__.
 
         Args:
@@ -181,46 +180,24 @@ class BaseClassifier(ABC):
 
         Raises:
             TypeError:
-                value in _parameter_constraints are not valid types or
                 types of parameters mismatch their constraints.
             ValueError:
                 If the parameter is not any of the valid values in the given tuple.
         """
         for (
             param_name,
-            param_value,
-        ) in kargs.items():
-            # ensure param_name is in the valid params dictionary
-            if param_name not in self._parameter_constraints:
+            expected_param_type,
+        ) in self._parameter_constraints.items():
+            # ignore constraints for non-existing attributes
+            if param_name not in self.__dict__:
                 continue
 
-            expected_param_type = self._parameter_constraints.get(param_name)
-
-            # ensure expected_param_type is properly set
-            # `isinstance(expected_param_type, type)` works for python 3
-            if isinstance(expected_param_type, list):
-                # check if all the element inside the list are classes
-                if not all(
-                    isinstance(param_type_unpacked, type)
-                    for param_type_unpacked in expected_param_type
-                ):
-                    raise TypeError(
-                        "The given constraint list contains non-class element."
-                    )
-            # tuple is reserved for holding possible values
-            elif isinstance(expected_param_type, tuple):
-                ...
-            else:
-                # check if expected_param_type is a class
-                if not isinstance(expected_param_type, type):
-                    raise TypeError(
-                        f"The given constraint {expected_param_type} is not a class."
-                    )
+            param_value = self.__dict__[param_name]
 
             if isinstance(expected_param_type, list):
                 # if it matches none of the types in the constraints
                 if not any(
-                    isinstance(param_value, param_type_unpacked)
+                    isinstance(self.__dict__[param_name], param_type_unpacked)
                     for param_type_unpacked in list(expected_param_type)
                 ):
                     param_classname_expected = list(

@@ -45,15 +45,12 @@ class MajorityClassifier(BaseClassifier):
             engagement: The number of learner's engagement.
             non_engagement: The number of learner's non_engagement.
         """
-        self._validate_params(
-            engagement=engagement,
-            non_engagement=non_engagement,
-        )
-
         super().__init__()
 
         self.engagement = engagement
         self.non_engagement = non_engagement
+
+        self._validate_params()
 
     def fit(self, x: EventModel, y: bool) -> Self:
         if y:
