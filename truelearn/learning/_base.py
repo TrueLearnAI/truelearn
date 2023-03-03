@@ -387,8 +387,8 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
 
         if draw_proba_type not in ("static", "dynamic"):
             raise ValueError(
-                f"The draw_proba_type should be either static or dynamic."
-                f" Got {draw_proba_type} instead."
+                f"The draw_proba_type should be a string \"static\" or \"dynamic\"."
+                f" Got {draw_proba_type!r} instead."
             )
 
         self.draw_proba_type = draw_proba_type

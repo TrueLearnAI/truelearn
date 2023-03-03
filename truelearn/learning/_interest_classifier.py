@@ -180,8 +180,8 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
 
         if decay_func_type not in ("short", "long"):
             raise ValueError(
-                f"The decay_func_type must be either short or long."
-                f" Got {decay_func_type} instead."
+                f"The decay_func_type must be a string \"short\" or \"long\"."
+                f" Got {decay_func_type!r} instead."
             )
         self.decay_func_type = decay_func_type
         self.decay_func_factor = decay_func_factor
