@@ -97,7 +97,7 @@ class BaseClassifier(ABC):
             if not hasattr(self, key):
                 raise ValueError(
                     f"The specified parameter name {key}"
-                    f" is not in the {self.__class__.__name__}."
+                    f" is not in the {type(self)}."
                 )
 
             value = getattr(self, key)
@@ -131,7 +131,7 @@ class BaseClassifier(ABC):
             TypeError:
                 If the given value doesn't have the same type
                 as the original value.
-            ValueError:
+            KeyError:
                 If the given argument name is not in the class.
         """
         # avoid running `self.get_params` if there is no given params
@@ -148,9 +148,9 @@ class BaseClassifier(ABC):
         for key, value in args.items():
             key, delim, sub_key = key.partition(BaseClassifier.__DEEP_PARAM_DELIMITER)
             if key not in valid_params:
-                raise ValueError(
+                raise KeyError(
                     f"The given parameter {key}"
-                    f" is not in the class {self.__class__.__name__}."
+                    f" is not in the {type(self)}."
                 )
 
             if delim:
@@ -223,17 +223,17 @@ class BaseClassifier(ABC):
                         map(lambda cls: cls.__name__, expected_param_type)
                     )
                     raise TypeError(
-                        f"The {param_name} parameter of {self.__class__.__name__}"
+                        f"The {param_name} parameter of class {type(self)}"
                         f" __init__ function must be one of the classes"
                         f" in {param_classname_expected}."
-                        f" Got {param_value.__class__.__name__} instead."
+                        f" Got {type(param_value)} instead."
                     )
             else:
                 if not isinstance(param_value, expected_param_type):
                     raise TypeError(
-                        f"The {param_name} parameter of {self.__class__.__name__}"
+                        f"The {param_name} parameter of {type(self)}"
                         f" must be {expected_param_type.__name__}."
-                        f" Got {param_value.__class__.__name__} instead."
+                        f" Got {type(param_value)} instead."
                     )
 
 
