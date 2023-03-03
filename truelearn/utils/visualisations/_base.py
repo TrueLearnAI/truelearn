@@ -136,6 +136,8 @@ def knowledge_to_dict(knowledge: Knowledge, mapping: Optional[Dict[int, str]] = 
 
     Args:
         knowledge: the knowledge object to copy.
+        mapping: an optional dictionary intended to map the topic IDs
+          in the knowledge components to a different value.
     """
     pairs = knowledge.topic_kc_pairs()
 
