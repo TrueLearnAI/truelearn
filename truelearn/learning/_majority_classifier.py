@@ -12,6 +12,23 @@ class MajorityClassifier(BaseClassifier):
     If the number of engagement on the training data is greater than
     the number of non-engagement, the classifier predicts Engage (True);
     otherwise, it predicts Non-Engage (False).
+
+    Examples:
+        >>> from truelearn.learning import MajorityClassifier
+        >>> from truelearn.models import EventModel
+        >>> majority = MajorityClassifier()
+        >>> majority
+        MajorityClassifier()
+        >>> # prepare event model with empty knowledge
+        >>> events = [EventModel(), EventModel(), EventModel()]
+        >>> engage_stats = [False, True, True]
+        >>> for event, engage_stats in zip(events, engage_stats):
+        ...     majority = majority.fit(event, engage_stats)
+        ...     print(majority.predict(event))
+        ...
+        False
+        False
+        True
     """
 
     _parameter_constraints: Dict[str, Any] = {
@@ -38,7 +55,7 @@ class MajorityClassifier(BaseClassifier):
         self.engagement = engagement
         self.non_engagement = non_engagement
 
-    def fit(self, _x: EventModel, y: bool) -> Self:
+    def fit(self, x: EventModel, y: bool) -> Self:
         if y:
             self.engagement += 1
         else:
@@ -46,8 +63,8 @@ class MajorityClassifier(BaseClassifier):
 
         return self
 
-    def predict(self, _x: EventModel) -> bool:
+    def predict(self, x: EventModel) -> bool:
         return self.engagement > self.non_engagement
 
-    def predict_proba(self, _x: EventModel) -> float:
+    def predict_proba(self, x: EventModel) -> float:
         return self.engagement > self.non_engagement

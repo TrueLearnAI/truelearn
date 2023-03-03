@@ -1,13 +1,9 @@
-from typing import Any, Optional, Dict
-from typing_extensions import Final
+from typing import Any, Optional, Dict, Iterable
 
-from truelearn.models import EventModel, LearnerModel
-from ._base import (
-    InterestNoveltyKnowledgeBaseClassifier,
-    team_sum_quality,
-    select_kcs,
-    select_topic_kc_pairs,
-)
+from truelearn.models import LearnerModel, AbstractKnowledgeComponent
+from ._base import InterestNoveltyKnowledgeBaseClassifier
+
+import trueskill
 
 
 class KnowledgeClassifier(InterestNoveltyKnowledgeBaseClassifier):
@@ -35,9 +31,41 @@ class KnowledgeClassifier(InterestNoveltyKnowledgeBaseClassifier):
     subtracting the two old normal distribution (learner and learnable unit).
     In TrueSkill's terminology, this calculates the win probability that
     the learner will win the content.
-    """
 
-    DRAW_PROBA_STATIC: Final[float] = 1e-9
+    Examples:
+        >>> from truelearn.learning import KnowledgeClassifier
+        >>> from truelearn.models import EventModel, Knowledge, KnowledgeComponent
+        >>> knowledge_classifier = KnowledgeClassifier()
+        >>> knowledge_classifier
+        KnowledgeClassifier()
+        >>> # prepare event model
+        >>> knowledges = [
+        ...     Knowledge({1: KnowledgeComponent(mean=0.57, variance=1e-9)}),
+        ...     Knowledge({
+        ...         2: KnowledgeComponent(mean=0.17, variance=1e-9),
+        ...         3: KnowledgeComponent(mean=0.41, variance=1e-9),
+        ...     }),
+        ...     Knowledge({
+        ...         1: KnowledgeComponent(mean=0.24, variance=1e-9),
+        ...         3: KnowledgeComponent(mean=0.67, variance=1e-9),
+        ...     }),
+        ... ]
+        >>> events = [EventModel(knowledge) for knowledge in knowledges]
+        >>> engage_stats = [False, True, False]
+        >>> for event, engage_stats in zip(events, engage_stats):
+        ...     knowledge_classifier = knowledge_classifier.fit(event, engage_stats)
+        ...     print(
+        ...         knowledge_classifier.predict(event),
+        ...         knowledge_classifier.predict_proba(event)
+        ...     )
+        ...
+        False 0.23090587110296315
+        True 0.7473409927446046
+        False 0.36659215130436745
+        >>> knowledge_classifier.get_params()  # doctest:+ELLIPSIS
+        {..., 'learner_model': LearnerModel(knowledge=Knowledge(knowledge={2: \
+KnowledgeComponent(mean=0.58097..., variance=0.33159..., ...), ...}), ...}
+    """
 
     _parameter_constraints: Dict[str, Any] = {
         **InterestNoveltyKnowledgeBaseClassifier._parameter_constraints,
@@ -53,6 +81,9 @@ class KnowledgeClassifier(InterestNoveltyKnowledgeBaseClassifier):
         beta: float = 0.1,
         tau: float = 0.1,
         positive_only: bool = True,
+        draw_proba_type: str = "dynamic",
+        draw_proba_static: float = 0.5,
+        draw_proba_factor: float = 0.1,
     ) -> None:
         """Init KnowledgeClassifier object.
 
@@ -79,6 +110,18 @@ class KnowledgeClassifier(InterestNoveltyKnowledgeBaseClassifier):
             positive_only:
                 A bool indicating whether the classifier only
                 updates the learner's knowledge when encountering a positive label.
+            draw_proba_type:
+                A str specifying the type of the draw probability.
+                It could be either "static" or "dynamic". The "static"
+                probability type requires an additional parameter
+                draw_proba_static. The "dynamic" probability type calculates
+                the draw probability based on the learner's previous engagement
+                stats with educational resources.
+            draw_proba_static:
+                The global draw probability.
+            draw_proba_factor:
+                A factor that will be applied to both static and dynamic
+                draw probability.
 
         Returns:
             None
@@ -91,6 +134,9 @@ class KnowledgeClassifier(InterestNoveltyKnowledgeBaseClassifier):
             tau=tau,
             beta=beta,
             positive_only=positive_only,
+            draw_proba_type=draw_proba_type,
+            draw_proba_static=draw_proba_static,
+            draw_proba_factor=draw_proba_factor,
         )
 
         # the knowledge classifier doesn't rely on the draw probability
@@ -104,58 +150,43 @@ class KnowledgeClassifier(InterestNoveltyKnowledgeBaseClassifier):
             tau=tau,
             beta=beta,
             positive_only=positive_only,
-            draw_proba_type="static",
-            draw_proba_static=KnowledgeClassifier.DRAW_PROBA_STATIC,
-            draw_proba_factor=0.1,
+            draw_proba_type=draw_proba_type,
+            draw_proba_static=draw_proba_static,
+            draw_proba_factor=draw_proba_factor,
         )
 
-    def _update_knowledge_representation(self, x: EventModel, y: bool) -> None:
-        # make it a list because we need to use it more than one time later
-        learner_topic_kc_pairs = list(
-            select_topic_kc_pairs(
-                self.learner_model,
-                x.knowledge,
-                self.init_skill,
-                self.def_var,
-                x.event_time,
-            )
+    def _generate_ratings(
+        self,
+        learner_kcs: Iterable[AbstractKnowledgeComponent],
+        content_kcs: Iterable[AbstractKnowledgeComponent],
+        event_time: Optional[float],
+        y: bool,
+    ) -> Iterable[trueskill.Rating]:
+        team_learner = InterestNoveltyKnowledgeBaseClassifier._gather_trueskill_team(
+            self._env, learner_kcs
         )
-        learner_kcs = map(
-            lambda learner_topic_kc_pair: learner_topic_kc_pair[1],
-            learner_topic_kc_pairs,
+        team_content = InterestNoveltyKnowledgeBaseClassifier._gather_trueskill_team(
+            self._env, content_kcs
         )
-        content_kcs = x.knowledge.knowledge_components()
-
-        team_learner = self._gather_trueskill_team(learner_kcs)
-        team_content = self._gather_trueskill_team(content_kcs)
 
         if y:
             # learner wins: lower rank == winning
             updated_team_learner, _ = self._env.rate(
                 [team_learner, team_content], ranks=[0, 1]
             )
-        else:
-            # content wins
-            _, updated_team_learner = self._env.rate(
-                [team_content, team_learner], ranks=[0, 1]
-            )
+            return updated_team_learner
 
-        for topic_kc_pair, rating in zip(learner_topic_kc_pairs, updated_team_learner):
-            topic_id, kc = topic_kc_pair
-            kc.update(mean=rating.mu, variance=rating.sigma**2, timestamp=x.event_time)
-            self.learner_model.knowledge.update_kc(topic_id, kc)
-
-    def predict_proba(self, x: EventModel) -> float:
-        learner_kcs = select_kcs(
-            self.learner_model, x.knowledge, self.init_skill, self.def_var, x.event_time
+        # content wins
+        _, updated_team_learner = self._env.rate(
+            [team_content, team_learner], ranks=[0, 1]
         )
-        content_kcs = x.knowledge.knowledge_components()
-        return team_sum_quality(learner_kcs, content_kcs, self.beta)
+        return updated_team_learner
 
-    def get_learner_model(self) -> LearnerModel:
-        """Get the learner model associated with this classifier.
-
-        Returns:
-            A learner model associated with this classifier.
-        """
-        return self.learner_model
+    def _eval_matching_quality(
+        self,
+        learner_kcs: Iterable[AbstractKnowledgeComponent],
+        content_kcs: Iterable[AbstractKnowledgeComponent],
+    ) -> float:
+        return InterestNoveltyKnowledgeBaseClassifier._team_sum_quality(
+            learner_kcs, content_kcs, self.beta
+        )
