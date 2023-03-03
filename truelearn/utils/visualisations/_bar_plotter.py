@@ -118,4 +118,7 @@ class BarPlotter(BasePlotter):
 
         return self
 
+    def _trace():
+        pass
+
 

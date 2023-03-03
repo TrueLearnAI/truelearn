@@ -118,5 +118,6 @@ class DotPlotter(BasePlotter):
 
 
         return self
-
+    def _trace():
+        pass
 
