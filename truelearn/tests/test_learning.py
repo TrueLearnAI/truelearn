@@ -390,14 +390,31 @@ def test_novelty_throw():
     )
 
 
-def test_novelty_classifier(train_cases, test_events):
+def test_novelty_classifier_draw(train_cases, test_events):
     classifier = learning.NoveltyClassifier()
 
     train_events, train_labels = train_cases
+
     for event, label in zip(train_events, train_labels):
         classifier.fit(event, label)
 
     expected_results = [0.20232035389852276, 0.1385666227211696, 0.11103582174277878]
+    actual_results = [classifier.predict_proba(event) for event in test_events]
+
+    assert expected_results == actual_results
+
+
+def test_novelty_classifier_wins(train_cases, test_events):
+    classifier = learning.NoveltyClassifier(positive_only=False)
+
+    train_events, train_labels = train_cases
+    # to test the case where the learner/content wins
+    train_labels = [False, True, True]
+
+    for event, label in zip(train_events, train_labels):
+        classifier.fit(event, label)
+
+    expected_results = [0.24498763833059276, 0.2509683717988391, 0.26190237284122425]
     actual_results = [classifier.predict_proba(event) for event in test_events]
 
     assert expected_results == actual_results
@@ -448,7 +465,7 @@ def test_interest_get_set_params():
 
 
 def test_interest_positive_easy():
-    classifier = learning.KnowledgeClassifier()
+    classifier = learning.InterestClassifier()
 
     knowledge = models.Knowledge({1: models.KnowledgeComponent(mean=0.0, variance=0.5)})
     event = models.EventModel(knowledge)
