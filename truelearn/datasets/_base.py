@@ -5,13 +5,6 @@ from urllib import request
 from os import path
 
 
-# pylint: disable=pointless-string-statement
-"""
-Copyright of `RemoteFileMetaData`, `download_file` are held by
-[BSD 3-Clause License, scikit-learn developers, 2007-2022].
-"""
-
-
 @dataclasses.dataclass
 class RemoteFileMetaData:
     """Remote file metadata.
@@ -29,17 +22,19 @@ class RemoteFileMetaData:
 
 def _sha256sum(filepath) -> str:
     chunk_size = 65536
-    h = hashlib.sha256()
+    hash_val = hashlib.sha256()
     with open(filepath, "rb") as file:
         while True:
             chunk = file.read(chunk_size)
             if not chunk:
                 break
-            h.update(chunk)
-    return h.hexdigest()
+            hash_val.update(chunk)
+    return hash_val.hexdigest()
 
 
-def _download_file(*, filepath: str, url: str, expected_sha256: str) -> None:
+def _download_file(
+    *, filepath: str, url: str, expected_sha256: str, verbose: bool
+) -> None:
     """Download a remote file and check the sha256.
 
     Args:
@@ -49,9 +44,13 @@ def _download_file(*, filepath: str, url: str, expected_sha256: str) -> None:
             The url of the file.
         expected_sha256:
             The expected sha256 sum of the file.
+        verbose:
+            If True, this function outputs some information
+            about the downloaded file.
     """
-    if url.lower().startswith("https"):
-        print(f"Downloading {url} into {filepath}")
+    if url.lower().startswith("https://"):
+        if verbose:
+            print(f"Downloading {url} into {filepath}")
         # the bandit warning is suppressed here
         # because we have checked whether the url starts with http
         request.urlretrieve(url, filepath)  # nosec
@@ -68,7 +67,7 @@ def _download_file(*, filepath: str, url: str, expected_sha256: str) -> None:
 
 
 def check_and_download_file(
-    *, remote_file: RemoteFileMetaData, dirname: Optional[str] = None
+    *, remote_file: RemoteFileMetaData, dirname: Optional[str] = None, verbose: bool
 ) -> str:
     """Download a remote file and check the sha256.
 
@@ -80,6 +79,9 @@ def check_and_download_file(
             Some metadata about the remote file.
         dirname:
             An optional path that specifies the location of the downloaded file.
+        verbose:
+            If True and the downloaded file doesn't exist, this function outputs some
+            information about the downloaded file.
 
     Returns:
         Full path of the created file.
@@ -102,6 +104,7 @@ def check_and_download_file(
         filepath=filepath,
         url=remote_file.url,
         expected_sha256=remote_file.expected_sha256,
+        verbose=verbose,
     )
 
     return filepath

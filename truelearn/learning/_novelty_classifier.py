@@ -1,11 +1,9 @@
-from typing import Any, Optional, Dict
+from typing import Any, Optional, Dict, Iterable
 
-from truelearn.models import EventModel, LearnerModel
-from ._base import (
-    InterestNoveltyKnowledgeBaseClassifier,
-    select_kcs,
-    select_topic_kc_pairs,
-)
+from truelearn.models import LearnerModel, AbstractKnowledgeComponent
+from ._base import InterestNoveltyKnowledgeBaseClassifier
+
+import trueskill
 
 
 class NoveltyClassifier(InterestNoveltyKnowledgeBaseClassifier):
@@ -29,6 +27,40 @@ class NoveltyClassifier(InterestNoveltyKnowledgeBaseClassifier):
     is high, it means that neither side can easily win the other.
     Thus, a high quality game means that learners are likely to engage with
     learnable units based on our assumption.
+
+    Examples:
+        >>> from truelearn.learning import NoveltyClassifier
+        >>> from truelearn.models import EventModel, Knowledge, KnowledgeComponent
+        >>> novelty_classifier = NoveltyClassifier()
+        >>> novelty_classifier
+        NoveltyClassifier()
+        >>> # prepare event model
+        >>> knowledges = [
+        ...     Knowledge({1: KnowledgeComponent(mean=0.57, variance=1e-9)}),
+        ...     Knowledge({
+        ...         2: KnowledgeComponent(mean=0.37, variance=1e-9),
+        ...         3: KnowledgeComponent(mean=0.41, variance=1e-9),
+        ...     }),
+        ...     Knowledge({
+        ...         1: KnowledgeComponent(mean=0.24, variance=1e-9),
+        ...         3: KnowledgeComponent(mean=0.67, variance=1e-9),
+        ...     }),
+        ... ]
+        >>> events = [EventModel(knowledge) for knowledge in knowledges]
+        >>> engage_stats = [False, True, False]
+        >>> for event, engage_stats in zip(events, engage_stats):
+        ...     novelty_classifier = novelty_classifier.fit(event, engage_stats)
+        ...     print(
+        ...         novelty_classifier.predict(event),
+        ...         novelty_classifier.predict_proba(event)
+        ...     )
+        ...
+        False 0.14349542647777908
+        False 0.26256454510369404
+        False 0.18547011328257132
+        >>> novelty_classifier.get_params()  # doctest:+ELLIPSIS
+        {..., 'learner_model': LearnerModel(knowledge=Knowledge(knowledge={2: \
+KnowledgeComponent(mean=0.36833..., variance=0.26916..., ...), ...}), ...}
     """
 
     _parameter_constraints: Dict[str, Any] = {
@@ -116,28 +148,22 @@ class NoveltyClassifier(InterestNoveltyKnowledgeBaseClassifier):
             draw_proba_factor=draw_proba_factor,
         )
 
-    # pylint: disable=too-many-locals
-    def _update_knowledge_representation(self, x: EventModel, y: bool) -> None:
-        # make them list because we use them more than one time later
-        learner_topic_kc_pairs = list(
-            select_topic_kc_pairs(
-                self.learner_model,
-                x.knowledge,
-                self.init_skill,
-                self.def_var,
-                x.event_time,
-            )
-        )
-        learner_kcs = list(
-            map(
-                lambda learner_topic_kc_pair: learner_topic_kc_pair[1],
-                learner_topic_kc_pairs,
-            )
-        )
-        content_kcs = list(x.knowledge.knowledge_components())
+    def _generate_ratings(
+        self,
+        learner_kcs: Iterable[AbstractKnowledgeComponent],
+        content_kcs: Iterable[AbstractKnowledgeComponent],
+        event_time: Optional[float],
+        y: bool,
+    ) -> Iterable[trueskill.Rating]:
+        # make it a list because we use them more than one time later
+        learner_kcs = list(learner_kcs)
 
-        team_learner = self._gather_trueskill_team(learner_kcs)
-        team_content = self._gather_trueskill_team(content_kcs)
+        team_learner = InterestNoveltyKnowledgeBaseClassifier._gather_trueskill_team(
+            self._env, learner_kcs
+        )
+        team_content = InterestNoveltyKnowledgeBaseClassifier._gather_trueskill_team(
+            self._env, content_kcs
+        )
         team_learner_mean = map(lambda learner_kc: learner_kc.mean, learner_kcs)
         team_content_mean = map(lambda content_kc: content_kc.mean, content_kcs)
 
@@ -162,30 +188,19 @@ class NoveltyClassifier(InterestNoveltyKnowledgeBaseClassifier):
             updated_team_learner, _ = self._env.rate(
                 [team_learner, team_content], ranks=ranks
             )
-        else:
-            updated_team_learner = team_learner
+            return updated_team_learner
 
-        # update the learner's knowledge representation
-        for topic_kc_pair, rating in zip(learner_topic_kc_pairs, updated_team_learner):
-            topic_id, kc = topic_kc_pair
-            kc.update(mean=rating.mu, variance=rating.sigma**2, timestamp=x.event_time,)
-            self.learner_model.knowledge.update_kc(topic_id, kc)
+        return team_learner
 
-    def predict_proba(self, x: EventModel) -> float:
-        learner_kcs = select_kcs(
-            self.learner_model, x.knowledge, self.init_skill, self.def_var, x.event_time
+    def _eval_matching_quality(
+        self,
+        learner_kcs: Iterable[AbstractKnowledgeComponent],
+        content_kcs: Iterable[AbstractKnowledgeComponent],
+    ) -> float:
+        team_learner = InterestNoveltyKnowledgeBaseClassifier._gather_trueskill_team(
+            self._env, learner_kcs
         )
-        content_kcs = x.knowledge.knowledge_components()
-
-        team_learner = self._gather_trueskill_team(learner_kcs)
-        team_content = self._gather_trueskill_team(content_kcs)
-
+        team_content = InterestNoveltyKnowledgeBaseClassifier._gather_trueskill_team(
+            self._env, content_kcs
+        )
         return self._env.quality([team_learner, team_content])
-
-    def get_learner_model(self) -> LearnerModel:
-        """Get the learner model associated with this classifier.
-
-        Returns:
-            A learner model associated with this classifier.
-        """
-        return self.learner_model

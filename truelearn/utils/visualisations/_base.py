@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Dict, Iterable, Union, Tuple
+from typing import Dict, Iterable, Optional, Union, Tuple
 from typing_extensions import final, Self
 
 from plotly import (
@@ -128,7 +128,7 @@ class BasePlotter(ABC):
         )
 
 
-def knowledge_to_dict(knowledge: Knowledge) -> KnowledgeDict:
+def knowledge_to_dict(knowledge: Knowledge, mapping: Optional[Dict[int, str]] = None) -> KnowledgeDict:
     """Convert knowledge to an easy-to-process Python dictionary.
     
     Returns a copy of the knowledge object in which all the knowledge
@@ -136,11 +136,15 @@ def knowledge_to_dict(knowledge: Knowledge) -> KnowledgeDict:
 
     Args:
         knowledge: the knowledge object to copy.
+        mapping: an optional dictionary intended to map the topic IDs
+          in the knowledge components to a different value.
     """
     pairs = knowledge.topic_kc_pairs()
 
     knowledge_dict = {}
     for topic, kc in pairs:
+        if mapping:
+            topic = mapping[topic]
         knowledge_dict[topic] = kc.export_as_dict()
     
     return knowledge_dict

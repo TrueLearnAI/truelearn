@@ -6,7 +6,23 @@ from ._base import BaseClassifier
 
 
 class EngageClassifier(BaseClassifier):
-    """A Classifier that always makes positive prediction."""
+    """A Classifier that always makes positive prediction.
+
+    Examples:
+        >>> from truelearn.learning import EngageClassifier
+        >>> from truelearn.models import EventModel
+        >>> engage = EngageClassifier()
+        >>> engage
+        EngageClassifier()
+        >>> # prepare event model with empty knowledge
+        >>> event = EventModel()
+        >>> engage.fit(event, False)
+        EngageClassifier()
+        >>> engage.predict(event)
+        True
+        >>> engage.predict_proba(event)
+        1.0
+    """
 
     _parameter_constraints: Dict[str, Any] = {
         **BaseClassifier._parameter_constraints,
@@ -18,11 +34,11 @@ class EngageClassifier(BaseClassifier):
 
         super().__init__()
 
-    def fit(self, _x: EventModel, _y: bool) -> Self:
+    def fit(self, x: EventModel, y: bool) -> Self:
         return self
 
-    def predict(self, _x: EventModel) -> bool:
+    def predict(self, x: EventModel) -> bool:
         return True
 
-    def predict_proba(self, _x: EventModel) -> float:
+    def predict_proba(self, x: EventModel) -> float:
         return 1.0
