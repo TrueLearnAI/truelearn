@@ -9,5 +9,6 @@ from ._dot_plotter import DotPlotter
 __all__ = [
     "knowledge_to_dict",
     "LinePlotter",
-    "BarPlotter"
+    "BarPlotter",
+    "DotPlotter"
 ]

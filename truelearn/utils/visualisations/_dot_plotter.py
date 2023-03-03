@@ -10,7 +10,7 @@ from truelearn.utils.visualisations._base import (
 )
 
 
-class BarPlotter(BasePlotter):
+class DotPlotter(BasePlotter):
     """Provides utilities for plotting bar charts."""
     def __init__(self):
         self.figure = None
@@ -42,9 +42,9 @@ class BarPlotter(BasePlotter):
             # for mean, variance, _ in kc['history']:
             #   means.append(mean)
             #   variances.append(variance)
-            urls=kc['url']
             means=kc['mean']
             variances=kc['variance']
+            urls=kc['url']
             data = (topic, means, variances, urls)
             content.append(data)
         
@@ -61,7 +61,7 @@ class BarPlotter(BasePlotter):
             self,
             layout_data: Tuple[str, str, str],
             content: Iterable[Tuple[str, Iterable, Iterable, str]]
-        ) -> go.Bar:
+        ) -> go.Scatter:
 
         """
         Plots the bar chart using the data.
@@ -100,11 +100,11 @@ class BarPlotter(BasePlotter):
             s = x.split("/")
             subjects.append(s[-1].replace("_", " "))
 
-        self.figure = go.Figure(go.Bar(
+        self.figure = go.Figure(data=go.Scatter(
             x=subjects,
             y=mean,
-            width=0.5,
             marker=dict(
+                size=16,
                 cmax=var_max,
                 cmin=var_min,
                 color=variance,
@@ -113,14 +113,15 @@ class BarPlotter(BasePlotter):
                 ),
                 colorscale="Viridis"
             ),
-            customdata = variance,
+            customdata=variance,
             hovertemplate="<br>".join([
                     "Topic: %{x}",
                     "Mean: %{y}",
                     "Variance: %{customdata}",
-                    "<extra></extra>"])
-            
-        ), layout=layout)
+                    "<extra></extra>"]),
+            mode="markers"),
+            layout = layout)
+
 
         return self
 
