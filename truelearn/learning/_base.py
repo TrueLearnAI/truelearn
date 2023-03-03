@@ -1,3 +1,4 @@
+# pylint: disable=using-final-decorator-in-unsupported-version
 import math
 import collections
 from abc import ABC, abstractmethod
@@ -30,6 +31,11 @@ class BaseClassifier(ABC):
     """
 
     __DEEP_PARAM_DELIMITER: Final[str] = "__"
+
+    # TODO: use constraint and satisfies to validate parameters
+    # as it gives us more flexibility and can help us eliminate the
+    # checks in InterestNoveltyKnowledgeBaseClassifier/INKClassifier
+    # (see scikit-learn _base)
     _parameter_constraints: Dict[str, Any] = {}
 
     def __repr__(self) -> str:
@@ -149,22 +155,16 @@ class BaseClassifier(ABC):
             key, delim, sub_key = key.partition(BaseClassifier.__DEEP_PARAM_DELIMITER)
             if key not in valid_params:
                 raise KeyError(
-                    f"The given parameter {key}"
-                    f" is not in the {type(self)}."
+                    f"The given parameter {key}" f" is not in the {type(self)}."
                 )
 
             if delim:
                 nested_params[key][sub_key] = value
             else:
-                # ensure that they have the same type
-                if not isinstance(value, type(valid_params[key])):
-                    raise TypeError(
-                        f"The given parameter {key}"
-                        " doesn't have the same type"
-                        " as the original value."
-                        f" Expected {type(valid_params[key])}."
-                        f" Got {type(value)}."
-                    )
+                # ensure that the new value satisfies the constraint
+                arg = {key: value}
+                self._validate_params(**arg)
+
                 setattr(self, key, value)
                 valid_params[key] = value
 
@@ -182,8 +182,10 @@ class BaseClassifier(ABC):
 
         Raises:
             TypeError:
-                param_value or value in _parameter_constraints are
-                not valid types.
+                value in _parameter_constraints are not valid types or
+                types of parameters mismatch their constraints.
+            ValueError:
+                If the parameter is not any of the valid values in the given tuple.
         """
         for (
             param_name,
@@ -206,6 +208,9 @@ class BaseClassifier(ABC):
                     raise TypeError(
                         "The given constraint list contains non-class element."
                     )
+            # tuple is reserved for holding possible values
+            elif isinstance(expected_param_type, tuple):
+                ...
             else:
                 # check if expected_param_type is a class
                 if not isinstance(expected_param_type, type):
@@ -227,6 +232,13 @@ class BaseClassifier(ABC):
                         f" __init__ function must be one of the classes"
                         f" in {param_classname_expected}."
                         f" Got {type(param_value)} instead."
+                    )
+            elif isinstance(expected_param_type, tuple):
+                if param_value not in expected_param_type:
+                    raise ValueError(
+                        f"The {param_name} parameter of {type(self)}"
+                        f" must be one of the value inside tuple {expected_param_type}."
+                        f" Got {param_value!r} instead."
                     )
             else:
                 if not isinstance(param_value, expected_param_type):
@@ -262,7 +274,7 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
         "tau": float,
         "beta": float,
         "positive_only": bool,
-        "draw_proba_type": str,
+        "draw_proba_type": ("static", "dynamic"),
         "draw_proba_static": [float, type(None)],
         "draw_proba_factor": float,
     }
@@ -385,12 +397,6 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
         self.beta = beta
         self.positive_only = positive_only
 
-        if draw_proba_type not in ("static", "dynamic"):
-            raise ValueError(
-                f"The draw_proba_type should be a string \"static\" or \"dynamic\"."
-                f" Got {draw_proba_type!r} instead."
-            )
-
         self.draw_proba_type = draw_proba_type
         self.draw_proba_factor = draw_proba_factor
         self.draw_proba_static = draw_proba_static
@@ -399,7 +405,9 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
 
     def __calculate_draw_proba(self) -> float:
         if self.draw_proba_type == "static":
-            # delayed check as this can be potentially replaced by set_params
+            # delayed check as draw_proba_type can be potentially replaced by set_params
+            # we can declare a version of constraint checker once we support
+            # satisfies-based constraint checking
             if self.draw_proba_static is None:
                 raise ValueError(
                     "When draw_proba_type is set to static,"
@@ -620,6 +628,9 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
 
     @final
     def predict_proba(self, x: EventModel) -> float:
+        # update env in case that the parameters are changed via set_params
+        self.__setup_env()
+
         learner_kcs = self.__select_kcs(x)
         content_kcs = x.knowledge.knowledge_components()
         return self._eval_matching_quality(learner_kcs, content_kcs)

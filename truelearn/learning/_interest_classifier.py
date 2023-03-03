@@ -81,7 +81,7 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
 
     _parameter_constraints: Dict[str, Any] = {
         **InterestNoveltyKnowledgeBaseClassifier._parameter_constraints,
-        "decay_func_type": str,
+        "decay_func_type": ("short", "long"),
         "decay_func_factor": float,
     }
 
@@ -178,11 +178,6 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
             draw_proba_factor=draw_proba_factor,
         )
 
-        if decay_func_type not in ("short", "long"):
-            raise ValueError(
-                f"The decay_func_type must be a string \"short\" or \"long\"."
-                f" Got {decay_func_type!r} instead."
-            )
         self.decay_func_type = decay_func_type
         self.decay_func_factor = decay_func_factor
 
