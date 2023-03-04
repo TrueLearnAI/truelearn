@@ -22,10 +22,9 @@ def test_get_values_sample_std():
     assert preprocessing.get_values_sample_std(values) == 1.5811388300841898
 
 
-API_KEY = os.environ.get("WIKIFIER_API_KEY", None)
-
-
 def test_wikifier():
+    API_KEY = os.environ.get("WIKIFIER_API_KEY", None)
+
     if API_KEY is None:
         return
 
@@ -40,18 +39,12 @@ Morbi quis commodo odio aenean sed adipiscing diam."""
 
     # sorted by cosine similarity
     annotation = wikifier.wikify(sample_text, top_n=1)[0]
-    assert annotation["title"] == 'Lorem ipsum'
-    assert (
-        annotation["url"]
-        == "http://la.wikipedia.org/wiki/Lorem_ipsum"
-    )
+    assert annotation["title"] == "Lorem ipsum"
+    assert annotation["url"] == "http://la.wikipedia.org/wiki/Lorem_ipsum"
     assert annotation["wikiDataItemId"] == "Q152036"
 
     # sorted by page rank
     annotation = wikifier.wikify(sample_text, top_n=1, key_fn="pagerank")[0]
-    assert annotation["title"] == 'Morbus'
-    assert (
-        annotation["url"]
-        == "http://la.wikipedia.org/wiki/Morbus"
-    )
+    assert annotation["title"] == "Morbus"
+    assert annotation["url"] == "http://la.wikipedia.org/wiki/Morbus"
     assert annotation["wikiDataItemId"] == "Q12136"
