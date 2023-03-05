@@ -28,7 +28,7 @@ def test_get_values_sample_std():
 
 def test_wikifier():
     if API_KEY is None:
-        return pytest.fail("WIKIFIER_API_KEY not set")
+        pytest.fail("WIKIFIER_API_KEY not set")
 
     wikifier = preprocessing.Wikifier(API_KEY)
 
@@ -68,16 +68,16 @@ def test_wikifier_invalid_api_key():
 
 def test_wikifier_no_text():
     if API_KEY is None:
-        return pytest.fail("WIKIFIER_API_KEY not set")
+        pytest.fail("WIKIFIER_API_KEY not set")
 
     wikifier = preprocessing.Wikifier(API_KEY)
 
-    assert (wikifier.wikify(""), [])
+    assert wikifier.wikify("") == []
 
 
 def test_wikifier_invalid_key_fn():
     if API_KEY is None:
-        return pytest.fail("WIKIFIER_API_KEY not set")
+        pytest.fail("WIKIFIER_API_KEY not set")
 
     wikifier = preprocessing.Wikifier(API_KEY)
 
