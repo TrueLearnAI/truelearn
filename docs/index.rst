@@ -11,7 +11,7 @@ Welcome to TrueLearn's documentation!
 
    tutorial/quickstart
    modules/classes
-   developers/index
+   developer/index
 
 
 

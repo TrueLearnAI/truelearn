@@ -26,7 +26,7 @@ The release process is as follows:
    copied from the ``CHANGELOG.rst`` file. The release title should be the
    version number and branch name should be the 'main' branch.
 9. Read the Docs will build the documentation. The documentation will be
-   available at http://truelearn.readthedocs.org/en/<version>/.
+   available at http://truelearn.readthedocs.org/en/<version>/
    and the stable version will be updated to the latest release.
 
    *Note:* You may need to activate the new version in the Read the Docs dashboard.
