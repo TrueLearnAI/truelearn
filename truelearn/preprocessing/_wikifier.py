@@ -63,10 +63,23 @@ class Wikifier:
                 1) The response from Wikifier contained an error message.
                 2) The API key is not valid.
                 3) The key_fn is neither cosine nor pagerank.
+                4) The df_ignore or words_ignore is less than 0.
             urllib.error.HTTPError:
                 The HTTP request returns a status code representing
                 an error.
         """
+        if df_ignore < 0:
+            raise ValueError(f"df_ignore must >= 0. Got df_ignore={df_ignore} instead.")
+        if words_ignore < 0:
+            raise ValueError(
+                f"words_ignore must >= 0. Got words_ignore={words_ignore} instead."
+            )
+        if key_fn not in ("cosine", "pagerank"):
+            raise ValueError(
+                "key_fn is expected to be cosine or pagerank."
+                f" Got key_fn={key_fn} instead."
+            )
+
         resp = self.__make_wikifier_request(text, df_ignore, words_ignore)
         return Wikifier.__format_wikifier_response(resp, top_n, key_fn)
 
@@ -143,11 +156,6 @@ class Wikifier:
             The list of annotations obtained from the Wikifier API, sorted by
             using the key extracted from key_fn function.
         """
-        if key_fn not in ("cosine", "pagerank"):
-            raise ValueError(
-                "key_fn is expected to be cosine or pagerank."
-                f" Got key_fn={key_fn} instead."
-            )
 
         def __restructure_annotation(
             annotation: Annotation,

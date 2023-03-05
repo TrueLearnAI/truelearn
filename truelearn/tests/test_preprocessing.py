@@ -84,8 +84,38 @@ def test_wikifier_no_text():
     reason="WIKIFIER_API_KEY is missing from the environment variables. "
     "You can get one from https://wikifier.org/register.html.",
 )
+@pytest.mark.disable_socket
 def test_wikifier_invalid_key_fn():
     wikifier = preprocessing.Wikifier(WIKIFIER_API_KEY)  # type: ignore
 
-    with pytest.raises(ValueError, match="key_fn is expected to be cosine or pagerank"):
+    with pytest.raises(ValueError) as excinfo:
         wikifier.wikify("Lorem ipsum", key_fn="invalid_key_fn")
+
+    assert (
+        "key_fn is expected to be cosine or pagerank. "
+        "Got key_fn=invalid_key_fn instead." == str(excinfo.value)
+    )
+
+
+@pytest.mark.skipif(
+    WIKIFIER_API_KEY is None,
+    reason="WIKIFIER_API_KEY is missing from the environment variables. "
+    "You can get one from https://wikifier.org/register.html.",
+)
+@pytest.mark.disable_socket
+def test_wikifier_invalid_df_and_words_ignore():
+    wikifier = preprocessing.Wikifier(WIKIFIER_API_KEY)  # type: ignore
+
+    with pytest.raises(ValueError) as excinfo:
+        wikifier.wikify("Lorem ipsum", df_ignore=-1)
+    assert (
+        "df_ignore must >= 0. "
+        "Got df_ignore=-1 instead." == str(excinfo.value)
+    )
+
+    with pytest.raises(ValueError) as excinfo:
+        wikifier.wikify("Lorem ipsum", words_ignore=-1)
+    assert (
+        "words_ignore must >= 0. "
+        "Got words_ignore=-1 instead." == str(excinfo.value)
+    )
