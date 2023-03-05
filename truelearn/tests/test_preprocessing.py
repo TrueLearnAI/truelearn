@@ -76,7 +76,7 @@ def test_wikifier_invalid_api_key():
 def test_wikifier_no_text():
     wikifier = preprocessing.Wikifier(WIKIFIER_API_KEY)  # type: ignore
 
-    assert wikifier.wikify("")
+    assert not wikifier.wikify("")
 
 
 @pytest.mark.skipif(
