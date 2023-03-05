@@ -1,7 +1,11 @@
 # pylint: disable=missing-function-docstring
 import os
 
+import pytest
+
 from truelearn import preprocessing
+
+API_KEY = os.environ.get("WIKIFIER_API_KEY", None)
 
 
 def test_get_values_mean():
@@ -23,19 +27,17 @@ def test_get_values_sample_std():
 
 
 def test_wikifier():
-    API_KEY = os.environ.get("WIKIFIER_API_KEY", None)
-
     if API_KEY is None:
-        return
+        return pytest.fail("WIKIFIER_API_KEY not set")
 
     wikifier = preprocessing.Wikifier(API_KEY)
 
     sample_text = """Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-Ac odio tempor orci dapibus ultrices in iaculis nunc sed.
-Adipiscing elit duis tristique sollicitudin nibh.
-At lectus urna duis convallis. Tincidunt lobortis feugiat vivamus at.
-Morbi quis commodo odio aenean sed adipiscing diam."""
+    sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+    Ac odio tempor orci dapibus ultrices in iaculis nunc sed.
+    Adipiscing elit duis tristique sollicitudin nibh.
+    At lectus urna duis convallis. Tincidunt lobortis feugiat vivamus at.
+    Morbi quis commodo odio aenean sed adipiscing diam."""
 
     # sorted by cosine similarity
     annotation = wikifier.wikify(sample_text, top_n=1)[0]
@@ -48,3 +50,36 @@ Morbi quis commodo odio aenean sed adipiscing diam."""
     assert annotation["title"] == "Morbus"
     assert annotation["url"] == "http://la.wikipedia.org/wiki/Morbus"
     assert annotation["wikiDataItemId"] == "Q12136"
+
+
+def test_wikifier_invalid_api_key():
+    with pytest.raises(ValueError, match="user-key-not-found"):
+        wikifier = preprocessing.Wikifier("invalid_api_key")
+
+        sample_text = """Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+        sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+        Ac odio tempor orci dapibus ultrices in iaculis nunc sed.
+        Adipiscing elit duis tristique sollicitudin nibh.
+        At lectus urna duis convallis. Tincidunt lobortis feugiat vivamus at.
+        Morbi quis commodo odio aenean sed adipiscing diam."""
+
+        wikifier.wikify(sample_text)
+
+
+def test_wikifier_no_text():
+    if API_KEY is None:
+        return pytest.fail("WIKIFIER_API_KEY not set")
+
+    wikifier = preprocessing.Wikifier(API_KEY)
+
+    assert (wikifier.wikify(""), [])
+
+
+def test_wikifier_invalid_key_fn():
+    if API_KEY is None:
+        return pytest.fail("WIKIFIER_API_KEY not set")
+
+    wikifier = preprocessing.Wikifier(API_KEY)
+
+    with pytest.raises(ValueError, match="key_fn is expected to be cosine or pagerank"):
+        wikifier.wikify("Lorem ipsum", key_fn="invalid_key_fn")
