@@ -1,7 +1,7 @@
 # pylint: disable=missing-function-docstring
-from truelearn import datasets
-
 from pytest_socket import disable_socket, enable_socket
+
+from truelearn import datasets
 
 
 def test_load_peek_dataset():
