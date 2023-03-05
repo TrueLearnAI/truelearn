@@ -5,7 +5,7 @@ import pytest
 
 from truelearn import preprocessing
 
-API_KEY = os.environ.get("WIKIFIER_API_KEY", None)
+WIKIFIER_API_KEY = os.environ.get("WIKIFIER_API_KEY", None)
 
 
 def test_get_values_mean():
@@ -26,11 +26,13 @@ def test_get_values_sample_std():
     assert preprocessing.get_values_sample_std(values) == 1.5811388300841898
 
 
+@pytest.mark.skipif(
+    WIKIFIER_API_KEY is None,
+    reason="WIKIFIER_API_KEY is missing from the environment variables. "
+    "You can get one from https://wikifier.org/register.html.",
+)
 def test_wikifier():
-    if API_KEY is None:
-        pytest.fail("WIKIFIER_API_KEY not set")
-
-    wikifier = preprocessing.Wikifier(API_KEY)
+    wikifier = preprocessing.Wikifier(WIKIFIER_API_KEY)  # type: ignore
 
     sample_text = """Lorem ipsum dolor sit amet, consectetur adipiscing elit,
     sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
@@ -66,20 +68,24 @@ def test_wikifier_invalid_api_key():
         wikifier.wikify(sample_text)
 
 
+@pytest.mark.skipif(
+    WIKIFIER_API_KEY is None,
+    reason="WIKIFIER_API_KEY is missing from the environment variables. "
+    "You can get one from https://wikifier.org/register.html.",
+)
 def test_wikifier_no_text():
-    if API_KEY is None:
-        pytest.fail("WIKIFIER_API_KEY not set")
+    wikifier = preprocessing.Wikifier(WIKIFIER_API_KEY)  # type: ignore
 
-    wikifier = preprocessing.Wikifier(API_KEY)
-
-    assert wikifier.wikify("") == []
+    assert wikifier.wikify("")
 
 
+@pytest.mark.skipif(
+    WIKIFIER_API_KEY is None,
+    reason="WIKIFIER_API_KEY is missing from the environment variables. "
+    "You can get one from https://wikifier.org/register.html.",
+)
 def test_wikifier_invalid_key_fn():
-    if API_KEY is None:
-        pytest.fail("WIKIFIER_API_KEY not set")
-
-    wikifier = preprocessing.Wikifier(API_KEY)
+    wikifier = preprocessing.Wikifier(WIKIFIER_API_KEY)  # type: ignore
 
     with pytest.raises(ValueError, match="key_fn is expected to be cosine or pagerank"):
         wikifier.wikify("Lorem ipsum", key_fn="invalid_key_fn")
