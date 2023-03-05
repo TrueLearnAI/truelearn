@@ -1,4 +1,4 @@
-# pylint: disable=missing-function-docstring
+# pylint: disable=missing-function-docstring,missing-class-docstring
 import os
 
 import pytest
@@ -26,37 +26,14 @@ def test_get_values_sample_std():
     assert preprocessing.get_values_sample_std(values) == 1.5811388300841898
 
 
-@pytest.mark.skipif(
-    WIKIFIER_API_KEY is None,
-    reason="WIKIFIER_API_KEY is missing from the environment variables. "
-    "You can get one from https://wikifier.org/register.html.",
-)
-def test_wikifier():
-    wikifier = preprocessing.Wikifier(WIKIFIER_API_KEY)  # type: ignore
-
-    sample_text = """Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-    sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-    Ac odio tempor orci dapibus ultrices in iaculis nunc sed.
-    Adipiscing elit duis tristique sollicitudin nibh.
-    At lectus urna duis convallis. Tincidunt lobortis feugiat vivamus at.
-    Morbi quis commodo odio aenean sed adipiscing diam."""
-
-    # sorted by cosine similarity
-    annotation = wikifier.wikify(sample_text, top_n=1)[0]
-    assert annotation["title"] == "Lorem ipsum"
-    assert annotation["url"] == "http://la.wikipedia.org/wiki/Lorem_ipsum"
-    assert annotation["wikiDataItemId"] == "Q152036"
-
-    # sorted by page rank
-    annotation = wikifier.wikify(sample_text, top_n=1, key_fn="pagerank")[0]
-    assert annotation["title"] == "Morbus"
-    assert annotation["url"] == "http://la.wikipedia.org/wiki/Morbus"
-    assert annotation["wikiDataItemId"] == "Q12136"
-
-
-def test_wikifier_invalid_api_key():
-    with pytest.raises(ValueError, match="user-key-not-found"):
-        wikifier = preprocessing.Wikifier("invalid_api_key")
+class TestWikifier:
+    @pytest.mark.skipif(
+        WIKIFIER_API_KEY is None,
+        reason="WIKIFIER_API_KEY is missing from the environment variables. "
+        "You can get one from https://wikifier.org/register.html.",
+    )
+    def test_wikifier(self):
+        wikifier = preprocessing.Wikifier(WIKIFIER_API_KEY)  # type: ignore
 
         sample_text = """Lorem ipsum dolor sit amet, consectetur adipiscing elit,
         sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
@@ -65,57 +42,81 @@ def test_wikifier_invalid_api_key():
         At lectus urna duis convallis. Tincidunt lobortis feugiat vivamus at.
         Morbi quis commodo odio aenean sed adipiscing diam."""
 
-        wikifier.wikify(sample_text)
+        # sorted by cosine similarity
+        annotation = wikifier.wikify(sample_text, top_n=1)[0]
+        assert annotation["title"] == "Lorem ipsum"
+        assert annotation["url"] == "http://la.wikipedia.org/wiki/Lorem_ipsum"
+        assert annotation["wikiDataItemId"] == "Q152036"
+
+        # sorted by page rank
+        annotation = wikifier.wikify(sample_text, top_n=1, key_fn="pagerank")[0]
+        assert annotation["title"] == "Morbus"
+        assert annotation["url"] == "http://la.wikipedia.org/wiki/Morbus"
+        assert annotation["wikiDataItemId"] == "Q12136"
 
 
-@pytest.mark.skipif(
-    WIKIFIER_API_KEY is None,
-    reason="WIKIFIER_API_KEY is missing from the environment variables. "
-    "You can get one from https://wikifier.org/register.html.",
-)
-def test_wikifier_no_text():
-    wikifier = preprocessing.Wikifier(WIKIFIER_API_KEY)  # type: ignore
+    def test_wikifier_invalid_api_key(self):
+        with pytest.raises(ValueError, match="user-key-not-found"):
+            wikifier = preprocessing.Wikifier("invalid_api_key")
 
-    assert not wikifier.wikify("")
+            sample_text = """Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+            sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+            Ac odio tempor orci dapibus ultrices in iaculis nunc sed.
+            Adipiscing elit duis tristique sollicitudin nibh.
+            At lectus urna duis convallis. Tincidunt lobortis feugiat vivamus at.
+            Morbi quis commodo odio aenean sed adipiscing diam."""
+
+            wikifier.wikify(sample_text)
 
 
-@pytest.mark.skipif(
-    WIKIFIER_API_KEY is None,
-    reason="WIKIFIER_API_KEY is missing from the environment variables. "
-    "You can get one from https://wikifier.org/register.html.",
-)
-@pytest.mark.disable_socket
-def test_wikifier_invalid_key_fn():
-    wikifier = preprocessing.Wikifier(WIKIFIER_API_KEY)  # type: ignore
-
-    with pytest.raises(ValueError) as excinfo:
-        wikifier.wikify("Lorem ipsum", key_fn="invalid_key_fn")
-
-    assert (
-        "key_fn is expected to be cosine or pagerank. "
-        "Got key_fn=invalid_key_fn instead." == str(excinfo.value)
+    @pytest.mark.skipif(
+        WIKIFIER_API_KEY is None,
+        reason="WIKIFIER_API_KEY is missing from the environment variables. "
+        "You can get one from https://wikifier.org/register.html.",
     )
+    def test_wikifier_no_text(self):
+        wikifier = preprocessing.Wikifier(WIKIFIER_API_KEY)  # type: ignore
+
+        assert not wikifier.wikify("")
 
 
-@pytest.mark.skipif(
-    WIKIFIER_API_KEY is None,
-    reason="WIKIFIER_API_KEY is missing from the environment variables. "
-    "You can get one from https://wikifier.org/register.html.",
-)
-@pytest.mark.disable_socket
-def test_wikifier_invalid_df_and_words_ignore():
-    wikifier = preprocessing.Wikifier(WIKIFIER_API_KEY)  # type: ignore
-
-    with pytest.raises(ValueError) as excinfo:
-        wikifier.wikify("Lorem ipsum", df_ignore=-1)
-    assert (
-        "df_ignore must >= 0. "
-        "Got df_ignore=-1 instead." == str(excinfo.value)
+    @pytest.mark.skipif(
+        WIKIFIER_API_KEY is None,
+        reason="WIKIFIER_API_KEY is missing from the environment variables. "
+        "You can get one from https://wikifier.org/register.html.",
     )
+    @pytest.mark.disable_socket
+    def test_wikifier_invalid_key_fn(self):
+        wikifier = preprocessing.Wikifier(WIKIFIER_API_KEY)  # type: ignore
 
-    with pytest.raises(ValueError) as excinfo:
-        wikifier.wikify("Lorem ipsum", words_ignore=-1)
-    assert (
-        "words_ignore must >= 0. "
-        "Got words_ignore=-1 instead." == str(excinfo.value)
+        with pytest.raises(ValueError) as excinfo:
+            wikifier.wikify("Lorem ipsum", key_fn="invalid_key_fn")
+
+        assert (
+            "key_fn is expected to be cosine or pagerank. "
+            "Got key_fn=invalid_key_fn instead." == str(excinfo.value)
+        )
+
+
+    @pytest.mark.skipif(
+        WIKIFIER_API_KEY is None,
+        reason="WIKIFIER_API_KEY is missing from the environment variables. "
+        "You can get one from https://wikifier.org/register.html.",
     )
+    @pytest.mark.disable_socket
+    def test_wikifier_invalid_df_and_words_ignore(self):
+        wikifier = preprocessing.Wikifier(WIKIFIER_API_KEY)  # type: ignore
+
+        with pytest.raises(ValueError) as excinfo:
+            wikifier.wikify("Lorem ipsum", df_ignore=-1)
+        assert (
+            "df_ignore must >= 0. "
+            "Got df_ignore=-1 instead." == str(excinfo.value)
+        )
+
+        with pytest.raises(ValueError) as excinfo:
+            wikifier.wikify("Lorem ipsum", words_ignore=-1)
+        assert (
+            "words_ignore must >= 0. "
+            "Got words_ignore=-1 instead." == str(excinfo.value)
+        )
