@@ -60,9 +60,9 @@ class INKClassifier(BaseClassifier):
         False 0.3042337221090127
         True 0.6278686231266752
         >>> ink_classifier.get_params(deep=False)  # doctest:+ELLIPSIS
-        {'bias_weight': {'mean': 0.32119..., 'variance': 0.88150...}, ..., \
-'interest_weight': {'mean': 0.58194..., 'variance': 1.07022...}, ..., \
-'novelty_weight': {'mean': 0.39332..., 'variance': 1.16897...}
+        {'bias_weight': Weights(mean=0.32119..., variance=0.88150...), ..., \
+'interest_weight': Weights(mean=0.58194..., variance=1.07022...), ..., \
+'novelty_weight': Weights(mean=0.39332..., variance=1.16897...), ...}
     """
 
     __DEFAULT_GLOBAL_SIGMA: Final[float] = 1e-9
@@ -75,9 +75,9 @@ class INKClassifier(BaseClassifier):
         "threshold": float,
         "tau": float,
         "greedy": bool,
-        "novelty_weight": dict,
-        "interest_weight": dict,
-        "bias_weight": dict,
+        "novelty_weight": LearnerMetaModel.Weights,
+        "interest_weight": LearnerMetaModel.Weights,
+        "bias_weight": LearnerMetaModel.Weights,
     }
 
     def __init__(
@@ -88,9 +88,9 @@ class INKClassifier(BaseClassifier):
         threshold: float = 0.5,
         tau: float = 0.5,
         greedy: bool = False,
-        novelty_weight: Optional[Dict[str, float]] = None,
-        interest_weight: Optional[Dict[str, float]] = None,
-        bias_weight: Optional[Dict[str, float]] = None,
+        novelty_weight: Optional[LearnerMetaModel.Weights] = None,
+        interest_weight: Optional[LearnerMetaModel.Weights] = None,
+        bias_weight: Optional[LearnerMetaModel.Weights] = None,
     ) -> None:
         """Init INKClassifier object.
 
@@ -118,9 +118,10 @@ class INKClassifier(BaseClassifier):
                 A dict containing the mean and variance of the bias_weight.
 
         Raises:
+            TypeError:
+                Types of parameters mismatch their constraints.
             ValueError:
-                If draw_proba_type is neither "static" nor "dynamic" or
-                If decay_func_type is neither "short" nor "long".
+                If the parameter is not any of the valid values in the given tuple.
         """
         if novelty_classifier is None:
             novelty_classifier = NoveltyClassifier()
@@ -134,46 +135,28 @@ class INKClassifier(BaseClassifier):
         self.greedy = greedy
 
         if novelty_weight is None:
-            novelty_weight = {"mean": 0.0, "variance": 0.5}
-        else:
-            if "mean" not in novelty_weight or "variance" not in novelty_weight:
-                raise ValueError(
-                    f'The novelty_weight must contain "mean" and "variance".'
-                    f" Got {novelty_weight} instead."
-                )
+            novelty_weight = LearnerMetaModel.Weights()
 
         if interest_weight is None:
-            interest_weight = {"mean": 0.0, "variance": 0.5}
-        else:
-            if "mean" not in interest_weight or "variance" not in interest_weight:
-                raise ValueError(
-                    f'The interest_weight must contain "mean" and "variance".'
-                    f" Got {interest_weight} instead."
-                )
+            interest_weight = LearnerMetaModel.Weights()
 
         if bias_weight is None:
-            bias_weight = {"mean": 0.0, "variance": 0.5}
-        else:
-            if "mean" not in bias_weight or "variance" not in bias_weight:
-                raise ValueError(
-                    f'The bias_weight must contain "mean" and "variance".'
-                    f" Got {bias_weight} instead."
-                )
+            bias_weight = LearnerMetaModel.Weights()
 
-        self.novelty_weight: Dict[str, float] = novelty_weight
-        self.interest_weight: Dict[str, float] = interest_weight
-        self.bias_weight: Dict[str, float] = bias_weight
+        self.novelty_weight = novelty_weight
+        self.interest_weight = interest_weight
+        self.bias_weight = bias_weight
 
         self._validate_params()
 
     def __eval_matching_quality(
         self,
         *,
-        novelty_weight: Dict[str, float],
+        novelty_weight: LearnerMetaModel.Weights,
         pred_novelty: float,
-        interest_weight: Dict[str, float],
+        interest_weight: LearnerMetaModel.Weights,
         pred_interest: float,
-        bias_weight: Dict[str, float],
+        bias_weight: LearnerMetaModel.Weights,
         pred_bias: float,
     ) -> float:
         """Evaluate the matching quality of learner and content given the weights.
@@ -201,15 +184,15 @@ class INKClassifier(BaseClassifier):
             the better the match.
         """
         difference = (
-            (novelty_weight["mean"] * pred_novelty)
-            + (interest_weight["mean"] * pred_interest)
-            + (bias_weight["mean"] * pred_bias)
+            (novelty_weight.mean * pred_novelty)
+            + (interest_weight.mean * pred_interest)
+            + (bias_weight.mean * pred_bias)
             - self.threshold
         )
         std = math.sqrt(
-            novelty_weight["variance"] * pred_novelty
-            + interest_weight["variance"] * pred_interest
-            + bias_weight["variance"] * pred_bias
+            novelty_weight.variance * pred_novelty
+            + interest_weight.variance * pred_interest
+            + bias_weight.variance * pred_bias
         )
 
         return float(mpmath.ncdf(difference, mu=0, sigma=std))
@@ -257,16 +240,16 @@ class INKClassifier(BaseClassifier):
         env = self.__create_env()
         team_experts = (
             env.create_rating(
-                mu=self.novelty_weight["mean"],
-                sigma=math.sqrt(self.novelty_weight["variance"]),
+                mu=self.novelty_weight.mean,
+                sigma=math.sqrt(self.novelty_weight.variance),
             ),
             env.create_rating(
-                mu=self.interest_weight["mean"],
-                sigma=math.sqrt(self.interest_weight["variance"]),
+                mu=self.interest_weight.mean,
+                sigma=math.sqrt(self.interest_weight.variance),
             ),
             env.create_rating(
-                mu=self.bias_weight["mean"],
-                sigma=math.sqrt(self.bias_weight["variance"]),
+                mu=self.bias_weight.mean,
+                sigma=math.sqrt(self.bias_weight.variance),
             ),
         )
 
@@ -290,18 +273,15 @@ class INKClassifier(BaseClassifier):
             )
 
         # update skills
-        (
-            self.novelty_weight["mean"],
-            self.novelty_weight["variance"],
-        ) = (new_team_experts[0].mu, new_team_experts[0].sigma ** 2)
-        (
-            self.interest_weight["mean"],
-            self.interest_weight["variance"],
-        ) = (new_team_experts[1].mu, new_team_experts[1].sigma ** 2)
-        (
-            self.bias_weight["mean"],
-            self.bias_weight["variance"],
-        ) = (new_team_experts[2].mu, new_team_experts[2].sigma ** 2)
+        self.novelty_weight = LearnerMetaModel.Weights(
+            new_team_experts[0].mu, new_team_experts[0].sigma ** 2
+        )
+        self.interest_weight = LearnerMetaModel.Weights(
+            new_team_experts[1].mu, new_team_experts[1].sigma ** 2
+        )
+        self.bias_weight = LearnerMetaModel.Weights(
+            new_team_experts[2].mu, new_team_experts[2].sigma ** 2
+        )
 
     def fit(self, x: EventModel, y: bool) -> Self:
         self.novelty_classifier.fit(x, y)

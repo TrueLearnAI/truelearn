@@ -592,7 +592,7 @@ class TestINKClassifier:
             learner_model.bias_weight
             == learner_model.interest_weight
             == learner_model.novelty_weight
-            == {"mean": 0.0, "variance": 0.5}
+            == models.LearnerMetaModel.Weights()
         )
         assert not list(
             learner_model.learner_novelty.knowledge.knowledge_components()
@@ -636,27 +636,6 @@ class TestINKClassifier:
             "The tau parameter of "
             "<class 'truelearn.learning._ink_classifier.INKClassifier'> "
             "must be <class 'float'>. Got <class 'int'> instead." == str(excinfo.value)
-        )
-
-        with pytest.raises(ValueError) as excinfo:
-            learning.INKClassifier(novelty_weight={})
-        assert (
-            'The novelty_weight must contain "mean" and "variance". Got {} instead.'
-            == str(excinfo.value)
-        )
-
-        with pytest.raises(ValueError) as excinfo:
-            learning.INKClassifier(interest_weight={})
-        assert (
-            'The interest_weight must contain "mean" and "variance". Got {} instead.'
-            == str(excinfo.value)
-        )
-
-        with pytest.raises(ValueError) as excinfo:
-            learning.INKClassifier(bias_weight={})
-        assert (
-            'The bias_weight must contain "mean" and "variance". Got {} instead.'
-            == str(excinfo.value)
         )
 
     def test_ink_classifier(self, train_cases, test_events):

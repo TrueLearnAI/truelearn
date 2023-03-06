@@ -21,7 +21,7 @@ class TestLearnerMetaModel:
             model.bias_weight
             == model.interest_weight
             == model.novelty_weight
-            == {"mean": 0.0, "variance": 0.5}
+            == models.LearnerMetaModel.Weights()
         )
         assert isinstance(model.learner_novelty, models.LearnerModel)
         assert isinstance(model.learner_interest, models.LearnerModel)
@@ -96,7 +96,7 @@ class TestKnowledgeComponent:
         assert (
             captured.out
             == "KnowledgeComponent(mean=1.0, variance=0.5, timestamp=None, title=None, \
-    description=None, url=None)\n"
+description=None, url=None)\n"
         )
 
 
@@ -169,7 +169,7 @@ class TestHistoryKnowledgeComponent:
         assert (
             captured.out
             == "HistoryAwareKnowledgeComponent(mean=1.0, variance=0.5, timestamp=None, \
-    title=None, description=None, url=None, history=deque([], maxlen=None))\n"
+title=None, description=None, url=None, history=deque([], maxlen=None))\n"
         )
 
 
@@ -222,5 +222,5 @@ class TestKnowledge:
         assert (
             captured.out
             == "Knowledge(knowledge={1: KnowledgeComponent(mean=0.0, variance=0.0, \
-    timestamp=None, title=None, description=None, url=None)})\n"
+timestamp=None, title=None, description=None, url=None)})\n"
         )
