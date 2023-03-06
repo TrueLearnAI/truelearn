@@ -70,14 +70,14 @@ class INKClassifier(BaseClassifier):
 
     _parameter_constraints: Dict[str, Any] = {
         **BaseClassifier._parameter_constraints,
-        "novelty_classifier": [NoveltyClassifier, type(None)],
-        "interest_classifier": [InterestClassifier, type(None)],
+        "novelty_classifier": NoveltyClassifier,
+        "interest_classifier": InterestClassifier,
         "threshold": float,
         "tau": float,
         "greedy": bool,
-        "novelty_weight": [dict, type(None)],
-        "interest_weight": [dict, type(None)],
-        "bias_weight": [dict, type(None)],
+        "novelty_weight": dict,
+        "interest_weight": dict,
+        "bias_weight": dict,
     }
 
     def __init__(

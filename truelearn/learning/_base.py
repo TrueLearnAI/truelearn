@@ -243,7 +243,7 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
 
     _parameter_constraints: Dict[str, Any] = {
         **BaseClassifier._parameter_constraints,
-        "learner_model": [LearnerModel, type(None)],
+        "learner_model": LearnerModel,
         "threshold": float,
         "init_skill": float,
         "def_var": float,
