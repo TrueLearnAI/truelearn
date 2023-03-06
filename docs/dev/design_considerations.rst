@@ -1,7 +1,7 @@
 Design Considerations
 =====================
 
-The following design considerations were made when developing the TrueLearn library:
+The following design considerations were made during the development the TrueLearn library.
 
 Contents
 --------
