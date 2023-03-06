@@ -1,3 +1,5 @@
+import datetime
+import numpy as np
 from typing import Dict, Iterable, Union, Tuple
 from typing_extensions import Self
 
@@ -43,7 +45,14 @@ class BarPlotter(BasePlotter):
             title=kc['title']
             mean=kc['mean']
             variance=kc['variance']
-            data = (mean, variance, title)
+            timestamps = []
+            for _, _, timestamp in kc['history']:
+                timestamps.append(timestamp)
+            timestamps = list(map(
+                lambda t: datetime.datetime.utcfromtimestamp(t).strftime("%Y-%m-%d"),
+                timestamps
+            ))
+            data = (mean, variance, title, timestamps)
             content.append(data)
         
         content.sort(
@@ -95,11 +104,14 @@ class BarPlotter(BasePlotter):
         mean_max = max(means) + 0.001
 
         titles = [lst[2] for lst in content]
-        
-        # subjects = []
-        # for x in url:
-        #     s = x.split("/")
-        #     subjects.append(s[-1].replace("_", " "))
+
+        timestamps = [lst[3] for lst in content]
+
+        number_of_videos = []
+        last_video_watched = []
+        for timestamp in timestamps:
+            number_of_videos.append(len(timestamp))
+            last_video_watched.append(timestamp[-1])
 
         self.figure = go.Figure(go.Bar(
             x=titles,
@@ -108,22 +120,26 @@ class BarPlotter(BasePlotter):
             marker=dict(
                 cmax=mean_max,
                 cmin=mean_min,
-                color=variances,
+                color=means,
                 colorbar=dict(
-                    title="Variance"
+                    title="Means"
                 ),
-                colorscale="Viridis"
+                colorscale="Greens"
             ),
             error_y=dict(type='data',
                 array=variances,
+                color = 'black',
+                thickness = 4,
+                width = 3,
                 visible=True),
-            customdata = variances,
+            customdata=np.transpose([variances, number_of_videos, last_video_watched]),
             hovertemplate="<br>".join([
                     "Topic: %{x}",
                     "Mean: %{y}",
                     "Variance: %{customdata}",
+                    "Number of Videos Watched: %{customdata[1]}",
+                    "Last Video Watched On: %{customdata[2]}",
                     "<extra></extra>"])
-            
         ), layout=layout)
 
         return self

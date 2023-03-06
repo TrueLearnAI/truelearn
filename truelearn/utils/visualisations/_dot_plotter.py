@@ -1,3 +1,5 @@
+import datetime
+import numpy as np
 from typing import Dict, Iterable, Union, Tuple
 from typing_extensions import Self
 
@@ -17,7 +19,7 @@ class DotPlotter(BasePlotter):
     
     def clean_data(
             self, raw_data: KnowledgeDict, top_n: int
-        ) -> Iterable[Tuple[str, Iterable, Iterable]]:
+        ) -> Iterable[Tuple[Iterable, Iterable, str, Iterable]]:
         """Converts an object of KnowledgeDict type to one suitable for plot().
         
         Optional utility function that converts the dictionary representation
@@ -40,11 +42,18 @@ class DotPlotter(BasePlotter):
             mean=kc['mean']
             variance=kc['variance']
             title=kc['title']
-            data = (mean, variance, title)
+            timestamps = []
+            for _, _, timestamp in kc['history']:
+                timestamps.append(timestamp)
+            timestamps = list(map(
+                lambda t: datetime.datetime.utcfromtimestamp(t).strftime("%Y-%m-%d"),
+                timestamps
+            ))
+            data = (mean, variance, title, timestamps)
             content.append(data)
         
         content.sort(
-            key=lambda data: data[1],  # sort based on mean
+            key=lambda data: data[0],  # sort based on mean
             reverse=True
         )
         print(content[:top_n])
@@ -79,37 +88,50 @@ class DotPlotter(BasePlotter):
 
         layout = self._layout(layout_data)
 
-        means = [lst[1] for lst in content]
+        means = [lst[0] for lst in content]
 
-        variances = [lst[2] for lst in content]
+        variances = [lst[1] for lst in content]
 
-        var_min = min(variances) - 0.001
+        mean_min = min(means) - 0.001
 
-        var_max = max(variances) + 0.001
+        mean_max = max(means) + 0.001
 
-        titles = [lst[0] for lst in content]
+        titles = [lst[2] for lst in content]
+
+        timestamps = [lst[3] for lst in content]
+
+        number_of_videos = []
+        last_video_watched = []
+        for timestamp in timestamps:
+            number_of_videos.append(len(timestamp))
+            last_video_watched.append(timestamp[-1])
 
         self.figure = go.Figure(data=go.Scatter(
             x=titles,
             y=means,
             marker=dict(
-                size=25,
-                cmax=var_max,
-                cmin=var_min,
-                color=variances,
+                size=50,
+                cmax=mean_max,
+                cmin=mean_min,
+                color=means,
                 colorbar=dict(
-                    title="Variance"
+                    title="Means"
                 ),
-                colorscale="Viridis"
+                colorscale="Greens" #extra colorscale - red to green
             ),
             error_y=dict(type='data',
                 array=variances,
+                color = 'black',
+                thickness = 4,
+                width = 3,
                 visible=True),
-            customdata=variances,
+            customdata=np.transpose([variances, number_of_videos, last_video_watched]),
             hovertemplate="<br>".join([
                     "Topic: %{x}",
                     "Mean: %{y}",
-                    "Variance: %{customdata}",
+                    "Variance: %{customdata[0]}",
+                    "Number of Videos Watched: %{customdata[1]}",
+                    "Last Video Watched On: %{customdata[2]}",
                     "<extra></extra>"]),
             mode="markers"),
             layout = layout)
