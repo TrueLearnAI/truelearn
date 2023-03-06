@@ -8,15 +8,18 @@ Make sure you have followed :ref:`advanced_installation`.
 Important Note
 --------------
 The tools are run using the ``python`` command to ensure that the current directory is added to the ``sys.path``.
+This prevents module not found errors.
 
 Contents
 --------
+- `Configuration`_
 - `Running the Unit Tests`_
 - `Calculating the Code Coverage`_
 - `Running the Linter (Static Code Analysis)`_
 
+
 Configuration
--------------
+^^^^^^^^^^^^^
 
 The configuration for the:
 
@@ -28,31 +31,57 @@ The configuration for the:
 .. _prospector.yaml: https://github.com/comp0016-group1/truelearn/blob/main/prospector.yaml
 
 Running the Unit Tests
-----------------------
+^^^^^^^^^^^^^^^^^^^^^^
 
-The unit tests are located in the ``tests`` directory.
-
-Running the tests is as simple as running the following command from the commandline:
+Run the following from the commandline:
 
 ``python -m pytest``
 
+Output Options
+""""""""""""""
+Example:
+
+    ``python -m pytest --junitxml=report.xml``
+
+Will output the results to a JUnit XML file called report.
+Please see the `pytest documentation`_ for more output options.
+
+.. _pytest documentation: https://docs.pytest.org/en/stable/
+
 Calculating the Code Coverage
------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Code coverage is calculated using pytest-cov.
+**Note: We calculate both statement and branch coverage.**
 
-*Note:* We calculate both statement and branch coverage.
-
-To run the tests with coverage, run the following command from the commandline:
+Run the following from the commandline:
 
 ``python -m pytest --cov``
 
+Output Options
+""""""""""""""
+Example:
+
+    ``python -m pytest --cov --cov-report "xml:coverage.xml"``
+
+Will output the results to an XML file called coverage.
+Please see the `pytest-cov documentation`_ for more output options.
+
+.. _pytest-cov documentation: https://pytest-cov.readthedocs.io/en/latest/
 
 Running the Linter (Static Code Analysis)
------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The linter is run using prospector.
-
-To run the linter, run the following command from the commandline:
+Run the following from the commandline:
 
 ``python -m prospector``
+
+Output Options
+""""""""""""""
+Example:
+
+    ``python -m prospector --output-format xunit:lint.xml``
+
+Will output the results to an XML file called lint.xml.
+Please see the `prospector documentation`_ for more output options.
+
+.. _prospector documentation: https://prospector.landscape.io/en/master/
