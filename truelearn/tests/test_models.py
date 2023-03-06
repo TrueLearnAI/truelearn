@@ -1,6 +1,8 @@
 # pylint: disable=missing-function-docstring,missing-class-docstring
 import collections
 
+import pytest
+
 from truelearn import models
 
 
@@ -55,14 +57,17 @@ class TestKnowledgeComponent:
 
     def test_knowledge_component_update(self):
         kc = models.KnowledgeComponent(mean=1.0, variance=0.5, timestamp=None)
-        kc.update(mean=0.0, variance=1.0, timestamp=1)
+        kc.update(variance=1.0, timestamp=1)
 
-        assert kc.mean == 0.0
+        assert kc.mean == 1.0
         assert kc.variance == 1.0
         assert kc.timestamp == 1.0
         assert kc.title is None
         assert kc.description is None
         assert kc.url is None
+
+        kc.update(mean=0.0)
+        assert kc.mean == 0.0
 
     def test_knowledge_component_clone(self):
         kc = models.KnowledgeComponent(mean=1.0, variance=0.5)
@@ -206,6 +211,13 @@ title=None, description=None, url=None, history=\
 deque([(91.0, 91.0, 91.0), (92.0, 92.0, 92.0), ...], maxlen=10))"
         )
 
+        with pytest.raises(ValueError) as excinfo:
+            kc.__repr__(-1)  # pylint: disable=unnecessary-dunder-call
+        assert (
+            "Expected n_max_object>=0. Got n_max_object=-1 instead."
+            == str(excinfo.value)
+        )
+
 
 class TestKnowledge:
     def test_knowledge_construction(self):
@@ -272,4 +284,11 @@ timestamp=None, title=None, description=None, url=None)})"
             == "Knowledge(knowledge={1: KnowledgeComponent(mean=0.0, variance=0.0, \
 timestamp=None, title=None, description=None, url=None), 2: KnowledgeComponent(\
 mean=1.0, variance=1.0, timestamp=None, title=None, description=None, url=None)})"
+        )
+
+        with pytest.raises(ValueError) as excinfo:
+            knowledge.__repr__(-1)  # pylint: disable=unnecessary-dunder-call
+        assert (
+            "Expected n_max_object>=0. Got n_max_object=-1 instead."
+            == str(excinfo.value)
         )
