@@ -4,10 +4,10 @@ from typing_extensions import Self
 
 import plotly.graph_objects as go
 
+from truelearn.models import Knowledge
 from truelearn.utils.visualisations._base import (
     BasePlotter,
     knowledge_to_dict,
-    KnowledgeDict
 )
 
 
@@ -16,8 +16,8 @@ class LinePlotter(BasePlotter):
     def __init__(self):
         self.figure = None
     
-    def clean_data(
-            self, raw_data: KnowledgeDict, top_n: int
+    def _standardise_data(
+            self, raw_data: Knowledge
         ) -> Iterable[Tuple[str, Iterable, Iterable]]:
         """Converts an object of KnowledgeDict type to one suitable for plot().
         
@@ -28,14 +28,14 @@ class LinePlotter(BasePlotter):
         Args:
             raw_data: dictionary representation of the learner's knowledge and
               knowledge components.
-            top_n: the number of knowledge components to visualise.
-              e.g. top_n = 5 would visualise the top 5 knowledge components 
-              ranked by mean.
 
         Returns:
             A data structure usable by the plot() method to generate
             the line chart.
         """
+
+        raw_data = knowledge_to_dict(raw_data)
+
         content = []
         for _, kc in raw_data.items():
             title = kc['title']
@@ -57,12 +57,13 @@ class LinePlotter(BasePlotter):
             reverse=True
         )
 
-        return content[:top_n]
+        return content
 
     def plot(
             self,
             layout_data: Tuple[str, str, str],
-            content: Iterable[Tuple[str, Iterable, Iterable]]
+            content: Iterable[Tuple[str, Iterable, Iterable]],
+            top_n: int=5
         ) -> Self:
         """Plots the line chart using the data.
 
@@ -79,7 +80,14 @@ class LinePlotter(BasePlotter):
               form (name, x-values, y_values) where name is the name of the line,
               x_values are the values to plot along the x-axis and y_values
               are the values to plot along the y-axis.
+            top_n: the number of knowledge components to visualise.
+              e.g. top_n = 5 would visualise the top 5 knowledge components 
+              ranked by mean.
         """
+        if isinstance(content, Knowledge):
+            content = self._standardise_data(content)
+            content = content[:top_n]
+
         traces = [self._trace(tr_data) for tr_data in content]
 
         layout = self._layout(layout_data)
@@ -92,8 +100,6 @@ class LinePlotter(BasePlotter):
         return self
     
     def _trace(self, tr_data: Tuple[str, Iterable, Iterable]) -> go.Scatter:
-        print("-------------------")
-        print(tr_data)
         name, y_values, x_values = tr_data
 
         trace = go.Scatter(

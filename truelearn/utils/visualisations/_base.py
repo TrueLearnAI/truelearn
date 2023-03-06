@@ -16,7 +16,7 @@ KnowledgeDict = Dict[str, Dict[str, Union[str, float]]]
 class BasePlotter(ABC):
     """The base class of all the plotters."""
     @abstractmethod
-    def clean_data(self, raw_data: KnowledgeDict) -> Iterable:
+    def _standardise_data(self, raw_data: Knowledge) -> Iterable:
         """Converts an object of KnowledgeDict type to one suitable for plot().
         
         Optional utility function that converts the dictionary representation
@@ -32,11 +32,16 @@ class BasePlotter(ABC):
         """
 
     @abstractmethod
-    def plot(self, data: Iterable[Tuple]) -> Self:
+    def plot(
+            self,
+            layout_data: Tuple[str, str, str],
+            content: Union[Knowledge, Iterable[Tuple]]
+        ) -> Self:
         """Creates a Plotly Figure object from the data.
 
         Args:
-            data: the data to be used to plot the visualisation.
+            layout_data: the labels to include in the visualisation.
+            content: the data to be used to plot the visualisation.
         """
 
     @abstractmethod
@@ -81,7 +86,7 @@ class BasePlotter(ABC):
         self.figure.show()
 
     @final
-    def static_export(
+    def _static_export(
             self,
             path: str,
             format: str,
@@ -106,7 +111,7 @@ class BasePlotter(ABC):
         )
 
     @final
-    def html_export(
+    def _html_export(
             self,
             path: str,
             width: int=500,
@@ -133,7 +138,6 @@ def knowledge_to_dict(knowledge: Knowledge, mapping: Optional[Dict[int, str]] = 
     
     Returns a copy of the knowledge object in which all the knowledge
     components have been converted to dicts.
-
     Args:
         knowledge: the knowledge object to copy.
         mapping: an optional dictionary intended to map the topic IDs
