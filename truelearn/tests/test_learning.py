@@ -602,12 +602,12 @@ class TestINKClassifier:
         classifier = learning.INKClassifier()
 
         params = (
-            "bias_weight",
+            "bias_weights",
             "greedy",
             "interest_classifier",
-            "interest_weight",
+            "interest_weights",
             "novelty_classifier",
-            "novelty_weight",
+            "novelty_weights",
             "tau",
             "threshold",
         )
