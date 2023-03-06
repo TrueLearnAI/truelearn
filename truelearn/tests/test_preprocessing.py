@@ -126,7 +126,8 @@ class TestWikifier:
             def __exit__(self, *_args, **_kargs):
                 ...
 
-            def read(self):
+            @staticmethod
+            def read():
                 b = bytearray()
                 b.extend(map(ord, '{"error": "this is a test"}'))
                 return b
