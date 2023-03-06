@@ -191,12 +191,12 @@ class BaseClassifier(ABC):
                     f" is not in the {type(self)}."
                 )
 
-            param_value = self.__dict__[param_name]
+            param_value = getattr(self, param_name)
 
             if isinstance(expected_param_type, list):
                 # if it matches none of the types in the constraints
                 if not any(
-                    isinstance(self.__dict__[param_name], param_type_unpacked)
+                    isinstance(param_value, param_type_unpacked)
                     for param_type_unpacked in list(expected_param_type)
                 ):
                     param_classname_expected = list(
