@@ -38,13 +38,13 @@ class BarPlotter(BasePlotter):
         content = []
         for _, kc in raw_data.items():
             title=kc['title']
-            means=kc['mean']
-            variances=kc['variance']
-            data = (means, variances, title)
+            mean=kc['mean']
+            variance=kc['variance']
+            data = (mean, variance, title)
             content.append(data)
         
         content.sort(
-            key=lambda data: data[0],  # sort based on mean
+            key=lambda data: data[1],  # sort based on mean
             reverse=True
         )
         print(content[:top_n])
@@ -79,13 +79,13 @@ class BarPlotter(BasePlotter):
 
         layout = self._layout(layout_data)
 
-        mean = [lst[0] for lst in content]
+        means = [lst[1] for lst in content]
 
-        variance = [lst[1] for lst in content]
+        variances = [lst[2] for lst in content]
 
-        mean_min = min(mean) - 0.001
+        mean_min = min(means) - 0.001
 
-        mean_max = max(mean) + 0.001
+        mean_max = max(means) + 0.001
 
         titles = [lst[2] for lst in content]
         
@@ -101,16 +101,16 @@ class BarPlotter(BasePlotter):
             marker=dict(
                 cmax=mean_max,
                 cmin=mean_min,
-                color=variance,
+                color=variances,
                 colorbar=dict(
                     title="Variance"
                 ),
                 colorscale="Viridis"
             ),
             error_y=dict(type='data',
-                array=variance,
+                array=variances,
                 visible=True),
-            customdata = variance,
+            customdata = variances,
             hovertemplate="<br>".join([
                     "Topic: %{x}",
                     "Mean: %{y}",
@@ -123,5 +123,3 @@ class BarPlotter(BasePlotter):
 
     def _trace():
         pass
-
-

@@ -37,14 +37,14 @@ class DotPlotter(BasePlotter):
         """
         content = []
         for _, kc in raw_data.items():
-            means=kc['mean']
-            variances=kc['variance']
+            mean=kc['mean']
+            variance=kc['variance']
             title=kc['title']
-            data = (means, variances, title)
+            data = (mean, variance, title)
             content.append(data)
         
         content.sort(
-            key=lambda data: data[0],  # sort based on mean
+            key=lambda data: data[1],  # sort based on mean
             reverse=True
         )
         print(content[:top_n])
@@ -79,38 +79,33 @@ class DotPlotter(BasePlotter):
 
         layout = self._layout(layout_data)
 
-        mean = [lst[0] for lst in content]
+        means = [lst[1] for lst in content]
 
-        variance = [lst[1] for lst in content]
+        variances = [lst[2] for lst in content]
 
-        mean_min = min(mean) - 0.001
+        var_min = min(variances) - 0.001
 
-        mean_max = max(mean) + 0.001
+        var_max = max(variances) + 0.001
 
-        titles = [lst[2] for lst in content]
-        
-        # subjects = []
-        # for x in url:
-        #     s = x.split("/")
-        #     subjects.append(s[-1].replace("_", " "))
+        titles = [lst[0] for lst in content]
 
         self.figure = go.Figure(data=go.Scatter(
             x=titles,
-            y=mean,
+            y=means,
             marker=dict(
                 size=25,
-                cmax=mean_max,
-                cmin=mean_min,
-                color=mean,
+                cmax=var_max,
+                cmin=var_min,
+                color=variances,
                 colorbar=dict(
                     title="Variance"
                 ),
                 colorscale="Viridis"
             ),
             error_y=dict(type='data',
-                array=variance,
+                array=variances,
                 visible=True),
-            customdata=variance,
+            customdata=variances,
             hovertemplate="<br>".join([
                     "Topic: %{x}",
                     "Mean: %{y}",
@@ -119,9 +114,7 @@ class DotPlotter(BasePlotter):
             mode="markers"),
             layout = layout)
 
-
         return self
         
     def _trace():
         pass
-
