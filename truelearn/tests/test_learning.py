@@ -67,8 +67,8 @@ class TestBase:
         )
 
     def test_validate_params_type_mismatch_throw(self, monkeypatch):
-        parameter_constraints = {**MockClassifier._parameter_constraints}
-        parameter_constraints["holder"] = [float, str, type(None)]
+        parameter_constraints = {**MockClassifier._parameter_constraints,
+                                 "holder": [float, str, type(None)]}
 
         monkeypatch.setattr(
             MockClassifier,
