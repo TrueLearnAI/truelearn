@@ -28,7 +28,7 @@ jobs:
 
       - name: Install Project Dependencies
         run:  |
-            pip install ."[tests]"
+            pip install .[tests]
 
         # Pytest generates an XML report
       - name: Execute tests
