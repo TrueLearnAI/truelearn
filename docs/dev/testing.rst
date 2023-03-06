@@ -11,9 +11,9 @@ The tools are run using the ``python`` command to ensure that the current direct
 
 Contents
 --------
-- :ref:`running_the_unit_tests`
-- :ref:`calculating_the_code_coverage`
-- :ref:`running_the_linter_static_code_analysis`
+- `Running the Unit Tests`_
+- `Calculating the Code Coverage`_
+- `Running the Linter (Static Code Analysis)`_
 
 Configuration
 -------------
