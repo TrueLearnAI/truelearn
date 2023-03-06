@@ -1,5 +1,6 @@
 # pylint: disable=missing-function-docstring,missing-class-docstring
 import os
+from urllib import request
 
 import pytest
 
@@ -54,7 +55,6 @@ class TestWikifier:
         assert annotation["url"] == "http://la.wikipedia.org/wiki/Morbus"
         assert annotation["wikiDataItemId"] == "Q12136"
 
-
     def test_wikifier_invalid_api_key(self):
         with pytest.raises(ValueError, match="user-key-not-found"):
             wikifier = preprocessing.Wikifier("invalid_api_key")
@@ -68,7 +68,6 @@ class TestWikifier:
 
             wikifier.wikify(sample_text)
 
-
     @pytest.mark.skipif(
         WIKIFIER_API_KEY is None,
         reason="WIKIFIER_API_KEY is missing from the environment variables. "
@@ -78,7 +77,6 @@ class TestWikifier:
         wikifier = preprocessing.Wikifier(WIKIFIER_API_KEY)  # type: ignore
 
         assert not wikifier.wikify("")
-
 
     @pytest.mark.skipif(
         WIKIFIER_API_KEY is None,
@@ -97,7 +95,6 @@ class TestWikifier:
             "Got key_fn=invalid_key_fn instead." == str(excinfo.value)
         )
 
-
     @pytest.mark.skipif(
         WIKIFIER_API_KEY is None,
         reason="WIKIFIER_API_KEY is missing from the environment variables. "
@@ -109,14 +106,35 @@ class TestWikifier:
 
         with pytest.raises(ValueError) as excinfo:
             wikifier.wikify("Lorem ipsum", df_ignore=-1)
-        assert (
-            "df_ignore must >= 0. "
-            "Got df_ignore=-1 instead." == str(excinfo.value)
-        )
+        assert "df_ignore must >= 0. " "Got df_ignore=-1 instead." == str(excinfo.value)
 
         with pytest.raises(ValueError) as excinfo:
             wikifier.wikify("Lorem ipsum", words_ignore=-1)
-        assert (
-            "words_ignore must >= 0. "
-            "Got words_ignore=-1 instead." == str(excinfo.value)
+        assert "words_ignore must >= 0. " "Got words_ignore=-1 instead." == str(
+            excinfo.value
         )
+
+    @pytest.mark.disable_socket
+    def test_wikifier_show_error(self, monkeypatch):
+        class mock_urlopen:
+            def __init__(self, *_args, **_kargs):
+                ...
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *_args, **_kargs):
+                ...
+
+            def read(self):
+                b = bytearray()
+                b.extend(map(ord, '{"error": "this is a test"}'))
+                return b
+
+        monkeypatch.setattr(request, "urlopen", mock_urlopen)
+
+        with pytest.raises(ValueError) as excinfo:
+            preprocessing.Wikifier("You do not need API key for this test").wikify(
+                "Hello World"
+            )
+        assert "error in response : this is a test" == str(excinfo.value)
