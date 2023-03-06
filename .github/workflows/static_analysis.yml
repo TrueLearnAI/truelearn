@@ -26,7 +26,7 @@ jobs:
       - name: Install Project Dependencies
         run:  |
             # install dev because we import pytest in truelearn.tests
-            pip install ."[dev]"
+            pip install .[dev]
 
       - name: Run Prospector
         run: |
