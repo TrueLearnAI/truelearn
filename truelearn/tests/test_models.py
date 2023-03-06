@@ -46,9 +46,9 @@ class TestKnowledgeComponent:
             url=None,
         )
 
-        assert kc.mean == 1
-        assert kc.variance == 2
-        assert kc.timestamp == 3
+        assert kc.mean == 1.0
+        assert kc.variance == 2.0
+        assert kc.timestamp == 3.0
         assert kc.title == "Hello World"
         assert kc.description is None
         assert kc.url is None
@@ -57,9 +57,9 @@ class TestKnowledgeComponent:
         kc = models.KnowledgeComponent(mean=1.0, variance=0.5, timestamp=None)
         kc.update(mean=0.0, variance=1.0, timestamp=1)
 
-        assert kc.mean == 0
-        assert kc.variance == 1
-        assert kc.timestamp == 1
+        assert kc.mean == 0.0
+        assert kc.variance == 1.0
+        assert kc.timestamp == 1.0
         assert kc.title is None
         assert kc.description is None
         assert kc.url is None
@@ -68,8 +68,8 @@ class TestKnowledgeComponent:
         kc = models.KnowledgeComponent(mean=1.0, variance=0.5)
         kc_cloned = kc.clone(mean=2.0, variance=3.0, timestamp=None)
 
-        assert kc_cloned.mean == 2
-        assert kc_cloned.variance == 3
+        assert kc_cloned.mean == 2.0
+        assert kc_cloned.variance == 3.0
         assert kc_cloned.timestamp is None
         assert kc_cloned.title is None
         assert kc_cloned.description is None
@@ -80,7 +80,7 @@ class TestKnowledgeComponent:
         params = kc.export_as_dict()
 
         assert params == {
-            "mean": 1,
+            "mean": 1.0,
             "variance": 0.5,
             "timestamp": None,
             "title": None,
@@ -88,15 +88,14 @@ class TestKnowledgeComponent:
             "url": None,
         }
 
-    def test_knowledge_component_repr(self, capsys):
+    def test_knowledge_component_repr(self):
         kc = models.KnowledgeComponent(mean=1.0, variance=0.5)
-        print(kc)
+        out = repr(kc)
 
-        captured = capsys.readouterr()
         assert (
-            captured.out
+            out
             == "KnowledgeComponent(mean=1.0, variance=0.5, timestamp=None, title=None, \
-description=None, url=None)\n"
+description=None, url=None)"
         )
 
 
@@ -111,13 +110,30 @@ class TestHistoryKnowledgeComponent:
             url=None,
         )
 
-        assert kc.mean == 1
-        assert kc.variance == 2
-        assert kc.timestamp == 3
+        assert kc.mean == 1.0
+        assert kc.variance == 2.0
+        assert kc.timestamp == 3.0
         assert kc.title == "Hello World"
         assert kc.description is None
         assert kc.url is None
         assert kc.history == collections.deque()
+
+    def test_history_knowledge_component_construct_with_deque(self):
+        kc = models.HistoryAwareKnowledgeComponent(
+            mean=1.0,
+            variance=2.0,
+            history=collections.deque(
+                [(float(i), float(i), float(i)) for i in range(101)]
+            ),
+            history_limit=10,
+        )
+
+        assert kc.mean == 1.0
+        assert kc.variance == 2.0
+        assert kc.history.maxlen == 10
+        assert list(kc.history) == [
+            (float(i), float(i), float(i)) for i in range(91, 101)
+        ]
 
     def test_history_knowledge_component_update(self):
         kc = models.HistoryAwareKnowledgeComponent(
@@ -125,9 +141,9 @@ class TestHistoryKnowledgeComponent:
         )
         kc.update(mean=0.0, variance=1.0, timestamp=1)
 
-        assert kc.mean == 0
-        assert kc.variance == 1
-        assert kc.timestamp == 1
+        assert kc.mean == 0.0
+        assert kc.variance == 1.0
+        assert kc.timestamp == 1.0
         assert kc.title is None
         assert kc.description is None
         assert kc.url is None
@@ -137,8 +153,8 @@ class TestHistoryKnowledgeComponent:
         kc = models.HistoryAwareKnowledgeComponent(mean=1.0, variance=0.5)
         kc_cloned = kc.clone(mean=2.0, variance=3.0, timestamp=None)
 
-        assert kc_cloned.mean == 2
-        assert kc_cloned.variance == 3
+        assert kc_cloned.mean == 2.0
+        assert kc_cloned.variance == 3.0
         assert kc_cloned.timestamp is None
         assert kc_cloned.title is None
         assert kc_cloned.description is None
@@ -152,7 +168,7 @@ class TestHistoryKnowledgeComponent:
         params = kc.export_as_dict()
 
         assert params == {
-            "mean": 1,
+            "mean": 1.0,
             "variance": 0.5,
             "timestamp": None,
             "title": None,
@@ -161,15 +177,33 @@ class TestHistoryKnowledgeComponent:
             "history": collections.deque([(0, 0.5, None)]),
         }
 
-    def test_history_knowledge_component_repr(self, capsys):
+    def test_history_knowledge_component_repr(self):
         kc = models.HistoryAwareKnowledgeComponent(mean=1.0, variance=0.5)
-        print(kc)
+        out = repr(kc)
 
-        captured = capsys.readouterr()
         assert (
-            captured.out
+            out
             == "HistoryAwareKnowledgeComponent(mean=1.0, variance=0.5, timestamp=None, \
-title=None, description=None, url=None, history=deque([], maxlen=None))\n"
+title=None, description=None, url=None, history=deque([], maxlen=None))"
+        )
+
+    def test_history_knowledge_component_repr_with_max_object(self):
+        kc = models.HistoryAwareKnowledgeComponent(
+            mean=1.0,
+            variance=2.0,
+            history=collections.deque(
+                [(float(i), float(i), float(i)) for i in range(101)]
+            ),
+            history_limit=10,
+        )
+
+        out = kc.__repr__(2)  # pylint: disable=unnecessary-dunder-call
+
+        assert (
+            out
+            == "HistoryAwareKnowledgeComponent(mean=1.0, variance=2.0, timestamp=None, \
+title=None, description=None, url=None, history=\
+deque([(91.0, 91.0, 91.0), (92.0, 92.0, 92.0), ...], maxlen=10))"
         )
 
 
@@ -212,15 +246,30 @@ class TestKnowledge:
             knowledge.get_kc(1, models.KnowledgeComponent(mean=0.0, variance=0.5)) == kc
         )
 
-    def test_knowledge_repr(self, capsys):
+    def test_knowledge_repr(self):
         knowledge = models.Knowledge(
             {1: models.KnowledgeComponent(mean=0.0, variance=0.0)}
         )
-        print(knowledge)
+        out = repr(knowledge)
 
-        captured = capsys.readouterr()
         assert (
-            captured.out
+            out
             == "Knowledge(knowledge={1: KnowledgeComponent(mean=0.0, variance=0.0, \
-timestamp=None, title=None, description=None, url=None)})\n"
+timestamp=None, title=None, description=None, url=None)})"
+        )
+
+    def test_knowledge_repr_with_max_objects(self):
+        knowledge = models.Knowledge(
+            {
+                1: models.KnowledgeComponent(mean=0.0, variance=0.0),
+                2: models.KnowledgeComponent(mean=1.0, variance=1.0),
+            }
+        )
+        out = knowledge.__repr__(2)  # pylint: disable=unnecessary-dunder-call
+
+        assert (
+            out
+            == "Knowledge(knowledge={1: KnowledgeComponent(mean=0.0, variance=0.0, \
+timestamp=None, title=None, description=None, url=None), 2: KnowledgeComponent(\
+mean=1.0, variance=1.0, timestamp=None, title=None, description=None, url=None)})"
         )
