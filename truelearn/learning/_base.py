@@ -180,7 +180,7 @@ class BaseClassifier(ABC):
 
         Raises:
             TypeError:
-                types of parameters mismatch their constraints.
+                Types of parameters mismatch their constraints.
             ValueError:
                 If the parameter is not any of the valid values in the given tuple.
         """
@@ -397,6 +397,7 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
                 )
             return self.draw_proba_static * self.draw_proba_factor
 
+        # >= 1 because it's divisor
         total_engagement_stats = max(
             1,
             self.learner_model.number_of_engagements
@@ -415,7 +416,6 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
             InterestNoveltyKnowledgeBaseClassifier.__DEFAULT_DRAW_PROBA_LOW,
         )
 
-        # draw_proba_param is a factor if the type is dynamic
         return draw_probability * self.draw_proba_factor
 
     def __create_env(self) -> trueskill.TrueSkill:
@@ -562,10 +562,13 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
                 x,
             )
         )
+
+        # extract learner kc from the topic_kc pairs above
         learner_kcs = map(
             lambda learner_topic_kc_pair: learner_topic_kc_pair[1],
             learner_topic_kc_pairs,
         )
+
         content_kcs = x.knowledge.knowledge_components()
 
         for topic_kc_pair, rating in zip(
