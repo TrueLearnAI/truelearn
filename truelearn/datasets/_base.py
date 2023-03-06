@@ -48,14 +48,15 @@ def _download_file(
             If True, this function outputs some information
             about the downloaded file.
     """
-    if url.lower().startswith("https://"):
-        if verbose:
-            print(f"Downloading {url} into {filepath}")
-        # the bandit warning is suppressed here
-        # because we have checked whether the url starts with http
-        request.urlretrieve(url, filepath)  # nosec
-    else:
-        raise ValueError(f"The given url {url} is not a valid http/https url.")
+    if not url.lower().startswith("https://"):
+        raise ValueError(f"The given url {url} is not a valid https url.")
+
+    if verbose:
+        print(f"Downloading {url} into {filepath}")
+
+    # the bandit warning is suppressed here
+    # because we have checked whether the url starts with http
+    request.urlretrieve(url, filepath)  # nosec
 
     actual_sha256 = _sha256sum(filepath)
     if expected_sha256 != actual_sha256:
