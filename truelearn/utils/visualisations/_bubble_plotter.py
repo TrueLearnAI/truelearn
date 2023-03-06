@@ -5,6 +5,7 @@ from typing_extensions import Self
 
 import plotly.graph_objects as go
 
+from truelearn.models import Knowledge
 from truelearn.utils.visualisations._base import (
     BasePlotter,
     knowledge_to_dict,
@@ -17,8 +18,8 @@ class BubblePlotter(BasePlotter):
     def __init__(self):
         self.figure = None
     
-    def clean_data(
-            self, raw_data: KnowledgeDict, top_n: int
+    def _standardise_data(
+            self, raw_data: KnowledgeDict
         ) -> Iterable[Tuple[Iterable, Iterable, str, Iterable]]:
         """Converts an object of KnowledgeDict type to one suitable for plot().
         
@@ -29,14 +30,13 @@ class BubblePlotter(BasePlotter):
         Args:
             raw_data: dictionary representation of the learner's knowledge and
               knowledge components.
-            top_n: the number of knowledge components to visualise.
-              e.g. top_n = 5 would visualise the top 5 knowledge components 
-              ranked by mean.
 
         Returns:
             A data structure usable by the plot() method to generate
             the bar chart.
         """
+        raw_data = knowledge_to_dict(raw_data)
+
         content = []
         for _, kc in raw_data.items():
             title=kc['title']
@@ -56,15 +56,15 @@ class BubblePlotter(BasePlotter):
             key=lambda data: data[0],  # sort based on mean
             reverse=True
         )
-        print(content[:top_n])
 
-        return content[:top_n]
+        return content
 
 
     def plot(
             self,
             layout_data: Tuple[str, str, str],
-            content: Iterable[Tuple[Iterable, Iterable, str]]
+            content: Iterable[Tuple[Iterable, Iterable, str]],
+            top_n: int=5
         ) -> go.Scatter:
 
         """
@@ -84,7 +84,14 @@ class BubblePlotter(BasePlotter):
               mean is the TrueSkill rating of the user for a specific subject,
               variance represents the certainty of the model in this mean and 
               url which is used to extract the subject as a string without https 
+            top_n: the number of knowledge components to visualise.
+              e.g. top_n = 5 would visualise the top 5 knowledge components 
+              ranked by mean.
         """
+        if isinstance(content, Knowledge):
+            content = self._standardise_data(content)
+        
+        content = content[:top_n]
 
         layout = self._layout(layout_data)
 
