@@ -153,11 +153,11 @@ class TestPEEKDataset:
 
     def test_load_peek_dataset_raw_with_invalid_limit(self):
         with pytest.raises(ValueError) as excinfo:
-            datasets.load_peek_dataset(train_limit=-1)
+            datasets.load_peek_dataset_raw(train_limit=-1)
         assert "train_limit must >= 0. Got train_limit=-1 instead." == str(
             excinfo.value
         )
 
         with pytest.raises(ValueError) as excinfo:
-            datasets.load_peek_dataset(test_limit=-1)
+            datasets.load_peek_dataset_raw(test_limit=-1)
         assert "test_limit must >= 0. Got test_limit=-1 instead." == str(excinfo.value)
