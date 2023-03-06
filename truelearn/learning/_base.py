@@ -175,9 +175,6 @@ class BaseClassifier(ABC):
     def _validate_params(self) -> None:
         """Validate types of given arguments in __init__.
 
-        Args:
-            **kargs: A dict of (param_name, param_value) pair.
-
         Raises:
             TypeError:
                 Types of parameters mismatch their constraints.
