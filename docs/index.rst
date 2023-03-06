@@ -11,7 +11,7 @@ Welcome to TrueLearn's documentation!
 
    tutorial/quickstart
    modules/classes
-   developer/index
+   dev/index
 
 
 
@@ -40,7 +40,7 @@ Truelearn is a python package for ...
 Getting Started
 ---------------
 
-See the link :doc:`tutorial/quickstart` for a quick introduction to the package.
+See the :ref:`installation` for a quick introduction to the package.
 
 .. include:: changelog.rst
 .. include:: authors.rst

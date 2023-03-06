@@ -1,3 +1,4 @@
+.. _installation:
 
 Quick Start Guide
 =================

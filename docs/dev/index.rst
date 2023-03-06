@@ -22,6 +22,7 @@ Contents
     :maxdepth: 1
 
     advanced_installation
+    design_considerations
     testing
     documentation
-    maintainer
+    maintenance
