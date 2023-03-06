@@ -1,5 +1,5 @@
-import collections
 import dataclasses
+from typing import NamedTuple
 
 from ._knowledge import Knowledge
 
@@ -66,14 +66,14 @@ class LearnerMetaModel:
         >>> # construct an empty learner meta model
         >>> LearnerMetaModel()  # doctest:+ELLIPSIS
         LearnerMetaModel(learner_novelty=..., learner_interest=..., \
-novelty_weight=Weights(mean=0, variance=0.5), interest_weight=..., bias_weight=...)
+novelty_weight=Weights(mean=0.0, variance=0.5), interest_weight=..., bias_weight=...)
         >>> # construct a learner meta model with given learner models
         >>> learner_novelty = LearnerModel()
         >>> learner_interest = LearnerModel()
         >>> LearnerMetaModel(learner_novelty=learner_novelty,\
 learner_interest=learner_novelty)
         LearnerMetaModel(learner_novelty=..., learner_interest=..., \
-novelty_weight=Weights(mean=0, variance=0.5), interest_weight=..., bias_weight=...)
+novelty_weight=Weights(mean=0.0, variance=0.5), interest_weight=..., bias_weight=...)
         >>> # construct a learner meta model with custom weights
         >>> bias_weight = LearnerMetaModel.Weights(mean=1.0, variance=2.0)
         >>> LearnerMetaModel(bias_weight=bias_weight)
@@ -81,7 +81,11 @@ novelty_weight=Weights(mean=0, variance=0.5), interest_weight=..., bias_weight=.
 novelty_weight=..., interest_weight=..., bias_weight=Weights(mean=1.0, variance=2.0))
     """
 
-    Weights = collections.namedtuple("Weights", "mean variance", defaults=[0, 0.5])
+    class Weights(NamedTuple):
+        """A namedtuple that represents the weights used in LearnerMetaModel."""
+
+        mean: float = 0.0
+        variance: float = 0.5
 
     learner_novelty: LearnerModel = dataclasses.field(default_factory=LearnerModel)
     learner_interest: LearnerModel = dataclasses.field(default_factory=LearnerModel)
