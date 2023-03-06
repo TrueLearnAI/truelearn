@@ -30,6 +30,7 @@ The release process is as follows:
    and the stable version will be updated to the latest release.
 
    *Note:* You may need to activate the new version in the Read the Docs dashboard.
+
 Post-release
 ------------
 In the main branch update the version number in the ``truelearn/__init__.py`` file to the
