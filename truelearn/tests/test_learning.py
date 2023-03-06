@@ -346,7 +346,9 @@ class TestKnowledgeClassifier:
             "must be <class 'float'>. Got <class 'int'> instead." == str(excinfo.value)
         )
 
-    def test_knowledge_classifier(self, train_cases, test_events):
+    def test_knowledge_classifier_with_disabled_positive_only(
+        self, train_cases, test_events
+    ):
         classifier = learning.KnowledgeClassifier(positive_only=False)
 
         train_events, train_labels = train_cases
@@ -357,6 +359,26 @@ class TestKnowledgeClassifier:
             0.31822146219026654,
             0.04616731561824022,
             0.0644849610860269,
+        ]
+        actual_results = [classifier.predict_proba(event) for event in test_events]
+
+        assert expected_results == actual_results
+
+    def test_knowledge_classifier_with_draw_proba_static(
+        self, train_cases, test_events
+    ):
+        classifier = learning.KnowledgeClassifier(
+            draw_proba_type="static", draw_proba_static=0.3
+        )
+
+        train_events, train_labels = train_cases
+        for event, label in zip(train_events, train_labels):
+            classifier.fit(event, label)
+
+        expected_results = [
+            0.4632708833103084,
+            0.20884274880379491,
+            0.27614902348099163,
         ]
         actual_results = [classifier.predict_proba(event) for event in test_events]
 
