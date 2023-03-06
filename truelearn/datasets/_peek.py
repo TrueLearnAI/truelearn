@@ -89,7 +89,7 @@ def __sanity_check(train_limit: Optional[int], test_limit: Optional[int]):
             f"train_limit must >= 0. Got train_limit={train_limit} instead."
         )
     if test_limit is not None and test_limit < 0:
-        raise ValueError(f"test_limit must >= 0. Got test_limit={train_limit} instead.")
+        raise ValueError(f"test_limit must >= 0. Got test_limit={test_limit} instead.")
 
 
 def __download_files(dirname: str = ".", verbose: bool = True) -> Tuple[str, str, str]:
