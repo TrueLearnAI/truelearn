@@ -37,10 +37,10 @@ class BarPlotter(BasePlotter):
         """
         content = []
         for _, kc in raw_data.items():
-            urls=kc['url']
+            title=kc['title']
             means=kc['mean']
             variances=kc['variance']
-            data = (means, variances, urls)
+            data = (means, variances, title)
             content.append(data)
         
         content.sort(
@@ -83,30 +83,33 @@ class BarPlotter(BasePlotter):
 
         variance = [lst[1] for lst in content]
 
-        var_min = min(variance) - 0.001
+        mean_min = min(mean) - 0.001
 
-        var_max = max(variance) + 0.001
+        mean_max = max(mean) + 0.001
 
-        url = [lst[2] for lst in content]
+        titles = [lst[2] for lst in content]
         
-        subjects = []
-        for x in url:
-            s = x.split("/")
-            subjects.append(s[-1].replace("_", " "))
+        # subjects = []
+        # for x in url:
+        #     s = x.split("/")
+        #     subjects.append(s[-1].replace("_", " "))
 
         self.figure = go.Figure(go.Bar(
-            x=subjects,
+            x=titles,
             y=mean,
             width=0.5,
             marker=dict(
-                cmax=var_max,
-                cmin=var_min,
+                cmax=mean_max,
+                cmin=mean_min,
                 color=variance,
                 colorbar=dict(
                     title="Variance"
                 ),
                 colorscale="Viridis"
             ),
+            error_y=dict(type='data',
+                array=variance,
+                visible=True),
             customdata = variance,
             hovertemplate="<br>".join([
                     "Topic: %{x}",

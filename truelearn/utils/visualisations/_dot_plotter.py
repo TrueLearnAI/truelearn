@@ -39,8 +39,8 @@ class DotPlotter(BasePlotter):
         for _, kc in raw_data.items():
             means=kc['mean']
             variances=kc['variance']
-            urls=kc['url']
-            data = (means, variances, urls)
+            title=kc['title']
+            data = (means, variances, title)
             content.append(data)
         
         content.sort(
@@ -83,30 +83,33 @@ class DotPlotter(BasePlotter):
 
         variance = [lst[1] for lst in content]
 
-        var_min = min(variance) - 0.001
+        mean_min = min(mean) - 0.001
 
-        var_max = max(variance) + 0.001
+        mean_max = max(mean) + 0.001
 
-        url = [lst[2] for lst in content]
+        titles = [lst[2] for lst in content]
         
-        subjects = []
-        for x in url:
-            s = x.split("/")
-            subjects.append(s[-1].replace("_", " "))
+        # subjects = []
+        # for x in url:
+        #     s = x.split("/")
+        #     subjects.append(s[-1].replace("_", " "))
 
         self.figure = go.Figure(data=go.Scatter(
-            x=subjects,
+            x=titles,
             y=mean,
             marker=dict(
                 size=25,
-                cmax=var_max,
-                cmin=var_min,
-                color=variance,
+                cmax=mean_max,
+                cmin=mean_min,
+                color=mean,
                 colorbar=dict(
                     title="Variance"
                 ),
                 colorscale="Viridis"
             ),
+            error_y=dict(type='data',
+                array=variance,
+                visible=True),
             customdata=variance,
             hovertemplate="<br>".join([
                     "Topic: %{x}",
@@ -118,6 +121,7 @@ class DotPlotter(BasePlotter):
 
 
         return self
+        
     def _trace():
         pass
 
