@@ -235,10 +235,10 @@ class INKClassifier(BaseClassifier):
                 Whether the learner actually engage in the given event. This value is
                 either 0 or 1.
         """
-        cur_pred = self.predict_proba(x)
+        cur_pred = self.predict(x)
 
         # if prediction is correct and greedy, don't train
-        if self.greedy and (cur_pred >= self.threshold) == pred_actual:
+        if self.greedy and cur_pred == pred_actual:
             return
 
         # train

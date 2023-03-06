@@ -1,7 +1,90 @@
-# pylint: disable=missing-function-docstring,missing-class-docstring
+# pylint: disable=missing-function-docstring,missing-class-docstring,protected-access
+import math
+
 import pytest
 
 from truelearn import learning, models
+from ..learning import _base
+
+
+class MockClassifier(_base.BaseClassifier):
+    _parameter_constraints = {
+        **_base.BaseClassifier._parameter_constraints,
+        "holder": int,
+    }
+
+    def __init__(self):  # noqa: D107
+        self.holder = 42
+
+    def fit(self, _x, _y):
+        ...
+
+    def predict(self, _x):
+        ...
+
+    def predict_proba(self, _x):
+        ...
+
+
+class TestBase:
+    def test_useless_key_with_get_params_throw(self, monkeypatch):
+        monkeypatch.setattr(
+            MockClassifier,
+            "_parameter_constraints",
+            {**MockClassifier._parameter_constraints, "useless_key": type(None)},
+        )
+
+        classifier = MockClassifier()
+        with pytest.raises(ValueError) as excinfo:
+            classifier.get_params()
+        assert (
+            "The specified parameter name useless_key is not in the "
+            "<class 'truelearn.tests.test_learning.MockClassifier'>."
+            == str(excinfo.value)
+        )
+
+    def test_set_params_empty_no_effect(self):
+        classifier = MockClassifier()
+        params = classifier.get_params()
+        classifier.set_params()
+
+        assert params == classifier.get_params() == {"holder": classifier.holder}
+
+    def test_useless_key_with_validate_params_throw(self, monkeypatch):
+        monkeypatch.setattr(
+            MockClassifier,
+            "_parameter_constraints",
+            {**MockClassifier._parameter_constraints, "useless_key": type(None)},
+        )
+
+        classifier = MockClassifier()
+        with pytest.raises(ValueError) as excinfo:
+            classifier._validate_params()
+        assert (
+            "The specified parameter name useless_key is not in the "
+            "<class 'truelearn.tests.test_learning.MockClassifier'>."
+            == str(excinfo.value)
+        )
+
+    def test_validate_params_type_mismatch_throw(self, monkeypatch):
+        parameter_constraints = {**MockClassifier._parameter_constraints}
+        parameter_constraints["holder"] = [float, str, type(None)]
+
+        monkeypatch.setattr(
+            MockClassifier,
+            "_parameter_constraints",
+            parameter_constraints,
+        )
+
+        classifier = MockClassifier()
+        with pytest.raises(TypeError) as excinfo:
+            classifier._validate_params()
+        assert (
+            "The holder parameter of "
+            "<class 'truelearn.tests.test_learning.MockClassifier'> __init__"
+            " function must be one of the classes in ['float', 'str', 'NoneType']. "
+            "Got <class 'int'> instead." == str(excinfo.value)
+        )
 
 
 class TestEngageClassifier:
@@ -187,7 +270,7 @@ class TestKnowledgeClassifier:
         )
 
     def test_knowledge_positive_easy(self):
-        classifier = learning.KnowledgeClassifier()
+        classifier = learning.KnowledgeClassifier(init_skill=0.0, def_var=0.5)
 
         knowledge = models.Knowledge(
             {1: models.KnowledgeComponent(mean=0.0, variance=0.5)}
@@ -264,16 +347,16 @@ class TestKnowledgeClassifier:
         )
 
     def test_knowledge_classifier(self, train_cases, test_events):
-        classifier = learning.KnowledgeClassifier()
+        classifier = learning.KnowledgeClassifier(positive_only=False)
 
         train_events, train_labels = train_cases
         for event, label in zip(train_events, train_labels):
             classifier.fit(event, label)
 
         expected_results = [
-            0.4616704074923047,
-            0.20884274880379491,
-            0.27487026385771485,
+            0.31822146219026654,
+            0.04616731561824022,
+            0.0644849610860269,
         ]
         actual_results = [classifier.predict_proba(event) for event in test_events]
 
@@ -322,7 +405,7 @@ class TestNoveltyClassifier:
         )
 
     def test_novelty_positive_easy(self):
-        classifier = learning.NoveltyClassifier(beta=0.5)
+        classifier = learning.NoveltyClassifier(init_skill=0.0, def_var=0.5, beta=0.5)
 
         knowledge = models.Knowledge(
             {1: models.KnowledgeComponent(mean=0.0, variance=0.5)}
@@ -413,7 +496,7 @@ class TestNoveltyClassifier:
 
         assert expected_results == actual_results
 
-    def test_novelty_classifier_wins(self, train_cases, test_events):
+    def test_novelty_classifier_draws(self, train_cases, test_events):
         classifier = learning.NoveltyClassifier(positive_only=False)
 
         train_events, train_labels = train_cases
@@ -431,6 +514,48 @@ class TestNoveltyClassifier:
         actual_results = [classifier.predict_proba(event) for event in test_events]
 
         assert expected_results == actual_results
+
+    def test_novelty_classifier_difference_zero(self):
+        classifier = learning.NoveltyClassifier(
+            init_skill=0.0, def_var=0.5, positive_only=False
+        )
+
+        train_events = [
+            models.EventModel(
+                models.Knowledge({1: models.KnowledgeComponent(mean=0.0, variance=0.5)})
+            )
+        ]
+
+        # to test the case where the learner/content wins
+        train_labels = [False]
+
+        for event, label in zip(train_events, train_labels):
+            classifier.fit(event, label)
+
+        kc = list(classifier.get_learner_model().knowledge.knowledge_components())[0]
+        assert kc.mean == 0.0
+        assert math.isclose(kc.variance, 0.5)
+
+    def test_novelty_classifier_difference_greater_than_zero(self):
+        classifier = learning.NoveltyClassifier(
+            init_skill=0.1, def_var=0.5, positive_only=False
+        )
+
+        train_events = [
+            models.EventModel(
+                models.Knowledge({1: models.KnowledgeComponent(mean=0.0, variance=0.5)})
+            )
+        ]
+
+        # to test the case where the learner/content wins
+        train_labels = [False]
+
+        for event, label in zip(train_events, train_labels):
+            classifier.fit(event, label)
+
+        kc = list(classifier.get_learner_model().knowledge.knowledge_components())[0]
+        assert kc.mean == 0.4683333154754179
+        assert kc.variance == 0.3562680695898126
 
 
 class TestInterestClassifier:
@@ -477,7 +602,7 @@ class TestInterestClassifier:
         )
 
     def test_interest_positive_easy(self):
-        classifier = learning.InterestClassifier()
+        classifier = learning.InterestClassifier(init_skill=0.0, def_var=0.5)
 
         knowledge = models.Knowledge(
             {1: models.KnowledgeComponent(mean=0.0, variance=0.5)}
@@ -570,6 +695,35 @@ class TestInterestClassifier:
             "must be <class 'float'>. Got <class 'int'> instead." == str(excinfo.value)
         )
 
+        with pytest.raises(ValueError) as excinfo:
+            classifier = learning.InterestClassifier()
+            classifier.fit(models.EventModel(), True)
+        assert (
+            "The event time should not be None when using InterestClassifier."
+            == str(excinfo.value)
+        )
+
+        with pytest.raises(ValueError) as excinfo:
+            learner_model = models.LearnerModel(
+                models.Knowledge(
+                    {1: models.KnowledgeComponent(mean=0.0, variance=1.0)}
+                ),
+            )
+            classifier = learning.InterestClassifier(learner_model=learner_model)
+            classifier.fit(
+                models.EventModel(
+                    models.Knowledge(
+                        {1: models.KnowledgeComponent(mean=0.0, variance=1.0)}
+                    ),
+                    event_time=0.0,
+                ),
+                True,
+            )
+        assert (
+            "The timestamp field of knowledge component"
+            " should not be None if using InterestClassifier." == str(excinfo.value)
+        )
+
     def test_interest_classifier(self, train_cases, test_events):
         classifier = learning.InterestClassifier(positive_only=False)
 
@@ -581,6 +735,23 @@ class TestInterestClassifier:
         actual_results = [classifier.predict_proba(event) for event in test_events]
 
         assert expected_results == actual_results
+
+    def test_interest_classifier_decay_func_type(self, train_cases, test_events):
+        classifier_short = learning.InterestClassifier(
+            positive_only=False, decay_func_type="short"
+        )
+        classifier_long = learning.InterestClassifier(
+            positive_only=False, decay_func_type="long"
+        )
+        train_events, train_labels = train_cases
+        for event, label in zip(train_events, train_labels):
+            classifier_short.fit(event, label)
+            classifier_long.fit(event, label)
+
+        # should be the same because factor is 0
+        assert [classifier_short.predict_proba(event) for event in test_events] == [
+            classifier_long.predict_proba(event) for event in test_events
+        ]
 
 
 class TestINKClassifier:
@@ -653,3 +824,52 @@ class TestINKClassifier:
         actual_results = [classifier.predict_proba(event) for event in test_events]
 
         assert expected_results == actual_results
+
+    def test_ink_classifier_customize(self, train_cases, test_events):
+        novelty_classifier = learning.NoveltyClassifier()
+        interest_classifier = learning.InterestClassifier()
+        novelty_weights = models.LearnerMetaModel.Weights()
+        interest_weights = models.LearnerMetaModel.Weights()
+        bias_weights = models.LearnerMetaModel.Weights()
+
+        classifier = learning.INKClassifier(
+            novelty_classifier=novelty_classifier,
+            interest_classifier=interest_classifier,
+            novelty_weights=novelty_weights,
+            interest_weights=interest_weights,
+            bias_weights=bias_weights,
+        )
+
+        train_events, train_labels = train_cases
+        for event, label in zip(train_events, train_labels):
+            classifier.fit(event, label)
+
+        expected_results = [
+            0.24337755209294626,
+            0.21257650005484793,
+            0.2160900839287269,
+        ]
+        actual_results = [classifier.predict_proba(event) for event in test_events]
+
+        assert expected_results == actual_results
+
+    def test_ink_classifier_greedy(self):
+        classifier = learning.INKClassifier(greedy=True)
+
+        train_events = [
+            models.EventModel(
+                models.Knowledge({1: models.KnowledgeComponent(mean=0.0, variance=0.5)})
+            )
+        ]
+        train_labels = [False]
+        for event, label in zip(train_events, train_labels):
+            classifier.fit(event, label)
+
+        # if the classifier is in greedy mode and the prediction is correct
+        # the classifier will not adjust its weights
+        assert (
+            classifier.novelty_weights
+            == classifier.interest_weights
+            == classifier.bias_weights
+            == models.LearnerMetaModel.Weights(0.0, 0.5)
+        )

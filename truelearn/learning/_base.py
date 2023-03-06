@@ -188,9 +188,11 @@ class BaseClassifier(ABC):
             param_name,
             expected_param_type,
         ) in self._parameter_constraints.items():
-            # ignore constraints for non-existing attributes
-            if param_name not in self.__dict__:
-                continue
+            if not hasattr(self, param_name):
+                raise ValueError(
+                    f"The specified parameter name {param_name}"
+                    f" is not in the {type(self)}."
+                )
 
             param_value = self.__dict__[param_name]
 
@@ -204,7 +206,7 @@ class BaseClassifier(ABC):
                         map(lambda cls: cls.__name__, expected_param_type)
                     )
                     raise TypeError(
-                        f"The {param_name} parameter of class {type(self)}"
+                        f"The {param_name} parameter of {type(self)}"
                         f" __init__ function must be one of the classes"
                         f" in {param_classname_expected!r}."
                         f" Got {type(param_value)} instead."
