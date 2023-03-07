@@ -1,4 +1,4 @@
-"""The truelearn.utils.metrics module implements the commonly-used metrics in
+"""The truelearn.utils.metrics module implements the commonly-used metrics in\
 TrueLearn."""
 from ._base import (
     get_precision_score,
