@@ -21,3 +21,5 @@ We use Google style docstrings for all functions and methods.  See the `Google S
 
 Class Design
 ^^^^^^^^^^^^
+Mention pep8 and extend a class for classifier extend base
+state where to refer to in api docs (see scikitlearn design paper was sent at the start)
