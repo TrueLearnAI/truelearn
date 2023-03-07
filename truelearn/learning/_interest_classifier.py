@@ -1,5 +1,5 @@
 import math
-from typing import Callable, Any, Optional, Dict, Iterable, Tuple
+from typing import Callable, Any, Optional, Dict, Iterable
 from datetime import datetime as dt
 
 from truelearn.models import (
@@ -81,7 +81,7 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
 
     _parameter_constraints: Dict[str, Any] = {
         **InterestNoveltyKnowledgeBaseClassifier._parameter_constraints,
-        "decay_func_type": str,
+        "decay_func_type": ("short", "long"),
         "decay_func_factor": float,
     }
 
@@ -96,7 +96,7 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
         tau: float = 0.1,
         positive_only: bool = True,
         draw_proba_type: str = "dynamic",
-        draw_proba_static: float = 0.5,
+        draw_proba_static: Optional[float] = None,
         draw_proba_factor: float = 0.1,
         decay_func_type: str = "short",
         decay_func_factor: float = 0.0,
@@ -143,28 +143,14 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
                 The allowed values are "short" and "long".
             decay_func_factor:
                 A factor that will be used in both short and long
-                interest decay function.
+                interest decay function. Defaults to 0, which disables
+                the interest decay function.
 
         Raises:
             ValueError:
                 If draw_proba_type is neither "static" nor "dynamic";
                 If decay_func_type is neither "short" nor "long".
         """
-        self._validate_params(
-            learner_model=learner_model,
-            threshold=threshold,
-            init_skill=init_skill,
-            def_var=def_var,
-            beta=beta,
-            tau=tau,
-            positive_only=positive_only,
-            draw_proba_type=draw_proba_type,
-            draw_proba_static=draw_proba_static,
-            draw_proba_factor=draw_proba_factor,
-            decay_func_type=decay_func_type,
-            decay_func_factor=decay_func_factor,
-        )
-
         super().__init__(
             learner_model=learner_model,
             threshold=threshold,
@@ -178,13 +164,10 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
             draw_proba_factor=draw_proba_factor,
         )
 
-        if decay_func_type not in ("short", "long"):
-            raise ValueError(
-                f"The decay_func_type must be either short or long."
-                f" Got {decay_func_type} instead."
-            )
         self.decay_func_type = decay_func_type
         self.decay_func_factor = decay_func_factor
+
+        self._validate_params()
 
     def __get_decay_func(self) -> Callable[[float], float]:
         """Get decay function based on decay_func_type.
@@ -204,6 +187,7 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
 
     def _generate_ratings(
         self,
+        env: trueskill.TrueSkill,
         learner_kcs: Iterable[AbstractKnowledgeComponent],
         content_kcs: Iterable[AbstractKnowledgeComponent],
         event_time: Optional[float],
@@ -215,6 +199,8 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
         event_time (for InterestClassifier).
 
         Args:
+            env:
+                The trueskill environment where the training/prediction happens.
             learner_kcs:
                 An iterable of learner's knowledge components.
             content_kcs:
@@ -259,25 +245,20 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
 
         learner_kcs_decayed = map(__apply_interest_decay, learner_kcs)
 
-        team_learner: Tuple[
-            trueskill.Rating, ...
-        ] = InterestNoveltyKnowledgeBaseClassifier._gather_trueskill_team(
-            self._env, learner_kcs_decayed
+        team_learner = InterestNoveltyKnowledgeBaseClassifier._gather_trueskill_team(
+            env, learner_kcs_decayed
         )
-        team_content: Tuple[
-            trueskill.Rating, ...
-        ] = InterestNoveltyKnowledgeBaseClassifier._gather_trueskill_team(
-            self._env, content_kcs
+        team_content = InterestNoveltyKnowledgeBaseClassifier._gather_trueskill_team(
+            env, content_kcs
         )
 
         # learner always wins in interest
-        updated_team_learner, _ = self._env.rate(
-            [team_learner, team_content], ranks=[0, 1]
-        )
+        updated_team_learner, _ = env.rate([team_learner, team_content], ranks=[0, 1])
         return updated_team_learner
 
     def _eval_matching_quality(
         self,
+        env: trueskill.TrueSkill,
         learner_kcs: Iterable[AbstractKnowledgeComponent],
         content_kcs: Iterable[AbstractKnowledgeComponent],
     ) -> float:
