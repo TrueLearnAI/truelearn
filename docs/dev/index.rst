@@ -1,5 +1,5 @@
 
-Developer Guide
+For Contributors
 ================
 
 
