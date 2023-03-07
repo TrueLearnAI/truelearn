@@ -1,4 +1,5 @@
-"""The truelearn.models implements the learner/event model."""
+"""The truelearn.models module implements the knowledge, learner and event models."""
+
 
 from ._abstract_knowledge import AbstractKnowledgeComponent
 from ._event_model import EventModel
