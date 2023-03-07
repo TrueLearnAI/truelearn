@@ -122,6 +122,7 @@ class BubblePlotter(BasePlotter):
                     title="Variance"
                 ),
                 colorscale="Greens",
+                reversescale=True
             ),
             customdata=np.transpose([titles, number_of_videos, last_video_watched]),
             hovertemplate="<br>".join([
