@@ -35,7 +35,22 @@ Welcome to TrueLearn's documentation!
    :alt: codecov
 
 
-Truelearn is a python package for ...
+Truelearn is a set of algorithms for modelling lifelong learner engagement with educational resources.
+
+This work is related to the paper `TrueLearn A Family of Bayesian Algorithms to Match Lifelong Learners to Open Educational Resources` published at the Thirty-forth AAAI Conference on Artifical Intelligence, 2020 at New York, NY, USA.
+
+.. _TrueLearn A Family of Bayesian Algorithms to Match Lifelong Learners to Open Educational Resources: https://arxiv.org/abs/2002.00001
+
+The bibtex entry for the publication is as follows:
+
+
+    @inproceedings{truelearn2020,
+	    author = {Bulathwela, S. and Perez-Ortiz, M. and Yilmaz, E. and Shawe-Taylor, J.},
+	    title={TrueLearn: A Family of Bayesian Algorithms to Match Lifelong Learners to Open Educational Resources},
+	    booktitle = {AAAI Conference on Artificial Intelligence},
+	    year = {2020}
+    }
+
 
 Getting Started
 ---------------
