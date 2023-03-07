@@ -10,7 +10,7 @@ Welcome to TrueLearn's documentation!
    :hidden:
 
    tutorial/quickstart
-   modules/classes
+   modules/api_reference
    dev/index
 
 
@@ -48,8 +48,8 @@ The bibtex entry for the publication is as follows:
 	    author = {Bulathwela, S. and Perez-Ortiz, M. and Yilmaz, E. and Shawe-Taylor, J.},
 	    title={TrueLearn: A Family of Bayesian Algorithms to Match Lifelong Learners to Open Educational Resources},
 	    booktitle = {AAAI Conference on Artificial Intelligence},
-	    year = {2020}
-    }
+	    year = {2020}}
+
 
 
 Getting Started
