@@ -115,13 +115,13 @@ class BubblePlotter(BasePlotter):
             marker=dict(
                 size=means,
                 sizemode='area',
-                sizeref=2.*max(means)/(100.**2),
+                sizeref=2.*max(means)/(200.**2),
                 sizemin=4,
                 color=variances,
                 colorbar=dict(
                     title="Variance"
                 ),
-                colorscale="Reds",
+                colorscale="Greens",
             ),
             customdata=np.transpose([titles, number_of_videos, last_video_watched]),
             hovertemplate="<br>".join([

@@ -92,7 +92,7 @@ class BarPlotter(BasePlotter):
             content = self._standardise_data(content)
         
         content = content[:top_n]
-        print(content)
+        
         layout = self._layout(layout_data)
 
         means = [lst[0] for lst in content]
