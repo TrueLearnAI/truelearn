@@ -40,21 +40,18 @@ class Wikifier:
             df_ignore:
                 An int representing the nTopDfValuesToIgnore value from
                 the Wikifier API, used to ignore frequently-occurring words.
-                Defaults to 50.
             words_ignore:
                 An int representing the nWordsToIgnoreFromList from the
                 Wikifier API, also used to ignore frequently-occurring words.
-                Defaults to 50.
             top_n:
                 The number of annotations to return, e.g. top_n = 5 would
                 only return the top 5 annotations sorted by keys extracted
                 via key_fn. If None, return all the annotations.
-                Defaults to None.
             key_fn:
                 A string representing the key function that is used when sorting
                 the annotations. The allowed values are "cosine" and "pagerank".
-                Defaults to cosine, which sorts the annotations based on
-                their cosine values.
+                "cosine" means sorted by cosine similarity. "pagerank" means sorted
+                by pagerank.
 
         Returns:
             The list of annotations obtained from the Wikifier API.
@@ -66,10 +63,23 @@ class Wikifier:
                 1) The response from Wikifier contained an error message.
                 2) The API key is not valid.
                 3) The key_fn is neither cosine nor pagerank.
+                4) The df_ignore or words_ignore is less than 0.
             urllib.error.HTTPError:
                 The HTTP request returns a status code representing
                 an error.
         """
+        if df_ignore < 0:
+            raise ValueError(f"df_ignore must >= 0. Got df_ignore={df_ignore} instead.")
+        if words_ignore < 0:
+            raise ValueError(
+                f"words_ignore must >= 0. Got words_ignore={words_ignore} instead."
+            )
+        if key_fn not in ("cosine", "pagerank"):
+            raise ValueError(
+                "key_fn is expected to be cosine or pagerank."
+                f" Got key_fn={key_fn} instead."
+            )
+
         resp = self.__make_wikifier_request(text, df_ignore, words_ignore)
         return Wikifier.__format_wikifier_response(resp, top_n, key_fn)
 
@@ -87,11 +97,9 @@ class Wikifier:
             df_ignore:
                 An int representing the nTopDfValuesToIgnore value from
                 the Wikifier API, used to ignore frequently-occurring words.
-                Defaults to 50.
             words_ignore:
                 An int representing the nWordsToIgnoreFromList from the
                 Wikifier API, also used to ignore frequently-occurring words.
-                Defaults to 50.
 
         Raises:
             ValueError: The response from Wikifier contained an error message
@@ -141,18 +149,13 @@ class Wikifier:
             key_fn:
                 A string representing the key function that is used when sorting
                 the annotations. The allowed values are "cosine" and "pagerank".
-                Defaults to cosine, which sorts the annotations based on
-                their cosine values.
+                "cosine" means sorted by cosine similarity. "pagerank" means sorted
+                by pagerank.
 
         Returns:
             The list of annotations obtained from the Wikifier API, sorted by
             using the key extracted from key_fn function.
         """
-        if key_fn not in ("cosine", "pagerank"):
-            raise ValueError(
-                "key_fn is expected to be cosine or pagerank."
-                f" Got key_fn={key_fn} instead."
-            )
 
         def __restructure_annotation(
             annotation: Annotation,

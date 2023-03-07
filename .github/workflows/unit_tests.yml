@@ -11,10 +11,11 @@ on:
 
 jobs:
   Run-Unit-Tests:
-    runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v3
@@ -28,7 +29,7 @@ jobs:
 
       - name: Install Project Dependencies
         run:  |
-            pip install ."[tests]"
+            pip install .[tests]
 
         # Pytest generates an XML report
       - name: Execute tests
@@ -37,6 +38,8 @@ jobs:
           # Calling via python adds the current directory to sys path
           # Prevents module not found errors
           python -m pytest --junitxml=unit_test_report.xml
+        env:
+          WIKIFIER_API_KEY: ${{ secrets.WIKIFIER_API_KEY }}
 
         # Convert the XML report to GitHub annotations
       - name: Convert test results to Github Annotations

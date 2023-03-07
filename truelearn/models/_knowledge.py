@@ -221,7 +221,6 @@ title=None, description=None, url=None, history=deque([(0.0, 1.0, None)], maxlen
             history_limit:
                 A positive int that specifies the number of entries stored in the
                 history. If the limit is None, it means there is no limit.
-                Defaults to None.
             history:
                 A queue that stores the update history of the knowledge component.
                 Each entry in the queue is a tuple (mean, variance, timestamp)
@@ -254,7 +253,6 @@ title=None, description=None, url=None, history=deque([(0.0, 1.0, None)], maxlen
             n_max_object:
                 A positive int specifying the maximum number of
                 history records to be printed.
-                Defaults to 1.
 
         Returns:
             A string description of the HistoryAwareKnowledgeComponent object.
@@ -367,7 +365,7 @@ title=None, description=None, url=None))])
 
         Args:
             knowledge: A dict mapping a hashable id of the knowledge component
-                to the corresponding knowledge component object. Defaults to None.
+                to the corresponding knowledge component object.
         """
         super().__init__()
 
@@ -382,7 +380,6 @@ title=None, description=None, url=None))])
             n_max_object:
                 A positive int specifying the maximum number of
                 knowledge components to be printed.
-                Defaults to 1.
 
         Returns:
             A string description of the Knowledge object.

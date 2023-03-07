@@ -40,16 +40,18 @@ class LinePlotter(BasePlotter):
         for _, kc in raw_data.items():
             title = kc['title']
             means = []
+            variances = []
             timestamps = []
-            for mean, _, timestamp in kc['history']:
+            for mean, variance, timestamp in kc['history']:
                 means.append(mean)
+                variances.append(variance)
                 timestamps.append(timestamp)
             
             timestamps = list(map(
                 lambda t: datetime.datetime.utcfromtimestamp(t).strftime("%Y-%m-%d"),
                 timestamps
             ))
-            tr_data = (title, means, timestamps)
+            tr_data = (title, means, variances, timestamps)
             content.append(tr_data)
         
         content.sort(
@@ -61,9 +63,12 @@ class LinePlotter(BasePlotter):
 
     def plot(
             self,
-            layout_data: Tuple[str, str, str],
+            title: str,
             content: Iterable[Tuple[str, Iterable, Iterable]],
-            top_n: int=5
+            x_label: str="Time",
+            y_label: str="Mean",
+            top_n: int=5,
+            visualise_variance: bool=True,
         ) -> Self:
         """Plots the line chart using the data.
 
@@ -86,11 +91,13 @@ class LinePlotter(BasePlotter):
         """
         if isinstance(content, Knowledge):
             content = self._standardise_data(content)
+            
+            # have to move this outside of the if block
             content = content[:top_n]
 
-        traces = [self._trace(tr_data) for tr_data in content]
+        traces = [self._trace(tr_data, visualise_variance) for tr_data in content]
 
-        layout = self._layout(layout_data)
+        layout = self._layout((title, x_label, y_label))
 
         self.figure = go.Figure(
             data=traces,
@@ -99,8 +106,12 @@ class LinePlotter(BasePlotter):
 
         return self
     
-    def _trace(self, tr_data: Tuple[str, Iterable, Iterable]) -> go.Scatter:
-        name, y_values, x_values = tr_data
+    def _trace(
+            self,
+            tr_data: Tuple[str, Iterable, Iterable],
+            visualise_variance
+        ) -> go.Scatter:
+        name, y_values, variances, x_values = tr_data
 
         trace = go.Scatter(
             name=name,
@@ -109,6 +120,10 @@ class LinePlotter(BasePlotter):
             mode='lines+markers',
             marker=dict(size=8),
             line=dict(width=2),
+            error_y=dict(
+                array=variances,
+                visible=visualise_variance,
+            )
         )
 
         return trace

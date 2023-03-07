@@ -30,9 +30,9 @@ class EngageClassifier(BaseClassifier):
 
     def __init__(self) -> None:
         """Init EngageClassifier object."""
-        self._validate_params()
-
         super().__init__()
+
+        self._validate_params()
 
     def fit(self, x: EventModel, y: bool) -> Self:
         return self
