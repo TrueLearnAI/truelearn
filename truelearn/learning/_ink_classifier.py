@@ -6,7 +6,7 @@ import trueskill
 import mpmath
 
 from truelearn.models import EventModel, LearnerMetaModel
-from ._base import BaseClassifier
+from ._base import BaseClassifier, TypeConstraint
 from ._novelty_classifier import NoveltyClassifier
 from ._interest_classifier import InterestClassifier
 
@@ -75,14 +75,14 @@ class INKClassifier(BaseClassifier):
 
     _parameter_constraints: Dict[str, Any] = {
         **BaseClassifier._parameter_constraints,
-        "novelty_classifier": NoveltyClassifier,
-        "interest_classifier": InterestClassifier,
-        "threshold": float,
-        "tau": float,
-        "greedy": bool,
-        "novelty_weights": LearnerMetaModel.Weights,
-        "interest_weights": LearnerMetaModel.Weights,
-        "bias_weights": LearnerMetaModel.Weights,
+        "novelty_classifier": TypeConstraint(NoveltyClassifier),
+        "interest_classifier": TypeConstraint(InterestClassifier),
+        "threshold": TypeConstraint(float),
+        "tau": TypeConstraint(float),
+        "greedy": TypeConstraint(bool),
+        "novelty_weights": TypeConstraint(LearnerMetaModel.Weights),
+        "interest_weights": TypeConstraint(LearnerMetaModel.Weights),
+        "bias_weights": TypeConstraint(LearnerMetaModel.Weights),
     }
 
     def __init__(
@@ -133,11 +133,11 @@ class INKClassifier(BaseClassifier):
         if interest_classifier is None:
             interest_classifier = InterestClassifier()
 
-        self.novelty_classifier = novelty_classifier
-        self.interest_classifier = interest_classifier
-        self.threshold = threshold
-        self.tau = tau
-        self.greedy = greedy
+        self._novelty_classifier = novelty_classifier
+        self._interest_classifier = interest_classifier
+        self._threshold = threshold
+        self._tau = tau
+        self._greedy = greedy
 
         if novelty_weights is None:
             novelty_weights = LearnerMetaModel.Weights()
@@ -148,9 +148,9 @@ class INKClassifier(BaseClassifier):
         if bias_weights is None:
             bias_weights = LearnerMetaModel.Weights()
 
-        self.novelty_weights = novelty_weights
-        self.interest_weights = interest_weights
-        self.bias_weights = bias_weights
+        self._novelty_weights = novelty_weights
+        self._interest_weights = interest_weights
+        self._bias_weights = bias_weights
 
         self._validate_params()
 
@@ -192,7 +192,7 @@ class INKClassifier(BaseClassifier):
             (novelty_weights.mean * pred_novelty)
             + (interest_weights.mean * pred_interest)
             + (bias_weights.mean * pred_bias)
-            - self.threshold
+            - self._threshold
         )
         std = math.sqrt(
             novelty_weights.variance * pred_novelty
@@ -208,7 +208,7 @@ class INKClassifier(BaseClassifier):
             mu=0.0,
             sigma=INKClassifier.__DEFAULT_GLOBAL_SIGMA,
             beta=1,
-            tau=self.tau,
+            tau=self._tau,
             draw_probability=INKClassifier.__DEFAULT_DRAW_PROBA,
             backend="mpmath",
         )
@@ -238,29 +238,29 @@ class INKClassifier(BaseClassifier):
         cur_pred = self.predict(x)
 
         # if prediction is correct and greedy, don't train
-        if self.greedy and cur_pred == pred_actual:
+        if self._greedy and cur_pred == pred_actual:
             return
 
         # train
         env = self.__create_env()
         team_experts = (
             env.create_rating(
-                mu=self.novelty_weights.mean,
-                sigma=math.sqrt(self.novelty_weights.variance),
+                mu=self._novelty_weights.mean,
+                sigma=math.sqrt(self._novelty_weights.variance),
             ),
             env.create_rating(
-                mu=self.interest_weights.mean,
-                sigma=math.sqrt(self.interest_weights.variance),
+                mu=self._interest_weights.mean,
+                sigma=math.sqrt(self._interest_weights.variance),
             ),
             env.create_rating(
-                mu=self.bias_weights.mean,
-                sigma=math.sqrt(self.bias_weights.variance),
+                mu=self._bias_weights.mean,
+                sigma=math.sqrt(self._bias_weights.variance),
             ),
         )
 
         team_threshold = (
             env.create_rating(
-                mu=self.threshold, sigma=INKClassifier.__DEFAULT_GLOBAL_SIGMA
+                mu=self._threshold, sigma=INKClassifier.__DEFAULT_GLOBAL_SIGMA
             ),
         )
 
@@ -278,36 +278,36 @@ class INKClassifier(BaseClassifier):
             )
 
         # update skills
-        self.novelty_weights = LearnerMetaModel.Weights(
+        self._novelty_weights = LearnerMetaModel.Weights(
             new_team_experts[0].mu, new_team_experts[0].sigma ** 2
         )
-        self.interest_weights = LearnerMetaModel.Weights(
+        self._interest_weights = LearnerMetaModel.Weights(
             new_team_experts[1].mu, new_team_experts[1].sigma ** 2
         )
-        self.bias_weights = LearnerMetaModel.Weights(
+        self._bias_weights = LearnerMetaModel.Weights(
             new_team_experts[2].mu, new_team_experts[2].sigma ** 2
         )
 
     def fit(self, x: EventModel, y: bool) -> Self:
-        self.novelty_classifier.fit(x, y)
-        self.interest_classifier.fit(x, y)
+        self._novelty_classifier.fit(x, y)
+        self._interest_classifier.fit(x, y)
 
-        pred_novelty = self.novelty_classifier.predict_proba(x)
-        pred_interest = self.interest_classifier.predict_proba(x)
+        pred_novelty = self._novelty_classifier.predict_proba(x)
+        pred_interest = self._interest_classifier.predict_proba(x)
 
         self.__update_weights(x, pred_novelty, pred_interest, y)
         return self
 
     def predict(self, x: EventModel) -> bool:
-        return self.predict_proba(x) > self.threshold
+        return self.predict_proba(x) > self._threshold
 
     def predict_proba(self, x: EventModel) -> float:
         return self.__eval_matching_quality(
-            novelty_weights=self.novelty_weights,
-            pred_novelty=self.novelty_classifier.predict_proba(x),
-            interest_weights=self.interest_weights,
-            pred_interest=self.interest_classifier.predict_proba(x),
-            bias_weights=self.bias_weights,
+            novelty_weights=self._novelty_weights,
+            pred_novelty=self._novelty_classifier.predict_proba(x),
+            interest_weights=self._interest_weights,
+            pred_interest=self._interest_classifier.predict_proba(x),
+            bias_weights=self._bias_weights,
             pred_bias=1.0,
         )
 
@@ -318,9 +318,9 @@ class INKClassifier(BaseClassifier):
             A learner model associated with this classifier.
         """
         return LearnerMetaModel(
-            self.novelty_classifier.get_learner_model(),
-            self.interest_classifier.get_learner_model(),
-            self.novelty_weights,
-            self.interest_weights,
-            self.bias_weights,
+            self._novelty_classifier.get_learner_model(),
+            self._interest_classifier.get_learner_model(),
+            self._novelty_weights,
+            self._interest_weights,
+            self._bias_weights,
         )
