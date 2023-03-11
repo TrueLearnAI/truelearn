@@ -9,7 +9,7 @@ jobs:
     - name: Checkout Actions Repository
       uses: actions/checkout@v3
 
-    - name: Check spelling of Truelearn
+    - name: Check spelling of TrueLearn
       uses: crate-ci/typos@master
       with:
         files: truelearn
