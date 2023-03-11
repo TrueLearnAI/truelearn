@@ -1,4 +1,4 @@
-name: Typos Check
+name: Spell Check
 on: [pull_request]
 
 jobs:
@@ -9,7 +9,7 @@ jobs:
     - name: Checkout Actions Repository
       uses: actions/checkout@v3
 
-    - name: Check spelling of truelearn
+    - name: Check spelling of Truelearn
       uses: crate-ci/typos@master
       with:
         files: truelearn
