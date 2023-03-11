@@ -1,8 +1,8 @@
-import math
 import collections
+import math
 from abc import ABC, abstractmethod
-from typing import Iterable, Hashable, Any, Optional, Tuple, Dict
-from typing_extensions import Self, Final, final
+from typing import Iterable, Hashable, Optional, Tuple, Dict, Union, Callable, Any
+from typing_extensions import Self, Final, final, Literal, Protocol
 
 import trueskill
 import mpmath
@@ -23,18 +23,38 @@ class BaseClassifier(ABC):
     the parameters.
 
     The `_parameter_constraints` is a dictionary that maps parameter
-    names to its expected type. The expected type can be a list or a single type
-    or a tuple of values as it's possible for a type to accept more than one type/value.
+    names to its constraint/list of constraints.
+    The constraint types are defined in ._constraints. Each constraint
+    type defines its way of determining whether the parameter `satisfies`
+    the constraint.
+    Having a list of constraints as the value in the dictionary means that
+    all of them must be satisfied. Notice that the order of the constraints
+    in the list is important as the `self._validate_params` validates them in
+    sequential order.
     To do the constraint check based on this, simply call `self._validate_params()`
     in your classifier.
+
+    Attributes:
+        PARAM_PREFIX:
+            The prefix of all the instance attributes in the classifier.
+            This is to help get_params/set_params/_validate_params work correctly.
+            The reason why we choose to append a prefix "_" by default to all variables
+            is that we don't want the user feel like they can directly access the
+            instance attributes of the classifier. In fact, any direct read/write to the
+            instance attributes are not encouraged as they may lead to unexpected
+            behaviour. The recommended way to do this is to read variables via
+            `get_params` and set variables via `set_params`. As these are not
+            common operations, the performance impact is negligible.
+            Implementations of Classifiers can override this class attribute. But,
+            it's not recommended to do that. The recommendation is to prefix all
+            instance attributes with "_" as this is consistent with the current
+            implementation.
     """
 
-    __DEEP_PARAM_DELIMITER: Final[str] = "__"
+    PARAM_PREFIX: str = "_"
 
-    # TODO: use constraint and satisfies to validate parameters
-    # as it gives us more flexibility and can help us eliminate the
-    # checks in InterestNoveltyKnowledgeBaseClassifier/INKClassifier
-    # (see scikit-learn _base)
+    __DEEP_PARAM_DELIMITER: Final[Literal["__"]] = "__"
+
     _parameter_constraints: Dict[str, Any] = {}
 
     def __repr__(self) -> str:
@@ -99,13 +119,13 @@ class BaseClassifier(ABC):
 
         out = {}
         for key in param_names:
-            if not hasattr(self, key):
+            if not hasattr(self, self.PARAM_PREFIX + key):
                 raise ValueError(
                     f"The specified parameter name {key}"
-                    f" is not in the {type(self)}."
+                    f" is not in the class {self.__class__.__name__!r}."
                 )
 
-            value = getattr(self, key)
+            value = getattr(self, self.PARAM_PREFIX + key)
             if deep and isinstance(value, BaseClassifier):
                 deep_items = value.get_params().items()
                 out.update(
@@ -154,13 +174,14 @@ class BaseClassifier(ABC):
             key, delim, sub_key = key.partition(BaseClassifier.__DEEP_PARAM_DELIMITER)
             if key not in valid_params:
                 raise KeyError(
-                    f"The given parameter {key}" f" is not in the {type(self)}."
+                    f"The given parameter {key}"
+                    f" is not in the class {self.__class__.__name__!r}."
                 )
 
             if delim:
                 nested_params[key][sub_key] = value
             else:
-                setattr(self, key, value)
+                setattr(self, self.PARAM_PREFIX + key, value)
                 valid_params[key] = value
 
         for key, sub_params in nested_params.items():
@@ -181,47 +202,225 @@ class BaseClassifier(ABC):
             ValueError:
                 If the parameter is not any of the valid values in the given tuple.
         """
-        for (
-            param_name,
-            expected_param_type,
-        ) in self._parameter_constraints.items():
-            if not hasattr(self, param_name):
-                raise ValueError(
-                    f"The specified parameter name {param_name}"
-                    f" is not in the {type(self)}."
+        validate_params(self, self._parameter_constraints)
+
+
+ExceptionsType = Union[ValueError, TypeError]
+
+
+class AbstractConstraint(Protocol):
+    """An abstract constraint."""
+
+    @abstractmethod
+    def satisfies(
+        self, obj: BaseClassifier, param_name: str
+    ) -> Optional[ExceptionsType]:
+        """Check if the given the value corresponds to the given param_name\
+        satisfies the constraints.
+
+        Args:
+            obj: Any classifier.
+            param_name: A str representing the name of the parameter.
+
+        Returns:
+            None if the constraint is satisfied. Otherwise, return an
+            exception object with some error messages.
+        """
+
+
+class TypeConstraint(AbstractConstraint):
+    """Represent a tuple of type constraints.
+
+    Examples:
+        >>> # Init type constraints with many types
+        >>> TypeConstraint(int, float, str)
+        TypeConstraint(<class 'int'>, <class 'float'>, <class 'str'>)
+    """
+
+    def __init__(self, *type_constraints: type):
+        """Init the TypeConstraint class.
+
+        Args:
+            *type_constraints: A tuple of type constraints
+        """
+        self.type_constraints = type_constraints
+
+    def __repr__(self):
+        """Get a description of the TypeConstraint class.
+
+        Returns:
+            A description of the TypeConstraint class.
+        """
+        return f"TypeConstraint{self.type_constraints}"
+
+    def satisfies(
+        self, obj: BaseClassifier, param_name: str
+    ) -> Optional[ExceptionsType]:
+        param_value = getattr(obj, obj.PARAM_PREFIX + param_name)
+
+        if type(param_value) not in self.type_constraints:
+            param_classname_expected = list(
+                map(lambda cls: cls.__name__, self.type_constraints)
+            )
+            return TypeError(
+                f"The {param_name} parameter of class {obj.__class__.__name__!r}"
+                " must be one of the classes"
+                f" in {param_classname_expected!r}."
+                f" Got {param_value.__class__.__name__!r} instead.",
+            )
+
+        return None
+
+
+class ValueConstraint(AbstractConstraint):
+    """Represent a tuple of value constraints.
+
+    Examples:
+        >>> # Init value constraints with many types
+        >>> ValueConstraint(1, 2, 3)
+        ValueConstraint(1, 2, 3)
+    """
+
+    def __init__(self, *value_constraints: Any):
+        """Init the ValueConstraint class.
+
+        Args:
+            *value_constraints: A tuple of value constraints
+        """
+        self.value_constraints = value_constraints
+
+    def __repr__(self):
+        """Get a description of the ValueConstraint class.
+
+        Returns:
+            A description of the ValueConstraint class.
+        """
+        return f"ValueConstraint{self.value_constraints}"
+
+    def satisfies(self, obj, param_name) -> Optional[ExceptionsType]:
+        param_value = getattr(obj, obj.PARAM_PREFIX + param_name)
+
+        if param_value not in self.value_constraints:
+            return ValueError(
+                f"The {param_name} parameter of class {obj.__class__.__name__!r}"
+                " must be one of the value inside "
+                f"tuple {self.value_constraints!r}. Got {param_value!r} instead.",
+            )
+
+        return None
+
+
+class FuncConstraint(AbstractConstraint):
+    """Represent a tuple of constraints based on functions.
+
+    Examples:
+        >>> # Init value constraints with many types
+        >>> FuncConstraint(lambda x, y: None, lambda a, b: None)
+        FuncConstraint(number_of_funcs=2)
+    """
+
+    def __init__(
+        self, *func_constraints: Callable[[Any, str], Optional[ExceptionsType]]
+    ):
+        """Init the FuncConstraint class.
+
+        Args:
+            func_constraints: A tuple of callable functions.
+        """
+        self.func_constraints = func_constraints
+
+    def __repr__(self):
+        """Get a description of the FuncConstraint class.
+
+        Returns:
+            A description of the FuncConstraint class.
+        """
+        return f"FuncConstraint(number_of_funcs={len(self.func_constraints)})"
+
+    def satisfies(self, obj, param_name) -> Optional[ExceptionsType]:
+        first_warning = filter(
+            lambda v: v is not None,
+            map(lambda f: f(obj, param_name), self.func_constraints),
+        )
+        return next(first_warning, None)
+
+
+def validate_params(obj: Any, constraints: Dict[str, Any]):
+    """Validate the parameters based on the constraints.
+
+    Args:
+        obj:
+            The object to validate.
+        constraints:
+            A dictionary of constraints where key is the attribute name and
+            value is the constraint.
+
+    Raises:
+        TypeError:
+            Types of parameters mismatch their type constraints.
+        ValueError:
+            If the parameter is not any of the valid values in the given tuple,
+            or if the given attribute is not in the given object.
+    """
+    for (
+        param_name,
+        param_constraint,
+    ) in constraints.items():
+        if not hasattr(obj, obj.PARAM_PREFIX + param_name):
+            raise ValueError(
+                f"The specified parameter name {param_name}"
+                f" is not in the class {obj.__class__.__name__!r}."
+            )
+
+        if isinstance(param_constraint, list):
+            list_of_constraints = param_constraint
+
+            # as we use this function immediately
+            # so, we can safely ignore cell-var-from-loop
+            def get_exc(constraint) -> Optional[ExceptionsType]:
+                return constraint.satisfies(
+                    obj, param_name  # pylint: disable=cell-var-from-loop
                 )
 
-            param_value = getattr(self, param_name)
+            first_warning = next(
+                filter(
+                    lambda x: x is not None,
+                    map(
+                        get_exc,
+                        list_of_constraints,
+                    ),
+                ),
+                None,
+            )
+            if first_warning:
+                raise first_warning
 
-            if isinstance(expected_param_type, list):
-                # if it matches none of the types in the constraints
-                if not any(
-                    isinstance(param_value, param_type_unpacked)
-                    for param_type_unpacked in list(expected_param_type)
-                ):
-                    param_classname_expected = list(
-                        map(lambda cls: cls.__name__, expected_param_type)
-                    )
-                    raise TypeError(
-                        f"The {param_name} parameter of {type(self)}"
-                        f" __init__ function must be one of the classes"
-                        f" in {param_classname_expected!r}."
-                        f" Got {type(param_value)} instead."
-                    )
-            elif isinstance(expected_param_type, tuple):
-                if param_value not in expected_param_type:
-                    raise ValueError(
-                        f"The {param_name} parameter of {type(self)}"
-                        " must be one of the value inside "
-                        f"tuple {expected_param_type!r}. Got {param_value!r} instead."
-                    )
-            else:
-                if not isinstance(param_value, expected_param_type):
-                    raise TypeError(
-                        f"The {param_name} parameter of {type(self)}"
-                        f" must be {expected_param_type!r}."
-                        f" Got {type(param_value)} instead."
-                    )
+        else:
+            exc = param_constraint.satisfies(obj, param_name)
+            if exc:
+                raise exc
+
+
+def draw_proba_static_constraint(obj: BaseClassifier, _):
+    """Check whether the draw_proba_static is properly set when\
+    draw_proba_type is "static".
+
+    Args:
+        obj: The object to check.
+        _: Use to accept param_name.
+
+    Returns:
+        a ValueError object if the draw_proba_static is not property set,
+        which means it's None while draw_proba_type is static. If everything
+        is properly set, it returns None.
+    """
+    params = obj.get_params(deep=False)
+    if params["draw_proba_type"] == "static" and params["draw_proba_static"] is None:
+        return ValueError(
+            "When draw_proba_type is set to static,"
+            " the draw_proba_static should not be None."
+        )
+    return None
 
 
 class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
@@ -242,16 +441,19 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
 
     _parameter_constraints: Dict[str, Any] = {
         **BaseClassifier._parameter_constraints,
-        "learner_model": LearnerModel,
-        "threshold": float,
-        "init_skill": float,
-        "def_var": float,
-        "tau": float,
-        "beta": float,
-        "positive_only": bool,
-        "draw_proba_type": ("static", "dynamic"),
-        "draw_proba_static": [float, type(None)],
-        "draw_proba_factor": float,
+        "learner_model": TypeConstraint(LearnerModel),
+        "threshold": TypeConstraint(float),
+        "init_skill": TypeConstraint(float),
+        "def_var": TypeConstraint(float),
+        "tau": TypeConstraint(float),
+        "beta": TypeConstraint(float),
+        "positive_only": TypeConstraint(bool),
+        "draw_proba_type": ValueConstraint("static", "dynamic"),
+        "draw_proba_static": [
+            TypeConstraint(float, type(None)),
+            FuncConstraint(draw_proba_static_constraint),
+        ],
+        "draw_proba_factor": TypeConstraint(float),
     }
 
     @staticmethod
@@ -363,47 +565,33 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
         super().__init__()
 
         if learner_model is None:
-            self.learner_model = LearnerModel()
+            self._learner_model = LearnerModel()
         else:
-            self.learner_model = learner_model
-        self.threshold = threshold
-        self.init_skill = init_skill
-        self.def_var = def_var
-        self.tau = tau
-        self.beta = beta
-        self.positive_only = positive_only
+            self._learner_model = learner_model
+        self._threshold = threshold
+        self._init_skill = init_skill
+        self._def_var = def_var
+        self._tau = tau
+        self._beta = beta
+        self._positive_only = positive_only
 
-        self.draw_proba_type = draw_proba_type
-        self.draw_proba_factor = draw_proba_factor
-        self.draw_proba_static = draw_proba_static
-
-        # check to ensure that the constructed classifier is not in corrupt state
-        if self.draw_proba_type == "static" and self.draw_proba_static is None:
-            raise ValueError(
-                "When draw_proba_type is set to static,"
-                " the draw_proba_static should not be None."
-            )
+        self._draw_proba_type = draw_proba_type
+        self._draw_proba_factor = draw_proba_factor
+        self._draw_proba_static = draw_proba_static
 
     def __calculate_draw_proba(self) -> float:
-        if self.draw_proba_type == "static":
-            # delayed check as draw_proba_type can be potentially replaced by set_params
-            # we can declare a version of constraint checker once we support
-            # satisfies-based constraint checking
-            if self.draw_proba_static is None:
-                raise ValueError(
-                    "When draw_proba_type is set to static,"
-                    " the draw_proba_static should not be None."
-                )
-            return self.draw_proba_static * self.draw_proba_factor
+        if self._draw_proba_type == "static":
+            # we are sure that draw_proba_static cannot be None by using our type check
+            return self._draw_proba_static * self._draw_proba_factor  # type: ignore
 
         # >= 1 because it's divisor
         total_engagement_stats = max(
             1,
-            self.learner_model.number_of_engagements
-            + self.learner_model.number_of_non_engagements,
+            self._learner_model.number_of_engagements
+            + self._learner_model.number_of_non_engagements,
         )
         draw_probability = float(
-            self.learner_model.number_of_engagements / total_engagement_stats
+            self._learner_model.number_of_engagements / total_engagement_stats
         )
 
         # clamp the value between [DEFAULT_DRAW_PROBA_LOW, DEFAULT_DRAW_PROBA_HIGH]
@@ -415,7 +603,7 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
             InterestNoveltyKnowledgeBaseClassifier.__DEFAULT_DRAW_PROBA_LOW,
         )
 
-        return draw_probability * self.draw_proba_factor
+        return draw_probability * self._draw_proba_factor
 
     def __create_env(self) -> trueskill.TrueSkill:
         """Create the trueskill environment used in the training/prediction process."""
@@ -423,8 +611,8 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
         return trueskill.TrueSkill(
             mu=0.0,
             sigma=InterestNoveltyKnowledgeBaseClassifier.__DEFAULT_GLOBAL_SIGMA,
-            beta=self.beta,
-            tau=self.tau,
+            beta=self._beta,
+            tau=self._tau,
             draw_probability=draw_probability,
             backend="mpmath",
         )
@@ -436,9 +624,9 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
             y: A bool indicating whether the learner engage in the learning event.
         """
         if y:
-            self.learner_model.number_of_engagements += 1
+            self._learner_model.number_of_engagements += 1
         else:
-            self.learner_model.number_of_non_engagements += 1
+            self._learner_model.number_of_non_engagements += 1
 
     def __select_kcs(self, x: EventModel) -> Iterable[AbstractKnowledgeComponent]:
         """Get knowledge components in the learner's knowledge \
@@ -463,11 +651,11 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
             topic_kc_pair: Tuple[Hashable, AbstractKnowledgeComponent]
         ) -> AbstractKnowledgeComponent:
             topic_id, kc = topic_kc_pair
-            extracted_kc = self.learner_model.knowledge.get_kc(
+            extracted_kc = self._learner_model.knowledge.get_kc(
                 topic_id,
                 kc.clone(
-                    mean=self.init_skill,
-                    variance=self.def_var,
+                    mean=self._init_skill,
+                    variance=self._def_var,
                     timestamp=x.event_time,
                 ),
             )
@@ -504,10 +692,12 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
             topic_kc_pair: Tuple[Hashable, AbstractKnowledgeComponent]
         ) -> Tuple[Hashable, AbstractKnowledgeComponent]:
             topic_id, kc = topic_kc_pair
-            extracted_kc = self.learner_model.knowledge.get_kc(
+            extracted_kc = self._learner_model.knowledge.get_kc(
                 topic_id,
                 kc.clone(
-                    mean=self.init_skill, variance=self.def_var, timestamp=x.event_time
+                    mean=self._init_skill,
+                    variance=self._def_var,
+                    timestamp=x.event_time,
                 ),
             )
             return topic_id, extracted_kc
@@ -578,13 +768,13 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
             kc.update(
                 mean=rating.mu, variance=rating.sigma**2, timestamp=x.event_time
             )
-            self.learner_model.knowledge.update_kc(topic_id, kc)
+            self._learner_model.knowledge.update_kc(topic_id, kc)
 
     @final
     def fit(self, x: EventModel, y: bool) -> Self:
         # if positive_only is False or (it's true and y is true)
         # update the knowledge representation
-        if not self.positive_only or y is True:
+        if not self._positive_only or y is True:
             env = self.__create_env()
             self.__update_knowledge_representation(env, x, y)
 
@@ -593,7 +783,7 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
 
     @final
     def predict(self, x: EventModel) -> bool:
-        return self.predict_proba(x) > self.threshold
+        return self.predict_proba(x) > self._threshold
 
     @abstractmethod
     def _eval_matching_quality(
@@ -633,4 +823,4 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
         Returns:
             A learner model associated with this classifier.
         """
-        return self.learner_model
+        return self._learner_model

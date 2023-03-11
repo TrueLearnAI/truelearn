@@ -177,5 +177,5 @@ KnowledgeComponent(mean=0.58097..., variance=0.33159..., ...), ...}), ...}
         content_kcs: Iterable[AbstractKnowledgeComponent],
     ) -> float:
         return InterestNoveltyKnowledgeBaseClassifier._team_sum_quality(
-            learner_kcs, content_kcs, self.beta
+            learner_kcs, content_kcs, self._beta
         )

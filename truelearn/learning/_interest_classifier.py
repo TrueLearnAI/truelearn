@@ -2,13 +2,17 @@ import math
 from typing import Callable, Any, Optional, Dict, Iterable
 from datetime import datetime as dt
 
+import trueskill
+
 from truelearn.models import (
     LearnerModel,
     AbstractKnowledgeComponent,
 )
-from ._base import InterestNoveltyKnowledgeBaseClassifier
-
-import trueskill
+from ._base import (
+    InterestNoveltyKnowledgeBaseClassifier,
+    TypeConstraint,
+    ValueConstraint,
+)
 
 
 class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
@@ -81,8 +85,8 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
 
     _parameter_constraints: Dict[str, Any] = {
         **InterestNoveltyKnowledgeBaseClassifier._parameter_constraints,
-        "decay_func_type": ("short", "long"),
-        "decay_func_factor": float,
+        "decay_func_type": ValueConstraint("short", "long"),
+        "decay_func_factor": TypeConstraint(float),
     }
 
     def __init__(
@@ -164,8 +168,8 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
             draw_proba_factor=draw_proba_factor,
         )
 
-        self.decay_func_type = decay_func_type
-        self.decay_func_factor = decay_func_factor
+        self._decay_func_type = decay_func_type
+        self._decay_func_factor = decay_func_factor
 
         self._validate_params()
 
@@ -178,12 +182,12 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
         Notes:
             Equations from: https://link.springer.com/article/10.1007/s11227-020-03266-2
         """
-        if self.decay_func_type == "short":
+        if self._decay_func_type == "short":
             return lambda t_delta: min(
-                2 / (1 + math.exp(self.decay_func_factor * t_delta)), 1.0
+                2 / (1 + math.exp(self._decay_func_factor * t_delta)), 1.0
             )
 
-        return lambda t_delta: min(math.exp(-self.decay_func_factor * t_delta), 1.0)
+        return lambda t_delta: min(math.exp(-self._decay_func_factor * t_delta), 1.0)
 
     def _generate_ratings(
         self,
@@ -263,5 +267,5 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
         content_kcs: Iterable[AbstractKnowledgeComponent],
     ) -> float:
         return InterestNoveltyKnowledgeBaseClassifier._team_sum_quality(
-            learner_kcs, content_kcs, self.beta
+            learner_kcs, content_kcs, self._beta
         )

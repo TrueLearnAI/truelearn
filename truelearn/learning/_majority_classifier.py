@@ -2,7 +2,7 @@ from typing import Any, Dict
 from typing_extensions import Self
 
 from truelearn.models import EventModel
-from ._base import BaseClassifier
+from ._base import BaseClassifier, TypeConstraint
 
 
 class MajorityClassifier(BaseClassifier):
@@ -33,8 +33,8 @@ class MajorityClassifier(BaseClassifier):
 
     _parameter_constraints: Dict[str, Any] = {
         **BaseClassifier._parameter_constraints,
-        "engagement": int,
-        "non_engagement": int,
+        "engagement": TypeConstraint(int),
+        "non_engagement": TypeConstraint(int),
     }
 
     def __init__(self, *, engagement: int = 0, non_engagement: int = 0) -> None:
@@ -47,21 +47,21 @@ class MajorityClassifier(BaseClassifier):
         """
         super().__init__()
 
-        self.engagement = engagement
-        self.non_engagement = non_engagement
+        self._engagement = engagement
+        self._non_engagement = non_engagement
 
         self._validate_params()
 
     def fit(self, x: EventModel, y: bool) -> Self:
         if y:
-            self.engagement += 1
+            self._engagement += 1
         else:
-            self.non_engagement += 1
+            self._non_engagement += 1
 
         return self
 
     def predict(self, x: EventModel) -> bool:
-        return self.engagement > self.non_engagement
+        return self._engagement > self._non_engagement
 
     def predict_proba(self, x: EventModel) -> float:
-        return float(self.engagement > self.non_engagement)
+        return float(self._engagement > self._non_engagement)
