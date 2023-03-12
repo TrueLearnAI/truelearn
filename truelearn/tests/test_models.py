@@ -213,9 +213,8 @@ deque([(91.0, 91.0, 91.0), (92.0, 92.0, 92.0), ...], maxlen=10))"
 
         with pytest.raises(ValueError) as excinfo:
             kc.__repr__(-1)  # pylint: disable=unnecessary-dunder-call
-        assert (
-            "Expected n_max_object>=0. Got n_max_object=-1 instead."
-            == str(excinfo.value)
+        assert "Expected n_max_object>=0. Got n_max_object=-1 instead." == str(
+            excinfo.value
         )
 
 
@@ -288,7 +287,6 @@ mean=1.0, variance=1.0, timestamp=None, title=None, description=None, url=None)}
 
         with pytest.raises(ValueError) as excinfo:
             knowledge.__repr__(-1)  # pylint: disable=unnecessary-dunder-call
-        assert (
-            "Expected n_max_object>=0. Got n_max_object=-1 instead."
-            == str(excinfo.value)
+        assert "Expected n_max_object>=0. Got n_max_object=-1 instead." == str(
+            excinfo.value
         )
