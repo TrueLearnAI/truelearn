@@ -4,40 +4,40 @@
 name: Upload Python Package
 
 on:
-  release:
-    types: [published]
+    release:
+        types: [published]
 
 permissions:
-  contents: read
+    contents: read
 
 jobs:
-  Unit_tests:
-    uses: ./.github/workflows/unit_tests.yml
+    publish_ref_unit_tests:
+        uses: ./.github/workflows/unit_tests.yml
 
-  Static_analysis:
-    uses: ./.github/workflows/static_analysis.yml
+    publish_ref_static_analysis:
+        uses: ./.github/workflows/static_analysis.yml
 
-  Deploy_to_PyPi:
-    runs-on: ubuntu-latest
-    needs: [Unit_tests,Static_analysis]
-    steps:
-    - uses: actions/checkout@v3
+    deploy_to_pypi:
+        runs-on: ubuntu-latest
+        needs: [Unit_tests, Static_analysis]
+        steps:
+            - uses: actions/checkout@v3
 
-    - name: Set up Python
-      uses: actions/setup-python@v3
-      with:
-        python-version: '3.7'
+            - name: Set up Python
+              uses: actions/setup-python@v3
+              with:
+                  python-version: "3.7"
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install build
+            - name: Install dependencies
+              run: |
+                  python -m pip install --upgrade pip
+                  pip install build
 
-    - name: Build package
-      run: python -m build
+            - name: Build package
+              run: python -m build
 
-    - name: Publish package
-      uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
-      with:
-        user: __token__
-        password: ${{ secrets.PYPI_API_TOKEN }}
+            - name: Publish package
+              uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
+              with:
+                  user: __token__
+                  password: ${{ secrets.PYPI_API_TOKEN }}

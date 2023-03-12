@@ -1,57 +1,57 @@
 name: Static analysis
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
-  workflow_dispatch:
-  workflow_call:
+    push:
+        branches:
+            - main
+    pull_request:
+        branches:
+            - main
+    workflow_dispatch:
+    workflow_call:
 
 jobs:
-  Run-Prospector-Analysis:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repo
-        uses: actions/checkout@v3
+    static_analysis:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout Repo
+              uses: actions/checkout@v3
 
-      - name: Setup Python
-        uses: actions/setup-python@v4.4.0
-        with:
-          python-version: '3.7'
-          cache: 'pip' # cache dependencies
-          cache-dependency-path: 'pyproject.toml'
+            - name: Setup Python
+              uses: actions/setup-python@v4.4.0
+              with:
+                  python-version: "3.7"
+                  cache: "pip" # cache dependencies
+                  cache-dependency-path: "pyproject.toml"
 
-      - name: Install Project Dependencies
-        run:  |
-            # install dev because we import pytest in truelearn.tests
-            pip install .[dev]
+            - name: Install Project Dependencies
+              run: |
+                  # install dev because we import pytest in truelearn.tests
+                  pip install .[dev]
 
-      - name: Run Prospector
-        run: |
-          # Outputs the xunit report to project root
-          # Uses prospector.yml config file
-          prospector --output-format xunit:prospector_report.xml
+            - name: Run Prospector
+              run: |
+                  # Outputs the xunit report to project root
+                  # Uses prospector.yml config file
+                  prospector --output-format xunit:prospector_report.xml
 
-     # Keep this commented out for now until prospector output format is fixed
-     # - name: Convert test results to Github Annotations
-      #  uses: check-run-reporter/action@v2.11.1
-       # Change to failure() only if you want to only report on failures
-       # if: success()||failure()
-        #with:
-         # token: ${{ secrets.CHECK_RUN_REPORTER_TOKEN }}
-          #report: './prospector_report.xml'
-          #label: "Prospector Analysis Report"
+            # Keep this commented out for now until prospector output format is fixed
+            # - name: Convert test results to Github Annotations
+            #  uses: check-run-reporter/action@v2.11.1
+            # Change to failure() only if you want to only report on failures
+            # if: success()||failure()
+            #with:
+            # token: ${{ secrets.CHECK_RUN_REPORTER_TOKEN }}
+            #report: './prospector_report.xml'
+            #label: "Prospector Analysis Report"
 
-      # NOTE: Because it expects Junit format, the line numberings on the annotation header defaults to 1
-      # However the error message shows the correct line numbering.
-      - name: Convert test results to Github Annotations
-        uses: mikepenz/action-junit-report@v3
-        # Only produce check run annotations if the tests fail
-        if: failure()
-        with:
-          # Report in project root
-          report_paths: ./prospector_report.xml
-          check_name: "Prospector Analysis Report"
-          detailed_summary: true
+            # NOTE: Because it expects Junit format, the line numberings on the annotation header defaults to 1
+            # However the error message shows the correct line numbering.
+            - name: Convert test results to Github Annotations
+              uses: mikepenz/action-junit-report@v3
+              # Only produce check run annotations if the tests fail
+              if: failure()
+              with:
+                  # Report in project root
+                  report_paths: ./prospector_report.xml
+                  check_name: "Prospector Analysis Report"
+                  detailed_summary: true
