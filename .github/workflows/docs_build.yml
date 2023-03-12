@@ -1,5 +1,5 @@
 # Ensures that the docs build correctly
-name: "Docs Build"
+name: Docs Build
 on:
     pull_request:
         branches:
