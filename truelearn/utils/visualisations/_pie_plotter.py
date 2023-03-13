@@ -78,6 +78,7 @@ class PiePlotter(BasePlotter):
             content: Iterable[Tuple[Iterable, Iterable, str]],
             history: bool,
             top_n: int=5,
+            other: bool=False,
             title: str="Distribution of user's skill.",
             x_label: str="",
             y_label: str="",
@@ -104,16 +105,14 @@ class PiePlotter(BasePlotter):
         if isinstance(content, Knowledge):
             content = self._standardise_data(content, history)
         
+        rest = content[top_n:]
         content = content[:top_n]
-        # content = self._get_other(content, top_n)
+        if other:
+            content.append(self._get_other_data(rest, history))
 
         layout_data = self._layout((title, x_label, y_label))
 
         means = [lst[0] for lst in content]
-
-        # mean_min = min(means) - 0.001
-
-        # mean_max = max(means) + 0.001
 
         variances = [lst[1] for lst in content]
 
@@ -126,30 +125,10 @@ class PiePlotter(BasePlotter):
             for timestamp in timestamps:
                 number_of_videos.append(len(timestamp))
                 last_video_watched.append(timestamp[-1])
-            print(number_of_videos)
-            print(last_video_watched)
-
-        print(variances)
 
         self.figure = go.Figure(go.Pie(
             labels=titles,
             values=means,
-            # width=0.5,
-            # marker=dict(
-            #     cmax=mean_max,
-            #     cmin=mean_min,
-            #     color=means,
-            #     colorbar=dict(
-            #         title="Means"
-            #     ),
-            #     colorscale="Greens"
-            # ),
-            # error_y=dict(type='data',
-            #     array=variances,
-            #     color = 'black',
-            #     thickness = 4,
-            #     width = 3,
-            #     visible=True),
             customdata=np.transpose([variances, number_of_videos, last_video_watched])
                     if history else
                     variances,
@@ -170,14 +149,18 @@ class PiePlotter(BasePlotter):
 
         return self
 
-    # def _get_other(self, content, top_n):
-    #     rest = content[top_n:]
-    #     content = content[:top_n]
-    #     total_mean = 0
-    #     for mean, variance, title, timestamps in rest:
-    #         total_mean += mean  # replace with a Python built-in function
-    #     content.append((total_mean, None, None, None))
-    #     return content
+    def _get_other_data(self, rest, history):
+        means = [lst[0] for lst in rest]
+        variances = [lst[1] for lst in rest]
+        total_mean = sum(means)
+        average_variance = sum(variances) / len(rest)
+        if history:
+            timestamps = [lst[3] for lst in rest]
+            other_data = (total_mean, average_variance, "Other", timestamps)
+        else:
+            other_data = (total_mean, average_variance, "Other")
+
+        return other_data
 
     def _trace():
         pass
