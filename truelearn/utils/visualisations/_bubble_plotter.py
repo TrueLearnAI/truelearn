@@ -63,7 +63,6 @@ class BubblePlotter(BasePlotter):
 
     def plot(
             self,
-            layout_data: Tuple[str, str, str],
             content: Iterable[Tuple[Iterable, Iterable, str]],
             history: bool,
             top_n: int=5
@@ -95,7 +94,7 @@ class BubblePlotter(BasePlotter):
         
         content = content[:top_n]
 
-        layout = self._layout(layout_data)
+        layout_data = self._layout(("Comparison of learner's top 5 subjects", "Mean", "Variance"))
 
         means = [lst[0] for lst in content]
 
@@ -135,7 +134,7 @@ class BubblePlotter(BasePlotter):
                         "Last Video Watched On: %{customdata[2]}",
                         "<extra></extra>"]),
                 mode="markers"),
-                layout = layout)
+                layout = layout_data)
 
         else:
             self.figure = go.Figure(data=go.Scatter(
@@ -160,7 +159,7 @@ class BubblePlotter(BasePlotter):
                         "Variance: %{y}",
                         "<extra></extra>"]),
                 mode="markers"),
-                layout = layout)            
+                layout = layout_data)            
 
 
         return self

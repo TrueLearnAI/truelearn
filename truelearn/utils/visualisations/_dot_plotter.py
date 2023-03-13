@@ -62,7 +62,6 @@ class DotPlotter(BasePlotter):
 
     def plot(
             self,
-            layout_data: Tuple[str, str, str],
             content: Iterable[Tuple[Iterable, Iterable, str]],
             history: bool,
             top_n: int=5
@@ -94,7 +93,7 @@ class DotPlotter(BasePlotter):
         
         content = content[:top_n]
 
-        layout = self._layout(layout_data)
+        layout_data = self._layout(("Comparison of learner's top 5 subjects", "Subjects", "Mean"))
 
         means = [lst[0] for lst in content]
 
@@ -143,7 +142,7 @@ class DotPlotter(BasePlotter):
                         "Last Video Watched On: %{customdata[2]}",
                         "<extra></extra>"]),
                 mode="markers"),
-                layout = layout)
+                layout = layout_data)
         else:
             self.figure = go.Figure(data=go.Scatter(
                 x=titles,
@@ -171,7 +170,7 @@ class DotPlotter(BasePlotter):
                         "Variance: %{customdata}",
                         "<extra></extra>"]),
                 mode="markers"),
-                layout = layout)
+                layout = layout_data)
         return self
         
     def _trace():

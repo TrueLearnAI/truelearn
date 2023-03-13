@@ -91,6 +91,8 @@ class BarPlotter(BasePlotter):
         if isinstance(content, Knowledge):
             content = self._standardise_data(content)
         
+        layout_data = self._layout(("Comparison of learner's top 5 subjects", "Subjects", "Mean"))
+
         content = content[:top_n]
 
         means = [lst[0] for lst in content]
@@ -139,7 +141,7 @@ class BarPlotter(BasePlotter):
                         "Number of Videos Watched: %{customdata[1]}",
                         "Last Video Watched On: %{customdata[2]}",
                         "<extra></extra>"])
-            ), layout=layout)
+            ), layout=layout_data)
         else:
             self.figure = go.Figure(go.Bar(
                 x=titles,
@@ -166,7 +168,7 @@ class BarPlotter(BasePlotter):
                         "Mean: %{y}",
                         "Variance: %{customdata}",
                         "<extra></extra>"])
-            ), layout=("Comparison of learner's top 5 subjects", "Subjects", "Mean"))
+            ), layout=layout_data)
         return self
 
     def _trace():
