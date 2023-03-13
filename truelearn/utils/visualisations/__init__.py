@@ -14,5 +14,5 @@ __all__ = [
     "PiePlotter",
     "BarPlotter",
     "DotPlotter",
-    "BubblePLotter"
+    "BubblePlotter"
 ]

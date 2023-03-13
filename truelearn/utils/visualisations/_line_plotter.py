@@ -1,8 +1,8 @@
 import datetime
-from typing import Dict, Iterable, Union, Tuple
-from typing_extensions import Self
+from typing import Iterable, Tuple
 
 import plotly.graph_objects as go
+from typing_extensions import Self
 
 from truelearn.models import Knowledge
 from truelearn.utils.visualisations._base import (
@@ -13,12 +13,13 @@ from truelearn.utils.visualisations._base import (
 
 class LinePlotter(BasePlotter):
     """Provides utilities for plotting line charts."""
+
     def __init__(self):
         self.figure = None
-    
+
     def _standardise_data(
             self, raw_data: Knowledge
-        ) -> Iterable[Tuple[str, Iterable, Iterable]]:
+    ) -> Iterable[Tuple[str, Iterable, Iterable]]:
         """Converts an object of KnowledgeDict type to one suitable for plot().
         
         Optional utility function that converts the dictionary representation
@@ -46,14 +47,14 @@ class LinePlotter(BasePlotter):
                 means.append(mean)
                 variances.append(variance)
                 timestamps.append(timestamp)
-            
+
             timestamps = list(map(
                 lambda t: datetime.datetime.utcfromtimestamp(t).strftime("%Y-%m-%d"),
                 timestamps
             ))
             tr_data = (title, means, variances, timestamps)
             content.append(tr_data)
-        
+
         content.sort(
             key=lambda tr_data: tr_data[1],  # sort based on mean
             reverse=True
@@ -64,12 +65,12 @@ class LinePlotter(BasePlotter):
     def plot(
             self,
             content: Iterable[Tuple[str, Iterable, Iterable]],
-            top_n: int=5,
-            visualise_variance: bool=True,
-            title: str="Mean of user's top 5 topics over time",
-            x_label: str="Time",
-            y_label: str="Mean",
-        ) -> Self:
+            top_n: int = 5,
+            visualise_variance: bool = True,
+            title: str = "Mean of user's top 5 topics over time",
+            x_label: str = "Time",
+            y_label: str = "Mean",
+    ) -> Self:
         """Plots the line chart using the data.
 
         Uses content and layout_data to generate a Figure object and stores
@@ -91,7 +92,7 @@ class LinePlotter(BasePlotter):
         """
         if isinstance(content, Knowledge):
             content = self._standardise_data(content)
-            
+
             # have to move this outside of the if block
             content = content[:top_n]
 
@@ -105,12 +106,12 @@ class LinePlotter(BasePlotter):
         )
 
         return self
-    
+
     def _trace(
             self,
             tr_data: Tuple[str, Iterable, Iterable],
             visualise_variance
-        ) -> go.Scatter:
+    ) -> go.Scatter:
         name, y_values, variances, x_values = tr_data
 
         trace = go.Scatter(

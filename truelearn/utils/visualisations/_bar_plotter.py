@@ -1,26 +1,25 @@
 import datetime
-import numpy as np
-from typing import Dict, Iterable, Union, Tuple
-from typing_extensions import Self
+from typing import Iterable, Tuple
 
+import numpy as np
 import plotly.graph_objects as go
 
 from truelearn.models import Knowledge
 from truelearn.utils.visualisations._base import (
     BasePlotter,
-    knowledge_to_dict,
-    KnowledgeDict
+    knowledge_to_dict
 )
 
 
 class BarPlotter(BasePlotter):
     """Provides utilities for plotting bar charts."""
+
     def __init__(self):
         self.figure = None
-    
+
     def _standardise_data(
             self, raw_data: Knowledge, history: bool
-        ) -> Iterable[Tuple[Iterable, Iterable, str]]:
+    ) -> Iterable[Tuple[Iterable, Iterable, str]]:
         """Converts an object of KnowledgeDict type to one suitable for plot().
         
         Optional utility function that converts the dictionary representation
@@ -42,16 +41,17 @@ class BarPlotter(BasePlotter):
 
         content = []
         for _, kc in raw_data.items():
-            title=kc['title']
-            mean=kc['mean']
-            variance=kc['variance']
+            title = kc['title']
+            mean = kc['mean']
+            variance = kc['variance']
             timestamps = []
             if history:
                 try:
                     for _, _, timestamp in kc['history']:
                         timestamps.append(timestamp)
                     timestamps = list(map(
-                        lambda t: datetime.datetime.utcfromtimestamp(t).strftime("%Y-%m-%d"),
+                        lambda t: datetime.datetime.utcfromtimestamp(t).strftime(
+                            "%Y-%m-%d"),
                         timestamps
                     ))
                     data = (mean, variance, title, timestamps)
@@ -62,9 +62,9 @@ class BarPlotter(BasePlotter):
                     ) from err
             else:
                 data = (mean, variance, title)  # without the timestamps
-            
+
             content.append(data)
-        
+
         content.sort(
             key=lambda data: data[0],  # sort based on mean
             reverse=True
@@ -72,16 +72,15 @@ class BarPlotter(BasePlotter):
 
         return content
 
-
     def plot(
             self,
             content: Iterable[Tuple[Iterable, Iterable, str]],
             history: bool,
-            top_n: int=5,
-            title: str="Comparison of learner's top 5 subjects",
-            x_label: str="Subjects",
-            y_label: str="Mean",
-        ) -> go.Bar:
+            top_n: int = 5,
+            title: str = "Comparison of learner's top 5 subjects",
+            x_label: str = "Subjects",
+            y_label: str = "Mean",
+    ) -> go.Bar:
 
         """
         Plots the bar chart using the data.
@@ -103,7 +102,7 @@ class BarPlotter(BasePlotter):
         """
         if isinstance(content, Knowledge):
             content = self._standardise_data(content, history)
-        
+
         layout_data = self._layout((title, x_label, y_label))
 
         content = content[:top_n]
@@ -140,32 +139,30 @@ class BarPlotter(BasePlotter):
                 colorscale="Greens"
             ),
             error_y=dict(type='data',
-                array=variances,
-                color = 'black',
-                thickness = 4,
-                width = 3,
-                visible=True),
+                         array=variances,
+                         color='black',
+                         thickness=4,
+                         width=3,
+                         visible=True),
             customdata=np.transpose([variances, number_of_videos, last_video_watched])
-                    if history else
-                    variances,
+            if history else
+            variances,
             hovertemplate="<br>".join([
-                    "Topic: %{x}",
-                    "Mean: %{y}",
-                    "Variance: %{customdata}",
-                    "Number of Videos Watched: %{customdata[1]}",
-                    "Last Video Watched On: %{customdata[2]}",
-                    "<extra></extra>"])
-                    if history else
-                    "<br>".join([
-                    "Topic: %{x}",
-                    "Mean: %{y}",
-                    "Variance: %{customdata}",
-                    "<extra></extra>"])
+                "Topic: %{x}",
+                "Mean: %{y}",
+                "Variance: %{customdata}",
+                "Number of Videos Watched: %{customdata[1]}",
+                "Last Video Watched On: %{customdata[2]}",
+                "<extra></extra>"])
+            if history else
+            "<br>".join([
+                "Topic: %{x}",
+                "Mean: %{y}",
+                "Variance: %{customdata}",
+                "<extra></extra>"])
         ), layout=layout_data)
-    
+
         return self
 
-    def _trace():
+    def _trace(self):
         pass
-
-    
