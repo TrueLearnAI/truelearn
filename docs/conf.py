@@ -32,6 +32,7 @@ author = 'TrueLearn Team'
 import truelearn
 
 version = truelearn.__version__
+release = truelearn.__version__
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
