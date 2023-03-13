@@ -67,6 +67,7 @@ class PiePlotter(BasePlotter):
             self,
             layout_data: Tuple[str, str, str],
             content: Iterable[Tuple[Iterable, Iterable, str]],
+            history,
             top_n: int=5
         ) -> go.Bar:
 
@@ -92,23 +93,27 @@ class PiePlotter(BasePlotter):
             content = self._standardise_data(content)
         
         content = content[:top_n]
-        content = self._get_other(content, top_n)
+        # content = self._get_other(content, top_n)
 
         layout = self._layout(layout_data)
 
         means = [lst[0] for lst in content]
 
+        mean_min = min(means) - 0.001
+
+        mean_max = max(means) + 0.001
+
         variances = [lst[1] for lst in content]
 
         titles = [lst[2] for lst in content]
 
-        timestamps = [lst[3] for lst in content]
-
-        number_of_videos = []
-        last_video_watched = []
-        # for timestamp in timestamps:
-        #     number_of_videos.append(len(timestamp))
-        #     last_video_watched.append(timestamp[-1])
+        if history:
+            timestamps = [lst[3] for lst in content]
+            number_of_videos = []
+            last_video_watched = []
+            for timestamp in timestamps:
+                number_of_videos.append(len(timestamp))
+                last_video_watched.append(timestamp[-1])
 
         self.figure = go.Figure(go.Pie(
             labels=titles,
@@ -129,7 +134,9 @@ class PiePlotter(BasePlotter):
             #     thickness = 4,
             #     width = 3,
             #     visible=True),
-            customdata=np.transpose([variances, number_of_videos, last_video_watched]),
+            customdata=np.transpose([variances, number_of_videos, last_video_watched])
+                    if history else
+                    variances,
             hovertemplate="<br>".join([
                     "Topic: %{label}",
                     "Mean: %{value}",
@@ -137,18 +144,24 @@ class PiePlotter(BasePlotter):
                     "Number of Videos Watched: %{customdata[1]}",
                     "Last Video Watched On: %{customdata[2]}",
                     "<extra></extra>"])
+                    if history else
+                    "<br>".join([
+                    "Topic: %{x}",
+                    "Mean: %{y}",
+                    "Variance: %{customdata}",
+                    "<extra></extra>"])
         ), layout=layout)
 
         return self
 
-    def _get_other(self, content, top_n):
-        rest = content[top_n:]
-        content = content[:top_n]
-        total_mean = 0
-        for mean, variance, title, timestamps in rest:
-            total_mean += mean  # replace with a Python built-in function
-        content.append((total_mean, None, None, None))
-        return content
+    # def _get_other(self, content, top_n):
+    #     rest = content[top_n:]
+    #     content = content[:top_n]
+    #     total_mean = 0
+    #     for mean, variance, title, timestamps in rest:
+    #         total_mean += mean  # replace with a Python built-in function
+    #     content.append((total_mean, None, None, None))
+    #     return content
 
     def _trace():
         pass
