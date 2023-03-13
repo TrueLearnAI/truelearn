@@ -111,9 +111,9 @@ class PiePlotter(BasePlotter):
 
         means = [lst[0] for lst in content]
 
-        mean_min = min(means) - 0.001
+        # mean_min = min(means) - 0.001
 
-        mean_max = max(means) + 0.001
+        # mean_max = max(means) + 0.001
 
         variances = [lst[1] for lst in content]
 
@@ -126,6 +126,10 @@ class PiePlotter(BasePlotter):
             for timestamp in timestamps:
                 number_of_videos.append(len(timestamp))
                 last_video_watched.append(timestamp[-1])
+            print(number_of_videos)
+            print(last_video_watched)
+
+        print(variances)
 
         self.figure = go.Figure(go.Pie(
             labels=titles,
@@ -152,14 +156,14 @@ class PiePlotter(BasePlotter):
             hovertemplate="<br>".join([
                     "Topic: %{label}",
                     "Mean: %{value}",
-                    "Variance: %{customdata[0]}",
-                    "Number of Videos Watched: %{customdata[1]}",
-                    "Last Video Watched On: %{customdata[2]}",
+                    "Variance: %{customdata[0][0]}",
+                    "Number of Videos Watched: %{customdata[0][1]}",
+                    "Last Video Watched On: %{customdata[0][2]}",
                     "<extra></extra>"])
                     if history else
                     "<br>".join([
-                    "Topic: %{x}",
-                    "Mean: %{y}",
+                    "Topic: %{label}",
+                    "Mean: %{value}",
                     "Variance: %{customdata}",
                     "<extra></extra>"])
         ), layout=layout_data)
