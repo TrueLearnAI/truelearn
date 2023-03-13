@@ -63,12 +63,12 @@ class LinePlotter(BasePlotter):
 
     def plot(
             self,
-            title: str,
             content: Iterable[Tuple[str, Iterable, Iterable]],
-            x_label: str="Time",
-            y_label: str="Mean",
             top_n: int=5,
             visualise_variance: bool=True,
+            title: str="Mean of user's top 5 topics over time",
+            x_label: str="Time",
+            y_label: str="Mean",
         ) -> Self:
         """Plots the line chart using the data.
 

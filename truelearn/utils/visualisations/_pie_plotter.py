@@ -63,7 +63,7 @@ class PiePlotter(BasePlotter):
             else:
                 data = (mean, variance, title)  # without the timestamps
         
-        content.append(data)
+            content.append(data)
 
         content.sort(
             key=lambda data: data[0],  # sort based on mean
@@ -75,10 +75,12 @@ class PiePlotter(BasePlotter):
 
     def plot(
             self,
-            layout_data: Tuple[str, str, str],
             content: Iterable[Tuple[Iterable, Iterable, str]],
             history: bool,
-            top_n: int=5
+            top_n: int=5,
+            title: str="Distribution of user's skill.",
+            x_label: str="",
+            y_label: str="",
         ) -> go.Bar:
 
         """
@@ -105,7 +107,7 @@ class PiePlotter(BasePlotter):
         content = content[:top_n]
         # content = self._get_other(content, top_n)
 
-        layout = self._layout(layout_data)
+        layout_data = self._layout((title, x_label, y_label))
 
         means = [lst[0] for lst in content]
 
@@ -160,7 +162,7 @@ class PiePlotter(BasePlotter):
                     "Mean: %{y}",
                     "Variance: %{customdata}",
                     "<extra></extra>"])
-        ), layout=layout)
+        ), layout=layout_data)
 
         return self
 

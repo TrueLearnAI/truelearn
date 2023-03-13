@@ -69,12 +69,14 @@ class DotPlotter(BasePlotter):
 
         return content
 
-
     def plot(
             self,
             content: Iterable[Tuple[Iterable, Iterable, str]],
             history: bool,
-            top_n: int=5
+            top_n: int=5,
+            title: str="Comparison of learner's top 5 subjects",
+            x_label: str="Subjects",
+            y_label: str="Mean",
         ) -> go.Scatter:
 
         """
@@ -103,7 +105,7 @@ class DotPlotter(BasePlotter):
         
         content = content[:top_n]
 
-        layout_data = self._layout(("Comparison of learner's top 5 subjects", "Subjects", "Mean"))
+        layout_data = self._layout((title, x_label, y_label))
 
         means = [lst[0] for lst in content]
 
