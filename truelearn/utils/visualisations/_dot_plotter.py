@@ -19,7 +19,7 @@ class DotPlotter(BasePlotter):
         self.figure = None
     
     def _standardise_data(
-            self, raw_data: Knowledge
+            self, raw_data: Knowledge, history: bool
         ) -> Iterable[Tuple[Iterable, Iterable, str, Iterable]]:
         """Converts an object of KnowledgeDict type to one suitable for plot().
         
@@ -43,13 +43,23 @@ class DotPlotter(BasePlotter):
             variance=kc['variance']
             title=kc['title']
             timestamps = []
-            for _, _, timestamp in kc['history']:
-                timestamps.append(timestamp)
-            timestamps = list(map(
-                lambda t: datetime.datetime.utcfromtimestamp(t).strftime("%Y-%m-%d"),
-                timestamps
-            ))
-            data = (mean, variance, title, timestamps)
+            if history:
+                try:
+                    for _, _, timestamp in kc['history']:
+                        timestamps.append(timestamp)
+                    timestamps = list(map(
+                        lambda t: datetime.datetime.utcfromtimestamp(t).strftime("%Y-%m-%d"),
+                        timestamps
+                    ))
+                    data = (mean, variance, title, timestamps)
+                except KeyError as err:
+                    raise ValueError(
+                        "User's knowledge contains KnowledgeComponents. "
+                        + "Expected only HistoryAwareKnowledgeComponents."
+                    ) from err
+            else:
+                data = (mean, variance, title)
+
             content.append(data)
         
         content.sort(
@@ -89,7 +99,7 @@ class DotPlotter(BasePlotter):
               ranked by mean.
         """
         if isinstance(content, Knowledge):
-            content = self._standardise_data(content)
+            content = self._standardise_data(content, history)
         
         content = content[:top_n]
 

@@ -19,7 +19,7 @@ class PiePlotter(BasePlotter):
         self.figure = None
     
     def _standardise_data(
-            self, raw_data: Knowledge
+            self, raw_data: Knowledge, history: bool
         ) -> Iterable[Tuple[Iterable, Iterable, str]]:
         """Converts an object of KnowledgeDict type to one suitable for plot().
         
@@ -46,15 +46,25 @@ class PiePlotter(BasePlotter):
             mean=kc['mean']
             variance=kc['variance']
             timestamps = []
-            for _, _, timestamp in kc['history']:
-                timestamps.append(timestamp)
-            timestamps = list(map(
-                lambda t: datetime.datetime.utcfromtimestamp(t).strftime("%Y-%m-%d"),
-                timestamps
-            ))
-            data = (mean, variance, title, timestamps)
-            content.append(data)
+            if history:
+                try:
+                    for _, _, timestamp in kc['history']:
+                        timestamps.append(timestamp)
+                    timestamps = list(map(
+                        lambda t: datetime.datetime.utcfromtimestamp(t).strftime("%Y-%m-%d"),
+                        timestamps
+                    ))
+                    data = (mean, variance, title, timestamps)
+                except KeyError as err:
+                    raise ValueError(
+                        "User's knowledge contains KnowledgeComponents. "
+                        + "Expected only HistoryAwareKnowledgeComponents."
+                    ) from err
+            else:
+                data = (mean, variance, title)  # without the timestamps
         
+        content.append(data)
+
         content.sort(
             key=lambda data: data[0],  # sort based on mean
             reverse=True
@@ -67,7 +77,7 @@ class PiePlotter(BasePlotter):
             self,
             layout_data: Tuple[str, str, str],
             content: Iterable[Tuple[Iterable, Iterable, str]],
-            history,
+            history: bool,
             top_n: int=5
         ) -> go.Bar:
 
@@ -90,7 +100,7 @@ class PiePlotter(BasePlotter):
               url which is used to extract the subject as a string without https 
         """
         if isinstance(content, Knowledge):
-            content = self._standardise_data(content)
+            content = self._standardise_data(content, history)
         
         content = content[:top_n]
         # content = self._get_other(content, top_n)

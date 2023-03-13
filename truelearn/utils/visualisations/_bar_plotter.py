@@ -19,7 +19,7 @@ class BarPlotter(BasePlotter):
         self.figure = None
     
     def _standardise_data(
-            self, raw_data: Knowledge
+            self, raw_data: Knowledge, history: bool
         ) -> Iterable[Tuple[Iterable, Iterable, str]]:
         """Converts an object of KnowledgeDict type to one suitable for plot().
         
@@ -46,13 +46,23 @@ class BarPlotter(BasePlotter):
             mean=kc['mean']
             variance=kc['variance']
             timestamps = []
-            for _, _, timestamp in kc['history']:
-                timestamps.append(timestamp)
-            timestamps = list(map(
-                lambda t: datetime.datetime.utcfromtimestamp(t).strftime("%Y-%m-%d"),
-                timestamps
-            ))
-            data = (mean, variance, title, timestamps)
+            if history:
+                try:
+                    for _, _, timestamp in kc['history']:
+                        timestamps.append(timestamp)
+                    timestamps = list(map(
+                        lambda t: datetime.datetime.utcfromtimestamp(t).strftime("%Y-%m-%d"),
+                        timestamps
+                    ))
+                    data = (mean, variance, title, timestamps)
+                except KeyError as err:
+                    raise ValueError(
+                        "User's knowledge contains KnowledgeComponents. "
+                        + "Expected only HistoryAwareKnowledgeComponents."
+                    ) from err
+            else:
+                data = (mean, variance, title)  # without the timestamps
+            
             content.append(data)
         
         content.sort(
@@ -89,7 +99,7 @@ class BarPlotter(BasePlotter):
               url which is used to extract the subject as a string without https 
         """
         if isinstance(content, Knowledge):
-            content = self._standardise_data(content)
+            content = self._standardise_data(content, history)
         
         layout_data = self._layout(("Comparison of learner's top 5 subjects", "Subjects", "Mean"))
 
