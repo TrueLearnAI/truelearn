@@ -43,6 +43,7 @@ class BubblePlotter(BasePlotter):
             mean=kc['mean']
             variance=kc['variance']
             timestamps = []
+            # if Knowledge=HistoryAwareKnowledgeComponent:
             for _, _, timestamp in kc['history']:
                 timestamps.append(timestamp)
             timestamps = list(map(
@@ -64,6 +65,7 @@ class BubblePlotter(BasePlotter):
             self,
             layout_data: Tuple[str, str, str],
             content: Iterable[Tuple[Iterable, Iterable, str]],
+            history: bool,
             top_n: int=5
         ) -> go.Scatter:
 
@@ -108,32 +110,58 @@ class BubblePlotter(BasePlotter):
         for timestamp in timestamps:
             number_of_videos.append(len(timestamp))
             last_video_watched.append(timestamp[-1])
-
-        self.figure = go.Figure(data=go.Scatter(
-            x=means,
-            y=variances,
-            marker=dict(
-                size=means,
-                sizemode='area',
-                sizeref=2.*max(means)/(200.**2),
-                sizemin=4,
-                color=variances,
-                colorbar=dict(
-                    title="Variance"
+        if history:
+            self.figure = go.Figure(data=go.Scatter(
+                x=means,
+                y=variances,
+                marker=dict(
+                    size=means,
+                    sizemode='area',
+                    sizeref=2.*max(means)/(200.**2),
+                    sizemin=4,
+                    color=variances,
+                    colorbar=dict(
+                        title="Variance"
+                    ),
+                    colorscale="Greens",
+                    reversescale=True
                 ),
-                colorscale="Greens",
-                reversescale=True
-            ),
-            customdata=np.transpose([titles, number_of_videos, last_video_watched]),
-            hovertemplate="<br>".join([
-                    "Topic: %{customdata[0]}",
-                    "Mean: %{x}",
-                    "Variance: %{y}",
-                    "Number of Videos Watched: %{customdata[1]}",
-                    "Last Video Watched On: %{customdata[2]}",
-                    "<extra></extra>"]),
-            mode="markers"),
-            layout = layout)
+                customdata=np.transpose([titles, number_of_videos, last_video_watched]),
+                hovertemplate="<br>".join([
+                        "Topic: %{customdata[0]}",
+                        "Mean: %{x}",
+                        "Variance: %{y}",
+                        "Number of Videos Watched: %{customdata[1]}",
+                        "Last Video Watched On: %{customdata[2]}",
+                        "<extra></extra>"]),
+                mode="markers"),
+                layout = layout)
+
+        else:
+            self.figure = go.Figure(data=go.Scatter(
+                x=means,
+                y=variances,
+                marker=dict(
+                    size=means,
+                    sizemode='area',
+                    sizeref=2.*max(means)/(200.**2),
+                    sizemin=4,
+                    color=variances,
+                    colorbar=dict(
+                        title="Variance"
+                    ),
+                    colorscale="Greens",
+                    reversescale=True
+                ),
+                customdata=titles,
+                hovertemplate="<br>".join([
+                        "Topic: %{customdata}",
+                        "Mean: %{x}",
+                        "Variance: %{y}",
+                        "<extra></extra>"]),
+                mode="markers"),
+                layout = layout)            
+
 
         return self
 

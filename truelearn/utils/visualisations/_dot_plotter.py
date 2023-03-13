@@ -64,6 +64,7 @@ class DotPlotter(BasePlotter):
             self,
             layout_data: Tuple[str, str, str],
             content: Iterable[Tuple[Iterable, Iterable, str]],
+            history: bool,
             top_n: int=5
         ) -> go.Scatter:
 
@@ -113,36 +114,64 @@ class DotPlotter(BasePlotter):
             number_of_videos.append(len(timestamp))
             last_video_watched.append(timestamp[-1])
 
-        self.figure = go.Figure(data=go.Scatter(
-            x=titles,
-            y=means,
-            marker=dict(
-                size=50,
-                cmax=mean_max,
-                cmin=mean_min,
-                color=means,
-                colorbar=dict(
-                    title="Means"
+        if history:
+            self.figure = go.Figure(data=go.Scatter(
+                x=titles,
+                y=means,
+                marker=dict(
+                    size=50,
+                    cmax=mean_max,
+                    cmin=mean_min,
+                    color=means,
+                    colorbar=dict(
+                        title="Means"
+                    ),
+                    colorscale="Greens" 
                 ),
-                colorscale="Greens" #extra colorscale - red to green
-            ),
-            error_y=dict(type='data',
-                array=variances,
-                color = 'black',
-                thickness = 4,
-                width = 3,
-                visible=True),
-            customdata=np.transpose([variances, number_of_videos, last_video_watched]),
-            hovertemplate="<br>".join([
-                    "Topic: %{x}",
-                    "Mean: %{y}",
-                    "Variance: %{customdata[0]}",
-                    "Number of Videos Watched: %{customdata[1]}",
-                    "Last Video Watched On: %{customdata[2]}",
-                    "<extra></extra>"]),
-            mode="markers"),
-            layout = layout)
-
+                error_y=dict(type='data',
+                    array=variances,
+                    color = 'black',
+                    thickness = 4,
+                    width = 3,
+                    visible=True),
+                customdata=np.transpose([variances, number_of_videos, last_video_watched]),
+                hovertemplate="<br>".join([
+                        "Topic: %{x}",
+                        "Mean: %{y}",
+                        "Variance: %{customdata[0]}",
+                        "Number of Videos Watched: %{customdata[1]}",
+                        "Last Video Watched On: %{customdata[2]}",
+                        "<extra></extra>"]),
+                mode="markers"),
+                layout = layout)
+        else:
+            self.figure = go.Figure(data=go.Scatter(
+                x=titles,
+                y=means,
+                marker=dict(
+                    size=50,
+                    cmax=mean_max,
+                    cmin=mean_min,
+                    color=means,
+                    colorbar=dict(
+                        title="Means"
+                    ),
+                    colorscale="Greens" 
+                ),
+                error_y=dict(type='data',
+                    array=variances,
+                    color = 'black',
+                    thickness = 4,
+                    width = 3,
+                    visible=True),
+                customdata=variances,
+                hovertemplate="<br>".join([
+                        "Topic: %{x}",
+                        "Mean: %{y}",
+                        "Variance: %{customdata}",
+                        "<extra></extra>"]),
+                mode="markers"),
+                layout = layout)
         return self
         
     def _trace():
