@@ -105,72 +105,52 @@ class DotPlotter(BasePlotter):
 
         titles = [lst[2] for lst in content]
 
-        timestamps = [lst[3] for lst in content]
-
-        number_of_videos = []
-        last_video_watched = []
-        for timestamp in timestamps:
-            number_of_videos.append(len(timestamp))
-            last_video_watched.append(timestamp[-1])
-
         if history:
-            self.figure = go.Figure(data=go.Scatter(
-                x=titles,
-                y=means,
-                marker=dict(
-                    size=50,
-                    cmax=mean_max,
-                    cmin=mean_min,
-                    color=means,
-                    colorbar=dict(
-                        title="Means"
-                    ),
-                    colorscale="Greens" 
+            timestamps = [lst[3] for lst in content]
+            number_of_videos = []
+            last_video_watched = []
+            for timestamp in timestamps:
+                number_of_videos.append(len(timestamp))
+                last_video_watched.append(timestamp[-1])
+
+        self.figure = go.Figure(data=go.Scatter(
+            x=titles,
+            y=means,
+            marker=dict(
+                size=50,
+                cmax=mean_max,
+                cmin=mean_min,
+                color=means,
+                colorbar=dict(
+                    title="Means"
                 ),
-                error_y=dict(type='data',
-                    array=variances,
-                    color = 'black',
-                    thickness = 4,
-                    width = 3,
-                    visible=True),
-                customdata=np.transpose([variances, number_of_videos, last_video_watched]),
-                hovertemplate="<br>".join([
-                        "Topic: %{x}",
-                        "Mean: %{y}",
-                        "Variance: %{customdata[0]}",
-                        "Number of Videos Watched: %{customdata[1]}",
-                        "Last Video Watched On: %{customdata[2]}",
-                        "<extra></extra>"]),
-                mode="markers"),
-                layout = layout_data)
-        else:
-            self.figure = go.Figure(data=go.Scatter(
-                x=titles,
-                y=means,
-                marker=dict(
-                    size=50,
-                    cmax=mean_max,
-                    cmin=mean_min,
-                    color=means,
-                    colorbar=dict(
-                        title="Means"
-                    ),
-                    colorscale="Greens" 
-                ),
-                error_y=dict(type='data',
-                    array=variances,
-                    color = 'black',
-                    thickness = 4,
-                    width = 3,
-                    visible=True),
-                customdata=variances,
-                hovertemplate="<br>".join([
-                        "Topic: %{x}",
-                        "Mean: %{y}",
-                        "Variance: %{customdata}",
-                        "<extra></extra>"]),
-                mode="markers"),
-                layout = layout_data)
+                colorscale="Greens" 
+            ),
+            error_y=dict(type='data',
+                array=variances,
+                color = 'black',
+                thickness = 4,
+                width = 3,
+                visible=True),
+            customdata=np.transpose([variances, number_of_videos, last_video_watched])
+                    if history else
+                    variances,
+            hovertemplate="<br>".join([
+                    "Topic: %{x}",
+                    "Mean: %{y}",
+                    "Variance: %{customdata[0]}",
+                    "Number of Videos Watched: %{customdata[1]}",
+                    "Last Video Watched On: %{customdata[2]}",
+                    "<extra></extra>"])
+                    if history else
+                    "<br>".join([
+                    "Topic: %{x}",
+                    "Mean: %{y}",
+                    "Variance: %{customdata}",
+                    "<extra></extra>"]),
+            mode="markers"),
+            layout = layout_data)
+
         return self
         
     def _trace():
