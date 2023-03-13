@@ -1,6 +1,12 @@
 API Reference
 =============
 
+Shown is the class and function hierarchy of TrueLearn.
+
+For a more detailed description of the decisions made during implementation,
+please refer to the :ref:`design` section.
+
+
 :mod:`truelearn.learning`: Contains the classifiers for learning
 ================================================================
 .. automodule:: truelearn.learning
