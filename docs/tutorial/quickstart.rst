@@ -1,6 +1,6 @@
 .. _installation:
 
-Quick Start Guide
-=================
+Getting Started
+===============
 
 1. Install Truelearn

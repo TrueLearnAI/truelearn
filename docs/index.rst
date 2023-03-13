@@ -8,10 +8,20 @@ Welcome to TrueLearn's documentation!
 .. toctree::
    :maxdepth: 2
    :hidden:
+   :caption: User Guide
 
    tutorial/quickstart
+   examples/index
    modules/api_reference
+
+.. toctree::
+   :maxdepth: 1
+   :hidden:
+   :caption: Development
+
    dev/index
+
+
 
 
 
@@ -52,8 +62,8 @@ The bibtex entry for the publication is as follows:
 
 
 
-Getting Started
----------------
+Get Started
+-----------
 
 See the :ref:`installation` for a quick introduction to the package.
 
