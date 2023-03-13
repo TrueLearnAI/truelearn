@@ -1,5 +1,5 @@
 import dataclasses
-from typing import Dict
+from typing import NamedTuple
 
 from ._knowledge import Knowledge
 
@@ -66,28 +66,29 @@ class LearnerMetaModel:
         >>> # construct an empty learner meta model
         >>> LearnerMetaModel()  # doctest:+ELLIPSIS
         LearnerMetaModel(learner_novelty=..., learner_interest=..., \
-novelty_weight={'mean': 0.0, 'variance': 1.0}, interest_weight=..., bias_weight=...)
+novelty_weight=Weights(mean=0.0, variance=0.5), interest_weight=..., bias_weight=...)
         >>> # construct a learner meta model with given learner models
         >>> learner_novelty = LearnerModel()
         >>> learner_interest = LearnerModel()
         >>> LearnerMetaModel(learner_novelty=learner_novelty,\
 learner_interest=learner_novelty)
         LearnerMetaModel(learner_novelty=..., learner_interest=..., \
-novelty_weight={'mean': 0.0, 'variance': 1.0}, interest_weight=..., bias_weight=...)
+novelty_weight=Weights(mean=0.0, variance=0.5), interest_weight=..., bias_weight=...)
         >>> # construct a learner meta model with custom weights
-        >>> LearnerMetaModel(bias_weight={"mean": 1.0, "variance": 2.0})
+        >>> bias_weight = LearnerMetaModel.Weights(mean=1.0, variance=2.0)
+        >>> LearnerMetaModel(bias_weight=bias_weight)
         LearnerMetaModel(learner_novelty=..., learner_interest=..., \
-novelty_weight=..., interest_weight=..., bias_weight={'mean': 1.0, 'variance': 2.0})
+novelty_weight=..., interest_weight=..., bias_weight=Weights(mean=1.0, variance=2.0))
     """
+
+    class Weights(NamedTuple):
+        """A namedtuple that represents the weights used in LearnerMetaModel."""
+
+        mean: float = 0.0
+        variance: float = 0.5
 
     learner_novelty: LearnerModel = dataclasses.field(default_factory=LearnerModel)
     learner_interest: LearnerModel = dataclasses.field(default_factory=LearnerModel)
-    novelty_weight: Dict[str, float] = dataclasses.field(
-        default_factory=lambda: {"mean": 0.0, "variance": 1.0}
-    )
-    interest_weight: Dict[str, float] = dataclasses.field(
-        default_factory=lambda: {"mean": 0.0, "variance": 1.0}
-    )
-    bias_weight: Dict[str, float] = dataclasses.field(
-        default_factory=lambda: {"mean": 0.0, "variance": 1.0}
-    )
+    novelty_weight: Weights = Weights()
+    interest_weight: Weights = Weights()
+    bias_weight: Weights = Weights()

@@ -97,11 +97,11 @@ class LinePlotter(BasePlotter):
 
         traces = [self._trace(tr_data, visualise_variance) for tr_data in content]
 
-        layout = self._layout((title, x_label, y_label))
+        layout_data = self._layout((title, x_label, y_label))
 
         self.figure = go.Figure(
             data=traces,
-            layout=layout
+            layout=layout_data
         )
 
         return self

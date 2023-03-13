@@ -38,11 +38,11 @@ class PersistentClassifier(BaseClassifier):
         Args:
             engage_with_last: whether the learner engages with the last learnable unit.
         """
-        self._validate_params(engage_with_last=engage_with_last)
-
         super().__init__()
 
         self.engage_with_last = engage_with_last
+
+        self._validate_params()
 
     def fit(self, x: EventModel, y: bool) -> Self:
         self.engage_with_last = y

@@ -111,6 +111,35 @@ class BasePlotter(ABC):
         )
 
     @final
+    def _to_png(
+            self,
+            path: str,
+            width: int=500,
+            height: int=500
+        ) -> None:
+        """Exports the visualisation as a png file.
+
+        Args:
+            path: the local file path in which to create the image file.
+        """
+        self._static_export(path,"png")
+
+
+    @final
+    def _to_jpeg(
+            self,
+            path: str,
+            width: int=500,
+            height: int=500
+        ) -> None:
+        """Exports the visualisation as a jpeg file.
+
+        Args:
+            path: the local file path in which to create the image file.
+        """
+        self._static_export(path,"jpeg")
+
+    @final
     def _html_export(
             self,
             path: str,
