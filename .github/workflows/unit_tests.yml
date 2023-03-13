@@ -1,52 +1,52 @@
 name: Unit Tests
 on:
-    push:
-        branches:
-            - main
-    pull_request:
-        branches:
-            - main
-    workflow_dispatch:
-    workflow_call:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+  workflow_call:
 
 jobs:
-    unit_tests:
-        strategy:
-            matrix:
-                python-version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
-                os: [ubuntu-latest, windows-latest, macos-latest]
-        runs-on: ${{ matrix.os }}
-        steps:
-            - name: Checkout Repo
-              uses: actions/checkout@v3
+  unit_tests:
+    strategy:
+      matrix:
+        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
 
-            - name: Setup Python ${{ matrix.python-version }}
-              uses: actions/setup-python@v4.4.0
-              with:
-                  python-version: ${{ matrix.python-version }}
-                  cache: "pip" # cache dependencies
-                  cache-dependency-path: "pyproject.toml"
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4.4.0
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: "pip" # cache dependencies
+          cache-dependency-path: "pyproject.toml"
 
-            - name: Install Project Dependencies
-              run: |
-                  pip install .[tests]
+      - name: Install Project Dependencies
+        run: |
+          pip install .[tests]
 
-              # Pytest generates an XML report
-            - name: Execute tests
-              run: |
-                  # Config in pyproject.toml
-                  # Calling via python adds the current directory to sys path
-                  # Prevents module not found errors
-                  python -m pytest --junitxml=unit_test_report.xml
-              env:
-                  WIKIFIER_API_KEY: ${{ secrets.WIKIFIER_API_KEY }}
+        # Pytest generates an XML report
+      - name: Execute tests
+        run: |
+          # Config in pyproject.toml
+          # Calling via python adds the current directory to sys path
+          # Prevents module not found errors
+          python -m pytest --junitxml=unit_test_report.xml
+        env:
+          WIKIFIER_API_KEY: ${{ secrets.WIKIFIER_API_KEY }}
 
-              # Convert the XML report to GitHub annotations
-            - name: Convert test results to Github Annotations
-              uses: mikepenz/action-junit-report@v3
-              # Only produce check run annotations if the tests fail
-              if: failure()
-              with:
-                  report_paths: unit_test_report.xml
-                  check_name: "Unit test Report"
-                  detailed_summary: true
+        # Convert the XML report to GitHub annotations
+      - name: Convert test results to Github Annotations
+        uses: mikepenz/action-junit-report@v3
+        # Only produce check run annotations if the tests fail
+        if: failure()
+        with:
+          report_paths: unit_test_report.xml
+          check_name: "Unit test Report"
+          detailed_summary: true

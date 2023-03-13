@@ -1,47 +1,47 @@
 name: Code Coverage
 on:
-    push:
-        branches:
-            - main
-    pull_request:
-        branches:
-            - main
-    workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
 
 jobs:
-    code_coverage:
-        runs-on: ubuntu-latest
+  code_coverage:
+    runs-on: ubuntu-latest
 
-        steps:
-            - name: Checkout Repo
-              uses: actions/checkout@v3
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
 
-            - name: Setup Python
-              uses: actions/setup-python@v4.4.0
-              with:
-                  python-version: "3.7"
-                  cache: "pip" # cache dependencies
-                  cache-dependency-path: "pyproject.toml"
+      - name: Setup Python
+        uses: actions/setup-python@v4.4.0
+        with:
+          python-version: "3.7"
+          cache: "pip" # cache dependencies
+          cache-dependency-path: "pyproject.toml"
 
-            - name: Install Project Dependencies
-              run: |
-                  pip install .[tests]
+      - name: Install Project Dependencies
+        run: |
+          pip install .[tests]
 
-            - name: Calculate coverage
-              run: |
-                  # Config in pyproject.toml
-                  # Calling via python adds the current directory to sys path
-                  # Prevents module not found errors
-                  python -m pytest --cov --cov-report "xml:coverage.xml"
-              env:
-                  WIKIFIER_API_KEY: ${{ secrets.WIKIFIER_API_KEY }}
+      - name: Calculate coverage
+        run: |
+          # Config in pyproject.toml
+          # Calling via python adds the current directory to sys path
+          # Prevents module not found errors
+          python -m pytest --cov --cov-report "xml:coverage.xml"
+        env:
+          WIKIFIER_API_KEY: ${{ secrets.WIKIFIER_API_KEY }}
 
-            - name: Update CodeCov
-              uses: codecov/codecov-action@v3
-              with:
-                  token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
-                  files: ./coverage.xml
-                  flags: Unit_Tests # optional
-                  # name: codecov-umbrella # optional
-                  fail_ci_if_error: true # optional (default = false)
-                  verbose: true # optional (default = false)
+      - name: Update CodeCov
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
+          files: ./coverage.xml
+          flags: Unit_Tests # optional
+          # name: codecov-umbrella # optional
+          fail_ci_if_error: true # optional (default = false)
+          verbose: true # optional (default = false)
