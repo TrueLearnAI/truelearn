@@ -51,14 +51,14 @@ This work is related to the paper `TrueLearn A Family of Bayesian Algorithms to 
 
 .. _TrueLearn A Family of Bayesian Algorithms to Match Lifelong Learners to Open Educational Resources: https://arxiv.org/abs/2002.00001
 
-The bibtex entry for the publication is as follows:
+The bibtex entry for the publication is as follows::
 
-
-    @inproceedings{truelearn2020,
-	    author = {Bulathwela, S. and Perez-Ortiz, M. and Yilmaz, E. and Shawe-Taylor, J.},
-	    title={TrueLearn: A Family of Bayesian Algorithms to Match Lifelong Learners to Open Educational Resources},
-	    booktitle = {AAAI Conference on Artificial Intelligence},
-	    year = {2020}}
+   @inproceedings{truelearn2020,
+       author = {Bulathwela, S. and Perez-Ortiz, M. and Yilmaz, E. and Shawe-Taylor, J.},
+       title={TrueLearn: A Family of Bayesian Algorithms to Match Lifelong Learners to Open Educational Resources},
+       booktitle = {AAAI Conference on Artificial Intelligence},
+       year = {2020}
+   }
 
 
 
