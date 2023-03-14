@@ -1,8 +1,7 @@
 import datetime
-import numpy as np
-from typing import Dict, Iterable, Union, Tuple
-from typing_extensions import Self
+from typing import Iterable, Tuple
 
+import numpy as np
 import plotly.graph_objects as go
 
 from truelearn.models import Knowledge
@@ -14,13 +13,14 @@ from truelearn.utils.visualisations._base import (
 
 
 class BubblePlotter(BasePlotter):
-    """Provides utilities for plotting bar charts."""
+    """Provides utilities for plotting bubble charts."""
+
     def __init__(self):
         self.figure = None
-    
+
     def _standardise_data(
             self, raw_data: KnowledgeDict, history: bool
-        ) -> Iterable[Tuple[Iterable, Iterable, str, Iterable]]:
+    ) -> Iterable[Tuple[Iterable, Iterable, str, Iterable]]:
         """Converts an object of KnowledgeDict type to one suitable for plot().
         
         Optional utility function that converts the dictionary representation
@@ -33,15 +33,15 @@ class BubblePlotter(BasePlotter):
 
         Returns:
             A data structure usable by the plot() method to generate
-            the bar chart.
+            the bubble chart.
         """
         raw_data = knowledge_to_dict(raw_data)
 
         content = []
         for _, kc in raw_data.items():
-            title=kc['title']
-            mean=kc['mean']
-            variance=kc['variance']
+            title = kc['title']
+            mean = kc['mean']
+            variance = kc['variance']
             timestamps = []
             # if Knowledge=HistoryAwareKnowledgeComponent:
             if history:
@@ -49,7 +49,8 @@ class BubblePlotter(BasePlotter):
                     for _, _, timestamp in kc['history']:
                         timestamps.append(timestamp)
                     timestamps = list(map(
-                        lambda t: datetime.datetime.utcfromtimestamp(t).strftime("%Y-%m-%d"),
+                        lambda t: datetime.datetime.utcfromtimestamp(t).strftime(
+                            "%Y-%m-%d"),
                         timestamps
                     ))
                     data = (mean, variance, title, timestamps)
@@ -60,9 +61,9 @@ class BubblePlotter(BasePlotter):
                     ) from err
             else:
                 data = (mean, variance, title)
-            
+
             content.append(data)
-        
+
         content.sort(
             key=lambda data: data[0],  # sort based on mean
             reverse=True
@@ -74,36 +75,31 @@ class BubblePlotter(BasePlotter):
             self,
             content: Iterable[Tuple[Iterable, Iterable, str]],
             history: bool,
-            top_n: int=5,
-            title: str="Comparison of learner's top 5 subjects",
-            x_label: str="Mean",
-            y_label: str="Variance",
-        ) -> go.Scatter:
+            top_n: int = 5,
+            title: str = "Comparison of learner's top 5 subjects",
+            x_label: str = "Mean",
+            y_label: str = "Variance",
+    ) -> go.Scatter:
 
         """
-        Plots the bar chart using the data.
+        Plots the bubble chart using the data.
 
         Uses content and layout_data to generate a Figure object and stores
         it into self.figure.
 
         Args:
-            layout: a tuple of the form (title, x_label, y_label) where
-              title is the what the visualisation will be named,
-              subjects will be the label of the x-axis,
-              mean will be the label of the y-axis,
-              variance will be represented by the colour of the bars.
-              content: an iterable of tuples, where each tuple is used to plot
-              bars. Each tuple is in the form (mean, variance, url) where 
-              mean is the TrueSkill rating of the user for a specific subject,
-              variance represents the certainty of the model in this mean and 
-              url which is used to extract the subject as a string without https 
+            history: a Boolean value to indicate whether or not the user wants
+              to visualise the history component of the knowledge. If set to 
+              True, number of videos watched by the user and the timestamp of
+              the last video watched by the user will be displayed by the 
+              visualisation hover text.
             top_n: the number of knowledge components to visualise.
               e.g. top_n = 5 would visualise the top 5 knowledge components 
               ranked by mean.
         """
         if isinstance(content, Knowledge):
             content = self._standardise_data(content, history)
-        
+
         content = content[:top_n]
 
         layout_data = self._layout((title, x_label, y_label))
@@ -128,7 +124,7 @@ class BubblePlotter(BasePlotter):
             marker=dict(
                 size=means,
                 sizemode='area',
-                sizeref=2.*max(means)/(200.**2),
+                sizeref=2. * max(means) / (200. ** 2),
                 sizemin=4,
                 color=variances,
                 colorbar=dict(
@@ -138,25 +134,25 @@ class BubblePlotter(BasePlotter):
                 reversescale=True
             ),
             customdata=np.transpose([titles, number_of_videos, last_video_watched])
-                    if history else
-                    titles,
+            if history else
+            titles,
             hovertemplate="<br>".join([
-                    "Topic: %{customdata[0]}",
-                    "Mean: %{x}",
-                    "Variance: %{y}",
-                    "Number of Videos Watched: %{customdata[1]}",
-                    "Last Video Watched On: %{customdata[2]}",
-                    "<extra></extra>"])
-                    if history else
-                    "<br>".join([
-                    "Topic: %{customdata}",
-                    "Mean: %{x}",
-                    "Variance: %{y}",
-                    "<extra></extra>"]),
+                "Topic: %{customdata[0]}",
+                "Mean: %{x}",
+                "Variance: %{y}",
+                "Number of Videos Watched: %{customdata[1]}",
+                "Last Video Watched On: %{customdata[2]}",
+                "<extra></extra>"])
+            if history else
+            "<br>".join([
+                "Topic: %{customdata}",
+                "Mean: %{x}",
+                "Variance: %{y}",
+                "<extra></extra>"]),
             mode="markers"),
-            layout = layout_data)      
+            layout=layout_data)
 
         return self
 
-    def _trace():
+    def _trace(self):
         pass

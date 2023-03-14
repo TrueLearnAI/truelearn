@@ -9,12 +9,12 @@ from plotly import (
 
 from truelearn.models import Knowledge
 
-
 KnowledgeDict = Dict[str, Dict[str, Union[str, float]]]
 
 
 class BasePlotter(ABC):
     """The base class of all the plotters."""
+
     @abstractmethod
     def _standardise_data(self, raw_data: Knowledge) -> Iterable:
         """Converts an object of KnowledgeDict type to one suitable for plot().
@@ -36,7 +36,7 @@ class BasePlotter(ABC):
             self,
             layout_data: Tuple[str, str, str],
             content: Union[Knowledge, Iterable[Tuple]]
-        ) -> Self:
+    ) -> Self:
         """Creates a Plotly Figure object from the data.
 
         Args:
@@ -68,13 +68,13 @@ class BasePlotter(ABC):
             the Layout object created with layout_data.
         """
         title, x_label, y_label = layout_data
-        
+
         layout = go.Layout(
             title=title,
             xaxis=dict(title=x_label),
             yaxis=dict(title=y_label),
         )
-        
+
         return layout
 
     @final
@@ -90,9 +90,9 @@ class BasePlotter(ABC):
             self,
             path: str,
             format: str,
-            width: int=500,
-            height: int=500
-        ) -> None:
+            width: int = 500,
+            height: int = 500
+    ) -> None:
         """Exports the visualisation as an image file.
 
         Args:
@@ -114,38 +114,37 @@ class BasePlotter(ABC):
     def _to_png(
             self,
             path: str,
-            width: int=500,
-            height: int=500
-        ) -> None:
+            width: int = 500,
+            height: int = 500
+    ) -> None:
         """Exports the visualisation as a png file.
 
         Args:
             path: the local file path in which to create the image file.
         """
-        self._static_export(path,"png")
-
+        self._static_export(path, "png")
 
     @final
     def _to_jpeg(
             self,
             path: str,
-            width: int=500,
-            height: int=500
-        ) -> None:
+            width: int = 500,
+            height: int = 500
+    ) -> None:
         """Exports the visualisation as a jpeg file.
 
         Args:
             path: the local file path in which to create the image file.
         """
-        self._static_export(path,"jpeg")
+        self._static_export(path, "jpeg")
 
     @final
     def _html_export(
             self,
             path: str,
-            width: int=500,
-            height: int=500
-        ) -> None:
+            width: int = 500,
+            height: int = 500
+    ) -> None:
         """Exports the visualisation to an HTML file.
 
         This will result in the visualisation being interactable.
@@ -162,7 +161,8 @@ class BasePlotter(ABC):
         )
 
 
-def knowledge_to_dict(knowledge: Knowledge, mapping: Optional[Dict[int, str]] = None) -> KnowledgeDict:
+def knowledge_to_dict(knowledge: Knowledge,
+                      mapping: Optional[Dict[int, str]] = None) -> KnowledgeDict:
     """Convert knowledge to an easy-to-process Python dictionary.
     
     Returns a copy of the knowledge object in which all the knowledge
@@ -179,5 +179,5 @@ def knowledge_to_dict(knowledge: Knowledge, mapping: Optional[Dict[int, str]] = 
         if mapping:
             topic = mapping[topic]
         knowledge_dict[topic] = kc.export_as_dict()
-    
+
     return knowledge_dict

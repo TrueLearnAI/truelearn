@@ -3,6 +3,7 @@ from typing import Dict, Iterable, Union, Tuple, Optional
 from typing_extensions import Self
 
 import plotly.graph_objects as go
+from typing_extensions import Self
 
 from truelearn.models import Knowledge
 from truelearn.utils.visualisations._base import (
@@ -13,9 +14,10 @@ from truelearn.utils.visualisations._base import (
 
 class LinePlotter(BasePlotter):
     """Provides utilities for plotting line charts."""
+
     def __init__(self):
         self.figure = None
-    
+
     def _standardise_data(
             self, raw_data: Knowledge, topic_id: Optional[str]=None
         ) -> Iterable[Tuple[str, Iterable, Iterable]]:
@@ -46,7 +48,7 @@ class LinePlotter(BasePlotter):
                 means.append(mean)
                 variances.append(variance)
                 timestamps.append(timestamp)
-            
+
             timestamps = list(map(
                 lambda t: datetime.datetime.utcfromtimestamp(t).strftime("%Y-%m-%d"),
                 timestamps
@@ -162,7 +164,7 @@ class LinePlotter(BasePlotter):
             self,
             tr_data: Tuple[str, Iterable, Iterable],
             visualise_variance
-        ) -> go.Scatter:
+    ) -> go.Scatter:
         name, y_values, variances, x_values = tr_data
 
         trace = go.Scatter(
