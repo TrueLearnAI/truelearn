@@ -24,6 +24,6 @@ Then, create a virtual environment and activate it:
 
 Finally, install Truelearn using pip:
 
-``pip install truelearn # install truelearn``
+``pip install -U truelearn # install truelearn (latest version)``
 
 Remember to activate the virtual environment every time you want to use Truelearn.
