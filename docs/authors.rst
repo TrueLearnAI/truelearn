@@ -1,5 +1,5 @@
 Authors and Contributors
-^^^^^^^^^^^^^^^^^^^^^^^^
+------------------------
 
 `KD-7 <https://github.com/KD-7>`_,
 `yuxqiu <https://github.com/yuxqiu>`_,
