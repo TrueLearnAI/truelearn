@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  Code_Coverage:
+  code_coverage:
     runs-on: ubuntu-latest
 
     steps:
@@ -19,13 +19,13 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v4.4.0
         with:
-          python-version: '3.7'
-          cache: 'pip' # cache dependencies
-          cache-dependency-path: 'pyproject.toml'
+          python-version: "3.7"
+          cache: "pip" # cache dependencies
+          cache-dependency-path: "pyproject.toml"
 
       - name: Install Project Dependencies
-        run:  |
-            pip install .[tests]
+        run: |
+          pip install .[tests]
 
       - name: Calculate coverage
         run: |
