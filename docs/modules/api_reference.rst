@@ -6,6 +6,29 @@ Shown is the class and function hierarchy of TrueLearn.
 For a more detailed description of the decisions made during implementation,
 please refer to the :ref:`design` section.
 
+:mod:`truelearn.datasets`: Contains utilities for using datasets
+================================================================
+.. automodule:: truelearn.datasets
+   :no-members:
+   :show-inheritance:
+
+Classes
+-------
+.. currentmodule:: truelearn
+.. autosummary::
+    :toctree: generated/
+    :template: class.rst
+
+    datasets.PEEKKnowledgeComponentGenerator
+
+Functions
+---------
+.. currentmodule:: truelearn
+.. autosummary::
+    :toctree: generated/
+
+    datasets.load_peek_dataset
+    datasets.load_peek_dataset_raw
 
 :mod:`truelearn.learning`: Contains the classifiers for learning
 ================================================================
