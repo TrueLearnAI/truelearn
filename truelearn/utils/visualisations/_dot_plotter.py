@@ -24,8 +24,10 @@ class DotPlotter(BasePlotter):
         
         Optional utility function that converts the dictionary representation
         of the learner's knowledge (obtainable via the knowledge_to_dict()
-        function) to the Iterable[Tuple[str, Iterable, Iterable]] used by plot.
-
+        function) to the Iterable[Tuple[Iterable, Iterable, str, Iterable]] 
+        or Iterable[Tuple[Iterable, Iterable, str]] used by plot. Tuple type 
+        depends on if user wants to visualise the history component of the
+        knowledge.
         Args:
             raw_data: dictionary representation of the learner's knowledge and
               knowledge components.
