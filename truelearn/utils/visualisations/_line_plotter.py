@@ -1,5 +1,6 @@
 import datetime
-from typing import Iterable, Tuple
+from typing import Dict, Iterable, Union, Tuple, Optional
+from typing_extensions import Self
 
 import plotly.graph_objects as go
 from typing_extensions import Self
@@ -18,8 +19,8 @@ class LinePlotter(BasePlotter):
         self.figure = None
 
     def _standardise_data(
-            self, raw_data: Knowledge
-    ) -> Iterable[Tuple[str, Iterable, Iterable]]:
+            self, raw_data: Knowledge, topic_id: Optional[str]=None
+        ) -> Iterable[Tuple[str, Iterable, Iterable]]:
         """Converts an object of KnowledgeDict type to one suitable for plot().
         
         Optional utility function that converts the dictionary representation
@@ -54,23 +55,33 @@ class LinePlotter(BasePlotter):
             ))
             tr_data = (title, means, variances, timestamps)
             content.append(tr_data)
-
+            # searching for an individual topic, we can return after finding it
+            if topic_id and title == topic_id:
+                print("DING!")
+                print(tr_data)
+                return tr_data
+        
         content.sort(
-            key=lambda tr_data: tr_data[1],  # sort based on mean
+            key=lambda tr_data: tr_data[1],
             reverse=True
         )
+
+        if topic_id:
+            # if we were looking for a topic id but found nothing
+            return None
 
         return content
 
     def plot(
             self,
             content: Iterable[Tuple[str, Iterable, Iterable]],
-            top_n: int = 5,
-            visualise_variance: bool = True,
-            title: str = "Mean of user's top 5 topics over time",
-            x_label: str = "Time",
-            y_label: str = "Mean",
-    ) -> Self:
+            top_n: int=5,
+            topic_id: str="",
+            visualise_variance: bool=True,
+            title: str="Mean of user's top 5 topics over time",
+            x_label: str="Time",
+            y_label: str="Mean",
+        ) -> Self:
         """Plots the line chart using the data.
 
         Uses content and layout_data to generate a Figure object and stores
@@ -90,13 +101,28 @@ class LinePlotter(BasePlotter):
               e.g. top_n = 5 would visualise the top 5 knowledge components 
               ranked by mean.
         """
+        if isinstance(content, list):
+            self._plot_multiple(content, topic_id, visualise_variance, title, x_label, y_label)
+        else:
+            self._plot_single(content, top_n, visualise_variance, title, x_label, y_label)
+
+        return self
+    
+    def _plot_single(
+            self,
+            content: Iterable[Tuple[str, Iterable, Iterable]],
+            top_n: int=5,
+            visualise_variance: bool=True,
+            title: str="Mean of user's top 5 topics over time",
+            x_label: str="Time",
+            y_label: str="Mean",
+    ):
         if isinstance(content, Knowledge):
             content = self._standardise_data(content)
+            
+        data = content[:top_n]
 
-            # have to move this outside of the if block
-            content = content[:top_n]
-
-        traces = [self._trace(tr_data, visualise_variance) for tr_data in content]
+        traces = [self._trace(tr_data, visualise_variance) for tr_data in data]
 
         layout_data = self._layout((title, x_label, y_label))
 
@@ -104,8 +130,35 @@ class LinePlotter(BasePlotter):
             data=traces,
             layout=layout_data
         )
+    
+    def _plot_multiple(
+            self,
+            content_list: list[Union[Knowledge, Iterable[Tuple[str, Iterable, Iterable]]]],
+            topic_id: str,
+            visualise_variance: bool=True,
+            title: str="Mean of user's top 5 topics over time",
+            x_label: str="Time",
+            y_label: str="Mean",    
+        ):
+        """
+        """
+        data = []
+        for content in content_list:
+            if isinstance(content, Knowledge):
+                topic_data = self._standardise_data(content, topic_id)
+                if topic_data:
+                    data.append(topic_data)
+            else:  # content is already in the right format
+                data.append(content)
+        
+        traces = [self._trace(tr_data, visualise_variance) for tr_data in data]
 
-        return self
+        layout_data = self._layout((title, x_label, y_label))
+
+        self.figure = go.Figure(
+            data=traces,
+            layout=layout_data
+        )
 
     def _trace(
             self,
