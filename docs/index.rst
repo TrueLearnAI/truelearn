@@ -8,7 +8,6 @@ Welcome to TrueLearn's documentation!
 .. toctree::
    :maxdepth: 2
    :hidden:
-   :caption: User Guide
 
    tutorial/quickstart
    examples/index
