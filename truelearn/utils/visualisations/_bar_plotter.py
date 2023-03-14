@@ -89,16 +89,14 @@ class BarPlotter(BasePlotter):
         it into self.figure.
 
         Args:
-            layout: a tuple of the form (title, x_label, y_label) where
-              title is the what the visualisation will be named,
-              subjects will be the label of the x-axis,
-              mean will be the label of the y-axis,
-              variance will be represented by the colour of the bars.
-              content: an iterable of tuples, where each tuple is used to plot
-              bars. Each tuple is in the form (mean, variance, url) where 
-              mean is the TrueSkill rating of the user for a specific subject,
-              variance represents the certainty of the model in this mean and 
-              url which is used to extract the subject as a string without https 
+            history: a Boolean value to indicate whether or not the user wants
+              to visualise the history component of the knowledge. If set to 
+              True, number of videos watched by the user and the timestamp of
+              the last video watched by the user will be displayed by the 
+              visualisation hover text.
+            top_n: the number of knowledge components to visualise.
+              e.g. top_n = 5 would visualise the top 5 knowledge components 
+              ranked by mean.
         """
         if isinstance(content, Knowledge):
             content = self._standardise_data(content, history)
