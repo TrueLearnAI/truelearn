@@ -20,6 +20,7 @@ Classes
     :toctree: generated/
     :template: class.rst
 
+    learning.BaseClassifier
     learning.INKClassifier
     learning.InterestClassifier
     learning.KnowledgeClassifier
