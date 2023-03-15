@@ -19,7 +19,7 @@ from truelearn.models import (
     EventModel,
     Knowledge,
     KnowledgeComponent,
-    AbstractKnowledgeComponent,
+    BaseKnowledgeComponent,
 )
 from ._base import RemoteFileMetaData, check_and_download_file
 
@@ -63,7 +63,7 @@ class PEEKKnowledgeComponentGenerator(Protocol):
         url: str,
         title: str,
         description: str,
-    ) -> AbstractKnowledgeComponent:
+    ) -> BaseKnowledgeComponent:
         ...  # pragma: no cover
 
 
