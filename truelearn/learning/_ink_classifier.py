@@ -6,7 +6,8 @@ import trueskill
 import mpmath
 
 from truelearn.models import EventModel, LearnerMetaModel
-from ._base import BaseClassifier, TypeConstraint
+from ._base import BaseClassifier
+from ._constraint import TypeConstraint
 from ._novelty_classifier import NoveltyClassifier
 from ._interest_classifier import InterestClassifier
 

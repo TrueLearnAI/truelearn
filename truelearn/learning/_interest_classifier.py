@@ -8,11 +8,8 @@ from truelearn.models import (
     LearnerModel,
     BaseKnowledgeComponent,
 )
-from ._base import (
-    InterestNoveltyKnowledgeBaseClassifier,
-    TypeConstraint,
-    ValueConstraint,
-)
+from ._base import InterestNoveltyKnowledgeBaseClassifier
+from ._constraint import TypeConstraint, ValueConstraint
 
 
 class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
