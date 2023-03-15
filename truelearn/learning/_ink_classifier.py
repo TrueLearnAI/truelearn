@@ -3,10 +3,9 @@ from typing import Any, Optional, Dict, Tuple
 from typing_extensions import Self, Final
 
 import trueskill
-import mpmath
 
 from truelearn.models import EventModel, LearnerModel, LearnerMetaWeights
-from ._base import BaseClassifier
+from ._base import BaseClassifier, team_sum_quality
 from ._constraint import TypeConstraint
 from ._novelty_classifier import NoveltyClassifier
 from ._interest_classifier import InterestClassifier
@@ -139,7 +138,6 @@ variance=1.07022...), bias_weights=Weights(mean=0.32119..., variance=0.88150...)
 
         self._validate_params()
 
-    # TODO: define a general team_sum_quality
     def __eval_matching_quality(
         self,
         *,
@@ -174,19 +172,26 @@ variance=1.07022...), bias_weights=Weights(mean=0.32119..., variance=0.88150...)
             of the learner and the content. The higher the value,
             the better the match.
         """
-        difference = (
-            (novelty_weights.mean * pred_novelty)
-            + (interest_weights.mean * pred_interest)
-            + (bias_weights.mean * pred_bias)
-            - self._threshold
-        )
-        std = math.sqrt(
-            novelty_weights.variance * pred_novelty
-            + interest_weights.variance * pred_interest
-            + bias_weights.variance * pred_bias
-        )
+        team_learner_mean = [
+            novelty_weights.mean * pred_novelty,
+            interest_weights.mean * pred_interest,
+            bias_weights.mean * pred_bias,
+        ]
+        team_learner_variance = [
+            novelty_weights.variance * pred_novelty,
+            interest_weights.variance * pred_interest,
+            bias_weights.variance * pred_bias,
+        ]
+        team_content_mean = [self._threshold]
+        team_content_variance = []
 
-        return float(mpmath.ncdf(difference, mu=0, sigma=std))
+        return team_sum_quality(
+            learner_mean=team_learner_mean,
+            learner_variance=team_learner_variance,
+            content_mean=team_content_mean,
+            content_variance=team_content_variance,
+            beta=0,
+        )
 
     def __create_env(self):
         """Create the trueskill environment used in the training/prediction process."""

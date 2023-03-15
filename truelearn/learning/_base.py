@@ -232,6 +232,93 @@ def draw_proba_static_constraint(obj: BaseClassifier, _):
         )
 
 
+def team_sum_quality(
+    *,
+    learner_mean: Iterable[float],
+    learner_variance: Iterable[float],
+    content_mean: Iterable[float],
+    content_variance: Iterable[float],
+    beta: float,
+) -> float:
+    """Return the probability that the learner engages with the content.
+
+    Args:
+        learner_mean:
+            An iterable of the mean of knowledge components that come from the learner.
+        learner_variance:
+            An iterable of the variance of knowledge components that come from
+            the learner.
+        content_mean:
+            An iterable of the mean of knowledge components that come from the content.
+        content_variance:
+            An iterable of the variance of knowledge components that come from
+            the content.
+        beta:
+            The noise factor.
+
+    Returns:
+        The probability that the learner engages with the content.
+    """
+    difference = sum(learner_mean) - sum(content_mean)
+    std = math.sqrt(sum(learner_variance) + sum(content_variance) + beta)
+    return float(mpmath.ncdf(difference, mu=0, sigma=std))
+
+
+def team_sum_quality_from_kcs(
+    learner_kcs: Iterable[BaseKnowledgeComponent],
+    content_kcs: Iterable[BaseKnowledgeComponent],
+    beta: float,
+) -> float:
+    """Return the probability that the learner engages with the learnable unit.
+
+    Args:
+        learner_kcs: An iterable of knowledge components that come from the learner.
+        content_kcs: An iterable of knowledge components that come from the content.
+        beta: The noise factor.
+
+    Returns:
+        The probability that the learner engages with the learnable unit.
+    """
+    # make them list because we use them more than one time later
+    learner_kcs = list(learner_kcs)
+    content_kcs = list(content_kcs)
+
+    team_learner_mean = map(lambda kc: kc.mean, learner_kcs)
+    team_learner_variance = map(lambda kc: kc.variance, learner_kcs)
+    team_content_mean = map(lambda kc: kc.mean, content_kcs)
+    team_content_variance = map(lambda kc: kc.variance, content_kcs)
+
+    return team_sum_quality(
+        learner_mean=team_learner_mean,
+        learner_variance=team_learner_variance,
+        content_mean=team_content_mean,
+        content_variance=team_content_variance,
+        beta=beta,
+    )
+
+
+def gather_trueskill_team(
+    env: trueskill.TrueSkill, kcs: Iterable[BaseKnowledgeComponent]
+) -> Tuple[trueskill.Rating, ...]:
+    """Return a tuple of trueskill Rating \
+    created from the given iterable of knowledge components.
+
+    Args:
+        env: The trueskill environment where the training/prediction happens.
+        kcs: An iterable of knowledge components.
+
+    Returns:
+        A tuple of trueskill Rating objects
+        created from the given iterable of knowledge components.
+    """
+    return tuple(
+        map(
+            lambda kc: env.create_rating(mu=kc.mean, sigma=math.sqrt(kc.variance)),
+            kcs,
+        )
+    )
+
+
 class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
     """A Base Classifier for KnowledgeClassifier, NoveltyClassifier \
     and InterestClassifier.
@@ -264,57 +351,6 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
         ],
         "draw_proba_factor": TypeConstraint(float),
     }
-
-    @staticmethod
-    def _team_sum_quality(
-        learner_kcs: Iterable[BaseKnowledgeComponent],
-        content_kcs: Iterable[BaseKnowledgeComponent],
-        beta: float,
-    ) -> float:
-        """Return the probability that the learner engages with the learnable unit.
-
-        Args:
-            learner_kcs: An iterable of knowledge components that come from the learner.
-            content_kcs: An iterable of knowledge components that come from the content.
-            beta: The noise factor.
-
-        Returns:
-            The probability that the learner engages with the learnable unit.
-        """
-        # make them list because we use them more than one time later
-        learner_kcs = list(learner_kcs)
-        content_kcs = list(content_kcs)
-
-        team_learner_mean = map(lambda kc: kc.mean, learner_kcs)
-        team_learner_variance = map(lambda kc: kc.variance, learner_kcs)
-        team_content_mean = map(lambda kc: kc.mean, content_kcs)
-        team_content_variance = map(lambda kc: kc.variance, content_kcs)
-
-        difference = sum(team_learner_mean) - sum(team_content_mean)
-        std = math.sqrt(sum(team_learner_variance) + sum(team_content_variance) + beta)
-        return float(mpmath.ncdf(difference, mu=0, sigma=std))
-
-    @staticmethod
-    def _gather_trueskill_team(
-        env: trueskill.TrueSkill, kcs: Iterable[BaseKnowledgeComponent]
-    ) -> Tuple[trueskill.Rating, ...]:
-        """Return a tuple of trueskill Rating \
-        created from the given iterable of knowledge components.
-
-        Args:
-            env: The trueskill environment where the training/prediction happens.
-            kcs: An iterable of knowledge components.
-
-        Returns:
-            A tuple of trueskill Rating objects
-            created from the given iterable of knowledge components.
-        """
-        return tuple(
-            map(
-                lambda kc: env.create_rating(mu=kc.mean, sigma=math.sqrt(kc.variance)),
-                kcs,
-            )
-        )
 
     def __init__(
         self,

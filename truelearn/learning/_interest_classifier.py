@@ -8,7 +8,11 @@ from truelearn.models import (
     LearnerModel,
     BaseKnowledgeComponent,
 )
-from ._base import InterestNoveltyKnowledgeBaseClassifier
+from ._base import (
+    InterestNoveltyKnowledgeBaseClassifier,
+    gather_trueskill_team,
+    team_sum_quality_from_kcs,
+)
 from ._constraint import TypeConstraint, ValueConstraint
 
 
@@ -246,12 +250,8 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
 
         learner_kcs_decayed = map(__apply_interest_decay, learner_kcs)
 
-        team_learner = InterestNoveltyKnowledgeBaseClassifier._gather_trueskill_team(
-            env, learner_kcs_decayed
-        )
-        team_content = InterestNoveltyKnowledgeBaseClassifier._gather_trueskill_team(
-            env, content_kcs
-        )
+        team_learner = gather_trueskill_team(env, learner_kcs_decayed)
+        team_content = gather_trueskill_team(env, content_kcs)
 
         # learner always wins in interest
         updated_team_learner, _ = env.rate([team_learner, team_content], ranks=[0, 1])
@@ -263,6 +263,4 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
         learner_kcs: Iterable[BaseKnowledgeComponent],
         content_kcs: Iterable[BaseKnowledgeComponent],
     ) -> float:
-        return InterestNoveltyKnowledgeBaseClassifier._team_sum_quality(
-            learner_kcs, content_kcs, self._beta
-        )
+        return team_sum_quality_from_kcs(learner_kcs, content_kcs, self._beta)

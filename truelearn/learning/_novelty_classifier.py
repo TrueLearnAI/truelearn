@@ -1,7 +1,7 @@
 from typing import Any, Optional, Dict, Iterable
 
 from truelearn.models import LearnerModel, BaseKnowledgeComponent
-from ._base import InterestNoveltyKnowledgeBaseClassifier
+from ._base import InterestNoveltyKnowledgeBaseClassifier, gather_trueskill_team
 
 import trueskill
 
@@ -148,12 +148,8 @@ KnowledgeComponent(mean=0.36833..., variance=0.26916..., ...), ...}), ...}
         # make it a list because we use them more than one time later
         learner_kcs = list(learner_kcs)
 
-        team_learner = InterestNoveltyKnowledgeBaseClassifier._gather_trueskill_team(
-            env, learner_kcs
-        )
-        team_content = InterestNoveltyKnowledgeBaseClassifier._gather_trueskill_team(
-            env, content_kcs
-        )
+        team_learner = gather_trueskill_team(env, learner_kcs)
+        team_content = gather_trueskill_team(env, content_kcs)
         team_learner_mean = map(lambda learner_kc: learner_kc.mean, learner_kcs)
         team_content_mean = map(lambda content_kc: content_kc.mean, content_kcs)
 
@@ -188,10 +184,6 @@ KnowledgeComponent(mean=0.36833..., variance=0.26916..., ...), ...}), ...}
         learner_kcs: Iterable[BaseKnowledgeComponent],
         content_kcs: Iterable[BaseKnowledgeComponent],
     ) -> float:
-        team_learner = InterestNoveltyKnowledgeBaseClassifier._gather_trueskill_team(
-            env, learner_kcs
-        )
-        team_content = InterestNoveltyKnowledgeBaseClassifier._gather_trueskill_team(
-            env, content_kcs
-        )
+        team_learner = gather_trueskill_team(env, learner_kcs)
+        team_content = gather_trueskill_team(env, content_kcs)
         return env.quality([team_learner, team_content])
