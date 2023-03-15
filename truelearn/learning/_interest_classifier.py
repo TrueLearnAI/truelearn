@@ -6,7 +6,7 @@ import trueskill
 
 from truelearn.models import (
     LearnerModel,
-    AbstractKnowledgeComponent,
+    BaseKnowledgeComponent,
 )
 from ._base import (
     InterestNoveltyKnowledgeBaseClassifier,
@@ -192,8 +192,8 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
     def _generate_ratings(
         self,
         env: trueskill.TrueSkill,
-        learner_kcs: Iterable[AbstractKnowledgeComponent],
-        content_kcs: Iterable[AbstractKnowledgeComponent],
+        learner_kcs: Iterable[BaseKnowledgeComponent],
+        content_kcs: Iterable[BaseKnowledgeComponent],
         event_time: Optional[float],
         _y: bool,
     ) -> Iterable[trueskill.Rating]:
@@ -234,8 +234,8 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
         decay_func = self.__get_decay_func()
 
         def __apply_interest_decay(
-            learner_kc: AbstractKnowledgeComponent,
-        ) -> AbstractKnowledgeComponent:
+            learner_kc: BaseKnowledgeComponent,
+        ) -> BaseKnowledgeComponent:
             if learner_kc.timestamp is None:
                 raise ValueError(
                     "The timestamp field of knowledge component"
@@ -263,8 +263,8 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
     def _eval_matching_quality(
         self,
         env: trueskill.TrueSkill,
-        learner_kcs: Iterable[AbstractKnowledgeComponent],
-        content_kcs: Iterable[AbstractKnowledgeComponent],
+        learner_kcs: Iterable[BaseKnowledgeComponent],
+        content_kcs: Iterable[BaseKnowledgeComponent],
     ) -> float:
         return InterestNoveltyKnowledgeBaseClassifier._team_sum_quality(
             learner_kcs, content_kcs, self._beta

@@ -1,6 +1,6 @@
 from typing import Any, Optional, Dict, Iterable
 
-from truelearn.models import LearnerModel, AbstractKnowledgeComponent
+from truelearn.models import LearnerModel, BaseKnowledgeComponent
 from ._base import InterestNoveltyKnowledgeBaseClassifier
 
 import trueskill
@@ -140,8 +140,8 @@ KnowledgeComponent(mean=0.36833..., variance=0.26916..., ...), ...}), ...}
     def _generate_ratings(  # pylint: disable=too-many-arguments
         self,
         env: trueskill.TrueSkill,
-        learner_kcs: Iterable[AbstractKnowledgeComponent],
-        content_kcs: Iterable[AbstractKnowledgeComponent],
+        learner_kcs: Iterable[BaseKnowledgeComponent],
+        content_kcs: Iterable[BaseKnowledgeComponent],
         event_time: Optional[float],
         y: bool,
     ) -> Iterable[trueskill.Rating]:
@@ -185,8 +185,8 @@ KnowledgeComponent(mean=0.36833..., variance=0.26916..., ...), ...}), ...}
     def _eval_matching_quality(
         self,
         env: trueskill.TrueSkill,
-        learner_kcs: Iterable[AbstractKnowledgeComponent],
-        content_kcs: Iterable[AbstractKnowledgeComponent],
+        learner_kcs: Iterable[BaseKnowledgeComponent],
+        content_kcs: Iterable[BaseKnowledgeComponent],
     ) -> float:
         team_learner = InterestNoveltyKnowledgeBaseClassifier._gather_trueskill_team(
             env, learner_kcs
