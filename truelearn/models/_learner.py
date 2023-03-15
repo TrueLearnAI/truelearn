@@ -39,58 +39,37 @@ variance=1.0, ...)}), number_of_engagements=0, number_of_non_engagements=0)
     number_of_non_engagements: int = 0
 
 
-# TODO: rename => TrueLearnMetaClassifier
-# move it to learning subpackage
 @dataclasses.dataclass
-class LearnerMetaModel:
-    """The meta-model of a learner.
-
-    It is modeled by using learner's knowledge/novelty and interests.
-    It contains a set of weights that show whether the learners are
-    interest-oriented or knowledge/novelty-oriented in the learning process.
+class LearnerMetaWeights:
+    """Store the weights used in meta training.
 
     Attributes:
-        learner_novelty:
-            A learner model that models the learner's knowledge/novelty.
-        learner_interest:
-            A learner model that models the learner's interest.
-        novelty_weight:
+        novelty_weights:
             A dict that stores the "mean" and "variance" of the learner's
             knowledge/novelty weights.
-        interest_weight:
+        interest_weights:
             A dict that stores the "mean" and "variance" of the learner's
             interest weights.
-        bias_weight:
+        bias_weights:
             A dict that stores the "mean" and "variance" of a bias variable.
 
     Examples:
-        >>> from truelearn.models import LearnerModel, LearnerMetaModel
+        >>> from truelearn.models import LearnerMetaWeights
         >>> # construct an empty learner meta model
-        >>> LearnerMetaModel()  # doctest:+ELLIPSIS
-        LearnerMetaModel(learner_novelty=..., learner_interest=..., \
-novelty_weight=Weights(mean=0.0, variance=0.5), interest_weight=..., bias_weight=...)
-        >>> # construct a learner meta model with given learner models
-        >>> learner_novelty = LearnerModel()
-        >>> learner_interest = LearnerModel()
-        >>> LearnerMetaModel(learner_novelty=learner_novelty,\
-learner_interest=learner_novelty)
-        LearnerMetaModel(learner_novelty=..., learner_interest=..., \
-novelty_weight=Weights(mean=0.0, variance=0.5), interest_weight=..., bias_weight=...)
+        >>> LearnerMetaWeights()  # doctest:+ELLIPSIS
+        LearnerMetaWeights(novelty_weights=Weights(mean=0.0, variance=0.5)...)
         >>> # construct a learner meta model with custom weights
-        >>> bias_weight = LearnerMetaModel.Weights(mean=1.0, variance=2.0)
-        >>> LearnerMetaModel(bias_weight=bias_weight)
-        LearnerMetaModel(learner_novelty=..., learner_interest=..., \
-novelty_weight=..., interest_weight=..., bias_weight=Weights(mean=1.0, variance=2.0))
+        >>> bias_weights = LearnerMetaWeights.Weights(mean=1.0, variance=2.0)
+        >>> LearnerMetaWeights(bias_weights=bias_weights)
+        LearnerMetaWeights(...bias_weights=Weights(mean=1.0, variance=2.0))
     """
 
     class Weights(NamedTuple):
-        """A namedtuple that represents the weights used in LearnerMetaModel."""
+        """A namedtuple that represents the weights used in LearnerMetaWeights."""
 
         mean: float = 0.0
         variance: float = 0.5
 
-    learner_novelty: LearnerModel = dataclasses.field(default_factory=LearnerModel)
-    learner_interest: LearnerModel = dataclasses.field(default_factory=LearnerModel)
-    novelty_weight: Weights = Weights()
-    interest_weight: Weights = Weights()
-    bias_weight: Weights = Weights()
+    novelty_weights: Weights = Weights()
+    interest_weights: Weights = Weights()
+    bias_weights: Weights = Weights()

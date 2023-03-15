@@ -15,18 +15,16 @@ class TestLearnerModel:
         assert isinstance(model.knowledge, models.Knowledge)
 
 
-class TestLearnerMetaModel:
+class TestLearnerMetaWeights:
     def test_learner_meta_model_default_construct(self):
-        model = models.LearnerMetaModel()
+        weights = models.LearnerMetaWeights()
 
         assert (
-            model.bias_weight
-            == model.interest_weight
-            == model.novelty_weight
-            == models.LearnerMetaModel.Weights()
+            weights.bias_weights
+            == weights.interest_weights
+            == weights.novelty_weights
+            == models.LearnerMetaWeights.Weights()
         )
-        assert isinstance(model.learner_novelty, models.LearnerModel)
-        assert isinstance(model.learner_interest, models.LearnerModel)
 
 
 class TestEventModel:
