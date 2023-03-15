@@ -594,7 +594,6 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
     def predict(self, x: EventModel) -> bool:
         return self.predict_proba(x) > self._threshold
 
-    # TODO: eval_competibility
     @abstractmethod
     def _eval_matching_quality(
         self,
