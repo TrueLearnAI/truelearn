@@ -35,20 +35,25 @@ class MajorityClassifier(BaseClassifier):
         **BaseClassifier._parameter_constraints,
         "engagement": TypeConstraint(int),
         "non_engagement": TypeConstraint(int),
+        "threshold": TypeConstraint(float),
     }
 
-    def __init__(self, *, engagement: int = 0, non_engagement: int = 0) -> None:
+    def __init__(
+        self, *, engagement: int = 0, non_engagement: int = 0, threshold: float = 0.5
+    ) -> None:
         """Init MajorityClassifier object.
 
         Args:
             *: Use to reject positional arguments.
             engagement: The number of learner's engagement.
             non_engagement: The number of learner's non_engagement.
+            threshold: A float that determines the classification threshold.
         """
         super().__init__()
 
         self._engagement = engagement
         self._non_engagement = non_engagement
+        self._threshold = threshold
 
         self._validate_params()
 
@@ -61,7 +66,7 @@ class MajorityClassifier(BaseClassifier):
         return self
 
     def predict(self, x: EventModel) -> bool:
-        return self._engagement > self._non_engagement
+        return self.predict_proba(x) > self._threshold
 
     def predict_proba(self, x: EventModel) -> float:
-        return float(self._engagement > self._non_engagement)
+        return self._engagement / (self._engagement + self._non_engagement)

@@ -120,7 +120,7 @@ class TestMajorityClassifier:
 
         # because engagement == non_engagement
         assert not classifier.predict(models.EventModel())
-        assert classifier.predict_proba(models.EventModel()) == 0.0
+        assert classifier.predict_proba(models.EventModel()) == 0.5
 
     def test_majority_get_set_params(self):
         classifier = learning.MajorityClassifier()
@@ -128,10 +128,15 @@ class TestMajorityClassifier:
         assert classifier.get_params() == {
             "engagement": 0,
             "non_engagement": 0,
+            "threshold": 0.5,
         }
 
         classifier.set_params(engagement=1)
-        assert classifier.get_params() == {"engagement": 1, "non_engagement": 0}
+        assert classifier.get_params() == {
+            "engagement": 1,
+            "non_engagement": 0,
+            "threshold": 0.5,
+        }
 
         with pytest.raises(TypeError) as excinfo:
             classifier.set_params(non_engagement=1.0)
