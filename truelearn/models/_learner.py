@@ -39,6 +39,8 @@ variance=1.0, ...)}), number_of_engagements=0, number_of_non_engagements=0)
     number_of_non_engagements: int = 0
 
 
+# TODO: rename => TrueLearnMetaClassifier
+# move it to learning subpackage
 @dataclasses.dataclass
 class LearnerMetaModel:
     """The meta-model of a learner.
