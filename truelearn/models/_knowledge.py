@@ -3,7 +3,7 @@ import itertools
 from typing import Iterable, Hashable, Any, Optional, Dict, Tuple, Deque
 from typing_extensions import Self
 
-from ._base import BaseKnowledgeComponent
+from .base import BaseKnowledgeComponent
 
 
 class KnowledgeComponent(BaseKnowledgeComponent):
