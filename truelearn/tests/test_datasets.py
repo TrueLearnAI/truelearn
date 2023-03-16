@@ -5,8 +5,7 @@ import pytest
 from pytest_socket import disable_socket, enable_socket
 
 from truelearn import datasets
-import truelearn.datasets.base as base
-
+from truelearn.learning import base
 
 class TestBase:
     @pytest.mark.disable_socket

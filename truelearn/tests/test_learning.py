@@ -4,7 +4,7 @@ import math
 import pytest
 
 from truelearn import learning, models
-import truelearn.learning.base as base
+from truelearn.learning import base
 
 
 class MockClassifier(base.BaseClassifier):
