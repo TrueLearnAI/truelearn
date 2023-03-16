@@ -4,14 +4,14 @@ import math
 import pytest
 
 from truelearn import learning, models
-from ..learning import base
+import truelearn.learning.base as base
 
 
-class MockClassifier(_base.BaseClassifier):
+class MockClassifier(base.BaseClassifier):
     HOLDER_VALUE = 42
     _parameter_constraints = {
-        **_base.BaseClassifier._parameter_constraints,
-        "holder": _base.TypeConstraint(int),
+        **base.BaseClassifier._parameter_constraints,
+        "holder": base.TypeConstraint(int),
     }
 
     def __init__(self):  # noqa: D107
@@ -58,7 +58,7 @@ class TestBase:
             "_parameter_constraints",
             {
                 **MockClassifier._parameter_constraints,
-                "useless_key": _base.TypeConstraint(type(None)),
+                "useless_key": base.TypeConstraint(type(None)),
             },
         )
 
@@ -73,7 +73,7 @@ class TestBase:
     def test_validate_params_type_mismatch_throw(self, monkeypatch):
         parameter_constraints = {
             **MockClassifier._parameter_constraints,
-            "holder": _base.TypeConstraint(float, str, type(None)),
+            "holder": base.TypeConstraint(float, str, type(None)),
         }
 
         monkeypatch.setattr(

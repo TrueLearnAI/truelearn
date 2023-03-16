@@ -5,14 +5,14 @@ import pytest
 from pytest_socket import disable_socket, enable_socket
 
 from truelearn import datasets
-from truelearn.datasets import base
+import truelearn.datasets.base as base
 
 
 class TestBase:
     @pytest.mark.disable_socket
     def test_download_non_https_url(self):
         with pytest.raises(ValueError) as excinfo:
-            _base._download_file(
+            base._download_file(
                 filepath=".",
                 url="http://",
                 expected_sha256="should not reach this",
@@ -29,9 +29,9 @@ class TestBase:
             return filepath
 
         monkeypatch.setattr(request, "urlretrieve", mock_urlretrieve)
-        monkeypatch.setattr(_base, "_sha256sum", mock_sha256sum)
+        monkeypatch.setattr(base, "_sha256sum", mock_sha256sum)
 
-        _base._download_file(
+        base._download_file(
             filepath=".",
             url="https://",
             expected_sha256=".",
@@ -52,7 +52,7 @@ class TestBase:
         filepath.write_text("")
 
         with pytest.raises(IOError) as excinfo:
-            _base._download_file(
+            base._download_file(
                 filepath=str(filepath),
                 url="https://",
                 expected_sha256="1",
