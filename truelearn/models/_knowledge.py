@@ -3,10 +3,10 @@ import itertools
 from typing import Iterable, Hashable, Any, Optional, Dict, Tuple, Deque
 from typing_extensions import Self
 
-from ._abstract_knowledge import AbstractKnowledgeComponent
+from ._base import BaseKnowledgeComponent
 
 
-class KnowledgeComponent(AbstractKnowledgeComponent):
+class KnowledgeComponent(BaseKnowledgeComponent):
     """A concrete class that implements AbstractKnowledgeComponent.
 
     Examples:
@@ -357,7 +357,7 @@ title=None, description=None, url=None))])
 
     def __init__(
         self,
-        knowledge: Optional[Dict[Hashable, AbstractKnowledgeComponent]] = None,
+        knowledge: Optional[Dict[Hashable, BaseKnowledgeComponent]] = None,
     ) -> None:
         """Init the Knowledge object.
 
@@ -408,8 +408,8 @@ title=None, description=None, url=None))])
         return f"Knowledge(knowledge={knowledge_fmt_str})"
 
     def get_kc(
-        self, topic_id: Hashable, default: AbstractKnowledgeComponent
-    ) -> AbstractKnowledgeComponent:
+        self, topic_id: Hashable, default: BaseKnowledgeComponent
+    ) -> BaseKnowledgeComponent:
         """Get the knowledge component associated with the given id.
 
         Args:
@@ -423,7 +423,7 @@ title=None, description=None, url=None))])
         """
         return self.__knowledge.get(topic_id, default)
 
-    def update_kc(self, topic_id: Hashable, kc: AbstractKnowledgeComponent) -> None:
+    def update_kc(self, topic_id: Hashable, kc: BaseKnowledgeComponent) -> None:
         """Update the knowledge component associated with the given topic_id.
 
         If the topic_id doesn't exist in the AbstractKnowledge, the mapping
@@ -437,10 +437,10 @@ title=None, description=None, url=None))])
 
     def topic_kc_pairs(
         self,
-    ) -> Iterable[Tuple[Hashable, AbstractKnowledgeComponent]]:
+    ) -> Iterable[Tuple[Hashable, BaseKnowledgeComponent]]:
         """Return an iterable of the (topic_id, knowledge_component) pair."""
         return self.__knowledge.items()
 
-    def knowledge_components(self) -> Iterable[AbstractKnowledgeComponent]:
+    def knowledge_components(self) -> Iterable[BaseKnowledgeComponent]:
         """Return an iterable of the knowledge component."""
         return self.__knowledge.values()
