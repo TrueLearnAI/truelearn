@@ -59,10 +59,9 @@ class TestBase:
                 verbose=True,
             )
         assert (
-                "truelearn_sha256sum_test.txt has an SHA256 checksum "
-                "(e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855) "
-                "differing from expected (1), file may be corrupted." in
-                str(excinfo.value)
+            "truelearn_sha256sum_test.txt has an SHA256 checksum "
+            "(e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855) "
+            "differing from expected (1), file may be corrupted." in str(excinfo.value)
         )
 
 
