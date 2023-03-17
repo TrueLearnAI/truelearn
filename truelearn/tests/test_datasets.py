@@ -5,7 +5,8 @@ import pytest
 from pytest_socket import disable_socket, enable_socket
 
 from truelearn import datasets
-from truelearn.learning import base
+from truelearn.datasets import base
+
 
 class TestBase:
     @pytest.mark.disable_socket
@@ -58,9 +59,10 @@ class TestBase:
                 verbose=True,
             )
         assert (
-            "truelearn_sha256sum_test.txt has an SHA256 checksum "
-            "(e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855) "
-            "differing from expected (1), file may be corrupted." in str(excinfo.value)
+                "truelearn_sha256sum_test.txt has an SHA256 checksum "
+                "(e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855) "
+                "differing from expected (1), file may be corrupted." in
+                str(excinfo.value)
         )
 
 
