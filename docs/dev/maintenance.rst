@@ -3,14 +3,15 @@ Releasing and Publishing TrueLearn
 
 This document is intended for the core maintainers of the project.
 
+
 Publishing to PyPI
 ------------------
 This is done automatically by GitHub Actions when a new release is created.
 Make sure the secrets and tokens are set up correctly.
 
+
 Release Process
 ---------------
-
 The release process is as follows:
 
 1. Create a new branch for the release named ``release-<version>``.
@@ -35,5 +36,3 @@ Post-release
 In the main branch update the version number in the ``truelearn/__init__.py`` file to the
 next version number and add the ``-dev`` suffix. Also update the
 ``CHANGELOG.rst`` file to add a new section for the next version.
-
-Now development can continue.
