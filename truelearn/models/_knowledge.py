@@ -7,7 +7,7 @@ from .base import BaseKnowledgeComponent
 
 
 class KnowledgeComponent(BaseKnowledgeComponent):
-    """A concrete class that implements AbstractKnowledgeComponent.
+    """A concrete class that implements BaseKnowledgeComponent.
 
     Examples:
         >>> from truelearn.models import KnowledgeComponent
@@ -138,11 +138,11 @@ description=None, url=None)
             *:
                 Use to reject positional arguments.
             mean:
-                The new mean of the AbstractKnowledgeComponent.
+                The new mean of the KnowledgeComponent.
             variance:
-                The new variance of the AbstractKnowledgeComponent.
+                The new variance of the KnowledgeComponent.
             timestamp:
-                An optional new POSIX timestamp of the AbstractKnowledgeComponent.
+                An optional new POSIX timestamp of the KnowledgeComponent.
                 If None is given, the timestamp of the cloned knowledge component is
                 assigned to None.
 
@@ -431,7 +431,7 @@ title=None, description=None, url=None))])
 
         Args:
           topic_id: Hashable:
-          kc: AbstractKnowledgeComponent:
+          kc: BaseKnowledgeComponent:
         """
         self.__knowledge[topic_id] = kc
 

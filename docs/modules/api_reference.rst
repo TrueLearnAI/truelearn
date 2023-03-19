@@ -66,12 +66,12 @@ Classes
     :toctree: generated/
     :template: class.rst
 
-    models.AbstractKnowledgeComponent
+    models.BaseKnowledgeComponent
     models.KnowledgeComponent
     models.Knowledge
     models.EventModel
     models.LearnerModel
-    models.LearnerMetaModel
+    models.LearnerMetaWeights
 
 :mod:`truelearn.preprocessing`: Contains preprocessing functions and classes
 ============================================================================
