@@ -13,7 +13,7 @@ Contents
 .. toctree::
     :maxdepth: 1
 
-    advanced_installation
+    dev_installation
     design_considerations
     testing
     documentation
