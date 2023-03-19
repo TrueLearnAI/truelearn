@@ -1,7 +1,6 @@
 Releasing and Publishing TrueLearn
 ==================================
 
-
 This document is intended for the core maintainers of the project.
 
 Publishing to PyPI
@@ -38,6 +37,3 @@ next version number and add the ``-dev`` suffix. Also update the
 ``CHANGELOG.rst`` file to add a new section for the next version.
 
 Now development can continue.
-
-
-

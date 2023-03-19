@@ -12,13 +12,6 @@ in build page of Read the Docs.
 .. image:: ../images/read-the-docs-view-docs.jpeg
 
 
-Prerequisites
--------------
-Before running the command below, make sure you install the docs dependencies.
-
-If you haven't done it yet, you can refer to :ref:`dev_installation`.
-
-
 Building the documentation
 --------------------------
 

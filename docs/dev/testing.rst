@@ -1,10 +1,6 @@
 Testing the library
 ===================
 
-Prerequisites
--------------
-Make sure you have followed :ref:`advanced_installation`.
-
 Important Note
 --------------
 The tools are run using the ``python`` command to ensure that the current directory is added to the ``sys.path``.
