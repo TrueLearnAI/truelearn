@@ -1,14 +1,16 @@
-.. _advanced_installation:
+.. _dev_installation:
 
 Dev Installation
-=====================
+================
 
 This guide is for developers who want to work on the development version of the library.
 
-Please first follow the instructions in :ref:`installation` to install the library first.
+To install the development dependencies, run the following command::
 
-To install the development dependencies (linters, formatters and tests dependencies), run the following command::
-
+    # this will install linters and tests dependencies
     pip install .[dev]
 
-If you have cloned the latest version of the repository, this command will install the latest TrueLearn.
+    # this will install all the dependencies (linters, tests, docs)
+    pip install .[dev, docs]
+
+If you have cloned the latest version of the repository, the above commands will install the latest TrueLearn.
