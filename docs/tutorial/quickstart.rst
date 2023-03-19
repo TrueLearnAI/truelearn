@@ -3,27 +3,20 @@
 Getting Started
 ===============
 
-It is highly recommended to use a `virtual environment (venv)`_ to install and run Truelearn.
-This will ensure that the dependencies of Truelearn do not conflict with other
-packages installed on your system.
-
-Some IDEs (e.g. PyCharm) have built-in support for virtual environments.
-
-.. _virtual environment (venv): https://docs.python.org/3/tutorial/venv.html
-
 Installation
 ------------
 
-First install the 64-bit version of Python 3.7 or later from https://www.python.org/downloads/.
+TrueLearn requires Python 3.7+ to run. You can install it from https://www.python.org/downloads/.
 
-Then, create a virtual environment and activate it:
+It's highly recommended to use a virtual environment to use TrueLearn as it can help avoid potential conflicts.
+You can use either `venv <https://docs.python.org/3/tutorial/venv.html>`_ or `conda <https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html>`_
+to manage your environment.
 
-``python -m venv truelearn-venv # create a virtual environment named truelearn-venv``
+Below is an example to use `venv` to create a virtual environment and activate it::
 
-``truelearn-venv\Scripts\activate # activate the virtual environment``
+    python -m venv truelearn-venv # create a virtual environment named truelearn-venv
+    truelearn-venv\Scripts\activate # activate the virtual environment
 
-Finally, install Truelearn using pip:
+After activating the virtual environment (optional), you can install Truelearn using pip::
 
-``pip install -U truelearn # install truelearn (latest version)``
-
-Remember to activate the virtual environment every time you want to use Truelearn.
+    pip install -U truelearn # install truelearn (latest version)
