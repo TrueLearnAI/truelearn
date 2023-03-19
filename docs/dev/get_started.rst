@@ -1,5 +1,5 @@
-Before Started
-==============
+Get Started
+===========
 
 The Basics
 ----------

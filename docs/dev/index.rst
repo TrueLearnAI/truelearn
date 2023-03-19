@@ -12,8 +12,9 @@ Contents
 .. toctree::
     :maxdepth: 1
 
-    before_started
+    get_started
     design_considerations
     testing
     documentation
+    before_pr
     maintenance

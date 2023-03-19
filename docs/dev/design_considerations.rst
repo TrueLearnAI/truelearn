@@ -17,6 +17,31 @@ We use Google style docstrings for all functions and methods. See the `Google St
 We believe that all the methods and classes in TrueLearn should be documented as we believe this will not only help users but also future developers.
 So, before you make a PR, make sure you properly document all methods and classes based on the `Google Style Guide`_.
 
+
+Code Style
+----------
+We enforce PEP8 in our codebase. TODO
+
+
 Class Design
 ------------
+
+Design Principles
+^^^^^^^^^^^^^^^^^
+
+Project Structure
+^^^^^^^^^^^^^^^^^
+
+truelearn.models
+^^^^^^^^^^^^^^^^
+
+truelearn.learning
+^^^^^^^^^^^^^^^^^^
+
+truelearn.datasets
+^^^^^^^^^^^^^^^^^^
+
+truelearn.utils
+^^^^^^^^^^^^^^^
+
 Mention pep8 and how to add new classifiers i.e. extend base
