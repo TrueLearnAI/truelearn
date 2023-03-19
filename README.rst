@@ -29,10 +29,16 @@ TrueLearn
 .. |FOSSA Status| image:: https://app.fossa.com/api/projects/git%2Bgithub.com%2Fcomp0016-group1%2FTrueLearn-python-library.svg?type=small
    :target: https://app.fossa.com/projects/git%2Bgithub.com%2Fcomp0016-group1%2FTrueLearn-python-library?ref=badge_small
    :alt: FOSSA Status
-   
+
+<<<<<<< HEAD
 .. |docs| image:: https://readthedocs.org/projects/truelearn/badge/?version=latest
    :target: https://truelearn.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation Status
+=======
+.. |Black| image:: https://img.shields.io/badge/code%20style-black-000000.svg
+   :target: https://github.com/psf/black
+   :alt: Black
+>>>>>>> origin/main
 
 
 Installation
@@ -47,4 +53,3 @@ Documentation
 #############
 
 **Available at:** https://truelearn.readthedocs.io/en/latest/
-

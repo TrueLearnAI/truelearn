@@ -4,14 +4,14 @@ import math
 import pytest
 
 from truelearn import learning, models
-from ..learning import _base
+from truelearn.learning import base
 
 
-class MockClassifier(_base.BaseClassifier):
+class MockClassifier(base.BaseClassifier):
     HOLDER_VALUE = 42
     _parameter_constraints = {
-        **_base.BaseClassifier._parameter_constraints,
-        "holder": _base.TypeConstraint(int),
+        **base.BaseClassifier._parameter_constraints,
+        "holder": base.TypeConstraint(int),
     }
 
     def __init__(self):  # noqa: D107
@@ -58,7 +58,7 @@ class TestBase:
             "_parameter_constraints",
             {
                 **MockClassifier._parameter_constraints,
-                "useless_key": _base.TypeConstraint(type(None)),
+                "useless_key": base.TypeConstraint(type(None)),
             },
         )
 
@@ -73,7 +73,7 @@ class TestBase:
     def test_validate_params_type_mismatch_throw(self, monkeypatch):
         parameter_constraints = {
             **MockClassifier._parameter_constraints,
-            "holder": _base.TypeConstraint(float, str, type(None)),
+            "holder": base.TypeConstraint(float, str, type(None)),
         }
 
         monkeypatch.setattr(
@@ -120,7 +120,7 @@ class TestMajorityClassifier:
 
         # because engagement == non_engagement
         assert not classifier.predict(models.EventModel())
-        assert classifier.predict_proba(models.EventModel()) == 0.0
+        assert classifier.predict_proba(models.EventModel()) == 0.5
 
     def test_majority_get_set_params(self):
         classifier = learning.MajorityClassifier()
@@ -128,10 +128,15 @@ class TestMajorityClassifier:
         assert classifier.get_params() == {
             "engagement": 0,
             "non_engagement": 0,
+            "threshold": 0.5,
         }
 
         classifier.set_params(engagement=1)
-        assert classifier.get_params() == {"engagement": 1, "non_engagement": 0}
+        assert classifier.get_params() == {
+            "engagement": 1,
+            "non_engagement": 0,
+            "threshold": 0.5,
+        }
 
         with pytest.raises(TypeError) as excinfo:
             classifier.set_params(non_engagement=1.0)
@@ -806,27 +811,25 @@ class TestINKClassifier:
     def test_ink_default_value(self):
         classifier = learning.INKClassifier()
 
-        learner_model = classifier.get_learner_model()
+        (novelty_model, interest_model, meta_weights) = classifier.get_learner_model()
         assert (
-            learner_model.bias_weight
-            == learner_model.interest_weight
-            == learner_model.novelty_weight
-            == models.LearnerMetaModel.Weights()
+            meta_weights.bias_weights
+            == meta_weights.interest_weights
+            == meta_weights.novelty_weights
+            == models.LearnerMetaWeights.Weights()
         )
-        assert not list(
-            learner_model.learner_novelty.knowledge.knowledge_components()
-        ) and not list(learner_model.learner_interest.knowledge.knowledge_components())
+        assert not list(novelty_model.knowledge.knowledge_components()) and not list(
+            interest_model.knowledge.knowledge_components()
+        )
 
     def test_ink_get_set_params(self):
         classifier = learning.INKClassifier()
 
         params = (
-            "bias_weights",
             "greedy",
             "interest_classifier",
-            "interest_weights",
+            "learner_meta_weights",
             "novelty_classifier",
-            "novelty_weights",
             "tau",
             "threshold",
         )
@@ -878,16 +881,12 @@ class TestINKClassifier:
     def test_ink_classifier_customize(self, train_cases, test_events):
         novelty_classifier = learning.NoveltyClassifier()
         interest_classifier = learning.InterestClassifier()
-        novelty_weights = models.LearnerMetaModel.Weights()
-        interest_weights = models.LearnerMetaModel.Weights()
-        bias_weights = models.LearnerMetaModel.Weights()
+        meta_weights = models.LearnerMetaWeights()
 
         classifier = learning.INKClassifier(
+            learner_meta_weights=meta_weights,
             novelty_classifier=novelty_classifier,
             interest_classifier=interest_classifier,
-            novelty_weights=novelty_weights,
-            interest_weights=interest_weights,
-            bias_weights=bias_weights,
         )
 
         train_events, train_labels = train_cases
@@ -917,9 +916,10 @@ class TestINKClassifier:
 
         # if the classifier is in greedy mode and the prediction is correct
         # the classifier will not adjust its weights
+        (_, _, meta_weights) = classifier.get_learner_model()
         assert (
-            classifier._novelty_weights
-            == classifier._interest_weights
-            == classifier._bias_weights
-            == models.LearnerMetaModel.Weights(0.0, 0.5)
+            meta_weights.novelty_weights
+            == meta_weights.interest_weights
+            == meta_weights.bias_weights
+            == models.LearnerMetaWeights.Weights(0.0, 0.5)
         )
