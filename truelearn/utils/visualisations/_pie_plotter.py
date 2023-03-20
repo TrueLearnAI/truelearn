@@ -1,5 +1,6 @@
 import datetime
-from typing import Iterable, Tuple
+from typing import Iterable, Tuple, Union
+from typing_extensions import final, Self
 
 import numpy as np
 import plotly.graph_objects as go
@@ -106,6 +107,7 @@ class PiePlotter(BasePlotter):
 
         rest = content[top_n:]
         content = content[:top_n]
+
         if other:
             content.append(self._get_other_data(rest, history))
 
@@ -148,20 +150,22 @@ class PiePlotter(BasePlotter):
 
         return self
 
-    # USE AVERAGE MEAN AS WELL
-    # ROSE CHART WITH SECTOR ANGLE AS NUMBER OF EVENTS AND RADIUS AS MEAN
     def _get_other_data(self, rest, history):
         means = [lst[0] for lst in rest]
         variances = [lst[1] for lst in rest]
-        total_mean = sum(means)
+        average_mean = sum(means) / len(rest)
         average_variance = sum(variances) / len(rest)
         if history:
-            timestamps = [lst[3] for lst in rest]
-            other_data = (total_mean, average_variance, "Other", timestamps)
+            timestamps = []
+            for lst in rest:
+                timestamps += lst[3]  # concatenate timestamps
+
+            timestamps[-1] = "N/A"  # needed because we are unable to display the date of the last video watched
+            other_data = (average_mean, average_variance, "Other", timestamps)
         else:
-            other_data = (total_mean, average_variance, "Other")
+            other_data = (average_mean, average_variance, "Other")
 
         return other_data
 
-    def _trace(self):
+    def _trace(self, titles, means, variances, number_of_videos, last_video_watched, history):
         pass
