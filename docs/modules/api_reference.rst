@@ -7,13 +7,31 @@ For a more detailed description of the decisions made during implementation,
 please refer to the :ref:`design` section.
 
 :mod:`truelearn.datasets`: Contains utilities for using datasets
-================================================================
+----------------------------------------------------------------
 .. automodule:: truelearn.datasets
    :no-members:
    :show-inheritance:
 
+Base Classes
+^^^^^^^^^^^^
+.. currentmodule:: truelearn
+.. autosummary::
+    :toctree: generated/
+    :template: class.rst
+
+    datasets.base.RemoteFileMetaData
+
+Base Functions
+^^^^^^^^^^^^^^
+.. currentmodule:: truelearn
+.. autosummary::
+    :toctree: generated/
+
+    datasets.base.check_and_download_file
+
+
 Classes
--------
+^^^^^^^
 .. currentmodule:: truelearn
 .. autosummary::
     :toctree: generated/
@@ -22,7 +40,7 @@ Classes
     datasets.PEEKKnowledgeComponentGenerator
 
 Functions
----------
+^^^^^^^^^
 .. currentmodule:: truelearn
 .. autosummary::
     :toctree: generated/
@@ -31,13 +49,22 @@ Functions
     datasets.load_peek_dataset_raw
 
 :mod:`truelearn.learning`: Contains the classifiers for learning
-================================================================
+----------------------------------------------------------------
 .. automodule:: truelearn.learning
    :no-members:
    :show-inheritance:
 
+Base Classes
+^^^^^^^^^^^^
+.. currentmodule:: truelearn
+.. autosummary::
+    :toctree: generated/
+    :template: class.rst
+
+    learning.base.BaseClassifier
+
 Classes
--------
+^^^^^^^
 .. currentmodule:: truelearn
 .. autosummary::
     :toctree: generated/
@@ -54,13 +81,13 @@ Classes
 
 
 :mod:`truelearn.models`: Contains the representations used for learning
-=======================================================================
+-----------------------------------------------------------------------
 .. automodule:: truelearn.models
    :no-members:
    :show-inheritance:
 
 Classes
--------
+^^^^^^^
 .. currentmodule:: truelearn
 .. autosummary::
     :toctree: generated/
@@ -74,13 +101,13 @@ Classes
     models.LearnerMetaModel
 
 :mod:`truelearn.preprocessing`: Contains preprocessing functions and classes
-============================================================================
+----------------------------------------------------------------------------
 .. automodule:: truelearn.preprocessing
    :no-members:
    :show-inheritance:
 
 Classes
--------
+^^^^^^^
 .. currentmodule:: truelearn
 .. autosummary::
     :toctree: generated/
@@ -90,7 +117,7 @@ Classes
     preprocessing.Wikifier
 
 Functions
----------
+^^^^^^^^^
 .. currentmodule:: truelearn
 .. autosummary::
     :toctree: generated/
@@ -102,13 +129,13 @@ Functions
 
 
 :mod:`truelearn.utils.metrics`: Contains functions to generate metrics
-======================================================================
+----------------------------------------------------------------------
 .. automodule:: truelearn.utils.metrics
    :no-members:
    :show-inheritance:
 
 Functions
----------
+^^^^^^^^^
 .. currentmodule:: truelearn
 .. autosummary::
     :toctree: generated/
@@ -119,20 +146,28 @@ Functions
         utils.metrics.get_f1_score
 
 :mod:`truelearn.utils.visualisations`: Contains plotting functions and classes
-==============================================================================
+------------------------------------------------------------------------------
 .. automodule:: truelearn.utils.visualisations
    :no-members:
    :show-inheritance:
 
+Base Classes
+^^^^^^^^^^^^
+.. currentmodule:: truelearn
+.. autosummary::
+    :toctree: generated/
+    :template: class.rst
+
+
 Classes
--------
+^^^^^^^
 .. currentmodule:: truelearn
 .. autosummary::
     :toctree: generated/
     :template: class.rst
 
 Functions
----------
+^^^^^^^^^
 .. currentmodule:: truelearn
 .. autosummary::
     :toctree: generated/
