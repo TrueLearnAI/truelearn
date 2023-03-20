@@ -145,6 +145,7 @@ class BarPlotter(BasePlotter):
             customdata=np.transpose([variances, number_of_videos, last_video_watched])
             if history else
             variances,
+            # REFACTOR INTO ONE PLACE
             hovertemplate="<br>".join([
                 "Topic: %{x}",
                 "Mean: %{y}",

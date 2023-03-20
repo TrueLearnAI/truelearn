@@ -131,7 +131,7 @@ class BubblePlotter(BasePlotter):
                     title="Variance"
                 ),
                 colorscale="Greens",
-                reversescale=True
+                reversescale=True  # dark colours should represent less variance
             ),
             customdata=np.transpose([titles, number_of_videos, last_video_watched])
             if history else

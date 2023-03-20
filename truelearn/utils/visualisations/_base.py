@@ -111,7 +111,7 @@ class BasePlotter(ABC):
         )
 
     @final
-    def _to_png(
+    def to_png(
             self,
             path: str,
             width: int = 500,
@@ -125,7 +125,7 @@ class BasePlotter(ABC):
         self._static_export(path, "png")
 
     @final
-    def _to_jpeg(
+    def to_jpeg(
             self,
             path: str,
             width: int = 500,

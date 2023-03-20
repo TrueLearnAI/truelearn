@@ -148,6 +148,8 @@ class PiePlotter(BasePlotter):
 
         return self
 
+    # USE AVERAGE MEAN AS WELL
+    # ROSE CHART WITH SECTOR ANGLE AS NUMBER OF EVENTS AND RADIUS AS MEAN
     def _get_other_data(self, rest, history):
         means = [lst[0] for lst in rest]
         variances = [lst[1] for lst in rest]

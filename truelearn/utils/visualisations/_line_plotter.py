@@ -57,8 +57,6 @@ class LinePlotter(BasePlotter):
             content.append(tr_data)
             # searching for an individual topic, we can return after finding it
             if topic_id and title == topic_id:
-                print("DING!")
-                print(tr_data)
                 return tr_data
         
         content.sort(
@@ -108,6 +106,8 @@ class LinePlotter(BasePlotter):
 
         return self
     
+    # ADD DOTTED LINE REPRESENTING AVERAGE OF REST OF LEARNERS
+
     def _plot_single(
             self,
             content: Iterable[Tuple[str, Iterable, Iterable]],

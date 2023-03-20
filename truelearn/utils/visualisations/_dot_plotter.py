@@ -46,6 +46,7 @@ class DotPlotter(BasePlotter):
                 try:
                     for _, _, timestamp in kc['history']:
                         timestamps.append(timestamp)
+                    # EXTRACT THIS TO HELPER FUNCTION TO REUSE IN DIFFERENT PLACES
                     timestamps = list(map(
                         lambda t: datetime.datetime.utcfromtimestamp(t).strftime(
                             "%Y-%m-%d"),
@@ -137,7 +138,7 @@ class DotPlotter(BasePlotter):
                          array=variances,
                          color='black',
                          thickness=4,
-                         width=3,
+                         width=3,  # MAKE WIDTH CHANGE BASED ON HOW MUCH HAS BEEN SPENT ON THE TOPIC
                          visible=True),
             customdata=np.transpose([variances, number_of_videos, last_video_watched])
             if history else
