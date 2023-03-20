@@ -130,7 +130,7 @@ such as those that make use of knowledge tracking.
 If you plan to do this, please discuss it with us as we may need to restructure this sub-package.
 
 
-truelearn.utils.visualization
+truelearn.utils.visualisations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 TODO
 
