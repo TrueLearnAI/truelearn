@@ -17,11 +17,7 @@ sphinx:
 
 python:
    install:
-   # Install truelearn with its core dependencies equivalent to `pip install .`
-   - method: pip
-     path: .
-
-   # Install docs dependencies equivalent to `pip install .[docs]`
+   # Install truelearn with docs dependencies == `pip install .[docs]`
    - method: pip
      path: .
      extra_requirements:

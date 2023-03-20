@@ -3,7 +3,7 @@ from typing import Any, Optional, Dict
 from typing_extensions import Self, Protocol
 
 
-class AbstractKnowledgeComponent(Protocol):
+class BaseKnowledgeComponent(Protocol):
     """An interface defines a knowledge component of a learnable unit.
 
     Each knowledge component can be represented as a Normal Distribution with

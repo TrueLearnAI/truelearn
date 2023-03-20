@@ -15,18 +15,16 @@ class TestLearnerModel:
         assert isinstance(model.knowledge, models.Knowledge)
 
 
-class TestLearnerMetaModel:
+class TestLearnerMetaWeights:
     def test_learner_meta_model_default_construct(self):
-        model = models.LearnerMetaModel()
+        weights = models.LearnerMetaWeights()
 
         assert (
-            model.bias_weight
-            == model.interest_weight
-            == model.novelty_weight
-            == models.LearnerMetaModel.Weights()
+            weights.bias_weights
+            == weights.interest_weights
+            == weights.novelty_weights
+            == models.LearnerMetaWeights.Weights()
         )
-        assert isinstance(model.learner_novelty, models.LearnerModel)
-        assert isinstance(model.learner_interest, models.LearnerModel)
 
 
 class TestEventModel:
@@ -213,9 +211,8 @@ deque([(91.0, 91.0, 91.0), (92.0, 92.0, 92.0), ...], maxlen=10))"
 
         with pytest.raises(ValueError) as excinfo:
             kc.__repr__(-1)  # pylint: disable=unnecessary-dunder-call
-        assert (
-            "Expected n_max_object>=0. Got n_max_object=-1 instead."
-            == str(excinfo.value)
+        assert "Expected n_max_object>=0. Got n_max_object=-1 instead." == str(
+            excinfo.value
         )
 
 
@@ -288,7 +285,6 @@ mean=1.0, variance=1.0, timestamp=None, title=None, description=None, url=None)}
 
         with pytest.raises(ValueError) as excinfo:
             knowledge.__repr__(-1)  # pylint: disable=unnecessary-dunder-call
-        assert (
-            "Expected n_max_object>=0. Got n_max_object=-1 instead."
-            == str(excinfo.value)
+        assert "Expected n_max_object>=0. Got n_max_object=-1 instead." == str(
+            excinfo.value
         )

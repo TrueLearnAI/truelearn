@@ -1,6 +1,6 @@
 """The truelearn.learning module implements the classifiers in TrueLearn paper."""
 
-from ._base import BaseClassifier
+from .base import BaseClassifier
 from ._ink_classifier import INKClassifier
 from ._interest_classifier import InterestClassifier
 from ._knowledge_classifier import KnowledgeClassifier

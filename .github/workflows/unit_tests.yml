@@ -1,4 +1,4 @@
-name: Unit tests
+name: Unit Tests
 on:
   push:
     branches:
@@ -10,7 +10,7 @@ on:
   workflow_call:
 
 jobs:
-  Run-Unit-Tests:
+  unit_tests:
     strategy:
       matrix:
         python-version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
@@ -24,20 +24,18 @@ jobs:
         uses: actions/setup-python@v4.4.0
         with:
           python-version: ${{ matrix.python-version }}
-          cache: 'pip' # cache dependencies
-          cache-dependency-path: 'pyproject.toml'
+          cache: "pip" # cache dependencies
+          cache-dependency-path: "pyproject.toml"
 
       - name: Install Project Dependencies
-        run:  |
-            pip install .[tests]
+        run: |
+          pip install .[tests]
 
         # Pytest generates an XML report
       - name: Execute tests
         run: |
           # Config in pyproject.toml
-          # Calling via python adds the current directory to sys path
-          # Prevents module not found errors
-          python -m pytest --junitxml=unit_test_report.xml
+          pytest --junitxml=unit_test_report.xml
         env:
           WIKIFIER_API_KEY: ${{ secrets.WIKIFIER_API_KEY }}
 

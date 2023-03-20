@@ -1,26 +1,10 @@
+.. _testing:
+
 Testing the library
 ===================
 
-Prerequisites
--------------
-Make sure you have followed :ref:`advanced_installation`.
-
-Important Note
---------------
-The tools are run using the ``python`` command to ensure that the current directory is added to the ``sys.path``.
-This prevents module not found errors.
-
-Contents
---------
-- `Configuration`_
-- `Running the Unit Tests`_
-- `Calculating the Code Coverage`_
-- `Running the Linter (Static Code Analysis)`_
-
-
 Configuration
-^^^^^^^^^^^^^
-
+-------------
 The configuration for the:
 
 - Unit tests are located in the pyproject.toml_ file.
@@ -30,58 +14,77 @@ The configuration for the:
 .. _pyproject.toml: https://github.com/comp0016-group1/truelearn/blob/main/pyproject.toml
 .. _prospector.yaml: https://github.com/comp0016-group1/truelearn/blob/main/prospector.yaml
 
+
 Running the Unit Tests
-^^^^^^^^^^^^^^^^^^^^^^
+----------------------
 
-Run the following from the commandline:
+Run the following from the commandline::
 
-``python -m pytest``
+    pytest
 
 Output Options
 """"""""""""""
-Example:
+Example::
 
-    ``python -m pytest --junitxml=report.xml``
+    pytest --junitxml=report.xml
 
 Will output the results to a JUnit XML file called report.
 Please see the `pytest documentation`_ for more output options.
 
 .. _pytest documentation: https://docs.pytest.org/en/stable/
 
-Calculating the Code Coverage
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Calculating the Code Coverage
+-----------------------------
 **Note: We calculate both statement and branch coverage.**
 
-Run the following from the commandline:
+Run the following from the commandline::
 
-``python -m pytest --cov``
+    pytest --cov
 
 Output Options
 """"""""""""""
-Example:
+Example::
 
-    ``python -m pytest --cov --cov-report "xml:coverage.xml"``
+    pytest --cov --cov-report "xml:coverage.xml"
 
 Will output the results to an XML file called coverage.
 Please see the `pytest-cov documentation`_ for more output options.
 
 .. _pytest-cov documentation: https://pytest-cov.readthedocs.io/en/latest/
 
+
 Running the Linter (Static Code Analysis)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-----------------------------------------
+Run the following from the commandline::
 
-Run the following from the commandline:
-
-``python -m prospector``
+    prospector truelearn
 
 Output Options
 """"""""""""""
-Example:
+Example::
 
-    ``python -m prospector --output-format xunit:lint.xml``
+    prospector truelearn --output-format xunit:lint.xml
 
 Will output the results to an XML file called lint.xml.
 Please see the `prospector documentation`_ for more output options.
 
 .. _prospector documentation: https://prospector.landscape.io/en/master/
+
+
+Adding New Tests
+----------------
+To add a new test, you need to add the test case to the corresponding test in ``truelearn/tests``.
+
+For example, if you want to add a new test for ``KnowledgeClassifier``, you can add the test case to ``truelearn/tests/test_learning.py``.
+
+If it's a new test for a class, we recommend you grouping the test cases into a class. For example, if you want to test
+``XClassifier``, you can group all the test cases under ``TestXClassifier``.
+
+If it's a new test for a method, you can optionally group the test cases into a class (if there are many). If it is just a test case,
+you do not need to put it into a class.
+
+Also, based on the ``pytest`` rules, you need to make sure that the names of your methods follow the following pattern::
+
+    def test_xxx():
+        ...
