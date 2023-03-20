@@ -1,6 +1,3 @@
-.. _api_ref:
-
-=============
 API Reference
 =============
 
@@ -18,6 +15,7 @@ please refer to the :ref:`design` section.
 Base Classes
 ------------
 .. currentmodule:: truelearn
+
 .. autosummary::
     :toctree: generated/
     :template: class.rst
@@ -27,6 +25,7 @@ Base Classes
 Base Functions
 --------------
 .. currentmodule:: truelearn
+
 .. autosummary::
     :toctree: generated/
 
@@ -36,6 +35,7 @@ Base Functions
 Classes
 -------
 .. currentmodule:: truelearn
+
 .. autosummary::
     :toctree: generated/
     :template: class.rst
@@ -45,6 +45,7 @@ Classes
 Functions
 ---------
 .. currentmodule:: truelearn
+
 .. autosummary::
     :toctree: generated/
 
@@ -60,6 +61,7 @@ Functions
 Base Classes
 ------------
 .. currentmodule:: truelearn
+
 .. autosummary::
     :toctree: generated/
     :template: class.rst
@@ -69,6 +71,7 @@ Base Classes
 Classes
 -------
 .. currentmodule:: truelearn
+
 .. autosummary::
     :toctree: generated/
     :template: class.rst
@@ -92,6 +95,7 @@ Classes
 Classes
 -------
 .. currentmodule:: truelearn
+
 .. autosummary::
     :toctree: generated/
     :template: class.rst
@@ -112,6 +116,7 @@ Classes
 Classes
 -------
 .. currentmodule:: truelearn
+
 .. autosummary::
     :toctree: generated/
     :template: class.rst
@@ -122,6 +127,7 @@ Classes
 Functions
 ---------
 .. currentmodule:: truelearn
+
 .. autosummary::
     :toctree: generated/
 
@@ -140,6 +146,7 @@ Functions
 Functions
 ---------
 .. currentmodule:: truelearn
+
 .. autosummary::
     :toctree: generated/
 
@@ -157,6 +164,7 @@ Functions
 Base Classes
 ------------
 .. currentmodule:: truelearn
+
 .. autosummary::
     :toctree: generated/
     :template: class.rst
@@ -165,6 +173,7 @@ Base Classes
 Classes
 -------
 .. currentmodule:: truelearn
+
 .. autosummary::
     :toctree: generated/
     :template: class.rst
@@ -172,5 +181,6 @@ Classes
 Functions
 ---------
 .. currentmodule:: truelearn
+
 .. autosummary::
     :toctree: generated/
