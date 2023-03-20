@@ -19,12 +19,15 @@ class BarPlotter(BasePlotter):
 
     def _standardise_data(
             self, raw_data: Knowledge, history: bool
-    ) -> Iterable[Tuple[Iterable, Iterable, str]]:
+    ) -> Iterable[Tuple[Iterable, Iterable, str, Iterable]]:
         """Converts an object of KnowledgeDict type to one suitable for plot().
         
         Optional utility function that converts the dictionary representation
         of the learner's knowledge (obtainable via the knowledge_to_dict()
-        function) to the Iterable[Tuple[Iterable, Iterable, str]] used by plot.
+        function) to the Iterable[Tuple[Iterable, Iterable, str, Iterable]] 
+        or Iterable[Tuple[Iterable, Iterable, str]] used by plot. Tuple type 
+        depends on if user wants to visualise the history component of the
+        knowledge.
 
         Args:
             raw_data: dictionary representation of the learner's knowledge and

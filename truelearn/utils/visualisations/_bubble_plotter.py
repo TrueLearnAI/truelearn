@@ -25,7 +25,10 @@ class BubblePlotter(BasePlotter):
         
         Optional utility function that converts the dictionary representation
         of the learner's knowledge (obtainable via the knowledge_to_dict()
-        function) to the Iterable[Tuple[Iterable, Iterable, str]] used by plot.
+        function) to the Iterable[Tuple[Iterable, Iterable, str, Iterable]] 
+        or Iterable[Tuple[Iterable, Iterable, str]] used by plot. Tuple type 
+        depends on if user wants to visualise the history component of the
+        knowledge.
 
         Args:
             raw_data: dictionary representation of the learner's knowledge and
@@ -43,7 +46,6 @@ class BubblePlotter(BasePlotter):
             mean = kc['mean']
             variance = kc['variance']
             timestamps = []
-            # if Knowledge=HistoryAwareKnowledgeComponent:
             if history:
                 try:
                     for _, _, timestamp in kc['history']:
@@ -84,7 +86,7 @@ class BubblePlotter(BasePlotter):
         """
         Plots the bubble chart using the data.
 
-        Uses content and layout_data to generate a Figure object and stores
+        Uses content and history to generate a Figure object and stores
         it into self.figure.
 
         Args:
