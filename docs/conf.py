@@ -43,6 +43,7 @@ extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.napoleon',
               'sphinx.ext.intersphinx',
               'sphinx.ext.doctest',
+              'sphinx_copybutton',
               ]
 templates_path = ['templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
