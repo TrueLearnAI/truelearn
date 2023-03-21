@@ -63,13 +63,15 @@ class INKClassifier(BaseClassifier):
         ...         ink_classifier.predict_proba(event)
         ...     )
         ...
-        True 0.5519515387629774
-        False 0.3042337221090127
-        True 0.6278686231266752
+        True 0.6259978435590838
+        False 0.4306652603119686
+        True 0.5062865085770919
         >>> ink_classifier.get_params(deep=False)  # doctest:+ELLIPSIS
         {...'learner_meta_weights': LearnerMetaWeights(novelty_weights=Weights(\
-mean=0.39332..., variance=1.16897...), interest_weights=Weights(mean=0.58194..., \
-variance=1.07022...), bias_weights=Weights(mean=0.32119..., variance=0.88150...))...}
+mean=0.12402..., variance=0.48058...), interest_weights=Weights(\
+mean=0.50093..., variance=0.45048...), bias_weights=Weights(\
+mean=-0.02379..., variance=0.41886...))...}
+
     """
 
     __DEFAULT_GLOBAL_SIGMA: Final[float] = 1e-9
@@ -92,8 +94,8 @@ variance=1.07022...), bias_weights=Weights(mean=0.32119..., variance=0.88150...)
         novelty_classifier: Optional[NoveltyClassifier] = None,
         interest_classifier: Optional[InterestClassifier] = None,
         threshold: float = 0.5,
-        tau: float = 0.5,
-        greedy: bool = False,
+        tau: float = 0.0,
+        greedy: bool = True,
     ) -> None:
         """Init INKClassifier object.
 

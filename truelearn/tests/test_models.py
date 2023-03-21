@@ -20,11 +20,12 @@ class TestLearnerMetaWeights:
         weights = models.LearnerMetaWeights()
 
         assert (
-            weights.bias_weights
-            == weights.interest_weights
+            weights.interest_weights
             == weights.novelty_weights
-            == models.LearnerMetaWeights.Weights()
+            == models.LearnerMetaWeights.Weights(0.5, 0.5)
         )
+
+        assert weights.bias_weights == models.LearnerMetaWeights.Weights(0.0, 0.5)
 
 
 class TestEventModel:

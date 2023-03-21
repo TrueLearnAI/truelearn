@@ -76,12 +76,12 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
         ...         interest_classifier.predict_proba(event)
         ...     )
         ...
-        False 0.23090587110296315
-        True 0.781050012905867
-        False 0.4916615918925439
+        True 0.7828394797024163
+        True 0.7847026911665004
+        True 0.9333988082926606
         >>> interest_classifier.get_params()  # doctest:+ELLIPSIS
         {..., 'learner_model': LearnerModel(knowledge=Knowledge(knowledge=\
-{2: KnowledgeComponent(mean=0.46968..., variance=0.34484..., ...), ...}), ...}
+{1: KnowledgeComponent(mean=0.97788..., variance=0.11831..., ...), ...}), ...}
     """
 
     _parameter_constraints: Dict[str, Any] = {
@@ -98,8 +98,7 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
         init_skill: float = 0.0,
         def_var: float = 0.5,
         beta: float = 0.1,
-        tau: float = 0.1,
-        positive_only: bool = True,
+        tau: float = 0.0,
         draw_proba_type: str = "dynamic",
         draw_proba_static: Optional[float] = None,
         draw_proba_factor: float = 0.1,
@@ -128,9 +127,6 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
             tau:
                 The dynamic factor of learner's learning process.
                 It's used to avoid the halting of the learning process.
-            positive_only:
-                A bool indicating whether the classifier only
-                updates the learner's knowledge when encountering a positive label.
             draw_proba_type:
                 A str specifying the type of the draw probability.
                 It could be either "static" or "dynamic". The "static"
@@ -163,7 +159,9 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
             def_var=def_var,
             tau=tau,
             beta=beta,
-            positive_only=positive_only,
+            # learner always win in interest
+            # so there is no "positive_only" in it
+            positive_only=False,
             draw_proba_type=draw_proba_type,
             draw_proba_static=draw_proba_static,
             draw_proba_factor=draw_proba_factor,

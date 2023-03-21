@@ -374,13 +374,13 @@ class TestKnowledgeClassifier:
             classifier.fit(event, label)
 
         expected_results = [
-            0.31822146219026654,
-            0.04616731561824022,
-            0.0644849610860269,
+            0.3220150203626213,
+            0.04444209519843563,
+            0.06140953850777711,
         ]
         actual_results = [classifier.predict_proba(event) for event in test_events]
 
-        assert expected_results == actual_results
+        assert actual_results == expected_results
 
     def test_knowledge_classifier_with_draw_proba_static(
         self, train_cases, test_events
@@ -394,18 +394,18 @@ class TestKnowledgeClassifier:
             classifier.fit(event, label)
 
         expected_results = [
-            0.4632708833103084,
+            0.4643262916736641,
             0.20884274880379491,
-            0.27614902348099163,
+            0.27593721110511604,
         ]
         actual_results = [classifier.predict_proba(event) for event in test_events]
 
-        assert expected_results == actual_results
+        assert actual_results == expected_results
 
 
 class TestNoveltyClassifier:
     def test_novelty_positive_only_no_update(self, train_cases):
-        classifier = learning.NoveltyClassifier()
+        classifier = learning.NoveltyClassifier(positive_only=True)
 
         train_events, _ = train_cases
         for event in train_events:
@@ -534,13 +534,13 @@ class TestNoveltyClassifier:
             classifier.fit(event, label)
 
         expected_results = [
-            0.20232035389852276,
-            0.1385666227211696,
-            0.11103582174277878,
+            0.1643814818970458,
+            0.06946591006393309,
+            0.03000555657466908,
         ]
         actual_results = [classifier.predict_proba(event) for event in test_events]
 
-        assert expected_results == actual_results
+        assert actual_results == expected_results
 
     def test_novelty_classifier_draws(self, train_cases, test_events):
         classifier = learning.NoveltyClassifier(positive_only=False)
@@ -552,14 +552,10 @@ class TestNoveltyClassifier:
         for event, label in zip(train_events, train_labels):
             classifier.fit(event, label)
 
-        expected_results = [
-            0.24498763833059276,
-            0.2509683717988391,
-            0.26190237284122425,
-        ]
+        expected_results = [0.2528080460583627, 0.2501330021564062, 0.2757975511726281]
         actual_results = [classifier.predict_proba(event) for event in test_events]
 
-        assert expected_results == actual_results
+        assert actual_results == expected_results
 
     def test_novelty_classifier_difference_zero(self):
         classifier = learning.NoveltyClassifier(
@@ -600,23 +596,11 @@ class TestNoveltyClassifier:
             classifier.fit(event, label)
 
         kc = list(classifier.get_learner_model().knowledge.knowledge_components())[0]
-        assert kc.mean == 0.4683333154754179
-        assert kc.variance == 0.3562680695898126
+        assert kc.mean == 0.46434312747910966
+        assert kc.variance == 0.34939412823253874
 
 
 class TestInterestClassifier:
-    def test_interest_positive_only_no_update(self, train_cases):
-        classifier = learning.InterestClassifier()
-
-        train_events, _ = train_cases
-        for event in train_events:
-            classifier.fit(event, False)
-
-        learner_model = classifier.get_learner_model()
-        assert learner_model.number_of_engagements == 0
-        assert learner_model.number_of_non_engagements == len(train_events)
-        assert not list(learner_model.knowledge.knowledge_components())
-
     def test_interest_get_set_params(self):
         classifier = learning.InterestClassifier(draw_proba_type="dynamic")
 
@@ -778,24 +762,20 @@ class TestInterestClassifier:
         )
 
     def test_interest_classifier(self, train_cases, test_events):
-        classifier = learning.InterestClassifier(positive_only=False)
+        classifier = learning.InterestClassifier()
 
         train_events, train_labels = train_cases
         for event, label in zip(train_events, train_labels):
             classifier.fit(event, label)
 
-        expected_results = [0.8253463535369645, 0.8124833431982229, 0.7434285783213926]
+        expected_results = [0.8300025208612971, 0.8173134873369469, 0.7439557457066273]
         actual_results = [classifier.predict_proba(event) for event in test_events]
 
-        assert expected_results == actual_results
+        assert actual_results == expected_results
 
     def test_interest_classifier_decay_func_type(self, train_cases, test_events):
-        classifier_short = learning.InterestClassifier(
-            positive_only=False, decay_func_type="short"
-        )
-        classifier_long = learning.InterestClassifier(
-            positive_only=False, decay_func_type="long"
-        )
+        classifier_short = learning.InterestClassifier(decay_func_type="short")
+        classifier_long = learning.InterestClassifier(decay_func_type="long")
         train_events, train_labels = train_cases
         for event, label in zip(train_events, train_labels):
             classifier_short.fit(event, label)
@@ -813,11 +793,11 @@ class TestINKClassifier:
 
         (novelty_model, interest_model, meta_weights) = classifier.get_learner_model()
         assert (
-            meta_weights.bias_weights
-            == meta_weights.interest_weights
+            meta_weights.interest_weights
             == meta_weights.novelty_weights
-            == models.LearnerMetaWeights.Weights()
+            == models.LearnerMetaWeights.Weights(0.5, 0.5)
         )
+        assert meta_weights.bias_weights == models.LearnerMetaWeights.Weights(0.0, 0.5)
         assert not list(novelty_model.knowledge.knowledge_components()) and not list(
             interest_model.knowledge.knowledge_components()
         )
@@ -869,45 +849,20 @@ class TestINKClassifier:
         for event, label in zip(train_events, train_labels):
             classifier.fit(event, label)
 
-        expected_results = [
-            0.24337755209294626,
-            0.21257650005484793,
-            0.2160900839287269,
-        ]
+        expected_results = [0.4988781959838494, 0.4767611764958353, 0.45223998905510576]
         actual_results = [classifier.predict_proba(event) for event in test_events]
 
-        assert expected_results == actual_results
-
-    def test_ink_classifier_customize(self, train_cases, test_events):
-        novelty_classifier = learning.NoveltyClassifier()
-        interest_classifier = learning.InterestClassifier()
-        meta_weights = models.LearnerMetaWeights()
-
-        classifier = learning.INKClassifier(
-            learner_meta_weights=meta_weights,
-            novelty_classifier=novelty_classifier,
-            interest_classifier=interest_classifier,
-        )
-
-        train_events, train_labels = train_cases
-        for event, label in zip(train_events, train_labels):
-            classifier.fit(event, label)
-
-        expected_results = [
-            0.24337755209294626,
-            0.21257650005484793,
-            0.2160900839287269,
-        ]
-        actual_results = [classifier.predict_proba(event) for event in test_events]
-
-        assert expected_results == actual_results
+        assert actual_results == expected_results
 
     def test_ink_classifier_greedy(self):
         classifier = learning.INKClassifier(greedy=True)
 
         train_events = [
             models.EventModel(
-                models.Knowledge({1: models.KnowledgeComponent(mean=0.0, variance=0.5)})
+                models.Knowledge(
+                    {1: models.KnowledgeComponent(mean=0.0, variance=0.5, timestamp=0)}
+                ),
+                event_time=0,
             )
         ]
         train_labels = [False]
@@ -920,6 +875,6 @@ class TestINKClassifier:
         assert (
             meta_weights.novelty_weights
             == meta_weights.interest_weights
-            == meta_weights.bias_weights
-            == models.LearnerMetaWeights.Weights(0.0, 0.5)
+            == models.LearnerMetaWeights.Weights(0.5, 0.5)
         )
+        assert meta_weights.bias_weights == models.LearnerMetaWeights.Weights(0.0, 0.5)
