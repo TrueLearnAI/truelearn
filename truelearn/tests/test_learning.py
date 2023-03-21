@@ -7,6 +7,11 @@ from truelearn import learning, models
 from truelearn.learning import base
 
 
+def check_farray_close(farr1, farr2):
+    for f1, f2 in zip(farr1, farr2):
+        assert math.isclose(f1, f2)
+
+
 class MockClassifier(base.BaseClassifier):
     HOLDER_VALUE = 42
     _parameter_constraints = {
@@ -378,7 +383,7 @@ class TestKnowledgeClassifier:
         ]
         actual_results = [classifier.predict_proba(event) for event in test_events]
 
-        assert actual_results == expected_results
+        check_farray_close(actual_results, expected_results)
 
     def test_knowledge_classifier_with_draw_proba_static(
         self, train_cases, test_events
@@ -398,7 +403,7 @@ class TestKnowledgeClassifier:
         ]
         actual_results = [classifier.predict_proba(event) for event in test_events]
 
-        assert actual_results == expected_results
+        check_farray_close(actual_results, expected_results)
 
 
 class TestNoveltyClassifier:
@@ -450,7 +455,7 @@ class TestNoveltyClassifier:
         )
         event = models.EventModel(knowledge)
 
-        assert classifier.predict_proba(event) == 0.5773502691896257
+        assert math.isclose(classifier.predict_proba(event), 0.5773502691896257)
 
     def test_novelty_throw(self):
         with pytest.raises(TypeError) as excinfo:
@@ -533,7 +538,7 @@ class TestNoveltyClassifier:
         ]
         actual_results = [classifier.predict_proba(event) for event in test_events]
 
-        assert actual_results == expected_results
+        check_farray_close(actual_results, expected_results)
 
     def test_novelty_classifier_draws(self, train_cases, test_events):
         classifier = learning.NoveltyClassifier(positive_only=False)
@@ -548,7 +553,7 @@ class TestNoveltyClassifier:
         expected_results = [0.2528080460583627, 0.2501330021564062, 0.2757975511726281]
         actual_results = [classifier.predict_proba(event) for event in test_events]
 
-        assert actual_results == expected_results
+        check_farray_close(actual_results, expected_results)
 
     def test_novelty_classifier_difference_zero(self):
         classifier = learning.NoveltyClassifier(
@@ -589,8 +594,8 @@ class TestNoveltyClassifier:
             classifier.fit(event, label)
 
         kc = list(classifier.get_learner_model().knowledge.knowledge_components())[0]
-        assert kc.mean == 0.46434312747910966
-        assert kc.variance == 0.34939412823253874
+        assert math.isclose(kc.mean, 0.46434312747910966)
+        assert math.isclose(kc.variance, 0.34939412823253874)
 
 
 class TestInterestClassifier:
@@ -758,7 +763,7 @@ class TestInterestClassifier:
         expected_results = [0.8300025208612971, 0.8173134873369469, 0.7439557457066273]
         actual_results = [classifier.predict_proba(event) for event in test_events]
 
-        assert actual_results == expected_results
+        check_farray_close(actual_results, expected_results)
 
     def test_interest_classifier_decay_func_type(self, train_cases, test_events):
         classifier_short = learning.InterestClassifier(decay_func_type="short")
@@ -837,7 +842,7 @@ class TestINKClassifier:
         expected_results = [0.4988781959838494, 0.4767611764958353, 0.45223998905510576]
         actual_results = [classifier.predict_proba(event) for event in test_events]
 
-        assert actual_results == expected_results
+        check_farray_close(actual_results, expected_results)
 
     def test_ink_classifier_greedy(self):
         classifier = learning.INKClassifier(greedy=True)
