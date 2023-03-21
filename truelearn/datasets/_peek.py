@@ -385,13 +385,13 @@ def load_peek_dataset(
         >>> len(train)
         14050
         >>> train[0]  # doctest:+ELLIPSIS
-        (23128, [(EventModel(...), event_time=172.0), True), ..., (EventModel(...), \
-event_time=55932.0), True)])
+        (23128, [(EventModel(...), event_time=172.0), False), ..., (EventModel(...), \
+event_time=55932.0), False)])
         >>> len(test)
         5969
         >>> test[0]  # doctest:+ELLIPSIS
-        (25623, [(EventModel(...), event_time=0.0), True), ..., (EventModel(...), \
-event_time=1590.0), True)])
+        (25623, [(EventModel(...), event_time=0.0), False), ..., (EventModel(...), \
+event_time=1590.0), False)])
         >>> len(mapping)
         30367
         >>> mapping[0]
