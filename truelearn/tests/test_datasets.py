@@ -18,7 +18,7 @@ class TestBase:
                 expected_sha256="should not reach this",
                 verbose=True,
             )
-        assert "The given url http:// is not a valid https url." == str(excinfo.value)
+        assert str(excinfo.value) == "The given url http:// is not a valid https url."
 
     @pytest.mark.disable_socket
     def test_verbose_mode(self, capsys, monkeypatch):
@@ -38,7 +38,7 @@ class TestBase:
             verbose=True,
         )
         captured = capsys.readouterr()
-        assert "Downloading https:// into .\n" == captured.out
+        assert captured.out == "Downloading https:// into .\n"
 
     @pytest.mark.disable_socket
     def test_sha256sum(self, tmp_path, monkeypatch):
@@ -100,13 +100,13 @@ class TestPEEKDataset:
     def test_load_peek_dataset_with_invalid_limit(self):
         with pytest.raises(ValueError) as excinfo:
             datasets.load_peek_dataset(train_limit=-1)
-        assert "train_limit must >= 0. Got train_limit=-1 instead." == str(
-            excinfo.value
+        assert (
+            str(excinfo.value) == "train_limit must >= 0. Got train_limit=-1 instead."
         )
 
         with pytest.raises(ValueError) as excinfo:
             datasets.load_peek_dataset(test_limit=-1)
-        assert "test_limit must >= 0. Got test_limit=-1 instead." == str(excinfo.value)
+        assert str(excinfo.value) == "test_limit must >= 0. Got test_limit=-1 instead."
 
     def test_load_peek_dataset_def_var(self):
         train, *_ = datasets.load_peek_dataset(
@@ -154,10 +154,10 @@ class TestPEEKDataset:
     def test_load_peek_dataset_raw_with_invalid_limit(self):
         with pytest.raises(ValueError) as excinfo:
             datasets.load_peek_dataset_raw(train_limit=-1)
-        assert "train_limit must >= 0. Got train_limit=-1 instead." == str(
-            excinfo.value
+        assert (
+            str(excinfo.value) == "train_limit must >= 0. Got train_limit=-1 instead."
         )
 
         with pytest.raises(ValueError) as excinfo:
             datasets.load_peek_dataset_raw(test_limit=-1)
-        assert "test_limit must >= 0. Got test_limit=-1 instead." == str(excinfo.value)
+        assert str(excinfo.value) == "test_limit must >= 0. Got test_limit=-1 instead."
