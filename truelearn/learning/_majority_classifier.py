@@ -2,7 +2,8 @@ from typing import Any, Dict
 from typing_extensions import Self
 
 from truelearn.models import EventModel
-from ._base import BaseClassifier
+from .base import BaseClassifier
+from ._constraint import TypeConstraint
 
 
 class MajorityClassifier(BaseClassifier):
@@ -33,35 +34,40 @@ class MajorityClassifier(BaseClassifier):
 
     _parameter_constraints: Dict[str, Any] = {
         **BaseClassifier._parameter_constraints,
-        "engagement": int,
-        "non_engagement": int,
+        "engagement": TypeConstraint(int),
+        "non_engagement": TypeConstraint(int),
+        "threshold": TypeConstraint(float),
     }
 
-    def __init__(self, *, engagement: int = 0, non_engagement: int = 0) -> None:
+    def __init__(
+        self, *, engagement: int = 0, non_engagement: int = 0, threshold: float = 0.5
+    ) -> None:
         """Init MajorityClassifier object.
 
         Args:
             *: Use to reject positional arguments.
             engagement: The number of learner's engagement.
             non_engagement: The number of learner's non_engagement.
+            threshold: A float that determines the classification threshold.
         """
         super().__init__()
 
-        self.engagement = engagement
-        self.non_engagement = non_engagement
+        self._engagement = engagement
+        self._non_engagement = non_engagement
+        self._threshold = threshold
 
         self._validate_params()
 
     def fit(self, x: EventModel, y: bool) -> Self:
         if y:
-            self.engagement += 1
+            self._engagement += 1
         else:
-            self.non_engagement += 1
+            self._non_engagement += 1
 
         return self
 
     def predict(self, x: EventModel) -> bool:
-        return self.engagement > self.non_engagement
+        return self.predict_proba(x) > self._threshold
 
     def predict_proba(self, x: EventModel) -> float:
-        return float(self.engagement > self.non_engagement)
+        return self._engagement / (self._engagement + self._non_engagement)

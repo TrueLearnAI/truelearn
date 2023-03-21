@@ -1,12 +1,12 @@
 import math
-from typing import Any, Optional, Dict
+from typing import Any, Optional, Dict, Tuple
 from typing_extensions import Self, Final
 
 import trueskill
-import mpmath
 
-from truelearn.models import EventModel, LearnerMetaModel
-from ._base import BaseClassifier
+from truelearn.models import EventModel, LearnerModel, LearnerMetaWeights
+from .base import BaseClassifier, team_sum_quality
+from ._constraint import TypeConstraint
 from ._novelty_classifier import NoveltyClassifier
 from ._interest_classifier import InterestClassifier
 
@@ -27,14 +27,16 @@ class INKClassifier(BaseClassifier):
 
     Examples:
         >>> from truelearn.learning import INKClassifier
-        >>> from truelearn.models import EventModel, Knowledge, KnowledgeComponent
+        >>> from truelearn.models import EventModel, Knowledge
+        >>> from truelearn.models import KnowledgeComponent, LearnerMetaWeights
         >>> ink_classifier = INKClassifier()
         >>> ink_classifier
         INKClassifier()
         >>>
         >>> # use custom weights
-        >>> weights = LearnerMetaModel.Weights(mean=0.0, variance=0.5)
-        >>> ink_classifier = INKClassifier(novelty_weights=weights)
+        >>> weights = LearnerMetaWeights.Weights(mean=0.0, variance=0.5)
+        >>> meta_weights = LearnerMetaWeights(novelty_weights=weights)
+        >>> ink_classifier = INKClassifier(learner_meta_weights=meta_weights)
         >>>
         >>> # prepare event model
         >>> knowledges = [
@@ -65,9 +67,9 @@ class INKClassifier(BaseClassifier):
         False 0.3042337221090127
         True 0.6278686231266752
         >>> ink_classifier.get_params(deep=False)  # doctest:+ELLIPSIS
-        {'bias_weights': Weights(mean=0.32119..., variance=0.88150...), ..., \
-'interest_weights': Weights(mean=0.58194..., variance=1.07022...), ..., \
-'novelty_weights': Weights(mean=0.39332..., variance=1.16897...), ...}
+        {...'learner_meta_weights': LearnerMetaWeights(novelty_weights=Weights(\
+mean=0.39332..., variance=1.16897...), interest_weights=Weights(mean=0.58194..., \
+variance=1.07022...), bias_weights=Weights(mean=0.32119..., variance=0.88150...))...}
     """
 
     __DEFAULT_GLOBAL_SIGMA: Final[float] = 1e-9
@@ -75,33 +77,31 @@ class INKClassifier(BaseClassifier):
 
     _parameter_constraints: Dict[str, Any] = {
         **BaseClassifier._parameter_constraints,
-        "novelty_classifier": NoveltyClassifier,
-        "interest_classifier": InterestClassifier,
-        "threshold": float,
-        "tau": float,
-        "greedy": bool,
-        "novelty_weights": LearnerMetaModel.Weights,
-        "interest_weights": LearnerMetaModel.Weights,
-        "bias_weights": LearnerMetaModel.Weights,
+        "learner_meta_weights": TypeConstraint(LearnerMetaWeights),
+        "novelty_classifier": TypeConstraint(NoveltyClassifier),
+        "interest_classifier": TypeConstraint(InterestClassifier),
+        "threshold": TypeConstraint(float),
+        "tau": TypeConstraint(float),
+        "greedy": TypeConstraint(bool),
     }
 
     def __init__(
         self,
         *,
+        learner_meta_weights: Optional[LearnerMetaWeights] = None,
         novelty_classifier: Optional[NoveltyClassifier] = None,
         interest_classifier: Optional[InterestClassifier] = None,
         threshold: float = 0.5,
         tau: float = 0.5,
         greedy: bool = False,
-        novelty_weights: Optional[LearnerMetaModel.Weights] = None,
-        interest_weights: Optional[LearnerMetaModel.Weights] = None,
-        bias_weights: Optional[LearnerMetaModel.Weights] = None,
     ) -> None:
         """Init INKClassifier object.
 
         Args:
             *:
                 Use to reject positional arguments.
+            learner_meta_weights:
+                The novelty/interest/bias weights.
             novelty_classifier:
                 The NoveltyClassifier.
             interest_classifier:
@@ -115,12 +115,6 @@ class INKClassifier(BaseClassifier):
                 A bool indicating whether the meta-learning should
                 take the greedy approach. In the greedy approach,
                 only incorrect predictions lead to the update of the weights.
-            novelty_weights:
-                A Weights object containing the mean and variance.
-            interest_weights:
-                A Weights object containing the mean and variance.
-            bias_weights:
-                A Weights object containing the mean and variance.
 
         Raises:
             TypeError:
@@ -132,36 +126,26 @@ class INKClassifier(BaseClassifier):
             novelty_classifier = NoveltyClassifier()
         if interest_classifier is None:
             interest_classifier = InterestClassifier()
+        if learner_meta_weights is None:
+            learner_meta_weights = LearnerMetaWeights()
 
-        self.novelty_classifier = novelty_classifier
-        self.interest_classifier = interest_classifier
-        self.threshold = threshold
-        self.tau = tau
-        self.greedy = greedy
-
-        if novelty_weights is None:
-            novelty_weights = LearnerMetaModel.Weights()
-
-        if interest_weights is None:
-            interest_weights = LearnerMetaModel.Weights()
-
-        if bias_weights is None:
-            bias_weights = LearnerMetaModel.Weights()
-
-        self.novelty_weights = novelty_weights
-        self.interest_weights = interest_weights
-        self.bias_weights = bias_weights
+        self._learner_meta_weights = learner_meta_weights
+        self._novelty_classifier = novelty_classifier
+        self._interest_classifier = interest_classifier
+        self._threshold = threshold
+        self._tau = tau
+        self._greedy = greedy
 
         self._validate_params()
 
     def __eval_matching_quality(
         self,
         *,
-        novelty_weights: LearnerMetaModel.Weights,
+        novelty_weights: LearnerMetaWeights.Weights,
         pred_novelty: float,
-        interest_weights: LearnerMetaModel.Weights,
+        interest_weights: LearnerMetaWeights.Weights,
         pred_interest: float,
-        bias_weights: LearnerMetaModel.Weights,
+        bias_weights: LearnerMetaWeights.Weights,
         pred_bias: float,
     ) -> float:
         """Evaluate the matching quality of learner and content given the weights.
@@ -188,19 +172,26 @@ class INKClassifier(BaseClassifier):
             of the learner and the content. The higher the value,
             the better the match.
         """
-        difference = (
-            (novelty_weights.mean * pred_novelty)
-            + (interest_weights.mean * pred_interest)
-            + (bias_weights.mean * pred_bias)
-            - self.threshold
-        )
-        std = math.sqrt(
-            novelty_weights.variance * pred_novelty
-            + interest_weights.variance * pred_interest
-            + bias_weights.variance * pred_bias
-        )
+        team_learner_mean = [
+            novelty_weights.mean * pred_novelty,
+            interest_weights.mean * pred_interest,
+            bias_weights.mean * pred_bias,
+        ]
+        team_learner_variance = [
+            novelty_weights.variance * pred_novelty,
+            interest_weights.variance * pred_interest,
+            bias_weights.variance * pred_bias,
+        ]
+        team_content_mean = [self._threshold]
+        team_content_variance = []
 
-        return float(mpmath.ncdf(difference, mu=0, sigma=std))
+        return team_sum_quality(
+            learner_mean=team_learner_mean,
+            learner_variance=team_learner_variance,
+            content_mean=team_content_mean,
+            content_variance=team_content_variance,
+            beta=0,
+        )
 
     def __create_env(self):
         """Create the trueskill environment used in the training/prediction process."""
@@ -208,7 +199,7 @@ class INKClassifier(BaseClassifier):
             mu=0.0,
             sigma=INKClassifier.__DEFAULT_GLOBAL_SIGMA,
             beta=1,
-            tau=self.tau,
+            tau=self._tau,
             draw_probability=INKClassifier.__DEFAULT_DRAW_PROBA,
             backend="mpmath",
         )
@@ -238,29 +229,29 @@ class INKClassifier(BaseClassifier):
         cur_pred = self.predict(x)
 
         # if prediction is correct and greedy, don't train
-        if self.greedy and cur_pred == pred_actual:
+        if self._greedy and cur_pred == pred_actual:
             return
 
         # train
         env = self.__create_env()
         team_experts = (
             env.create_rating(
-                mu=self.novelty_weights.mean,
-                sigma=math.sqrt(self.novelty_weights.variance),
+                mu=self._learner_meta_weights.novelty_weights.mean,
+                sigma=math.sqrt(self._learner_meta_weights.novelty_weights.variance),
             ),
             env.create_rating(
-                mu=self.interest_weights.mean,
-                sigma=math.sqrt(self.interest_weights.variance),
+                mu=self._learner_meta_weights.interest_weights.mean,
+                sigma=math.sqrt(self._learner_meta_weights.interest_weights.variance),
             ),
             env.create_rating(
-                mu=self.bias_weights.mean,
-                sigma=math.sqrt(self.bias_weights.variance),
+                mu=self._learner_meta_weights.bias_weights.mean,
+                sigma=math.sqrt(self._learner_meta_weights.bias_weights.variance),
             ),
         )
 
         team_threshold = (
             env.create_rating(
-                mu=self.threshold, sigma=INKClassifier.__DEFAULT_GLOBAL_SIGMA
+                mu=self._threshold, sigma=INKClassifier.__DEFAULT_GLOBAL_SIGMA
             ),
         )
 
@@ -278,49 +269,49 @@ class INKClassifier(BaseClassifier):
             )
 
         # update skills
-        self.novelty_weights = LearnerMetaModel.Weights(
+        self._learner_meta_weights.novelty_weights = LearnerMetaWeights.Weights(
             new_team_experts[0].mu, new_team_experts[0].sigma ** 2
         )
-        self.interest_weights = LearnerMetaModel.Weights(
+        self._learner_meta_weights.interest_weights = LearnerMetaWeights.Weights(
             new_team_experts[1].mu, new_team_experts[1].sigma ** 2
         )
-        self.bias_weights = LearnerMetaModel.Weights(
+        self._learner_meta_weights.bias_weights = LearnerMetaWeights.Weights(
             new_team_experts[2].mu, new_team_experts[2].sigma ** 2
         )
 
     def fit(self, x: EventModel, y: bool) -> Self:
-        self.novelty_classifier.fit(x, y)
-        self.interest_classifier.fit(x, y)
+        self._novelty_classifier.fit(x, y)
+        self._interest_classifier.fit(x, y)
 
-        pred_novelty = self.novelty_classifier.predict_proba(x)
-        pred_interest = self.interest_classifier.predict_proba(x)
+        pred_novelty = self._novelty_classifier.predict_proba(x)
+        pred_interest = self._interest_classifier.predict_proba(x)
 
         self.__update_weights(x, pred_novelty, pred_interest, y)
         return self
 
     def predict(self, x: EventModel) -> bool:
-        return self.predict_proba(x) > self.threshold
+        return self.predict_proba(x) > self._threshold
 
     def predict_proba(self, x: EventModel) -> float:
         return self.__eval_matching_quality(
-            novelty_weights=self.novelty_weights,
-            pred_novelty=self.novelty_classifier.predict_proba(x),
-            interest_weights=self.interest_weights,
-            pred_interest=self.interest_classifier.predict_proba(x),
-            bias_weights=self.bias_weights,
+            novelty_weights=self._learner_meta_weights.novelty_weights,
+            pred_novelty=self._novelty_classifier.predict_proba(x),
+            interest_weights=self._learner_meta_weights.interest_weights,
+            pred_interest=self._interest_classifier.predict_proba(x),
+            bias_weights=self._learner_meta_weights.bias_weights,
             pred_bias=1.0,
         )
 
-    def get_learner_model(self) -> LearnerMetaModel:
+    def get_learner_model(
+        self,
+    ) -> Tuple[LearnerModel, LearnerModel, LearnerMetaWeights]:
         """Get the learner model associated with this classifier.
 
         Returns:
             A learner model associated with this classifier.
         """
-        return LearnerMetaModel(
-            self.novelty_classifier.get_learner_model(),
-            self.interest_classifier.get_learner_model(),
-            self.novelty_weights,
-            self.interest_weights,
-            self.bias_weights,
+        return (
+            self._novelty_classifier.get_learner_model(),
+            self._interest_classifier.get_learner_model(),
+            self._learner_meta_weights,
         )

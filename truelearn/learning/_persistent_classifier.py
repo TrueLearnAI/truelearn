@@ -2,7 +2,8 @@ from typing import Any, Dict
 from typing_extensions import Self
 
 from truelearn.models import EventModel
-from ._base import BaseClassifier
+from .base import BaseClassifier
+from ._constraint import TypeConstraint
 
 
 class PersistentClassifier(BaseClassifier):
@@ -29,7 +30,7 @@ class PersistentClassifier(BaseClassifier):
 
     _parameter_constraints: Dict[str, Any] = {
         **BaseClassifier._parameter_constraints,
-        "engage_with_last": bool,
+        "engage_with_last": TypeConstraint(bool),
     }
 
     def __init__(self, engage_with_last: bool = False) -> None:
@@ -40,16 +41,16 @@ class PersistentClassifier(BaseClassifier):
         """
         super().__init__()
 
-        self.engage_with_last = engage_with_last
+        self._engage_with_last = engage_with_last
 
         self._validate_params()
 
     def fit(self, x: EventModel, y: bool) -> Self:
-        self.engage_with_last = y
+        self._engage_with_last = y
         return self
 
     def predict(self, x: EventModel) -> bool:
-        return self.engage_with_last
+        return self._engage_with_last
 
     def predict_proba(self, x: EventModel) -> float:
-        return float(self.engage_with_last)
+        return float(self._engage_with_last)

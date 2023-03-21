@@ -1,16 +1,22 @@
-import math
 import collections
+import math
 from abc import ABC, abstractmethod
-from typing import Iterable, Hashable, Any, Optional, Tuple, Dict
-from typing_extensions import Self, Final, final
+from typing import Iterable, Hashable, Optional, Tuple, Dict, Any
+from typing_extensions import Self, Final, final, Literal
 
 import trueskill
 import mpmath
 
 from truelearn.models import (
     EventModel,
-    AbstractKnowledgeComponent,
+    BaseKnowledgeComponent,
     LearnerModel,
+)
+from ._constraint import (
+    TypeConstraint,
+    ValueConstraint,
+    FuncConstraint,
+    validate_params,
 )
 
 
@@ -23,18 +29,38 @@ class BaseClassifier(ABC):
     the parameters.
 
     The `_parameter_constraints` is a dictionary that maps parameter
-    names to its expected type. The expected type can be a list or a single type
-    or a tuple of values as it's possible for a type to accept more than one type/value.
+    names to its constraint/list of constraints.
+    The constraint types are defined in ._constraints. Each constraint
+    type defines its way of determining whether the parameter `satisfies`
+    the constraint.
+    Having a list of constraints as the value in the dictionary means that
+    all of them must be satisfied. Notice that the order of the constraints
+    in the list is important as the `self._validate_params` validates them in
+    sequential order.
     To do the constraint check based on this, simply call `self._validate_params()`
     in your classifier.
+
+    Attributes:
+        PARAM_PREFIX:
+            The prefix of all the instance attributes in the classifier.
+            This is to help get_params/set_params/_validate_params work correctly.
+            The reason why we choose to append a prefix "_" by default to all variables
+            is that we don't want the user feel like they can directly access the
+            instance attributes of the classifier. In fact, any direct read/write to the
+            instance attributes are not encouraged as they may lead to unexpected
+            behaviour. The recommended way to do this is to read variables via
+            `get_params` and set variables via `set_params`. As these are not
+            common operations, the performance impact is negligible.
+            Implementations of Classifiers can override this class attribute. But,
+            it's not recommended to do that. The recommendation is to prefix all
+            instance attributes with "_" as this is consistent with the current
+            implementation.
     """
 
-    __DEEP_PARAM_DELIMITER: Final[str] = "__"
+    PARAM_PREFIX: str = "_"
 
-    # TODO: use constraint and satisfies to validate parameters
-    # as it gives us more flexibility and can help us eliminate the
-    # checks in InterestNoveltyKnowledgeBaseClassifier/INKClassifier
-    # (see scikit-learn _base)
+    __DEEP_PARAM_DELIMITER: Final[Literal["__"]] = "__"
+
     _parameter_constraints: Dict[str, Any] = {}
 
     def __repr__(self) -> str:
@@ -99,13 +125,13 @@ class BaseClassifier(ABC):
 
         out = {}
         for key in param_names:
-            if not hasattr(self, key):
+            if not hasattr(self, self.PARAM_PREFIX + key):
                 raise ValueError(
                     f"The specified parameter name {key}"
-                    f" is not in the {type(self)}."
+                    f" is not in the class {self.__class__.__name__!r}."
                 )
 
-            value = getattr(self, key)
+            value = getattr(self, self.PARAM_PREFIX + key)
             if deep and isinstance(value, BaseClassifier):
                 deep_items = value.get_params().items()
                 out.update(
@@ -154,13 +180,14 @@ class BaseClassifier(ABC):
             key, delim, sub_key = key.partition(BaseClassifier.__DEEP_PARAM_DELIMITER)
             if key not in valid_params:
                 raise KeyError(
-                    f"The given parameter {key}" f" is not in the {type(self)}."
+                    f"The given parameter {key}"
+                    f" is not in the class {self.__class__.__name__!r}."
                 )
 
             if delim:
                 nested_params[key][sub_key] = value
             else:
-                setattr(self, key, value)
+                setattr(self, self.PARAM_PREFIX + key, value)
                 valid_params[key] = value
 
         for key, sub_params in nested_params.items():
@@ -181,47 +208,115 @@ class BaseClassifier(ABC):
             ValueError:
                 If the parameter is not any of the valid values in the given tuple.
         """
-        for (
-            param_name,
-            expected_param_type,
-        ) in self._parameter_constraints.items():
-            if not hasattr(self, param_name):
-                raise ValueError(
-                    f"The specified parameter name {param_name}"
-                    f" is not in the {type(self)}."
-                )
+        validate_params(self, self._parameter_constraints)
 
-            param_value = getattr(self, param_name)
 
-            if isinstance(expected_param_type, list):
-                # if it matches none of the types in the constraints
-                if not any(
-                    isinstance(param_value, param_type_unpacked)
-                    for param_type_unpacked in list(expected_param_type)
-                ):
-                    param_classname_expected = list(
-                        map(lambda cls: cls.__name__, expected_param_type)
-                    )
-                    raise TypeError(
-                        f"The {param_name} parameter of {type(self)}"
-                        f" __init__ function must be one of the classes"
-                        f" in {param_classname_expected!r}."
-                        f" Got {type(param_value)} instead."
-                    )
-            elif isinstance(expected_param_type, tuple):
-                if param_value not in expected_param_type:
-                    raise ValueError(
-                        f"The {param_name} parameter of {type(self)}"
-                        " must be one of the value inside "
-                        f"tuple {expected_param_type!r}. Got {param_value!r} instead."
-                    )
-            else:
-                if not isinstance(param_value, expected_param_type):
-                    raise TypeError(
-                        f"The {param_name} parameter of {type(self)}"
-                        f" must be {expected_param_type!r}."
-                        f" Got {type(param_value)} instead."
-                    )
+def draw_proba_static_constraint(obj: BaseClassifier, _):
+    """Check whether the draw_proba_static is properly set when\
+    draw_proba_type is "static".
+
+    Args:
+        obj: The object to check.
+        _: Use to accept param_name.
+
+    Returns:
+        a ValueError object if the draw_proba_static is not property set,
+        which means it's None while draw_proba_type is static. If everything
+        is properly set, it returns None.
+    """
+    params = obj.get_params(deep=False)
+    if params["draw_proba_type"] == "static" and params["draw_proba_static"] is None:
+        raise ValueError(
+            "When draw_proba_type is set to static,"
+            " the draw_proba_static should not be None."
+        )
+
+
+def team_sum_quality(
+    *,
+    learner_mean: Iterable[float],
+    learner_variance: Iterable[float],
+    content_mean: Iterable[float],
+    content_variance: Iterable[float],
+    beta: float,
+) -> float:
+    """Return the probability that the learner engages with the content.
+
+    Args:
+        learner_mean:
+            An iterable of the mean of knowledge components that come from the learner.
+        learner_variance:
+            An iterable of the variance of knowledge components that come from
+            the learner.
+        content_mean:
+            An iterable of the mean of knowledge components that come from the content.
+        content_variance:
+            An iterable of the variance of knowledge components that come from
+            the content.
+        beta:
+            The noise factor.
+
+    Returns:
+        The probability that the learner engages with the content.
+    """
+    difference = sum(learner_mean) - sum(content_mean)
+    std = math.sqrt(sum(learner_variance) + sum(content_variance) + beta)
+    return float(mpmath.ncdf(difference, mu=0, sigma=std))
+
+
+def team_sum_quality_from_kcs(
+    learner_kcs: Iterable[BaseKnowledgeComponent],
+    content_kcs: Iterable[BaseKnowledgeComponent],
+    beta: float,
+) -> float:
+    """Return the probability that the learner engages with the learnable unit.
+
+    Args:
+        learner_kcs: An iterable of knowledge components that come from the learner.
+        content_kcs: An iterable of knowledge components that come from the content.
+        beta: The noise factor.
+
+    Returns:
+        The probability that the learner engages with the learnable unit.
+    """
+    # make them list because we use them more than one time later
+    learner_kcs = list(learner_kcs)
+    content_kcs = list(content_kcs)
+
+    team_learner_mean = map(lambda kc: kc.mean, learner_kcs)
+    team_learner_variance = map(lambda kc: kc.variance, learner_kcs)
+    team_content_mean = map(lambda kc: kc.mean, content_kcs)
+    team_content_variance = map(lambda kc: kc.variance, content_kcs)
+
+    return team_sum_quality(
+        learner_mean=team_learner_mean,
+        learner_variance=team_learner_variance,
+        content_mean=team_content_mean,
+        content_variance=team_content_variance,
+        beta=beta,
+    )
+
+
+def gather_trueskill_team(
+    env: trueskill.TrueSkill, kcs: Iterable[BaseKnowledgeComponent]
+) -> Tuple[trueskill.Rating, ...]:
+    """Return a tuple of trueskill Rating \
+    created from the given iterable of knowledge components.
+
+    Args:
+        env: The trueskill environment where the training/prediction happens.
+        kcs: An iterable of knowledge components.
+
+    Returns:
+        A tuple of trueskill Rating objects
+        created from the given iterable of knowledge components.
+    """
+    return tuple(
+        map(
+            lambda kc: env.create_rating(mu=kc.mean, sigma=math.sqrt(kc.variance)),
+            kcs,
+        )
+    )
 
 
 class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
@@ -242,68 +337,20 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
 
     _parameter_constraints: Dict[str, Any] = {
         **BaseClassifier._parameter_constraints,
-        "learner_model": LearnerModel,
-        "threshold": float,
-        "init_skill": float,
-        "def_var": float,
-        "tau": float,
-        "beta": float,
-        "positive_only": bool,
-        "draw_proba_type": ("static", "dynamic"),
-        "draw_proba_static": [float, type(None)],
-        "draw_proba_factor": float,
+        "learner_model": TypeConstraint(LearnerModel),
+        "threshold": TypeConstraint(float),
+        "init_skill": TypeConstraint(float),
+        "def_var": TypeConstraint(float),
+        "tau": TypeConstraint(float),
+        "beta": TypeConstraint(float),
+        "positive_only": TypeConstraint(bool),
+        "draw_proba_type": ValueConstraint("static", "dynamic"),
+        "draw_proba_static": [
+            TypeConstraint(float, type(None)),
+            FuncConstraint(draw_proba_static_constraint),
+        ],
+        "draw_proba_factor": TypeConstraint(float),
     }
-
-    @staticmethod
-    def _team_sum_quality(
-        learner_kcs: Iterable[AbstractKnowledgeComponent],
-        content_kcs: Iterable[AbstractKnowledgeComponent],
-        beta: float,
-    ) -> float:
-        """Return the probability that the learner engages with the learnable unit.
-
-        Args:
-            learner_kcs: An iterable of knowledge components that come from the learner.
-            content_kcs: An iterable of knowledge components that come from the content.
-            beta: The noise factor.
-
-        Returns:
-            The probability that the learner engages with the learnable unit.
-        """
-        # make them list because we use them more than one time later
-        learner_kcs = list(learner_kcs)
-        content_kcs = list(content_kcs)
-
-        team_learner_mean = map(lambda kc: kc.mean, learner_kcs)
-        team_learner_variance = map(lambda kc: kc.variance, learner_kcs)
-        team_content_mean = map(lambda kc: kc.mean, content_kcs)
-        team_content_variance = map(lambda kc: kc.variance, content_kcs)
-
-        difference = sum(team_learner_mean) - sum(team_content_mean)
-        std = math.sqrt(sum(team_learner_variance) + sum(team_content_variance) + beta)
-        return float(mpmath.ncdf(difference, mu=0, sigma=std))
-
-    @staticmethod
-    def _gather_trueskill_team(
-        env: trueskill.TrueSkill, kcs: Iterable[AbstractKnowledgeComponent]
-    ) -> Tuple[trueskill.Rating, ...]:
-        """Return a tuple of trueskill Rating \
-        created from the given iterable of knowledge components.
-
-        Args:
-            env: The trueskill environment where the training/prediction happens.
-            kcs: An iterable of knowledge components.
-
-        Returns:
-            A tuple of trueskill Rating objects
-            created from the given iterable of knowledge components.
-        """
-        return tuple(
-            map(
-                lambda kc: env.create_rating(mu=kc.mean, sigma=math.sqrt(kc.variance)),
-                kcs,
-            )
-        )
 
     def __init__(
         self,
@@ -363,47 +410,33 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
         super().__init__()
 
         if learner_model is None:
-            self.learner_model = LearnerModel()
+            self._learner_model = LearnerModel()
         else:
-            self.learner_model = learner_model
-        self.threshold = threshold
-        self.init_skill = init_skill
-        self.def_var = def_var
-        self.tau = tau
-        self.beta = beta
-        self.positive_only = positive_only
+            self._learner_model = learner_model
+        self._threshold = threshold
+        self._init_skill = init_skill
+        self._def_var = def_var
+        self._tau = tau
+        self._beta = beta
+        self._positive_only = positive_only
 
-        self.draw_proba_type = draw_proba_type
-        self.draw_proba_factor = draw_proba_factor
-        self.draw_proba_static = draw_proba_static
-
-        # check to ensure that the constructed classifier is not in corrupt state
-        if self.draw_proba_type == "static" and self.draw_proba_static is None:
-            raise ValueError(
-                "When draw_proba_type is set to static,"
-                " the draw_proba_static should not be None."
-            )
+        self._draw_proba_type = draw_proba_type
+        self._draw_proba_factor = draw_proba_factor
+        self._draw_proba_static = draw_proba_static
 
     def __calculate_draw_proba(self) -> float:
-        if self.draw_proba_type == "static":
-            # delayed check as draw_proba_type can be potentially replaced by set_params
-            # we can declare a version of constraint checker once we support
-            # satisfies-based constraint checking
-            if self.draw_proba_static is None:
-                raise ValueError(
-                    "When draw_proba_type is set to static,"
-                    " the draw_proba_static should not be None."
-                )
-            return self.draw_proba_static * self.draw_proba_factor
+        if self._draw_proba_type == "static":
+            # we are sure that draw_proba_static cannot be None by using our type check
+            return self._draw_proba_static * self._draw_proba_factor  # type: ignore
 
         # >= 1 because it's divisor
         total_engagement_stats = max(
             1,
-            self.learner_model.number_of_engagements
-            + self.learner_model.number_of_non_engagements,
+            self._learner_model.number_of_engagements
+            + self._learner_model.number_of_non_engagements,
         )
         draw_probability = float(
-            self.learner_model.number_of_engagements / total_engagement_stats
+            self._learner_model.number_of_engagements / total_engagement_stats
         )
 
         # clamp the value between [DEFAULT_DRAW_PROBA_LOW, DEFAULT_DRAW_PROBA_HIGH]
@@ -415,7 +448,7 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
             InterestNoveltyKnowledgeBaseClassifier.__DEFAULT_DRAW_PROBA_LOW,
         )
 
-        return draw_probability * self.draw_proba_factor
+        return draw_probability * self._draw_proba_factor
 
     def __create_env(self) -> trueskill.TrueSkill:
         """Create the trueskill environment used in the training/prediction process."""
@@ -423,8 +456,8 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
         return trueskill.TrueSkill(
             mu=0.0,
             sigma=InterestNoveltyKnowledgeBaseClassifier.__DEFAULT_GLOBAL_SIGMA,
-            beta=self.beta,
-            tau=self.tau,
+            beta=self._beta,
+            tau=self._tau,
             draw_probability=draw_probability,
             backend="mpmath",
         )
@@ -436,11 +469,11 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
             y: A bool indicating whether the learner engage in the learning event.
         """
         if y:
-            self.learner_model.number_of_engagements += 1
+            self._learner_model.number_of_engagements += 1
         else:
-            self.learner_model.number_of_non_engagements += 1
+            self._learner_model.number_of_non_engagements += 1
 
-    def __select_kcs(self, x: EventModel) -> Iterable[AbstractKnowledgeComponent]:
+    def __select_kcs(self, x: EventModel) -> Iterable[BaseKnowledgeComponent]:
         """Get knowledge components in the learner's knowledge \
         based on the knowledge of the learnable unit.
 
@@ -460,14 +493,14 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
         """
 
         def __kc_mapper(
-            topic_kc_pair: Tuple[Hashable, AbstractKnowledgeComponent]
-        ) -> AbstractKnowledgeComponent:
+            topic_kc_pair: Tuple[Hashable, BaseKnowledgeComponent]
+        ) -> BaseKnowledgeComponent:
             topic_id, kc = topic_kc_pair
-            extracted_kc = self.learner_model.knowledge.get_kc(
+            extracted_kc = self._learner_model.knowledge.get_kc(
                 topic_id,
                 kc.clone(
-                    mean=self.init_skill,
-                    variance=self.def_var,
+                    mean=self._init_skill,
+                    variance=self._def_var,
                     timestamp=x.event_time,
                 ),
             )
@@ -478,7 +511,7 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
 
     def __select_topic_kc_pairs(
         self, x: EventModel
-    ) -> Iterable[Tuple[Hashable, AbstractKnowledgeComponent]]:
+    ) -> Iterable[Tuple[Hashable, BaseKnowledgeComponent]]:
         """Get topic_id and knowledge_component pairs in the learner's knowledge \
         based on the knowledge of the learnable unit.
 
@@ -501,13 +534,15 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
         """
 
         def __topic_kc_pair_mapper(
-            topic_kc_pair: Tuple[Hashable, AbstractKnowledgeComponent]
-        ) -> Tuple[Hashable, AbstractKnowledgeComponent]:
+            topic_kc_pair: Tuple[Hashable, BaseKnowledgeComponent]
+        ) -> Tuple[Hashable, BaseKnowledgeComponent]:
             topic_id, kc = topic_kc_pair
-            extracted_kc = self.learner_model.knowledge.get_kc(
+            extracted_kc = self._learner_model.knowledge.get_kc(
                 topic_id,
                 kc.clone(
-                    mean=self.init_skill, variance=self.def_var, timestamp=x.event_time
+                    mean=self._init_skill,
+                    variance=self._def_var,
+                    timestamp=x.event_time,
                 ),
             )
             return topic_id, extracted_kc
@@ -519,8 +554,8 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
     def _generate_ratings(  # pylint: disable=too-many-arguments
         self,
         env: trueskill.TrueSkill,
-        learner_kcs: Iterable[AbstractKnowledgeComponent],
-        content_kcs: Iterable[AbstractKnowledgeComponent],
+        learner_kcs: Iterable[BaseKnowledgeComponent],
+        content_kcs: Iterable[BaseKnowledgeComponent],
         event_time: Optional[float],
         y: bool,
     ) -> Iterable[trueskill.Rating]:
@@ -578,13 +613,13 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
             kc.update(
                 mean=rating.mu, variance=rating.sigma**2, timestamp=x.event_time
             )
-            self.learner_model.knowledge.update_kc(topic_id, kc)
+            self._learner_model.knowledge.update_kc(topic_id, kc)
 
     @final
     def fit(self, x: EventModel, y: bool) -> Self:
         # if positive_only is False or (it's true and y is true)
         # update the knowledge representation
-        if not self.positive_only or y is True:
+        if not self._positive_only or y is True:
             env = self.__create_env()
             self.__update_knowledge_representation(env, x, y)
 
@@ -593,14 +628,14 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
 
     @final
     def predict(self, x: EventModel) -> bool:
-        return self.predict_proba(x) > self.threshold
+        return self.predict_proba(x) > self._threshold
 
     @abstractmethod
     def _eval_matching_quality(
         self,
         env: trueskill.TrueSkill,
-        learner_kcs: Iterable[AbstractKnowledgeComponent],
-        content_kcs: Iterable[AbstractKnowledgeComponent],
+        learner_kcs: Iterable[BaseKnowledgeComponent],
+        content_kcs: Iterable[BaseKnowledgeComponent],
     ) -> float:
         """Evaluate the matching quality of learner and content.
 
@@ -633,4 +668,4 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
         Returns:
             A learner model associated with this classifier.
         """
-        return self.learner_model
+        return self._learner_model
