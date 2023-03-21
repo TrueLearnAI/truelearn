@@ -148,7 +148,7 @@ def __restructure_line(
     # sanitize the data
     event_time = float(event_time)
     learner_id = int(learner_id)
-    label = bool(label)
+    label = bool(int(label))
 
     # extract topic_id from topics
     topic_ids = list(
