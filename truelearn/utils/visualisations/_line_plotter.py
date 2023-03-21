@@ -133,7 +133,7 @@ class LinePlotter(BasePlotter):
     
     def _plot_multiple(
             self,
-            content_list: list[Union[Knowledge, Iterable[Tuple[str, Iterable, Iterable]]]],
+            content_list: Iterable[Union[Knowledge, Iterable[Tuple[str, Iterable, Iterable]]]],
             topic_id: str,
             visualise_variance: bool=True,
             title: str="Mean of user's top 5 topics over time",
