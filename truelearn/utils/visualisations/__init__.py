@@ -8,6 +8,7 @@ from ._pie_plotter import RosePlotter
 from ._bar_plotter import BarPlotter
 from ._dot_plotter import DotPlotter
 from ._bubble_plotter import BubblePlotter
+from ._word_plotter import WordPlotter
 
 __all__ = [
     "knowledge_to_dict",
@@ -15,5 +16,6 @@ __all__ = [
     "PiePlotter",
     "BarPlotter",
     "DotPlotter",
-    "BubblePlotter"
+    "BubblePlotter",
+    "WordPlotter"
 ]
