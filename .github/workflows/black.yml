@@ -1,0 +1,16 @@
+name: Format Check
+on: [pull_request]
+
+jobs:
+  black:
+    name: Format Check with Black
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Actions Repository
+        uses: actions/checkout@v3
+
+      - name: Check format of TrueLearn
+        uses: psf/black@stable
+        with:
+          options: "--check"
+          src: "./truelearn"

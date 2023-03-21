@@ -2,13 +2,18 @@ import math
 from typing import Callable, Any, Optional, Dict, Iterable
 from datetime import datetime as dt
 
+import trueskill
+
 from truelearn.models import (
     LearnerModel,
-    AbstractKnowledgeComponent,
+    BaseKnowledgeComponent,
 )
-from ._base import InterestNoveltyKnowledgeBaseClassifier
-
-import trueskill
+from .base import (
+    InterestNoveltyKnowledgeBaseClassifier,
+    gather_trueskill_team,
+    team_sum_quality_from_kcs,
+)
+from ._constraint import TypeConstraint, ValueConstraint
 
 
 class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
@@ -81,8 +86,8 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
 
     _parameter_constraints: Dict[str, Any] = {
         **InterestNoveltyKnowledgeBaseClassifier._parameter_constraints,
-        "decay_func_type": ("short", "long"),
-        "decay_func_factor": float,
+        "decay_func_type": ValueConstraint("short", "long"),
+        "decay_func_factor": TypeConstraint(float),
     }
 
     def __init__(
@@ -164,8 +169,8 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
             draw_proba_factor=draw_proba_factor,
         )
 
-        self.decay_func_type = decay_func_type
-        self.decay_func_factor = decay_func_factor
+        self._decay_func_type = decay_func_type
+        self._decay_func_factor = decay_func_factor
 
         self._validate_params()
 
@@ -178,18 +183,18 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
         Notes:
             Equations from: https://link.springer.com/article/10.1007/s11227-020-03266-2
         """
-        if self.decay_func_type == "short":
+        if self._decay_func_type == "short":
             return lambda t_delta: min(
-                2 / (1 + math.exp(self.decay_func_factor * t_delta)), 1.0
+                2 / (1 + math.exp(self._decay_func_factor * t_delta)), 1.0
             )
 
-        return lambda t_delta: min(math.exp(-self.decay_func_factor * t_delta), 1.0)
+        return lambda t_delta: min(math.exp(-self._decay_func_factor * t_delta), 1.0)
 
     def _generate_ratings(
         self,
         env: trueskill.TrueSkill,
-        learner_kcs: Iterable[AbstractKnowledgeComponent],
-        content_kcs: Iterable[AbstractKnowledgeComponent],
+        learner_kcs: Iterable[BaseKnowledgeComponent],
+        content_kcs: Iterable[BaseKnowledgeComponent],
         event_time: Optional[float],
         _y: bool,
     ) -> Iterable[trueskill.Rating]:
@@ -230,8 +235,8 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
         decay_func = self.__get_decay_func()
 
         def __apply_interest_decay(
-            learner_kc: AbstractKnowledgeComponent,
-        ) -> AbstractKnowledgeComponent:
+            learner_kc: BaseKnowledgeComponent,
+        ) -> BaseKnowledgeComponent:
             if learner_kc.timestamp is None:
                 raise ValueError(
                     "The timestamp field of knowledge component"
@@ -245,12 +250,8 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
 
         learner_kcs_decayed = map(__apply_interest_decay, learner_kcs)
 
-        team_learner = InterestNoveltyKnowledgeBaseClassifier._gather_trueskill_team(
-            env, learner_kcs_decayed
-        )
-        team_content = InterestNoveltyKnowledgeBaseClassifier._gather_trueskill_team(
-            env, content_kcs
-        )
+        team_learner = gather_trueskill_team(env, learner_kcs_decayed)
+        team_content = gather_trueskill_team(env, content_kcs)
 
         # learner always wins in interest
         updated_team_learner, _ = env.rate([team_learner, team_content], ranks=[0, 1])
@@ -259,9 +260,7 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
     def _eval_matching_quality(
         self,
         env: trueskill.TrueSkill,
-        learner_kcs: Iterable[AbstractKnowledgeComponent],
-        content_kcs: Iterable[AbstractKnowledgeComponent],
+        learner_kcs: Iterable[BaseKnowledgeComponent],
+        content_kcs: Iterable[BaseKnowledgeComponent],
     ) -> float:
-        return InterestNoveltyKnowledgeBaseClassifier._team_sum_quality(
-            learner_kcs, content_kcs, self.beta
-        )
+        return team_sum_quality_from_kcs(learner_kcs, content_kcs, self._beta)

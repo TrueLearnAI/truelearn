@@ -1,5 +1,5 @@
 # Ensures that the docs build correctly
-name: 'Docs Build'
+name: Docs Build
 on:
   pull_request:
     branches:
@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  Sphinx_Build:
+  sphinx_build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
@@ -16,15 +16,15 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v4.4.0
         with:
-          python-version: '3.7'
-          cache: 'pip' # Cache dependencies
-          cache-dependency-path: '**/pyproject.toml'
+          python-version: "3.7"
+          cache: "pip" # Cache dependencies
+          cache-dependency-path: "**/pyproject.toml"
 
       - name: Install pip-tools and generate requirements.txt
         run: |
           pip install pip-tools
-          # Generates a requirements.txt file from pyproject.toml 
-          # This means that we dont have to install truelearn 
+          # Generates a requirements.txt file from pyproject.toml
+          # This means that we dont have to install truelearn
           # so this workflow can use the same cache as the other workflows
           pip-compile --resolver=backtracking --output-file requirements.txt pyproject.toml
 
@@ -42,9 +42,8 @@ jobs:
         run: |
           sphinx-apidoc -f -o docs/ truelearn
           cd ./docs
-           
+
           # Treat warnings as errors by setting the SPHINXOPTS variable to -W.
           # --keep-going is for not stopping at the first error
           # -n is for nitpicky mode warns about all missing references
           make html -e SPHINXOPTS="-W --keep-going -n"
-

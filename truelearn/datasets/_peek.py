@@ -19,9 +19,9 @@ from truelearn.models import (
     EventModel,
     Knowledge,
     KnowledgeComponent,
-    AbstractKnowledgeComponent,
+    BaseKnowledgeComponent,
 )
-from ._base import RemoteFileMetaData, check_and_download_file
+from .base import RemoteFileMetaData, check_and_download_file
 
 
 PEEKData: TypeAlias = List[Tuple[int, List[Tuple[EventModel, bool]]]]
@@ -63,7 +63,7 @@ class PEEKKnowledgeComponentGenerator(Protocol):
         url: str,
         title: str,
         description: str,
-    ) -> AbstractKnowledgeComponent:
+    ) -> BaseKnowledgeComponent:
         ...  # pragma: no cover
 
 
