@@ -8,8 +8,10 @@ from truelearn.learning import base
 
 
 def check_farray_close(farr1, farr2):
-    for f1, f2 in zip(farr1, farr2):
-        assert math.isclose(f1, f2)
+    status = list(map(lambda t: math.isclose(*t), zip(farr1, farr2)))
+
+    if not all(status):
+        assert False, "farr1 is not equal to farr2.\n" f"{farr1} != {farr2}"
 
 
 class MockClassifier(base.BaseClassifier):
@@ -793,6 +795,27 @@ class TestINKClassifier:
         assert not list(novelty_model.knowledge.knowledge_components()) and not list(
             interest_model.knowledge.knowledge_components()
         )
+
+    def test_ink_classifier_customize(self, train_cases, test_events):
+        learner_meta_weights = models.LearnerMetaWeights(
+            bias_weights=models.LearnerMetaWeights.Weights(0.1, 0.5)
+        )
+        novelty_classifier = learning.NoveltyClassifier(def_var=0.4)
+        interest_classifier = learning.InterestClassifier(beta=0.2)
+        classifier = learning.INKClassifier(
+            learner_meta_weights=learner_meta_weights,
+            novelty_classifier=novelty_classifier,
+            interest_classifier=interest_classifier,
+        )
+
+        train_events, train_labels = train_cases
+        for event, label in zip(train_events, train_labels):
+            classifier.fit(event, label)
+
+        expected_results = [0.3816161907569338, 0.35816044965270255, 0.3350734720408112]
+        actual_results = [classifier.predict_proba(event) for event in test_events]
+
+        check_farray_close(actual_results, expected_results)
 
     def test_ink_get_set_params(self):
         classifier = learning.INKClassifier()
