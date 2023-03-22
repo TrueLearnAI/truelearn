@@ -1,4 +1,70 @@
 # pylint: disable=missing-function-docstring
+# noqa
+"""
+TrueLearn Experiments
+=====================
+
+This example replicates a simple version of truelearn experiments,
+measuring the accuracy, precision, recall and f1 score of
+each classifier inside the truelearn package.
+
+The data used in the example is the PEEK Dataset, imported via
+``truelearn.datasets`` subpackage.
+It is worth noting that because of the large amount of data in the dataset,
+this example uses multiple processes for training.
+
+The final results are as follows:
+
+.. list-table::
+   :header-rows: 1
+
+   * - Classifier
+     - Accuracy
+     - Precision
+     - Recall
+     - F1 Score
+   * - EngageClassifier
+     - 0.574
+     - 0.574
+     - 0.898
+     - 0.663
+   * - PersistentClassifier
+     - 0.779
+     - 0.638
+     - 0.637
+     - 0.636
+    * - MajorityClassifier
+     - 0.743
+     - 0.517
+     - 0.561
+     - 0.525
+    * - KnowledgeClassifier
+     - 0.671
+     - 0.590
+     - 0.551
+     - 0.545
+    * - NoveltyClassifier
+     - 0.573
+     - 0.575
+     - 0.769
+     - 0.620
+    * - InterestClassifier
+     - 0.569
+     - 0.577
+     - 0.681
+     - 0.583
+    * - INKClassifier
+     - 0.761
+     - 0.559
+     - 0.603
+     - 0.568
+
+It can be noted that the results presented in the table are slightly different
+from the data in the TrueLearn paper because here we did not use train datasets
+for hyperparameter training. If hyperparametric training is done, we expect that
+the final parameters will be very close to the data in the paper.
+"""
+
 import copy
 import itertools
 import multiprocessing
@@ -107,9 +173,6 @@ def multiprocessing_driver(
 
 
 def main():
-    # this example is used to demonstrate the performance of our classifier
-    # by using the default parameters + some handpicked values
-
     # train is for hyperparameter tuning
     # test is for evaluation
     #
