@@ -1,25 +1,26 @@
 import datetime
 from typing import Iterable, Tuple
 
-import numpy as np
 import plotly.graph_objects as go
+import matplotlib.pyplot as plt
+import matplotlib.cm as cm
+import matplotlib.colors as colors
+import circlify
 
 from truelearn.models import Knowledge
 from truelearn.utils.visualisations._base import (
     BasePlotter,
-    knowledge_to_dict,
-    KnowledgeDict
+    knowledge_to_dict
 )
 
-
 class BubblePlotter(BasePlotter):
-    """Provides utilities for plotting bubble charts."""
+    """Provides utilities for plotting circle charts."""
 
     def __init__(self):
         self.figure = None
 
     def _standardise_data(
-            self, raw_data: KnowledgeDict, history: bool
+            self, raw_data: Knowledge, history: bool
     ) -> Iterable[Tuple[Iterable, Iterable, str, Iterable]]:
         """Converts an object of KnowledgeDict type to one suitable for plot().
         
@@ -33,10 +34,13 @@ class BubblePlotter(BasePlotter):
         Args:
             raw_data: dictionary representation of the learner's knowledge and
               knowledge components.
+            top_n: the number of knowledge components to visualise.
+              e.g. top_n = 5 would visualise the top 5 knowledge components 
+              ranked by mean.
 
         Returns:
             A data structure usable by the plot() method to generate
-            the bubble chart.
+            the radar chart.
         """
         raw_data = knowledge_to_dict(raw_data)
 
@@ -62,7 +66,7 @@ class BubblePlotter(BasePlotter):
                         + "Expected only HistoryAwareKnowledgeComponents."
                     ) from err
             else:
-                data = (mean, variance, title)
+                data = (mean, variance, title)  # without the timestamps
 
             content.append(data)
 
@@ -73,88 +77,3 @@ class BubblePlotter(BasePlotter):
 
         return content
 
-    def plot(
-            self,
-            content: Iterable[Tuple[Iterable, Iterable, str]],
-            history: bool,
-            top_n: int = 5,
-            title: str = "Comparison of learner's top 5 subjects",
-            x_label: str = "Mean",
-            y_label: str = "Variance",
-    ) -> go.Scatter:
-
-        """
-        Plots the bubble chart using the data.
-
-        Uses content and history to generate a Figure object and stores
-        it into self.figure.
-
-        Args:
-            history: a Boolean value to indicate whether or not the user wants
-              to visualise the history component of the knowledge. If set to 
-              True, number of videos watched by the user and the timestamp of
-              the last video watched by the user will be displayed by the 
-              visualisation hover text.
-            top_n: the number of knowledge components to visualise.
-              e.g. top_n = 5 would visualise the top 5 knowledge components 
-              ranked by mean.
-        """
-        if isinstance(content, Knowledge):
-            content = self._standardise_data(content, history)
-
-        content = content[:top_n]
-
-        layout_data = self._layout((title, x_label, y_label))
-
-        means = [lst[0] for lst in content]
-
-        variances = [lst[1] for lst in content]
-
-        titles = [lst[2] for lst in content]
-
-        if history:
-            timestamps = [lst[3] for lst in content]
-            number_of_videos = []
-            last_video_watched = []
-            for timestamp in timestamps:
-                number_of_videos.append(len(timestamp))
-                last_video_watched.append(timestamp[-1])
-
-        self.figure = go.Figure(data=go.Scatter(
-            x=means,
-            y=variances,
-            marker=dict(
-                size=means,
-                sizemode='area',
-                sizeref=2. * max(means) / (200. ** 2),
-                sizemin=4,
-                color=variances,
-                colorbar=dict(
-                    title="Variance"
-                ),
-                colorscale="Greens",
-                reversescale=True  # dark colours should represent less variance
-            ),
-            customdata=np.transpose([titles, number_of_videos, last_video_watched])
-            if history else
-            titles,
-            hovertemplate="<br>".join([
-                "Topic: %{customdata[0]}",
-                "Mean: %{x}",
-                "Variance: %{y}",
-                "Number of Videos Watched: %{customdata[1]}",
-                "Last Video Watched On: %{customdata[2]}",
-                "<extra></extra>"])
-            if history else
-            "<br>".join([
-                "Topic: %{customdata}",
-                "Mean: %{x}",
-                "Variance: %{y}",
-                "<extra></extra>"]),
-            mode="markers"),
-            layout=layout_data)
-
-        return self
-
-    def _trace(self):
-        pass
