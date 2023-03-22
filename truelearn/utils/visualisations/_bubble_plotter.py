@@ -157,7 +157,23 @@ class BubblePlotter(BasePlotter):
         # Normalize data range to colormap range
         norm = colors.Normalize(vmin=min(variances) - 0.05, vmax=max(variances) + 0.05)
 
+        # Create ScalarMappable object
+        sm = cm.ScalarMappable(norm=norm, cmap=cmap)
 
+        # print circles
+        for i, circle in enumerate(circles):
+            if i < len(titles):
+                x, y, r = circle
+                ax.add_patch(plt.Circle((x, y), r, linewidth=2,color=sm.to_rgba(variances[len(variances) - 1 - i])))
+                plt.annotate(
+                    titles[len(titles) - 1 - i], 
+                    (x,y) ,
+                    va='center',
+                    ha='center'
+                )
+
+        cbar = fig.colorbar(sm, ax=ax)
+        cbar.ax.set_ylabel('Variance')
         
         plt.show()
         return self
