@@ -83,7 +83,7 @@ class WordPlotter(BasePlotter):
             title: str = "Comparison of learner's top 5 subjects",
             x_label: str = "Subjects",
             y_label: str = "Mean",
-    ) -> None:
+    ) -> plt.imshow: # change this attribute
 
         """
         Plots the wordcloud chart using the data.
