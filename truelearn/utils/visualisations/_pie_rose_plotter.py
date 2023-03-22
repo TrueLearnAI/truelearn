@@ -1,5 +1,5 @@
 import datetime
-from typing import Iterable, Tuple, Union
+from typing import Iterable, Tuple, Union, Optional
 from typing_extensions import final, Self
 
 import numpy as np
@@ -124,6 +124,10 @@ class PiePlotter(BasePlotter):
             for timestamp in timestamps:
                 number_of_videos.append(len(timestamp))
                 last_video_watched.append(timestamp[-1])
+        
+        if other:
+            # get average number_of_videos
+            number_of_videos[-1] /= len(rest)
 
         self.figure = go.Figure(go.Pie(
             labels=titles,
@@ -158,7 +162,7 @@ class PiePlotter(BasePlotter):
             for lst in rest:
                 timestamps += lst[3]  # concatenate timestamps
 
-            timestamps[-1] = "N/A"  # needed because we are unable to display the date of the last video watched
+            timestamps[-1] = "N/A"  # alternatively, sort timestamps
             other_data = (average_mean, average_variance, "Other", timestamps)
         else:
             other_data = (average_mean, average_variance, "Other")
@@ -206,6 +210,10 @@ class RosePlotter(PiePlotter):
             content.append(self._get_other_data(rest, True))
 
         number_of_videos = [len(tr_data[3]) for tr_data in content]
+        if other:
+            # get average number of videos watched
+            number_of_videos[-1] /= len(rest)
+
         total_videos = sum(number_of_videos)
         widths = [(n / total_videos) * 360 for n in number_of_videos]
         thetas = [0]
@@ -213,8 +221,10 @@ class RosePlotter(PiePlotter):
             thetas.append(thetas[i] + widths[i]/2 + widths[i+1]/2)
 
         traces = []
-        for i in range(len(content)):
+        for i in range(len(content)-1):
             traces.append(self._trace(content[i], thetas[i], widths[i]))
+        
+        traces.append(self._trace(content[-1], thetas[-1], widths[-1], number_of_videos[-1]))
 
         layout_data = self._layout((title, None, None))
 
@@ -228,22 +238,27 @@ class RosePlotter(PiePlotter):
                     tickmode="array",
                     tickvals=thetas,
                     ticktext=topics,
+                ),
+                radialaxis = dict(
+                    tickangle=45,
                 )
             )
         )
+
         return self
 
-    def _trace(self, tr_data, theta, width):
+    def _trace(self, tr_data, theta, width, number_of_videos: Optional[int]=None):
         mean, variance, title, timestamps = tr_data
     
-        number_of_videos = len(timestamps)
+        if not number_of_videos:
+            number_of_videos = len(timestamps)
+
         last_video_watched = timestamps[-1]
         
         trace = go.Barpolar(
             name=title,
             r=[mean],
             width=[width],
-            customdata=[variance, number_of_videos, last_video_watched],
             hovertemplate="<br>".join([
                 f"Topic: {title}",
                 f"Mean: {mean}",
