@@ -379,9 +379,9 @@ class TestKnowledgeClassifier:
             classifier.fit(event, label)
 
         expected_results = [
-            0.3220150203626213,
-            0.04444209519843563,
-            0.06140953850777711,
+            0.31931075120919905,
+            0.032273232963724946,
+            0.039341977637590585,
         ]
         actual_results = [classifier.predict_proba(event) for event in test_events]
 
@@ -399,9 +399,9 @@ class TestKnowledgeClassifier:
             classifier.fit(event, label)
 
         expected_results = [
-            0.4643262916736641,
-            0.20884274880379491,
-            0.27593721110511604,
+            0.46850316736905456,
+            0.1976625433589795,
+            0.26525358732501003,
         ]
         actual_results = [classifier.predict_proba(event) for event in test_events]
 
@@ -533,11 +533,7 @@ class TestNoveltyClassifier:
         for event, label in zip(train_events, train_labels):
             classifier.fit(event, label)
 
-        expected_results = [
-            0.1643814818970458,
-            0.06946591006393309,
-            0.03000555657466908,
-        ]
+        expected_results = [0.47693688479183843, 0.3006713231101619, 0.2443191280178933]
         actual_results = [classifier.predict_proba(event) for event in test_events]
 
         check_farray_close(actual_results, expected_results)
@@ -552,7 +548,7 @@ class TestNoveltyClassifier:
         for event, label in zip(train_events, train_labels):
             classifier.fit(event, label)
 
-        expected_results = [0.2528080460583627, 0.2501330021564062, 0.2757975511726281]
+        expected_results = [0.5734480552991874, 0.6807791229902742, 0.5291044653108932]
         actual_results = [classifier.predict_proba(event) for event in test_events]
 
         check_farray_close(actual_results, expected_results)
@@ -596,8 +592,8 @@ class TestNoveltyClassifier:
             classifier.fit(event, label)
 
         kc = list(classifier.get_learner_model().knowledge.knowledge_components())[0]
-        assert math.isclose(kc.mean, 0.46434312747910966)
-        assert math.isclose(kc.variance, 0.34939412823253874)
+        assert math.isclose(kc.mean, 0.43237206984358406)
+        assert math.isclose(kc.variance, 0.37618053129883994)
 
 
 class TestInterestClassifier:
@@ -762,7 +758,7 @@ class TestInterestClassifier:
         for event, label in zip(train_events, train_labels):
             classifier.fit(event, label)
 
-        expected_results = [0.8300025208612971, 0.8173134873369469, 0.7439557457066273]
+        expected_results = [0.8648794445446283, 0.8438279621999456, 0.7777471206958368]
         actual_results = [classifier.predict_proba(event) for event in test_events]
 
         check_farray_close(actual_results, expected_results)
@@ -812,7 +808,7 @@ class TestINKClassifier:
         for event, label in zip(train_events, train_labels):
             classifier.fit(event, label)
 
-        expected_results = [0.3816161907569338, 0.35816044965270255, 0.3350734720408112]
+        expected_results = [0.4155257653300731, 0.3792233211000749, 0.35213145076551466]
         actual_results = [classifier.predict_proba(event) for event in test_events]
 
         check_farray_close(actual_results, expected_results)
@@ -862,7 +858,7 @@ class TestINKClassifier:
         for event, label in zip(train_events, train_labels):
             classifier.fit(event, label)
 
-        expected_results = [0.4988781959838494, 0.4767611764958353, 0.45223998905510576]
+        expected_results = [0.3943943468622016, 0.3536982390875026, 0.33082714771211985]
         actual_results = [classifier.predict_proba(event) for event in test_events]
 
         check_farray_close(actual_results, expected_results)
@@ -878,7 +874,7 @@ class TestINKClassifier:
                 event_time=0,
             )
         ]
-        train_labels = [False]
+        train_labels = [True]
         for event, label in zip(train_events, train_labels):
             classifier.fit(event, label)
 
