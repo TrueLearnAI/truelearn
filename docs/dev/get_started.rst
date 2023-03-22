@@ -19,7 +19,15 @@ So, make sure you have the Python 3.7 installed.
 
 After installing Python 3.7 and cloning the repository, install TrueLearn locally with::
 
-    pip install .[dev]
+    # for zsh, see below
+    pip install -e .[dev]
 
+If you are using zsh, you may need to install TrueLearn with::
+
+    # if you are using zsh
+    pip install -e ".[dev]"
+
+Using ``pip install -e`` will install TrueLearn in editable mode, which means that when you make any changes to the source code,
+the version you install will be updated accordingly, without the need to reinstall.
 
 Now, you are ready to explore the next section.
