@@ -16,13 +16,13 @@ p.sphx-glr-timing {
 
 
 /* highlight backref name */
-a[class^="sphx-glr-backref-module-truelearn"] .n {
-    color: #2878A2;
-    text-decoration: underline;
+a[class^="sphx-glr-backref-module-truelearn"] span {
+    color: #2878A2 !important;
+    text-decoration: underline !important;
 }
 
 /* highlight backref name in dark mode */
-body[data-theme="dark"] a[class^="sphx-glr-backref-module-truelearn"] .n {
-    color: #7bb0fa;
-    text-decoration: underline;
+body[data-theme="dark"] a[class^="sphx-glr-backref-module-truelearn"] span {
+    color: #7bb0fa !important;
+    text-decoration: underline !important;
 }
