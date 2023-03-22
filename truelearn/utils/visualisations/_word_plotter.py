@@ -130,6 +130,8 @@ class WordPlotter(BasePlotter):
         print(word_freq)
         wc = WordCloud(width=800, height=400, max_words=50, relative_scaling=1, normalize_plurals=False, background_color="white")
 
+        wc.generate_from_frequencies(word_freq)
+
         plt.imshow(wc, interpolation='bilinear')
         plt.axis('off')
         plt.show()
