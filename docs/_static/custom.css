@@ -1,0 +1,28 @@
+/* suppress download button and timing at top/bottom of every tutorial */
+div.sphx-glr-download-link-note,
+div.sphx-glr-download,
+p.sphx-glr-timing {
+    visibility: hidden;
+    height: 0;
+    margin: 0;
+    padding: 0;
+}
+
+/* Disable thumb container hover tooltip */
+.sphx-glr-thumbcontainer[tooltip]:hover::before,
+.sphx-glr-thumbcontainer[tooltip]:hover::after {
+    display: none;
+}
+
+
+/* highlight backref name */
+a[class^="sphx-glr-backref-module-truelearn"] .n {
+    color: #2878A2;
+    text-decoration: underline;
+}
+
+/* highlight backref name in dark mode */
+body[data-theme="dark"] a[class^="sphx-glr-backref-module-truelearn"] .n {
+    color: #7bb0fa;
+    text-decoration: underline;
+}

@@ -8,9 +8,7 @@
 
 import inspect
 import os
-import shutil
 import sys
-from pathlib import Path
 
 sys.path.insert(0, os.path.abspath(".."))
 
@@ -33,9 +31,10 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.linkcode",
     "sphinx.ext.napoleon",
+    "sphinx.ext.intersphinx",
     "sphinx_copybutton",
+    "sphinx_gallery.gen_gallery",
 ]
-templates_path = ["templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 # -- Options for autodoc extension -------------------------------------------
@@ -67,7 +66,8 @@ def linkcode_resolve(domain, info):
         for part in info["fullname"].split("."):
             obj = getattr(obj, part)
         fn = inspect.getsourcefile(obj)
-        fn = os.path.relpath(fn, start=os.path.dirname(truelearn.__file__))
+        if fn is not None:
+            fn = os.path.relpath(fn, start=os.path.dirname(truelearn.__file__))
         source, lineno = inspect.getsourcelines(obj)
         return fn, lineno, lineno + len(source) - 1
 
@@ -82,6 +82,19 @@ def linkcode_resolve(domain, info):
     return f"https://github.com/comp0016-group1/truelearn/blob/{tag}/{filename}"
 
 
+sphinx_gallery_conf = {
+    "reference_url": {
+        # The module you locally document uses None
+        "truelearn": None,
+    },
+    "examples_dirs": "../examples",  # path to your example scripts
+    "gallery_dirs": "examples",  # path to where to save gallery generated output,
+    "download_all_examples": False,  # disable download file buttons
+    "remove_config_comments": True,
+    "show_memory": False,
+    "show_signature": False,
+}
+
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
@@ -89,4 +102,6 @@ def linkcode_resolve(domain, info):
 html_theme = "furo"
 
 # See GitHub issue : https://github.com/readthedocs/readthedocs.org/issues/1776
-html_static_path = []
+html_static_path = ["_static"]
+
+html_css_files = ["custom.css"]
