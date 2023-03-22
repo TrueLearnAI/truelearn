@@ -97,7 +97,7 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
         threshold: float = 0.5,
         init_skill: float = 0.0,
         def_var: float = 0.5,
-        beta: float = 0.1,
+        beta: float = 0.0,
         tau: float = 0.0,
         draw_proba_type: str = "dynamic",
         draw_proba_static: Optional[float] = None,
@@ -123,7 +123,8 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
                 It will be used when the learner interacts with knowledge components
                 at its first time.
             beta:
-                The noise factor.
+                The distance which guarantees about 76% chance of winning.
+                The recommended value is sqrt(def_var) / 2.
             tau:
                 The dynamic factor of learner's learning process.
                 It's used to avoid the halting of the learning process.

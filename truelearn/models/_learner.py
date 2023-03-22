@@ -72,4 +72,4 @@ class LearnerMetaWeights:
 
     novelty_weights: Weights = Weights(0.5, 0.5)
     interest_weights: Weights = Weights(0.5, 0.5)
-    bias_weights: Weights = Weights(0.0, 0.5)  # set mean to 0
+    bias_weights: Weights = Weights(0.0, 0.5)

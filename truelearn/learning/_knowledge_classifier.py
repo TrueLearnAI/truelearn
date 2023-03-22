@@ -82,7 +82,7 @@ KnowledgeComponent(mean=0.58429..., variance=0.32152..., ...), ...}), ...}
         threshold: float = 0.5,
         init_skill: float = 0.0,
         def_var: float = 0.5,
-        beta: float = 0.1,
+        beta: float = 0.0,
         tau: float = 0.0,
         positive_only: bool = True,
         draw_proba_type: str = "dynamic",
@@ -107,7 +107,8 @@ KnowledgeComponent(mean=0.58429..., variance=0.32152..., ...), ...}), ...}
                 It will be used when the learner interacts with knowledge components
                 at its first time.
             beta:
-                The noise factor.
+                The distance which guarantees about 76% chance of winning.
+                The recommended value is sqrt(def_var) / 2.
             tau:
                 The dynamic factor of learner's learning process.
                 It's used to avoid the halting of the learning process.

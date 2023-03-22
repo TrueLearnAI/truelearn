@@ -254,7 +254,8 @@ def team_sum_quality(
             An iterable of the variance of knowledge components that come from
             the content.
         beta:
-            The noise factor.
+            The distance which guarantees about 76% chance of winning.
+            The recommended value is sqrt(def_var) / 2.
 
     Returns:
         The probability that the learner engages with the content.
@@ -272,9 +273,13 @@ def team_sum_quality_from_kcs(
     """Return the probability that the learner engages with the learnable unit.
 
     Args:
-        learner_kcs: An iterable of knowledge components that come from the learner.
-        content_kcs: An iterable of knowledge components that come from the content.
-        beta: The noise factor.
+        learner_kcs:
+            An iterable of knowledge components that come from the learner.
+        content_kcs:
+            An iterable of knowledge components that come from the content.
+        beta:
+            The distance which guarantees about 76% chance of winning.
+            The recommended value is sqrt(def_var) / 2.
 
     Returns:
         The probability that the learner engages with the learnable unit.
@@ -331,7 +336,6 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
     `_eval_matching_quality` methods.
     """
 
-    __DEFAULT_GLOBAL_SIGMA: Final[float] = 1e-9
     __DEFAULT_DRAW_PROBA_LOW: Final[float] = 1e-9
     __DEFAULT_DRAW_PROBA_HIGH: Final[float] = 0.999999999
 
@@ -384,7 +388,8 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
                 It will be used when the learner interacts with some
                 knowledge components at its first time.
             beta:
-                The noise factor.
+                The distance which guarantees about 76% chance of winning.
+                The recommended value is sqrt(def_var) / 2.
             tau:
                 The dynamic factor of learner's learning process.
                 It's used to avoid the halting of the learning process.
@@ -454,8 +459,8 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
         """Create the trueskill environment used in the training/prediction process."""
         draw_probability = self.__calculate_draw_proba()
         return trueskill.TrueSkill(
-            mu=0.0,
-            sigma=InterestNoveltyKnowledgeBaseClassifier.__DEFAULT_GLOBAL_SIGMA,
+            mu=self._init_skill,
+            sigma=math.sqrt(self._def_var),
             beta=self._beta,
             tau=self._tau,
             draw_probability=draw_probability,
@@ -619,7 +624,7 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
     def fit(self, x: EventModel, y: bool) -> Self:
         # if positive_only is False or (it's true and y is true)
         # update the knowledge representation
-        if not self._positive_only or y is True:
+        if not self._positive_only or y:
             env = self.__create_env()
             self.__update_knowledge_representation(env, x, y)
 

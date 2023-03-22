@@ -95,7 +95,7 @@ mean=-0.02379..., variance=0.41886...))...}
         interest_classifier: Optional[InterestClassifier] = None,
         threshold: float = 0.5,
         tau: float = 0.0,
-        greedy: bool = True,
+        greedy: bool = False,
     ) -> None:
         """Init INKClassifier object.
 
