@@ -238,6 +238,9 @@ class RosePlotter(PiePlotter):
                     tickmode="array",
                     tickvals=thetas,
                     ticktext=topics,
+                ),
+                radialaxis = dict(
+                    tickangle=45,
                 )
             )
         )
