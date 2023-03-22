@@ -42,7 +42,7 @@ Welcome to TrueLearn's documentation!
 
 Truelearn is a set of algorithms for modelling lifelong learner engagement with educational resources.
 
-This work is related to the paper `TrueLearn A Family of Bayesian Algorithms to Match Lifelong Learners to Open Educational Resources`_ published at the Thirty-forth AAAI Conference on Artifical Intelligence, 2020 at New York, NY, USA.
+This work is related to the paper `TrueLearn A Family of Bayesian Algorithms to Match Lifelong Learners to Open Educational Resources`_ published at the Thirty-forth AAAI Conference on Artificial Intelligence, 2020 at New York, NY, USA.
 
 .. _TrueLearn A Family of Bayesian Algorithms to Match Lifelong Learners to Open Educational Resources: https://arxiv.org/abs/2002.00001
 
