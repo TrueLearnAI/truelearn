@@ -20,7 +20,7 @@ class LinePlotter(BasePlotter):
 
     def _standardise_data(
             self, raw_data: Knowledge, topic_id: Optional[str]=None
-        ) -> Iterable[Tuple[str, Iterable, Iterable]]:
+        ) -> Union[Iterable[Tuple[str, Iterable, Iterable]], None]:
         """Converts an object of KnowledgeDict type to one suitable for plot().
         
         Optional utility function that converts the dictionary representation
@@ -28,12 +28,15 @@ class LinePlotter(BasePlotter):
         function) to the Iterable[Tuple[str, Iterable, Iterable]] used by plot.
 
         Args:
-            raw_data: dictionary representation of the learner's knowledge and
-              knowledge components.
-
+            raw_data:
+                dictionary representation of the learner's knowledge and
+                knowledge components.
+            topic_id:
+                Optional id of the KnowledgeComponent to look for (if we want to
+                plot a specific topic).
         Returns:
-            A data structure usable by the plot() method to generate
-            the line chart.
+            A data structure usable by the plot() method to generate the
+            line chart or None if the requested topic_id is not found.
         """
 
         raw_data = knowledge_to_dict(raw_data)
@@ -55,7 +58,7 @@ class LinePlotter(BasePlotter):
             ))
             tr_data = (title, means, variances, timestamps)
             content.append(tr_data)
-            # searching for an individual topic, we can return after finding it
+
             if topic_id and title == topic_id:
                 return tr_data
         
@@ -65,7 +68,6 @@ class LinePlotter(BasePlotter):
         )
 
         if topic_id:
-            # if we were looking for a topic id but found nothing
             return None
 
         return content
@@ -86,18 +88,18 @@ class LinePlotter(BasePlotter):
         it into self.figure.
 
         Args:
-            layout: a tuple of the form (title, x_label, y_label) where
-              title is the what the visualisation will be named,
-              x_label will be the label of the x-axis,
-              y_label will be the label of the y-axis.
-            content: an iterable of tuples, where each tuple is used to plot
-              a line (represented through Plotly traces). Each tuple is in the
-              form (name, x-values, y_values) where name is the name of the line,
-              x_values are the values to plot along the x-axis and y_values
-              are the values to plot along the y-axis.
-            top_n: the number of knowledge components to visualise.
-              e.g. top_n = 5 would visualise the top 5 knowledge components 
-              ranked by mean.
+            content:
+                an iterable of tuples, where each tuple is used to plot a line
+                (represented through Plotly traces). Each tuple is in the form
+                (name, x-values, y_values) where name is the name of the line,
+                x_values are the values to plot along the x-axis and y_values
+                are the values to plot along the y-axis.
+            top_n:
+                the number of knowledge components to visualise.
+                e.g. top_n = 5 would visualise the top 5 knowledge components 
+                ranked by mean.
+            topic_id:
+                the topic_id
         """
         if isinstance(content, list):
             self._plot_multiple(content, topic_id, visualise_variance, title, x_label, y_label)
@@ -105,8 +107,6 @@ class LinePlotter(BasePlotter):
             self._plot_single(content, top_n, visualise_variance, title, x_label, y_label)
 
         return self
-    
-    # ADD DOTTED LINE REPRESENTING AVERAGE OF REST OF LEARNERS
 
     def _plot_single(
             self,

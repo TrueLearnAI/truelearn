@@ -24,8 +24,9 @@ class BasePlotter(ABC):
         function) to the Iterable used by plot.
 
         Args:
-            raw_data: dictionary representation of the learner's knowledge and
-              knowledge components.
+            raw_data:
+                dictionary representation of the learner's knowledge and
+                knowledge components.
 
         Returns:
             a data structure usable by the plot() method to generate the figure.
@@ -34,19 +35,19 @@ class BasePlotter(ABC):
     @abstractmethod
     def plot(
             self,
-            layout_data: Tuple[str, str, str],
-            content: Union[Knowledge, Iterable[Tuple]]
+            content: Union[Knowledge, Iterable[Tuple]],
+            title: str,
     ) -> Self:
         """Creates a Plotly Figure object from the data.
 
         Args:
-            layout_data: the labels to include in the visualisation.
+            title: the name to give to the visualisation
             content: the data to be used to plot the visualisation.
         """
 
     @abstractmethod
     def _trace(self, trace_data: Tuple) -> bdt.BaseTraceType:
-        """Creates a trace to incorporate in the visualisation.
+        """Creates a trace to incorporate in the Plotly figure object.
 
         Args:
             trace_data: the data used to create the trace. This has the same
