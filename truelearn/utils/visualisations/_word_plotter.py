@@ -2,17 +2,21 @@ import datetime
 from typing import Iterable, Tuple
 
 import numpy as np
+import plotly.graph_objects as go
 import matplotlib.pyplot as plt
+import pandas as pd
 
+from os import path
+from PIL import Image
 from truelearn.models import Knowledge
 from truelearn.utils.visualisations._base import (
     BasePlotter,
     knowledge_to_dict
 )
-from wordcloud import (WordCloud, random_color_func, get_single_color_func)
+from wordcloud import (WordCloud)
 
 class WordPlotter(BasePlotter):
-    """Provides utilities for plotting word clouds"""
+    """Provides utilities for plotting bar charts."""
 
     def __init__(self):
         self.figure = None
@@ -83,7 +87,7 @@ class WordPlotter(BasePlotter):
             title: str = "Comparison of learner's top 5 subjects",
             x_label: str = "Subjects",
             y_label: str = "Mean",
-    ) -> plt.imshow: # change this attribute
+    ) -> None:
 
         """
         Plots the wordcloud chart using the data.
@@ -118,14 +122,18 @@ class WordPlotter(BasePlotter):
 
         titles = [lst[2].lower() for lst in content]
 
+        word_freq = {}
 
-        # Create and generate a word cloud image:
-        print(titles)
-        wordcloud = WordCloud(max_font_size=50, max_words=100, background_color="white").generate(" ".join(titles))
+        for i,t in enumerate(titles):
+            word_freq[t] = int(means[i]*500)
 
-        # Display the generated image:
-        plt.imshow(wordcloud, interpolation='bilinear')
-        plt.axis("off")
+        print(word_freq)
+        wc = WordCloud(width=800, height=400, max_words=50, relative_scaling=1, normalize_plurals=False, background_color="white")
+
+        wc.generate_from_frequencies(word_freq)
+
+        plt.imshow(wc, interpolation='bilinear')
+        plt.axis('off')
         plt.show()
 
 

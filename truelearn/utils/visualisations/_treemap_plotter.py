@@ -11,8 +11,8 @@ from truelearn.utils.visualisations._base import (
 )
 
 
-class RadarPlotter(BasePlotter):
-    """Provides utilities for plotting radar charts."""
+class TreePlotter(BasePlotter):
+    """Provides utilities for plotting bar charts."""
 
     def __init__(self):
         self.figure = None
@@ -38,7 +38,7 @@ class RadarPlotter(BasePlotter):
 
         Returns:
             A data structure usable by the plot() method to generate
-            the radar chart.
+            the bar chart.
         """
         raw_data = knowledge_to_dict(raw_data)
 
@@ -79,14 +79,12 @@ class RadarPlotter(BasePlotter):
             self,
             content: Iterable[Tuple[Iterable, Iterable, str]],
             history: bool,
-            top_n: int = 10,
-            title: str = "Comparison of learner's top 5 subjects",
-            x_label: str = "Subjects",
-            y_label: str = "Mean",
-    ) -> go.Scatterpolar:
+            top_n: int = 15,
+            title: str = "Comparison of learner's top 15 subjects"
+    ) -> go.Bar:
 
         """
-        Plots the radar chart using the data.
+        Plots the bar chart using the data.
 
         Uses content and layout_data to generate a Figure object and stores
         it into self.figure.
@@ -104,7 +102,7 @@ class RadarPlotter(BasePlotter):
         if isinstance(content, Knowledge):
             content = self._standardise_data(content, history)
 
-        layout_data = self._layout((title, x_label, y_label))
+        layout_data = self._layout((title, "", ""))
 
         content = content[:top_n]
 
@@ -112,44 +110,34 @@ class RadarPlotter(BasePlotter):
 
         variances = [lst[1] for lst in content]
 
-        m_min = min(min(means) - 0.001, min(variances) - 0.001)
-
-        m_max = max(max(means) + 0.001, max(variances) + 0.001)
-
         titles = [lst[2] for lst in content]
 
-        self.figure = go.Figure()
+        if history:
+            timestamps = [lst[3] for lst in content]
+            number_of_videos = []
+            last_video_watched = []
+            for timestamp in timestamps:
+                number_of_videos.append(len(timestamp))
+                last_video_watched.append(timestamp[-1])
 
-        self.figure.add_trace(go.Scatterpolar(
-            r = means, 
-            theta = titles, 
-            fill = 'toself',
-            name= 'Means',
+        self.figure = go.Figure(go.Treemap(
+            labels = titles,
+            values = means,
+            parents = ['']*len(titles),
+            marker_colors = ["pink", "royalblue", "lightgray", "purple", 
+                            "cyan", "lightgray", "lightblue", "lightgreen"],
+            customdata=np.transpose([variances, number_of_videos, last_video_watched]),
             hovertemplate="<br>".join([
-                "Mean: %{r}",
+                "Topic: %{label}",
+                "Mean: %{value}",
+                "Variance: %{customdata}",
+                "Number of Videos Watched: %{customdata[1]}",
+                "Last Video Watched On: %{customdata[2]}",
                 "<extra></extra>"])
+        ),layout = layout_data)
 
-        ))
+        self.figure.update_layout(margin = dict(t=50, l=25, r=25, b=25))
 
-        self.figure.add_trace(go.Scatterpolar(
-            r = variances, 
-            theta = titles, 
-            fill = 'toself',
-            name= 'Variances',
-            hovertemplate="<br>".join([
-                "Variance: %{r}",
-                "<extra></extra>"])
-
-        ))
-
-       
-        self.figure.update_layout(
-        polar=dict(
-            radialaxis=dict(
-            visible=True,
-            range=[0, int(max(max(means) + 0.001, max(variances) + 0.001) + 1)]
-            )),
-        showlegend=False)
         return self
 
     def _trace(self):

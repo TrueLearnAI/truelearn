@@ -1,25 +1,26 @@
 import datetime
 from typing import Iterable, Tuple
 
-import numpy as np
 import plotly.graph_objects as go
+import matplotlib.pyplot as plt
+import matplotlib.cm as cm
+import matplotlib.colors as colors
+import circlify
 
 from truelearn.models import Knowledge
 from truelearn.utils.visualisations._base import (
     BasePlotter,
-    knowledge_to_dict,
-    KnowledgeDict
+    knowledge_to_dict
 )
 
-
 class BubblePlotter(BasePlotter):
-    """Provides utilities for plotting bubble charts."""
+    """Provides utilities for plotting circle charts."""
 
     def __init__(self):
         self.figure = None
 
     def _standardise_data(
-            self, raw_data: KnowledgeDict, history: bool
+            self, raw_data: Knowledge, history: bool
     ) -> Iterable[Tuple[Iterable, Iterable, str, Iterable]]:
         """Converts an object of KnowledgeDict type to one suitable for plot().
         
@@ -33,10 +34,13 @@ class BubblePlotter(BasePlotter):
         Args:
             raw_data: dictionary representation of the learner's knowledge and
               knowledge components.
+            top_n: the number of knowledge components to visualise.
+              e.g. top_n = 5 would visualise the top 5 knowledge components 
+              ranked by mean.
 
         Returns:
             A data structure usable by the plot() method to generate
-            the bubble chart.
+            the radar chart.
         """
         raw_data = knowledge_to_dict(raw_data)
 
@@ -62,7 +66,7 @@ class BubblePlotter(BasePlotter):
                         + "Expected only HistoryAwareKnowledgeComponents."
                     ) from err
             else:
-                data = (mean, variance, title)
+                data = (mean, variance, title)  # without the timestamps
 
             content.append(data)
 
@@ -77,16 +81,16 @@ class BubblePlotter(BasePlotter):
             self,
             content: Iterable[Tuple[Iterable, Iterable, str]],
             history: bool,
-            top_n: int = 5,
-            title: str = "Comparison of learner's top 5 subjects",
+            top_n: int = 15,
+            title: str = "Comparison of learner's top 15 subjects",
             x_label: str = "Mean",
-            y_label: str = "Variance",
-    ) -> go.Scatter:
+            y_label: str = "Variances",
+    ) -> go.Scatterpolar:
 
         """
-        Plots the bubble chart using the data.
+        Plots the radar chart using the data.
 
-        Uses content and history to generate a Figure object and stores
+        Uses content and layout_data to generate a Figure object and stores
         it into self.figure.
 
         Args:
@@ -102,58 +106,76 @@ class BubblePlotter(BasePlotter):
         if isinstance(content, Knowledge):
             content = self._standardise_data(content, history)
 
+
         content = content[:top_n]
+        
 
-        layout_data = self._layout((title, x_label, y_label))
-
-        means = [lst[0] for lst in content]
+        means = [lst[0]*10 for lst in content]
 
         variances = [lst[1] for lst in content]
 
         titles = [lst[2] for lst in content]
 
-        if history:
-            timestamps = [lst[3] for lst in content]
-            number_of_videos = []
-            last_video_watched = []
-            for timestamp in timestamps:
-                number_of_videos.append(len(timestamp))
-                last_video_watched.append(timestamp[-1])
+        print(titles)
+        print(means)
+        print(variances)
 
-        self.figure = go.Figure(data=go.Scatter(
-            x=means,
-            y=variances,
-            marker=dict(
-                size=means,
-                sizemode='area',
-                sizeref=2. * max(means) / (200. ** 2),
-                sizemin=4,
-                color=variances,
-                colorbar=dict(
-                    title="Variance"
-                ),
-                colorscale="Greens",
-                reversescale=True  # dark colours should represent less variance
-            ),
-            customdata=np.transpose([titles, number_of_videos, last_video_watched])
-            if history else
-            titles,
-            hovertemplate="<br>".join([
-                "Topic: %{customdata[0]}",
-                "Mean: %{x}",
-                "Variance: %{y}",
-                "Number of Videos Watched: %{customdata[1]}",
-                "Last Video Watched On: %{customdata[2]}",
-                "<extra></extra>"])
-            if history else
-            "<br>".join([
-                "Topic: %{customdata}",
-                "Mean: %{x}",
-                "Variance: %{y}",
-                "<extra></extra>"]),
-            mode="markers"),
-            layout=layout_data)
+        # compute circle positions:
+        circles = circlify.circlify(
+            means, 
+            show_enclosure=True, 
+            target_enclosure=circlify.Circle(x=0, y=0, r=1)
+        )
+        print("-------------")
+        print(circles)
 
+        # Create just a figure and only one subplot
+        fig, ax = plt.subplots(figsize=(11.75,10))
+
+        # Title
+        ax.set_title(title)
+
+        # Remove axes
+        ax.axis('off')
+
+        # Find axis boundaries
+        lim = max(
+            max(
+                abs(circle.x) + circle.r,
+                abs(circle.y) + circle.r,
+            )
+            for circle in circles
+        )
+        plt.xlim(-lim, lim)
+        plt.ylim(-lim, lim)
+
+        # list of labels
+
+        # Define colormap
+        cmap = cm.get_cmap('Greens_r')
+
+        # Normalize data range to colormap range
+        norm = colors.Normalize(vmin=min(variances) - 0.05, vmax=max(variances) + 0.05)
+
+        # Create ScalarMappable object
+        sm = cm.ScalarMappable(norm=norm, cmap=cmap)
+
+        # print circles
+        for i, circle in enumerate(circles):
+            if i < len(titles):
+                x, y, r = circle
+                ax.add_patch(plt.Circle((x, y), r, linewidth=2,color=sm.to_rgba(variances[len(variances) - 1 - i])))
+                plt.annotate(
+                    titles[len(titles) - 1 - i], 
+                    (x,y) ,
+                    va='center',
+                    ha='center'
+                )
+
+        cbar = fig.colorbar(sm, ax=ax)
+        cbar.ax.set_ylabel('Variance')
+        
+        plt.show()
         return self
 
     def _trace(self):
