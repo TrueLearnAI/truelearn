@@ -8,11 +8,12 @@ from typing_extensions import Self
 from truelearn.models import Knowledge
 from truelearn.utils.visualisations._base import (
     BasePlotter,
+    PlotlyBasePlotter,
     knowledge_to_dict,
 )
 
 
-class LinePlotter(BasePlotter):
+class LinePlotter(PlotlyBasePlotter):
     """Provides utilities for plotting line charts."""
 
     def __init__(self):

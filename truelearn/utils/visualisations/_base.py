@@ -1,3 +1,5 @@
+import datetime
+
 from abc import ABC, abstractmethod
 from typing import Dict, Iterable, Optional, Union, Tuple
 from typing_extensions import final, Self
@@ -6,6 +8,7 @@ from plotly import (
     graph_objects as go,
     basedatatypes as bdt
 )
+import matplotlib.pyplot as plt
 
 from truelearn.models import Knowledge
 
@@ -15,9 +18,9 @@ KnowledgeDict = Dict[str, Dict[str, Union[str, float]]]
 class BasePlotter(ABC):
     """The base class of all the plotters."""
 
-    @abstractmethod
-    def _standardise_data(self, raw_data: Knowledge) -> Iterable:
-        """Converts an object of KnowledgeDict type to one suitable for plot().
+    @final
+    def _standardise_data(self, raw_data: Knowledge, history: bool=False) -> Iterable:
+        """Converts a KnowledgeDict object to one suitable for generating visualisations.
         
         Optional utility function that converts the dictionary representation
         of the learner's knowledge (obtainable via the knowledge_to_dict()
@@ -27,10 +30,47 @@ class BasePlotter(ABC):
             raw_data:
                 dictionary representation of the learner's knowledge and
                 knowledge components.
+            history:
+                boolean which indicates whether the user wants to visualise
 
         Returns:
             a data structure usable by the plot() method to generate the figure.
         """
+        raw_data = knowledge_to_dict(raw_data)
+
+        content = []
+        for _, kc in raw_data.items():
+            mean = kc['mean']
+            variance = kc['variance']
+            title = kc['title']
+            timestamps = []
+            if history:
+                try:
+                    for _, _, timestamp in kc['history']:
+                        timestamps.append(timestamp)
+                    # EXTRACT THIS TO HELPER FUNCTION TO REUSE IN DIFFERENT PLACES
+                    timestamps = list(map(
+                        lambda t: datetime.datetime.utcfromtimestamp(t).strftime(
+                            "%Y-%m-%d"),
+                        timestamps
+                    ))
+                    data = (mean, variance, title, timestamps)
+                except KeyError as err:
+                    raise ValueError(
+                        "User's knowledge contains KnowledgeComponents. "
+                        + "Expected only HistoryAwareKnowledgeComponents."
+                    ) from err
+            else:
+                data = (mean, variance, title)
+
+            content.append(data)
+
+        content.sort(
+            key=lambda data: data[0],  # sort based on mean
+            reverse=True
+        )
+
+        return content
 
     @abstractmethod
     def plot(
@@ -41,29 +81,24 @@ class BasePlotter(ABC):
         """Creates a Plotly Figure object from the data.
 
         Args:
-            title: the name to give to the visualisation
-            content: the data to be used to plot the visualisation.
+            title:
+                the name to give to the visualisation
+            content:
+                the data to be used to plot the visualisation.
         """
 
-    @abstractmethod
-    def _trace(self, trace_data: Tuple) -> bdt.BaseTraceType:
-        """Creates a trace to incorporate in the Plotly figure object.
 
-        Args:
-            trace_data: the data used to create the trace. This has the same
-              type as the tuples in the iterable of the plot() method.
-        
-        Returns:
-            the trace object generated from trace_data.
-        """
-
-    @final
+class PlotlyBasePlotter(BasePlotter):
+    def __init__(self):
+        self.figure = None
+    
     def _layout(self, layout_data: Tuple[str, str, str]) -> go.Layout:
         """Creates the Layout object for the visualisation.
 
         Args:
-            layout_data: a tuple containing the name of the visualisation
-              and the x and y labels.
+            layout_data:
+                a tuple containing the name of the visualisation
+                and the x and y labels.
         
         Returns:
             the Layout object created with layout_data.
@@ -78,6 +113,30 @@ class BasePlotter(ABC):
 
         return layout
 
+    def _hovertemplate(self, hoverdata, history):
+        topic, mean, variance, number_videos, last_video = hoverdata
+        return (
+            "<br>".join(
+                [
+                    f"Topic: {topic}",
+                    f"Mean: {mean}",
+                    f"Variance: {variance}",
+                    f"Number of Videos Watched: {number_videos}",
+                    f"Last Video Watched On: {last_video}",
+                    "<extra></extra>"
+                ]
+            )
+            if history else
+            "<br>".join(
+                [
+                    f"Topic: {topic}",
+                    f"Mean: {mean}",
+                    f"Variance: {variance}",
+                    "<extra></extra>"
+                ]
+            )
+        )
+    
     @final
     def show(self) -> None:
         """Opens the visualisation in localhost.
@@ -160,6 +219,16 @@ class BasePlotter(ABC):
             width=width,
             height=height,
         )
+
+
+class MatplotlibBasePlotter(BasePlotter):
+    def __init__(self):
+        self.figure = None
+    
+    def show(self):
+        plt.show()
+
+    #TODO: add functions for exporting matplotlib plots
 
 
 def knowledge_to_dict(knowledge: Knowledge,

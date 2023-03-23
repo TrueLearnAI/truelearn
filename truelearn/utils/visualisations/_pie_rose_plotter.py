@@ -1,78 +1,15 @@
-import datetime
 from typing import Iterable, Tuple, Union, Optional
-from typing_extensions import final, Self
+from typing_extensions import Self
 
 import numpy as np
 import plotly.graph_objects as go
 
 from truelearn.models import Knowledge
-from truelearn.utils.visualisations._base import (
-    BasePlotter,
-    knowledge_to_dict
-)
+from truelearn.utils.visualisations._base import PlotlyBasePlotter
 
 
-class PiePlotter(BasePlotter):
+class PiePlotter(PlotlyBasePlotter):
     """Provides utilities for plotting bar charts."""
-
-    def __init__(self):
-        self.figure = None
-
-    def _standardise_data(
-            self, raw_data: Knowledge, history: bool
-    ) -> Iterable[Tuple[Iterable, Iterable, str]]:
-        """Converts an object of KnowledgeDict type to one suitable for plot().
-        
-        Optional utility function that converts the dictionary representation
-        of the learner's knowledge (obtainable via the knowledge_to_dict()
-        function) to the Iterable[Tuple[Iterable, Iterable, str]] used by plot.
-
-        Args:
-            raw_data: dictionary representation of the learner's knowledge and
-              knowledge components.
-            top_n: the number of knowledge components to visualise.
-              e.g. top_n = 5 would visualise the top 5 knowledge components 
-              ranked by mean.
-
-        Returns:
-            A data structure usable by the plot() method to generate
-            the bar chart.
-        """
-        raw_data = knowledge_to_dict(raw_data)
-
-        content = []
-        for _, kc in raw_data.items():
-            title = kc['title']
-            mean = kc['mean']
-            variance = kc['variance']
-            timestamps = []
-            if history:
-                try:
-                    for _, _, timestamp in kc['history']:
-                        timestamps.append(timestamp)
-                    timestamps = list(map(
-                        lambda t: datetime.datetime.utcfromtimestamp(t).strftime(
-                            "%Y-%m-%d"),
-                        timestamps
-                    ))
-                    data = (mean, variance, title, timestamps)
-                except KeyError as err:
-                    raise ValueError(
-                        "User's knowledge contains KnowledgeComponents. "
-                        + "Expected only HistoryAwareKnowledgeComponents."
-                    ) from err
-            else:
-                data = (mean, variance, title)  # without the timestamps
-
-            content.append(data)
-
-        content.sort(
-            key=lambda data: data[0],  # sort based on mean
-            reverse=True
-        )
-
-        return content
-
     def plot(
             self,
             content: Iterable[Tuple[Iterable, Iterable, str]],
@@ -80,7 +17,7 @@ class PiePlotter(BasePlotter):
             top_n: int = 5,
             other: bool = False,
             title: str = "Distribution of user's skill.",
-    ) -> go.Bar:
+    ) -> Self:
 
         """
         Plots the bar chart using the data.
@@ -125,29 +62,28 @@ class PiePlotter(BasePlotter):
                 number_of_videos.append(len(timestamp))
                 last_video_watched.append(timestamp[-1])
         
-        if other:
-            # get average number_of_videos
-            number_of_videos[-1] /= len(rest)
+            if other:
+                # get average number_of_videos
+                number_of_videos[-1] /= len(rest)
+        else:
+            number_of_videos = [None for _ in variances]
+            last_video_watched = [None for _ in variances]
+
 
         self.figure = go.Figure(go.Pie(
             labels=titles,
             values=means,
-            customdata=np.transpose([variances, number_of_videos, last_video_watched])
-            if history else
-            variances,
-            hovertemplate="<br>".join([
-                "Topic: %{label}",
-                "Mean: %{value}",
-                "Variance: %{customdata[0][0]}",
-                "Number of Videos Watched: %{customdata[0][1]}",
-                "Last Video Watched On: %{customdata[0][2]}",
-                "<extra></extra>"])
-            if history else
-            "<br>".join([
-                "Topic: %{label}",
-                "Mean: %{value}",
-                "Variance: %{customdata}",
-                "<extra></extra>"])
+            customdata=np.transpose([titles, means, variances, number_of_videos, last_video_watched]),
+            hovertemplate=self._hovertemplate(
+                (
+                    "%{customdata[0][0]}",
+                    "%{customdata[0][1]}",
+                    "%{customdata[0][2]}",
+                    "%{customdata[0][3]}",
+                    "%{customdata[0][4]}"
+                ),
+                history
+            ),
         ), layout=layout_data)
 
         return self
@@ -169,9 +105,6 @@ class PiePlotter(BasePlotter):
 
         return other_data
 
-    def _trace():
-        pass
-
 
 class RosePlotter(PiePlotter):
     def plot(
@@ -180,7 +113,7 @@ class RosePlotter(PiePlotter):
             top_n: int = 5,
             other: bool = False,
             title: str = "Distribution of user's skill.",
-    ) -> go.Bar:
+    ) -> Self:
 
         """
         Plots the bar chart using the data.
@@ -249,25 +182,27 @@ class RosePlotter(PiePlotter):
 
     def _trace(self, tr_data, theta, width, number_of_videos: Optional[int]=None):
         mean, variance, title, timestamps = tr_data
+        # TODO: visualise variance with a colorscale, replace _ with variance
     
         if not number_of_videos:
             number_of_videos = len(timestamps)
 
         last_video_watched = timestamps[-1]
         
-        trace = go.Barpolar(
+        return go.Barpolar(
             name=title,
             r=[mean],
             width=[width],
-            hovertemplate="<br>".join([
-                f"Topic: {title}",
-                f"Mean: {mean}",
-                f"Variance: {variance}",
-                f"Number of Videos Watched: {number_of_videos}",
-                f"Last Video Watched On: {last_video_watched}",
-                "<extra></extra>"]),
+            hovertemplate=self._hovertemplate(
+                (
+                    title,
+                    mean, 
+                    variance,
+                    number_of_videos,
+                    last_video_watched
+                ),
+                True
+            ),
             thetaunit='degrees',
             theta=[theta]
         )
-
-        return trace

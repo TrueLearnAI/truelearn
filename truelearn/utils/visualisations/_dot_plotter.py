@@ -1,77 +1,15 @@
-import datetime
 from typing import Iterable, Tuple
+from typing_extensions import Self
 
 import numpy as np
 import plotly.graph_objects as go
 
 from truelearn.models import Knowledge
-from truelearn.utils.visualisations._base import (
-    BasePlotter,
-    knowledge_to_dict
-)
+from truelearn.utils.visualisations._base import PlotlyBasePlotter
 
 
-class DotPlotter(BasePlotter):
+class DotPlotter(PlotlyBasePlotter):
     """Provides utilities for plotting dot plots."""
-
-    def __init__(self):
-        self.figure = None
-
-    def _standardise_data(
-            self, raw_data: Knowledge, history: bool
-    ) -> Iterable[Tuple[Iterable, Iterable, str, Iterable]]:
-        """Converts an object of KnowledgeDict type to one suitable for plot().
-        
-        Optional utility function that converts the dictionary representation
-        of the learner's knowledge (obtainable via the knowledge_to_dict()
-        function) to the Iterable[Tuple[Iterable, Iterable, str, Iterable]] 
-        or Iterable[Tuple[Iterable, Iterable, str]] used by plot. Tuple type 
-        depends on if user wants to visualise the history component of the
-        knowledge.
-        Args:
-            raw_data: dictionary representation of the learner's knowledge and
-              knowledge components.
-
-        Returns:
-            A data structure usable by the plot() method to generate
-            the dot plot.
-        """
-        raw_data = knowledge_to_dict(raw_data)
-
-        content = []
-        for _, kc in raw_data.items():
-            mean = kc['mean']
-            variance = kc['variance']
-            title = kc['title']
-            timestamps = []
-            if history:
-                try:
-                    for _, _, timestamp in kc['history']:
-                        timestamps.append(timestamp)
-                    # EXTRACT THIS TO HELPER FUNCTION TO REUSE IN DIFFERENT PLACES
-                    timestamps = list(map(
-                        lambda t: datetime.datetime.utcfromtimestamp(t).strftime(
-                            "%Y-%m-%d"),
-                        timestamps
-                    ))
-                    data = (mean, variance, title, timestamps)
-                except KeyError as err:
-                    raise ValueError(
-                        "User's knowledge contains KnowledgeComponents. "
-                        + "Expected only HistoryAwareKnowledgeComponents."
-                    ) from err
-            else:
-                data = (mean, variance, title)
-
-            content.append(data)
-
-        content.sort(
-            key=lambda data: data[0],  # sort based on mean
-            reverse=True
-        )
-
-        return content
-
     def plot(
             self,
             content: Iterable[Tuple[Iterable, Iterable, str]],
@@ -80,7 +18,7 @@ class DotPlotter(BasePlotter):
             title: str = "Comparison of learner's top 5 subjects",
             x_label: str = "Subjects",
             y_label: str = "Mean",
-    ) -> go.Scatter:
+    ) -> Self:
 
         """
         Plots the dot plot using the data.
@@ -122,6 +60,9 @@ class DotPlotter(BasePlotter):
             for timestamp in timestamps:
                 number_of_videos.append(len(timestamp))
                 last_video_watched.append(timestamp[-1])
+        else:
+            number_of_videos = [None for _ in variances]
+            last_video_watched = [None for _ in variances]
 
         self.figure = go.Figure(data=go.Scatter(
             x=titles,
@@ -142,26 +83,18 @@ class DotPlotter(BasePlotter):
                          thickness=4,
                          width=3,  # MAKE WIDTH CHANGE BASED ON HOW MUCH HAS BEEN SPENT ON THE TOPIC
                          visible=True),
-            customdata=np.transpose([variances, number_of_videos, last_video_watched])
-            if history else
-            variances,
-            hovertemplate="<br>".join([
-                "Topic: %{x}",
-                "Mean: %{y}",
-                "Variance: %{customdata[0]}",
-                "Number of Videos Watched: %{customdata[1]}",
-                "Last Video Watched On: %{customdata[2]}",
-                "<extra></extra>"])
-            if history else
-            "<br>".join([
-                "Topic: %{x}",
-                "Mean: %{y}",
-                "Variance: %{customdata}",
-                "<extra></extra>"]),
+            customdata=np.transpose([variances, number_of_videos, last_video_watched]),
+            hovertemplate=self._hovertemplate(
+                (
+                    "%{x}",
+                    "%{y}",
+                    "%{customdata[0]}",
+                    "%{customdata[1]}",
+                    "%{customdata[2]}"
+                ),
+                history
+            ),
             mode="markers"),
             layout=layout_data)
 
         return self
-
-    def _trace(self):
-        pass
