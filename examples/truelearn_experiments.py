@@ -13,9 +13,10 @@ The data used in the example is the PEEK Dataset, imported via
 It is worth noting that because of the large amount of data in the dataset,
 this example uses multiple processes for training.
 
-The final results are as follows:
+The two tables below show the weighted average test performance for
+accuracy, precision, recall and F1.
 
-.. list-table::
+.. list-table:: All learners
     :header-rows: 1
 
     * - Classifier
@@ -58,6 +59,50 @@ The final results are as follows:
       - 0.559
       - 0.603
       - 0.568
+
+.. list-table:: 20 most active learners
+    :header-rows: 1
+
+    * - Classifier
+      - Accuracy
+      - Precision
+      - Recall
+      - F1 Score
+    * - EngageClassifier
+      - 0.637
+      - 0.637
+      - 1.000
+      - 0.737
+    * - PersistentClassifier
+      - 0.750
+      - 0.724
+      - 0.723
+      - 0.723
+    * - MajorityClassifier
+      - 0.766
+      - 0.618
+      - 0.719
+      - 0.648
+    * - KnowledgeClassifier
+      - 0.684
+      - 0.652
+      - 0.870
+      - 0.721
+    * - NoveltyClassifier
+      - 0.654
+      - 0.645
+      - 0.900
+      - 0.720
+    * - InterestClassifier
+      - 0.634
+      - 0.640
+      - 0.930
+      - 0.719
+    * - INKClassifier
+      - 0.795
+      - 0.697
+      - 0.748
+      - 0.696
 
 It can be noted that the results presented in the table are slightly different
 from the data in the TrueLearn paper because here we did not use train datasets
@@ -182,8 +227,14 @@ def main():
     all_data = test
     def_var = get_dataset_variance(all_data)
 
+    # you can select top n active users (active => more activities)
+    # by default 20
+    top_n = 20
+    all_data.sort(key=lambda t: len(t[1]), reverse=True)
+    all_data = all_data[:top_n]
+
     # the value 1 and 400 below is randomly chosen
-    # it can be found by using hyperparameter tuning
+    # the appropriate value can be found by using hyperparameter training
     classifier_cls_list = [
         learning.EngageClassifier(),
         learning.PersistentClassifier(),
@@ -192,7 +243,7 @@ def main():
         learning.NoveltyClassifier(def_var=def_var * 1),
         learning.InterestClassifier(def_var=def_var * 400),
         learning.INKClassifier(
-            novelty_classifier=learning.NoveltyClassifier(def_var=def_var),
+            novelty_classifier=learning.NoveltyClassifier(def_var=def_var * 1),
             interest_classifier=learning.InterestClassifier(def_var=def_var * 400),
         ),
     ]
