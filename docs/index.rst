@@ -40,9 +40,19 @@ Welcome to TrueLearn's documentation!
    :alt: codecov
 
 
-Truelearn is a set of algorithms for modelling lifelong learner engagement with educational resources.
+TrueLearn is a machine learning library for modelling learner engagement with educational resources.
 
-This work is related to the paper `TrueLearn A Family of Bayesian Algorithms to Match Lifelong Learners to Open Educational Resources`_ published at the Thirty-forth AAAI Conference on Artifical Intelligence, 2020 at New York, NY, USA.
+Get Started
+-----------
+
+See the :ref:`installation` for a quick introduction to the package.
+
+Related Papers
+--------------
+
+This work is related to the following papers:
+
+`TrueLearn A Family of Bayesian Algorithms to Match Lifelong Learners to Open Educational Resources`_ published at the Thirty-forth AAAI Conference on Artifical Intelligence, 2020 at New York, NY, USA.
 
 .. _TrueLearn A Family of Bayesian Algorithms to Match Lifelong Learners to Open Educational Resources: https://arxiv.org/abs/2002.00001
 
@@ -55,10 +65,27 @@ The bibtex entry for the publication is as follows::
        year = {2020}
    }
 
-Get Started
------------
+`Power to the Learner: Towards Human-Intuitive and Integrative Recommendations with Open Educational Resources`_
+published in 2022 as part of the Special Issue on AI and Interaction Technologies for Social Sustainability
 
-See the :ref:`installation` for a quick introduction to the package.
+.. _Power to the Learner\: Towards Human-Intuitive and Integrative Recommendations with Open Educational Resources: https://www.mdpi.com/2071-1050/14/18/11682
+
+The bibtex entry for the publication is as follows::
+
+   @Article{su141811682,
+      author = {Bulathwela, Sahan and Pérez-Ortiz, María and Yilmaz, Emine and Shawe-Taylor, John},
+      title = {Power to the Learner: Towards Human-Intuitive and Integrative Recommendations with Open Educational Resources},
+      journal = {Sustainability},
+      volume = {14},
+      year = {2022},
+      number = {18},
+      article-number = {11682},
+      url = {https://www.mdpi.com/2071-1050/14/18/11682},
+      ISSN = {2071-1050},
+      DOI = {10.3390/su141811682}
+   }
+
 
 .. include:: changelog.rst
 .. include:: authors.rst
+
