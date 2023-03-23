@@ -36,6 +36,8 @@ TrueLearn
    :target: https://github.com/psf/black
    :alt: Black
 
+TODO: Add a description of the project.
+Update the following sections with the appropriate information.
 
 Installation
 ############
