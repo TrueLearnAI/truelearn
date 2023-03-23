@@ -11,6 +11,7 @@ import os
 import shutil
 import sys
 from pathlib import Path
+
 sys.path.insert(0, os.path.abspath('..'))
 
 # If we are on Read the Docs we need to clean up the generated folder
@@ -26,7 +27,6 @@ project = 'TrueLearn'
 # pylint: disable=redefined-builtin
 copyright = '2023, TrueLearn'
 author = 'TrueLearn Team'
-
 
 # pylint: disable=wrong-import-position
 import truelearn
@@ -69,6 +69,7 @@ intersphinx_mapping = {
 
 def linkcode_resolve(domain, info):
     """Determine the URL corresponding to the sourcecode."""
+
     def find_source():
         # Find the file and line number, based on code from numpy:
         # https://github.com/numpy/numpy/blob/master/doc/source/conf.py#L286
@@ -92,11 +93,23 @@ def linkcode_resolve(domain, info):
     return f"https://github.com/comp0016-group1/truelearn/blob/{tag}/{filename}"
 
 
+# -- Options for napoleon extension ------------------------------------------
+# https://www.sphinx-doc.org/en/master/usage/extensions/napoleon.html
+napoleon_include_special_with_doc = True
+napoleon_include_init_with_doc = True
+napoleon_attr_annotations = True
+
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
-# Install furo theme with pip install furo
 html_theme = 'furo'
+html_logo = 'images/logo.png'
+
 
 # See GitHub issue : https://github.com/readthedocs/readthedocs.org/issues/1776
 html_static_path = []
+
+# -- Extensions to the  Napoleon GoogleDocstring class ---------------------
+
+napoleon_use_ivar = True
+
