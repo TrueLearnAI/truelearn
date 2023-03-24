@@ -5,8 +5,8 @@ from typing_extensions import Self, Final
 import trueskill
 
 from truelearn.models import EventModel, LearnerModel, LearnerMetaWeights
-from ._base import BaseClassifier
-from ._truelearn_base import team_sum_quality
+from truelearn.base import BaseClassifier
+from ._base import team_sum_quality
 from ._constraint import TypeConstraint
 from ._novelty_classifier import NoveltyClassifier
 from ._interest_classifier import InterestClassifier

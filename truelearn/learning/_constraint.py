@@ -1,6 +1,6 @@
 from typing import Any, Callable
 
-from ._base import BaseClassifier
+from truelearn.base import BaseClassifier
 
 
 class TypeConstraint:

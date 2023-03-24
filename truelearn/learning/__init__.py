@@ -1,6 +1,5 @@
 """The truelearn.learning module implements classifiers in TrueLearn paper."""
 
-from ._base import BaseClassifier
 from ._ink_classifier import INKClassifier
 from ._interest_classifier import InterestClassifier
 from ._knowledge_classifier import KnowledgeClassifier
@@ -10,7 +9,6 @@ from ._persistent_classifier import PersistentClassifier
 from ._majority_classifier import MajorityClassifier
 
 __all__ = [
-    "BaseClassifier",
     "INKClassifier",
     "InterestClassifier",
     "KnowledgeClassifier",

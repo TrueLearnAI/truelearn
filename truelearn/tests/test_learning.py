@@ -3,8 +3,8 @@ import math
 
 import pytest
 
-from truelearn import learning, models
-from truelearn.learning import _base, _constraint
+from truelearn import base, learning, models
+from truelearn.learning import _constraint
 
 
 def check_farray_close(farr1, farr2):
@@ -14,10 +14,10 @@ def check_farray_close(farr1, farr2):
         assert False, "farr1 is not equal to farr2.\n" f"{farr1} != {farr2}"
 
 
-class MockClassifier(_base.BaseClassifier):
+class MockClassifier(base.BaseClassifier):
     HOLDER_VALUE = 42
     _parameter_constraints = {
-        **_base.BaseClassifier._parameter_constraints,
+        **base.BaseClassifier._parameter_constraints,
         "holder": _constraint.TypeConstraint(int),
     }
 

@@ -115,7 +115,7 @@ import itertools
 import multiprocessing
 from typing import List, Tuple
 
-from truelearn import learning, datasets, preprocessing
+from truelearn import base, learning, datasets, preprocessing
 from truelearn.utils import metrics
 
 
@@ -132,7 +132,7 @@ def get_dataset_variance(dataset: datasets.PEEKData):
 
 def fit_predict_and_transform(
     dataset: datasets.PEEKData,
-    classifier_temp: learning.BaseClassifier,
+    classifier_temp: base.BaseClassifier,
 ) -> List[Tuple[List[bool], List[bool]]]:
     results_for_each_learner = []
     for _, event_label_pairs in dataset:
@@ -208,7 +208,7 @@ def print_all_metrics(metrics: List[Tuple[str, Tuple[float, float, float, float]
 
 
 def multiprocessing_driver(
-    all_data_classifier_pair: Tuple[datasets.PEEKData, learning.BaseClassifier]
+    all_data_classifier_pair: Tuple[datasets.PEEKData, base.BaseClassifier]
 ) -> Tuple[str, Tuple[float, float, float, float]]:
     all_data, classifier = all_data_classifier_pair
     results_for_each_learner = fit_predict_and_transform(all_data, classifier)

@@ -8,7 +8,7 @@ from truelearn.models import (
     LearnerModel,
     BaseKnowledgeComponent,
 )
-from ._truelearn_base import (
+from ._base import (
     InterestNoveltyKnowledgeBaseClassifier,
     gather_trueskill_team,
     team_sum_quality_from_kcs,
