@@ -69,6 +69,11 @@ class PiePlotter(PlotlyBasePlotter):
             number_of_videos = [None for _ in variances]
             last_video_watched = [None for _ in variances]
 
+        variance_min, variance_max = min(variances), max(variances)
+
+        colours = [
+            self._get_colour(v, variance_min, variance_max) for v in variances
+        ]
 
         self.figure = go.Figure(go.Pie(
             labels=titles,
@@ -84,6 +89,9 @@ class PiePlotter(PlotlyBasePlotter):
                 ),
                 history
             ),
+            marker=dict(
+                colors=colours,
+            )
         ), layout=layout_data)
 
         return self
@@ -104,6 +112,35 @@ class PiePlotter(PlotlyBasePlotter):
             other_data = (average_mean, average_variance, "Other")
 
         return other_data
+
+    def _get_colour(
+            self, variance: float, variance_min: float, variance_max: float
+        ) -> str:
+        """
+        Maps the variance to a shade of green represented in RGB.
+        
+        A darker shade represents less variance.
+
+        Args:
+            variance:
+                Float value representing the variance of a knowledge component.
+            variance_min:
+                The smallest variance values from all the knowledge components
+                we are plotting.
+            variance_max:
+                The largest variance values from all the knowledge components
+                we are plotting.
+
+        Returns:
+            A colour string to use when plotting the figure.
+        """
+        variance_range = variance_max - variance_min
+        variance = (variance - variance_min) / variance_range
+        r = 20 + variance * 227
+        g = 69 + variance * 183
+        b = 38 + variance * 206
+
+        return f"rgb({r},{g},{b})"
 
 
 class RosePlotter(PiePlotter):
@@ -152,12 +189,29 @@ class RosePlotter(PiePlotter):
         thetas = [0]
         for i in range(len(widths)-1):
             thetas.append(thetas[i] + widths[i]/2 + widths[i+1]/2)
+        
+        variances = [lst[1] for lst in content]
+        variance_min, variance_max = min(variances), max(variances)
+
+        colours = [
+            self._get_colour(v, variance_min, variance_max) for v in variances
+        ]
 
         traces = []
         for i in range(len(content)-1):
-            traces.append(self._trace(content[i], thetas[i], widths[i]))
+            traces.append(
+                self._trace(content[i], thetas[i], widths[i], colours[i])
+            )
         
-        traces.append(self._trace(content[-1], thetas[-1], widths[-1], number_of_videos[-1]))
+        traces.append(
+            self._trace(
+                content[-1],
+                thetas[-1],
+                widths[-1],
+                colours[i],
+                number_of_videos[-1]
+            )
+        )
 
         layout_data = self._layout((title, None, None))
 
@@ -180,9 +234,15 @@ class RosePlotter(PiePlotter):
 
         return self
 
-    def _trace(self, tr_data, theta, width, number_of_videos: Optional[int]=None):
+    def _trace(
+            self,
+            tr_data,
+            theta,
+            width,
+            colour,
+            number_of_videos: Optional[int]=None,
+        ):
         mean, variance, title, timestamps = tr_data
-        # TODO: visualise variance with a colorscale, replace _ with variance
     
         if not number_of_videos:
             number_of_videos = len(timestamps)
@@ -204,5 +264,8 @@ class RosePlotter(PiePlotter):
                 True
             ),
             thetaunit='degrees',
-            theta=[theta]
+            theta=[theta],
+            marker=dict(
+                color=colour,
+            ),
         )
