@@ -2,7 +2,7 @@ from typing import Dict, Any
 from typing_extensions import Self
 
 from truelearn.models import EventModel
-from .base import BaseClassifier
+from ._base import BaseClassifier
 
 
 class EngageClassifier(BaseClassifier):

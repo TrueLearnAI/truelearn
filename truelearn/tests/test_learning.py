@@ -4,7 +4,7 @@ import math
 import pytest
 
 from truelearn import learning, models
-from truelearn.learning import base
+from truelearn.learning import _base, _constraint
 
 
 def check_farray_close(farr1, farr2):
@@ -14,11 +14,11 @@ def check_farray_close(farr1, farr2):
         assert False, "farr1 is not equal to farr2.\n" f"{farr1} != {farr2}"
 
 
-class MockClassifier(base.BaseClassifier):
+class MockClassifier(_base.BaseClassifier):
     HOLDER_VALUE = 42
     _parameter_constraints = {
-        **base.BaseClassifier._parameter_constraints,
-        "holder": base.TypeConstraint(int),
+        **_base.BaseClassifier._parameter_constraints,
+        "holder": _constraint.TypeConstraint(int),
     }
 
     def __init__(self):  # noqa: D107
@@ -66,7 +66,7 @@ class TestBase:
             "_parameter_constraints",
             {
                 **MockClassifier._parameter_constraints,
-                "useless_key": base.TypeConstraint(type(None)),
+                "useless_key": _constraint.TypeConstraint(type(None)),
             },
         )
 
@@ -82,7 +82,7 @@ class TestBase:
     def test_validate_params_type_mismatch_throw(self, monkeypatch):
         parameter_constraints = {
             **MockClassifier._parameter_constraints,
-            "holder": base.TypeConstraint(float, str, type(None)),
+            "holder": _constraint.TypeConstraint(float, str, type(None)),
         }
 
         monkeypatch.setattr(

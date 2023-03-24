@@ -1,7 +1,10 @@
 from typing import Any, Optional, Dict, Iterable
 
 from truelearn.models import LearnerModel, BaseKnowledgeComponent
-from .base import InterestNoveltyKnowledgeBaseClassifier, gather_trueskill_team
+from ._truelearn_base import (
+    InterestNoveltyKnowledgeBaseClassifier,
+    gather_trueskill_team,
+)
 
 import trueskill
 
