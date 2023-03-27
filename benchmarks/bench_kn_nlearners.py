@@ -1,12 +1,19 @@
 # pylint: disable=missing-function-docstring
+# noqa
+"""This module can be used to compare the running time and memory consumption \
+of KnowledgeClassifier and NoveltyClassifier in the truelearn library and \
+the original repository `https://github.com/sahanbull/TrueLearn`.
+"""
 import argparse
 import numpy as np
 import trueskill
 
 from truelearn import learning, datasets
 
+
 # fmt: off
 def _erfc(x):
+    """Complementary error function (via `http://bit.ly/zOLqbc`)."""
     z = abs(x)
     t = 1. / (1. + z / 2.)
     r = t * np.exp(-z * z - 1.26551223 + t * (1.00002368 + t * (
@@ -21,6 +28,7 @@ def _erfc(x):
 
 
 def _cdf(x, mu=0, sigma=1):
+    """Cumulative distribution function."""
     return 0.5 * _erfc(-(x - mu) / (sigma * np.sqrt(2)))
 
 
@@ -33,7 +41,7 @@ def team_sum_quality(
 
 
 # pylint: disable=too-many-arguments, too-many-locals
-def truelearn_knowledge(
+def truelearn_knowledge_original(
     records,
     positive_only=True,
     init_skill=0.0,
@@ -125,7 +133,7 @@ def truelearn_knowledge(
         predicted.append(prediction)
 
 
-def truelearn_novel(
+def truelearn_novelty_original(
     records,
     positive_only=False,
     init_skill=0.0,
@@ -232,7 +240,7 @@ def truelearn_novel(
         actual.append(label)
 
 
-def knowledge_classifier(event_label_pairs):
+def truelearn_knowledge_lib(event_label_pairs):
     knowledge_classifier = learning.KnowledgeClassifier()
     predictions = []
 
@@ -243,7 +251,7 @@ def knowledge_classifier(event_label_pairs):
         knowledge_classifier.fit(event, label)
 
 
-def novelty_classifier(event_label_pairs):
+def truelearn_novelty_lib(event_label_pairs):
     novelty_classifier = learning.NoveltyClassifier()
     predictions = []
 
@@ -285,14 +293,14 @@ def main(args):
 
     if args["k"]:
         if args["original"]:
-            driver(records_for_all, truelearn_knowledge)
+            driver(records_for_all, truelearn_knowledge_original)
         else:
-            driver(event_label_pairs_for_all, knowledge_classifier)
+            driver(event_label_pairs_for_all, truelearn_knowledge_lib)
     elif args["n"]:
         if args["original"]:
-            driver(records_for_all, truelearn_novel)
+            driver(records_for_all, truelearn_novelty_original)
         else:
-            driver(event_label_pairs_for_all, novelty_classifier)
+            driver(event_label_pairs_for_all, truelearn_novelty_lib)
 
 
 if __name__ == "__main__":

@@ -196,14 +196,16 @@ def get_classifier_metrics(
     )
 
 
-def print_all_metrics(metrics: List[Tuple[str, Tuple[float, float, float, float]]]):
+def print_all_metrics(
+    metrics_for_all_classifiers: List[Tuple[str, Tuple[float, float, float, float]]]
+):
     headers = ["Classifier", "Accuracy", "Precision", "Recall", "F1 Score"]
 
     format_header = "{:>20}" * (len(headers))
     print(format_header.format(*headers))
 
     format_row = "{:>20}" + "{:>20.3f}" * (len(headers) - 1)
-    for cls_name, metrics_for_cls in metrics:
+    for cls_name, metrics_for_cls in metrics_for_all_classifiers:
         print(format_row.format(cls_name, *metrics_for_cls))
 
 
