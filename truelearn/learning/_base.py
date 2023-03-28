@@ -12,7 +12,7 @@ from truelearn.models import (
     LearnerModel,
 )
 from truelearn.base import BaseClassifier
-from ._constraint import (
+from .._constraint import (
     TypeConstraint,
     ValueConstraint,
     FuncConstraint,

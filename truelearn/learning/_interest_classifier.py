@@ -13,7 +13,7 @@ from ._base import (
     gather_trueskill_team,
     team_sum_quality_from_kcs,
 )
-from ._constraint import TypeConstraint, ValueConstraint
+from .._constraint import TypeConstraint, ValueConstraint
 
 
 class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
