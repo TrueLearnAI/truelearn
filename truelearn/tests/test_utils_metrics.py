@@ -39,6 +39,7 @@ def test_f1_score():
     y_pred = [False, False, True, False, False, True]
     assert metrics.get_f1_score(y_true, y_pred) == 0.4
 
+
 def test_f1_score_zero_division():
     y_true = [False, False, False, False, False, False]
     y_pred = [False, False, False, False, False, False]
