@@ -21,7 +21,7 @@ from truelearn.models import (
     KnowledgeComponent,
     BaseKnowledgeComponent,
 )
-from .base import RemoteFileMetaData, check_and_download_file
+from ._base import RemoteFileMetaData, check_and_download_file
 
 
 PEEKData: TypeAlias = List[Tuple[int, List[Tuple[EventModel, bool]]]]
@@ -148,7 +148,7 @@ def __restructure_line(
     # sanitize the data
     event_time = float(event_time)
     learner_id = int(learner_id)
-    label = bool(label)
+    label = bool(int(label))
 
     # extract topic_id from topics
     topic_ids = list(
@@ -259,38 +259,6 @@ def __build_mapping(mapping_filepath: str) -> Dict[int, Tuple[str, str, str]]:
         }
 
 
-def __get_knowledge_component(
-    *,
-    mean: float,
-    variance: float,
-    timestamp: float,
-    url: str,
-    title: str,
-    description: str,
-) -> KnowledgeComponent:
-    """The default generator function of the knowledge component.
-
-    Args:
-        mean: The mean of the generated KnowledgeComponent.
-        variance: The variance of the generated KnowledgeComponent.
-        timestamp: The timestamp of the generated KnowledgeComponent.
-        url: The url of the generated KnowledgeComponent.
-        title: The title of the generated KnowledgeComponent.
-        description: The description of the generated KnowledgeComponent.
-
-    Returns:
-        The generated KnowledgeComponent.
-    """
-    return KnowledgeComponent(
-        mean=mean,
-        variance=variance,
-        timestamp=timestamp,
-        url=url,
-        title=title,
-        description=description,
-    )
-
-
 def __load_data_raw(filepath: str, limit: Optional[int]) -> List[List[str]]:
     """Load the PEEKDataset file without any processing.
 
@@ -317,7 +285,7 @@ def load_peek_dataset(
     *,
     dirname: str = ".",
     variance: float = 1e-9,
-    kc_init_func: PEEKKnowledgeComponentGenerator = __get_knowledge_component,
+    kc_init_func: PEEKKnowledgeComponentGenerator = KnowledgeComponent,
     train_limit: Optional[int] = None,
     test_limit: Optional[int] = None,
     verbose: bool = True,
@@ -385,13 +353,13 @@ def load_peek_dataset(
         >>> len(train)
         14050
         >>> train[0]  # doctest:+ELLIPSIS
-        (23128, [(EventModel(...), event_time=172.0), True), ..., (EventModel(...), \
-event_time=55932.0), True)])
+        (23128, [(EventModel(...), event_time=172.0), False), ..., (EventModel(...), \
+event_time=55932.0), False)])
         >>> len(test)
         5969
         >>> test[0]  # doctest:+ELLIPSIS
-        (25623, [(EventModel(...), event_time=0.0), True), ..., (EventModel(...), \
-event_time=1590.0), True)])
+        (25623, [(EventModel(...), event_time=0.0), False), ..., (EventModel(...), \
+event_time=1590.0), False)])
         >>> len(mapping)
         30367
         >>> mapping[0]

@@ -5,7 +5,8 @@ from typing_extensions import Self, Final
 import trueskill
 
 from truelearn.models import EventModel, LearnerModel, LearnerMetaWeights
-from .base import BaseClassifier, team_sum_quality
+from truelearn.base import BaseClassifier
+from ._base import team_sum_quality
 from ._constraint import TypeConstraint
 from ._novelty_classifier import NoveltyClassifier
 from ._interest_classifier import InterestClassifier
@@ -63,13 +64,15 @@ class INKClassifier(BaseClassifier):
         ...         ink_classifier.predict_proba(event)
         ...     )
         ...
-        True 0.5519515387629774
-        False 0.3042337221090127
-        True 0.6278686231266752
+        True 0.64105...
+        False 0.44438...
+        True 0.64909...
         >>> ink_classifier.get_params(deep=False)  # doctest:+ELLIPSIS
         {...'learner_meta_weights': LearnerMetaWeights(novelty_weights=Weights(\
-mean=0.39332..., variance=1.16897...), interest_weights=Weights(mean=0.58194..., \
-variance=1.07022...), bias_weights=Weights(mean=0.32119..., variance=0.88150...))...}
+mean=0.20461..., variance=0.45871...), interest_weights=Weights(\
+mean=0.66315..., variance=0.42187...), bias_weights=Weights(\
+mean=0.12698..., variance=0.39796...))...}
+
     """
 
     __DEFAULT_GLOBAL_SIGMA: Final[float] = 1e-9
@@ -92,7 +95,7 @@ variance=1.07022...), bias_weights=Weights(mean=0.32119..., variance=0.88150...)
         novelty_classifier: Optional[NoveltyClassifier] = None,
         interest_classifier: Optional[InterestClassifier] = None,
         threshold: float = 0.5,
-        tau: float = 0.5,
+        tau: float = 0.0,
         greedy: bool = False,
     ) -> None:
         """Init INKClassifier object.

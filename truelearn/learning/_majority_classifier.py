@@ -2,7 +2,7 @@ from typing import Any, Dict
 from typing_extensions import Self
 
 from truelearn.models import EventModel
-from .base import BaseClassifier
+from truelearn.base import BaseClassifier
 from ._constraint import TypeConstraint
 
 
@@ -70,4 +70,4 @@ class MajorityClassifier(BaseClassifier):
         return self.predict_proba(x) > self._threshold
 
     def predict_proba(self, x: EventModel) -> float:
-        return self._engagement / (self._engagement + self._non_engagement)
+        return self._engagement / max(1, self._engagement + self._non_engagement)
