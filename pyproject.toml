@@ -17,7 +17,6 @@ build-backend = "setuptools.build_meta"
 name = "truelearn"
 dynamic = ["version"]
 description = "A Machine learning library for recommending open educational resources"
-url= "https://github.com/TrueLearnAI/truelearn"
 readme = "README.rst"
 requires-python = ">=3.7"
 keywords = ["machine learning", "python", "statistics", "probability"]
