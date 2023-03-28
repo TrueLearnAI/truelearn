@@ -165,10 +165,10 @@ class PlotlyBasePlotter(BasePlotter):
     @final
     def _static_export(
             self,
-            path: str,
+            file: str,
             format: str,
-            width: int = 500,
-            height: int = 500
+            width,
+            height
     ) -> None:
         """Exports the visualisation as an image file.
 
@@ -181,46 +181,88 @@ class PlotlyBasePlotter(BasePlotter):
             height: the height of the image file.
         """
         self.figure.write_image(
-            path=path,
+            file=file,
             format=format,
             width=width,
-            height=height,
+            height=height
         )
 
     @final
     def to_png(
             self,
-            path: str,
-            width: int = 500,
-            height: int = 500
+            file: str,
+            width: int=1000,
+            height: int=600,
     ) -> None:
         """Exports the visualisation as a png file.
 
         Args:
             path: the local file path in which to create the image file.
         """
-        self._static_export(path, "png")
+        self._static_export(file, "png", width, height)
 
     @final
     def to_jpeg(
             self,
-            path: str,
-            width: int = 500,
-            height: int = 500
+            file: str,
+            width: int=1000,
+            height: int=600,
     ) -> None:
         """Exports the visualisation as a jpeg file.
 
         Args:
             path: the local file path in which to create the image file.
         """
-        self._static_export(path, "jpeg")
+        self._static_export(file, "jpeg", width, height)
 
     @final
-    def _html_export(
+    def to_webp(
             self,
-            path: str,
-            width: int = 500,
-            height: int = 500
+            file: str,
+            width: int=1000,
+            height: int=600,
+    ) -> None:
+        """Exports the visualisation as a jpeg file.
+
+        Args:
+            path: the local file path in which to create the image file.
+        """
+        self._static_export(file, "webp", width, height)
+
+    @final
+    def to_svg(
+            self,
+            file: str,
+            width: int=1000,
+            height: int=600,
+    ) -> None:
+        """Exports the visualisation as a jpeg file.
+
+        Args:
+            path: the local file path in which to create the image file.
+        """
+        self._static_export(file, "svg", width, height)
+
+    @final
+    def to_pdf(
+            self,
+            file: str,
+            width: int=1000,
+            height: int=600,
+    ) -> None:
+        """Exports the visualisation as a jpeg file.
+
+        Args:
+            path: the local file path in which to create the image file.
+        """
+        self._static_export(file, "pdf", width, height)
+
+    @final
+    def to_html(
+            self,
+            file: str,
+            width: str="100%",
+            height: str="100%",
     ) -> None:
         """Exports the visualisation to an HTML file.
 
@@ -232,10 +274,10 @@ class PlotlyBasePlotter(BasePlotter):
             height: the height of the visualisation in the HTML file.
         """
         self.figure.write_html(
-            path=path,
-            width=width,
-            height=height,
-        )
+            file=file,
+            default_width=width,
+            default_height=height,
+        )        
 
 
 class MatplotlibBasePlotter(BasePlotter):
