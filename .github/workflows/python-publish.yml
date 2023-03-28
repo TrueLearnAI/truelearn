@@ -31,8 +31,9 @@ jobs:
 
   deploy_to_pypi:
     runs-on: ubuntu-latest
-    #ignore for now
-    #needs: [unit_tests, static_analysis]
+    needs: [unit_tests, static_analysis]
+    #TODO - change to success() only if you want to only publish on success
+    if: always()
     steps:
       - uses: actions/checkout@v3
 
