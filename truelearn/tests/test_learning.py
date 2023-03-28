@@ -4,7 +4,7 @@ import math
 import pytest
 
 from truelearn import base, learning, models
-from truelearn.learning import _constraint
+from truelearn import _constraint
 
 
 def check_farray_close(farr1, farr2):

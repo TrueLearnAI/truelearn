@@ -7,7 +7,7 @@ import trueskill
 from truelearn.models import EventModel, LearnerModel, LearnerMetaWeights
 from truelearn.base import BaseClassifier
 from ._base import team_sum_quality
-from ._constraint import TypeConstraint
+from .._constraint import TypeConstraint
 from ._novelty_classifier import NoveltyClassifier
 from ._interest_classifier import InterestClassifier
 

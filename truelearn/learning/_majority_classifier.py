@@ -3,7 +3,7 @@ from typing_extensions import Self
 
 from truelearn.models import EventModel
 from truelearn.base import BaseClassifier
-from ._constraint import TypeConstraint
+from .._constraint import TypeConstraint
 
 
 class MajorityClassifier(BaseClassifier):
