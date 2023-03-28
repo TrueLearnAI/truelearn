@@ -105,71 +105,9 @@ class BasePlotter(ABC):
             content:
                 the data to be used to plot the visualisation.
         """
-
-
-class PlotlyBasePlotter(BasePlotter):
     
-    def _layout(self, layout_data: Tuple[str, str, str]) -> go.Layout:
-        """Creates the Layout object for the visualisation.
-
-        Args:
-            layout_data:
-                a tuple containing the name of the visualisation
-                and the x and y labels.
-        
-        Returns:
-            the Layout object created with layout_data.
-        """
-        title, x_label, y_label = layout_data
-
-        layout = go.Layout(
-            title=title,
-            xaxis=dict(title=x_label),
-            yaxis=dict(title=y_label),
-        )
-
-        return layout
-
-    def _hovertemplate(self, hoverdata, history):
-        topic, mean, variance, number_videos, last_video = hoverdata
-        return (
-            "<br>".join(
-                [
-                    f"Topic: {topic}",
-                    f"Mean: {mean}",
-                    f"Variance: {variance}",
-                    f"Number of Videos Watched: {number_videos}",
-                    f"Last Video Watched On: {last_video}",
-                    "<extra></extra>"
-                ]
-            )
-            if history else
-            "<br>".join(
-                [
-                    f"Topic: {topic}",
-                    f"Mean: {mean}",
-                    f"Variance: {variance}",
-                    "<extra></extra>"
-                ]
-            )
-        )
-    
-    @final
-    def show(self) -> None:
-        """Opens the visualisation in localhost.
-
-        Equivalent to Plotly's Figure.show() method.
-        """
-        self.figure.show()
-
-    @final
-    def _static_export(
-            self,
-            file: str,
-            format: str,
-            width,
-            height
-    ) -> None:
+    @abstractmethod
+    def _static_export(self, file, format, width, height):
         """Exports the visualisation as an image file.
 
         Args:
@@ -180,12 +118,6 @@ class PlotlyBasePlotter(BasePlotter):
             width: the width of the image file.
             height: the height of the image file.
         """
-        self.figure.write_image(
-            file=file,
-            format=format,
-            width=width,
-            height=height
-        )
 
     @final
     def to_png(
@@ -257,6 +189,71 @@ class PlotlyBasePlotter(BasePlotter):
         """
         self._static_export(file, "pdf", width, height)
 
+
+class PlotlyBasePlotter(BasePlotter):
+    
+    def _layout(self, layout_data: Tuple[str, str, str]) -> go.Layout:
+        """Creates the Layout object for the visualisation.
+
+        Args:
+            layout_data:
+                a tuple containing the name of the visualisation
+                and the x and y labels.
+        
+        Returns:
+            the Layout object created with layout_data.
+        """
+        title, x_label, y_label = layout_data
+
+        layout = go.Layout(
+            title=title,
+            xaxis=dict(title=x_label),
+            yaxis=dict(title=y_label),
+        )
+
+        return layout
+
+    def _hovertemplate(self, hoverdata, history):
+        topic, mean, variance, number_videos, last_video = hoverdata
+        return (
+            "<br>".join(
+                [
+                    f"Topic: {topic}",
+                    f"Mean: {mean}",
+                    f"Variance: {variance}",
+                    f"Number of Videos Watched: {number_videos}",
+                    f"Last Video Watched On: {last_video}",
+                    "<extra></extra>"
+                ]
+            )
+            if history else
+            "<br>".join(
+                [
+                    f"Topic: {topic}",
+                    f"Mean: {mean}",
+                    f"Variance: {variance}",
+                    "<extra></extra>"
+                ]
+            )
+        )
+    
+    @final
+    def show(self) -> None:
+        """Opens the visualisation in localhost.
+
+        Equivalent to Plotly's Figure.show() method.
+        """
+        self.figure.show()
+
+    @final
+    def _static_export(self, file: str, format: str, width, height) -> None:
+        self.figure.write_image(
+            file=file,
+            format=format,
+            width=width,
+            height=height
+        )
+
     @final
     def to_html(
             self,
@@ -281,11 +278,13 @@ class PlotlyBasePlotter(BasePlotter):
 
 
 class MatplotlibBasePlotter(BasePlotter):
-
+    @final
     def show(self):
         plt.show()
 
-    #TODO: add functions for exporting matplotlib plots
+    @final
+    def _static_export(self, file, format, width, height):
+        plt.savefig(fname=file, format=format)
 
 
 def knowledge_to_dict(knowledge: Knowledge,
