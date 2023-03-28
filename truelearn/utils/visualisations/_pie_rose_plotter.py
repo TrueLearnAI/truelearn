@@ -1,5 +1,6 @@
 from typing import Iterable, Tuple, Union, Optional
 from typing_extensions import Self
+import random
 
 import numpy as np
 import plotly.graph_objects as go
@@ -225,12 +226,13 @@ class RosePlotter(PiePlotter):
         rest += content[top_n:]
         content = content[:top_n]
 
+        random.shuffle(content)
+
         if other:
             content.append(self._get_other_data(rest, True))
 
         number_of_videos = [len(tr_data[3]) for tr_data in content]
         if other:
-            # get average number of videos watched
             number_of_videos[-1] /= len(rest)
 
         total_videos = sum(number_of_videos)
@@ -247,20 +249,21 @@ class RosePlotter(PiePlotter):
         ]
 
         traces = []
-        for i in range(len(content)-1):
+        for i in range(len(content)):
             traces.append(
                 self._trace(content[i], thetas[i], widths[i], colours[i])
             )
-        
-        traces.append(
-            self._trace(
-                content[-1],
-                thetas[-1],
-                widths[-1],
-                colours[-1],
-                number_of_videos[-1]
-            )
+
+        means = [tr_data[0] for tr_data in content]
+        average_mean = sum(means) / len(means)
+        mean_trace = go.Scatterpolar(
+            name="Average mean",
+            r=[average_mean for _ in range(360)],
+            theta=[i for i in range(360)],
+            mode='lines',
+            line_color='black',
         )
+        traces.append(mean_trace)
 
         layout_data = self._layout((title, None, None))
 
