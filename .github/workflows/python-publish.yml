@@ -18,6 +18,7 @@ on:
 permissions:
   contents: read
 
+# Only cancel concurrent runs of the same workflow
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}-publish
   cancel-in-progress: true

@@ -18,8 +18,9 @@ on:
       - '.github/workflows/coverage.yml'
   workflow_dispatch:
 
+# Only cancel concurrent runs of the same workflow
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}-coverage
   cancel-in-progress: true
 
 jobs:

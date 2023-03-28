@@ -9,8 +9,9 @@ on:
   workflow_dispatch:
   workflow_call:
 
+# Only cancel concurrent runs of the same workflow
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}-format
   cancel-in-progress: true
 
 jobs:
