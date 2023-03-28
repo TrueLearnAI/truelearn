@@ -1,11 +1,5 @@
 name: Format Check
 on:
-  push:
-    # filter on files that should trigger this workflow
-    paths:
-      - 'pyproject.toml'
-      - '**.py'
-      - '.github/workflows/black.yml'
   pull_request:
     # filter on files that should trigger this workflow
     paths:
