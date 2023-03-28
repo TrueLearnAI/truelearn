@@ -5,31 +5,17 @@ of KnowledgeClassifier and NoveltyClassifier in the truelearn library and \
 the original repository `https://github.com/sahanbull/TrueLearn`.
 """
 import argparse
+import math
+
 import numpy as np
 import trueskill
 
 from truelearn import learning, datasets
 
 
-# fmt: off
-def _erfc(x):
-    """Complementary error function (via `http://bit.ly/zOLqbc`)."""
-    z = abs(x)
-    t = 1. / (1. + z / 2.)
-    r = t * np.exp(-z * z - 1.26551223 + t * (1.00002368 + t * (
-            0.37409196 + t * (0.09678418 + t * (-0.18628806 + t * (
-            0.27886807 + t * (-1.13520398 + t * (1.48851587 + t * (
-            -0.82215223 + t * 0.17087277
-    )))
-    )))
-    )))
-    return 2. - r if x < 0 else r
-# fmt: on
-
-
 def _cdf(x, mu=0, sigma=1):
     """Cumulative distribution function."""
-    return 0.5 * _erfc(-(x - mu) / (sigma * np.sqrt(2)))
+    return 0.5 * math.erfc(-(x - mu) / (sigma * np.sqrt(2)))
 
 
 def team_sum_quality(
