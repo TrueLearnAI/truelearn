@@ -37,7 +37,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
     "Topic :: Software Development :: Libraries",
-    "Topic :: Software Development :: Libraries :: Python Module",
+    "Topic :: Education",
 ]
 dependencies = [
     'typing-extensions>=4.4.0',
