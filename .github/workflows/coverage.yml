@@ -3,9 +3,19 @@ on:
   push:
     branches:
       - main
+    # filter on files that should trigger this workflow
+    paths:
+      - 'pyproject.toml'
+      - '**.py'
+      - '.github/workflows/coverage.yml'
   pull_request:
     branches:
       - main
+    # filter on files that should trigger this workflow
+    paths:
+      - 'pyproject.toml'
+      - '**.py'
+      - '.github/workflows/coverage.yml'
   workflow_dispatch:
 
 concurrency:
