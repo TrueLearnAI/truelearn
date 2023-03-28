@@ -1,5 +1,5 @@
 import datetime
-from typing import Iterable, Tuple
+from typing import Iterable, Tuple, Optional
 from typing_extensions import Self
 
 import matplotlib.pyplot as plt
@@ -14,6 +14,7 @@ class WordPlotter(MatplotlibBasePlotter):
     def plot(
             self,
             content: Iterable[Tuple[Iterable, Iterable, str]],
+            topics: Optional[Iterable[str]]=None,
             top_n: int = 50
     ) -> Self:
 
@@ -29,7 +30,7 @@ class WordPlotter(MatplotlibBasePlotter):
               ranked by mean.
         """
         if isinstance(content, Knowledge):
-            content = self._standardise_data(content, False)
+            content = self._standardise_data(content, False, topics)
 
         content = content[:top_n]
 

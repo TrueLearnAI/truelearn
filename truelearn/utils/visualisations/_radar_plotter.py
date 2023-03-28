@@ -1,5 +1,5 @@
 import datetime
-from typing import Iterable, Tuple
+from typing import Iterable, Tuple, Optional
 from typing_extensions import Self
 
 import numpy as np
@@ -14,6 +14,7 @@ class RadarPlotter(PlotlyBasePlotter):
     def plot(
             self,
             content: Iterable[Tuple[Iterable, Iterable, str]],
+            topics: Optional[Iterable[str]]=None,
             top_n: int = 10,
             title: str = "Comparison of learner's top 5 subjects",
             x_label: str = "Subjects",
@@ -31,7 +32,7 @@ class RadarPlotter(PlotlyBasePlotter):
               ranked by mean.
         """
         if isinstance(content, Knowledge):
-            content = self._standardise_data(content, False)
+            content = self._standardise_data(content, False, topics)
 
         content = content[:top_n]
 
@@ -58,6 +59,8 @@ class RadarPlotter(PlotlyBasePlotter):
         return self
 
     def _trace(self, r, theta):
+        r.append(r[0])
+        theta.append(theta[0])
         return go.Scatterpolar(
             r = r, 
             theta = theta, 

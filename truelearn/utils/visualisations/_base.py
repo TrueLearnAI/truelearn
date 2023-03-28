@@ -19,7 +19,15 @@ class BasePlotter(ABC):
     """The base class of all the plotters."""
 
     @final
-    def _standardise_data(self, raw_data: Knowledge, history: bool=False) -> Iterable:
+    def __init__(self):
+        self.figure = None
+
+    def _standardise_data(
+        self,
+        raw_data: Knowledge,
+        history: bool=False,
+        topics: Union[str, Iterable[str], None]=None
+    ) -> Iterable:
         """Converts a KnowledgeDict object to one suitable for generating visualisations.
         
         Optional utility function that converts the dictionary representation
@@ -30,40 +38,22 @@ class BasePlotter(ABC):
             raw_data:
                 dictionary representation of the learner's knowledge and
                 knowledge components.
+            topics:
+                optional list of topics to extract the information for from
+                the knowledge object. If not specified, all topics are extracted.
             history:
-                boolean which indicates whether the user wants to visualise
+                boolean which indicates whether the user wants to visualise.
 
         Returns:
             a data structure usable by the plot() method to generate the figure.
-        """
+        """        
         raw_data = knowledge_to_dict(raw_data)
 
         content = []
         for _, kc in raw_data.items():
-            mean = kc['mean']
-            variance = kc['variance']
-            title = kc['title']
-            timestamps = []
-            if history:
-                try:
-                    for _, _, timestamp in kc['history']:
-                        timestamps.append(timestamp)
-                    # EXTRACT THIS TO HELPER FUNCTION TO REUSE IN DIFFERENT PLACES
-                    timestamps = list(map(
-                        lambda t: datetime.datetime.utcfromtimestamp(t).strftime(
-                            "%Y-%m-%d"),
-                        timestamps
-                    ))
-                    data = (mean, variance, title, timestamps)
-                except KeyError as err:
-                    raise ValueError(
-                        "User's knowledge contains KnowledgeComponents. "
-                        + "Expected only HistoryAwareKnowledgeComponents."
-                    ) from err
-            else:
-                data = (mean, variance, title)
-
-            content.append(data)
+            data = self._get_kc_details(kc, history)
+            if (topics is None) or (data[2] in topics or data[2] == topics):
+                content.append(data)
 
         content.sort(
             key=lambda data: data[0],  # sort based on mean
@@ -72,11 +62,40 @@ class BasePlotter(ABC):
 
         return content
 
+    def _get_kc_details(self, kc, history):
+        title = kc['title']
+        mean = kc['mean']
+        variance = kc['variance']
+        timestamps = []
+        if history:
+            try:
+                for _, _, timestamp in kc['history']:
+                    timestamps.append(timestamp)
+                timestamps = list(map(
+                    self._unix_to_iso,
+                    timestamps
+                ))
+                data = (mean, variance, title, timestamps)
+            except KeyError as err:
+                raise ValueError(
+                    "User's knowledge contains KnowledgeComponents. "
+                    + "Expected only HistoryAwareKnowledgeComponents."
+                ) from err
+        else:
+            data = (mean, variance, title)
+        
+        return data
+
+    @final
+    def _unix_to_iso(self, t: int):
+        return datetime.datetime.utcfromtimestamp(t).strftime("%Y-%m-%d")
+
     @abstractmethod
     def plot(
             self,
             content: Union[Knowledge, Iterable[Tuple]],
             title: str,
+            top_n: Optional[int]=None
     ) -> Self:
         """Creates a Plotly Figure object from the data.
 
@@ -89,8 +108,6 @@ class BasePlotter(ABC):
 
 
 class PlotlyBasePlotter(BasePlotter):
-    def __init__(self):
-        self.figure = None
     
     def _layout(self, layout_data: Tuple[str, str, str]) -> go.Layout:
         """Creates the Layout object for the visualisation.
@@ -222,9 +239,7 @@ class PlotlyBasePlotter(BasePlotter):
 
 
 class MatplotlibBasePlotter(BasePlotter):
-    def __init__(self):
-        self.figure = None
-    
+
     def show(self):
         plt.show()
 

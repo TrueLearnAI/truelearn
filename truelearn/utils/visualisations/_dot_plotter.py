@@ -1,4 +1,4 @@
-from typing import Iterable, Tuple
+from typing import Iterable, Tuple, Optional
 from typing_extensions import Self
 
 import numpy as np
@@ -14,7 +14,8 @@ class DotPlotter(PlotlyBasePlotter):
             self,
             content: Iterable[Tuple[Iterable, Iterable, str]],
             history: bool,
-            top_n: int = 5,
+            topics: Optional[Iterable[str]]=None,
+            top_n: Optional[int]=None,
             title: str = "Comparison of learner's top 5 subjects",
             x_label: str = "Subjects",
             y_label: str = "Mean",
@@ -37,7 +38,7 @@ class DotPlotter(PlotlyBasePlotter):
               ranked by mean.
         """
         if isinstance(content, Knowledge):
-            content = self._standardise_data(content, history)
+            content = self._standardise_data(content, history, topics)
 
         content = content[:top_n]
 

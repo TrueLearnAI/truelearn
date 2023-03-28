@@ -1,5 +1,5 @@
 import datetime
-from typing import Iterable, Tuple
+from typing import Iterable, Tuple, Optional
 
 import plotly.graph_objects as go
 import matplotlib.pyplot as plt
@@ -15,10 +15,9 @@ class BubblePlotter(MatplotlibBasePlotter):
     def plot(
             self,
             content: Iterable[Tuple[Iterable, Iterable, str]],
-            top_n: int = 15,
-            title: str = "Comparison of learner's top 15 subjects",
-            x_label: str = "Mean",
-            y_label: str = "Variances",
+            topics: Optional[Iterable[str]]=None,
+            top_n: Optional[int]=None,
+            title: str = "Comparison of learner's top subjects"
     ) -> go.Scatterpolar:
 
         """
@@ -38,7 +37,8 @@ class BubblePlotter(MatplotlibBasePlotter):
               ranked by mean.
         """
         if isinstance(content, Knowledge):
-            content = self._standardise_data(content, False)
+            content = self._standardise_data(content, False, topics)
+
         content = content[:top_n]
 
         means = [lst[0]*10 for lst in content]

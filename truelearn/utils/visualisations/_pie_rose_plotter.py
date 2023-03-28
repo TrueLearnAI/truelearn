@@ -5,15 +5,63 @@ import numpy as np
 import plotly.graph_objects as go
 
 from truelearn.models import Knowledge
-from truelearn.utils.visualisations._base import PlotlyBasePlotter
+from truelearn.utils.visualisations._base import (
+    PlotlyBasePlotter,
+    knowledge_to_dict,
+)
 
 
 class PiePlotter(PlotlyBasePlotter):
     """Provides utilities for plotting bar charts."""
+    def _standardise_data(
+        self,
+        raw_data: Knowledge,
+        history: bool=False,
+        topics: Optional[Iterable[str]]=None,
+        top_n: Optional[int]=None
+    ) -> Iterable:
+        """Converts a KnowledgeDict object to one suitable for generating visualisations.
+        
+        Optional utility function that converts the dictionary representation
+        of the learner's knowledge (obtainable via the knowledge_to_dict()
+        function) to the Iterable used by plot.
+
+        Args:
+            raw_data:
+                dictionary representation of the learner's knowledge and
+                knowledge components.
+            topics:
+                optional list of topics to extract the information for from
+                the knowledge object. If not specified, all topics are extracted.
+            history:
+                boolean which indicates whether the user wants to visualise.
+
+        Returns:
+            a data structure usable by the plot() method to generate the figure.
+        """        
+        raw_data = knowledge_to_dict(raw_data)
+
+        content = []
+        rest = []
+        for _, kc in raw_data.items():
+            data = self._get_kc_details(kc, history)
+            if (topics is None) or (data[2] in topics):
+                content.append(data)
+            else:
+                rest.append(data)
+
+        content.sort(
+            key=lambda data: data[0],  # sort based on mean
+            reverse=True
+        )
+
+        return content, rest
+
     def plot(
             self,
             content: Iterable[Tuple[Iterable, Iterable, str]],
-            history: bool,
+            history: bool=False,
+            topics: Optional[Iterable[str]]=None,
             top_n: int = 5,
             other: bool = False,
             title: str = "Distribution of user's skill.",
@@ -38,9 +86,9 @@ class PiePlotter(PlotlyBasePlotter):
               url which is used to extract the subject as a string without https 
         """
         if isinstance(content, Knowledge):
-            content = self._standardise_data(content, history)
+            content, rest = self._standardise_data(content, history, topics)
 
-        rest = content[top_n:]
+        rest += content[top_n:]
         content = content[:top_n]
 
         if other:
@@ -147,6 +195,7 @@ class RosePlotter(PiePlotter):
     def plot(
             self,
             content: Iterable[Tuple[Iterable, Iterable, str]],
+            topics: Optional[Iterable[str]]=None,
             top_n: int = 5,
             other: bool = False,
             title: str = "Distribution of user's skill.",
@@ -171,9 +220,9 @@ class RosePlotter(PiePlotter):
               url which is used to extract the subject as a string without https 
         """
         if isinstance(content, Knowledge):
-            content = self._standardise_data(content, True)
+            content, rest = self._standardise_data(content, True, topics, top_n)
 
-        rest = content[top_n:]
+        rest += content[top_n:]
         content = content[:top_n]
 
         if other:
@@ -208,7 +257,7 @@ class RosePlotter(PiePlotter):
                 content[-1],
                 thetas[-1],
                 widths[-1],
-                colours[i],
+                colours[-1],
                 number_of_videos[-1]
             )
         )
@@ -256,7 +305,7 @@ class RosePlotter(PiePlotter):
             hovertemplate=self._hovertemplate(
                 (
                     title,
-                    mean, 
+                    mean,
                     variance,
                     number_of_videos,
                     last_video_watched

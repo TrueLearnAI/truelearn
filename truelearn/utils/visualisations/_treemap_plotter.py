@@ -1,4 +1,4 @@
-from typing import Iterable, Tuple
+from typing import Iterable, Tuple, Optional
 
 import numpy as np
 import plotly.graph_objects as go
@@ -13,6 +13,7 @@ class TreePlotter(PlotlyBasePlotter):
             self,
             content: Iterable[Tuple[Iterable, Iterable, str]],
             history: bool,
+            topics: Optional[Iterable[str]]=None,
             top_n: int = 15,
             title: str = "Comparison of learner's top 15 subjects"
     ) -> go.Bar:
@@ -34,7 +35,7 @@ class TreePlotter(PlotlyBasePlotter):
               ranked by mean.
         """
         if isinstance(content, Knowledge):
-            content = self._standardise_data(content, history)
+            content = self._standardise_data(content, history, topics)
 
         layout_data = self._layout((title, "", ""))
 
