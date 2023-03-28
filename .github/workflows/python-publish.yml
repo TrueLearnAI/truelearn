@@ -7,6 +7,14 @@ on:
   release:
     types: [published]
 
+  workflow_dispatch:
+    inputs:
+        pypi_release_type:
+            description: 'Release to TestPyPI or PyPI (testpypi or pypi)'
+            required: true
+            default: 'testpypi'
+
+
 permissions:
   contents: read
 
@@ -40,8 +48,22 @@ jobs:
       - name: Build package
         run: python -m build
 
-      - name: Publish package
-        uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
+      # Default to TestPyPI on workflow_dispatch and release
+      # So that we can test the release process before publishing to PyPI
+      # To publish to PyPI, set the pypi_release_type input to 'pypi' (has to be run manually)
+      - name: Publish to TestPyPI
+        if: ${ github.event.release == 'true' || github.event.inputs.pypi_release_type == 'testpypi'}
+        uses: pypa/gh-action-pypi-publish@v1.8.3
+        with:
+          user: __token__
+          password: ${{ secrets.TEST_PYPI_API_TOKEN }}
+          repository_url: https://test.pypi.org/legacy/
+          verbose: true
+
+      - name: Publish to PyPI
+        if: ${ github.event.inputs.pypi_release_type == 'pypi'}
+        uses: pypa/gh-action-pypi-publish@v1.8.3
         with:
           user: __token__
           password: ${{ secrets.PYPI_API_TOKEN }}
+
