@@ -21,7 +21,7 @@ description = """A Machine learning library that models and predicts learner eng
 readme = "README.rst"
 requires-python = ">=3.7"
 keywords = ["machine learning", "python", "statistics", "probability"]
-license = "MIT License"
+license = { text = "MIT License" }
 authors = [
     {name = "Sahanbull"},
     {name = "KD-7"},
@@ -52,6 +52,7 @@ Homepage = "https://truelearnai.github.io/TrueLearn-website/"
 Documentation = "https://truelearn.readthedocs.io/en/stable/"
 Issues = "https://github.com/TrueLearnAI/truelearn/issues"
 Source = "https://github.com/TrueLearnAI/truelearn"
+ChangeLog = "https://github.com/TrueLearnAI/truelearn/blob/main/docs/changelog.rst"
 
 [tool.setuptools.dynamic]
 version = {attr = "truelearn.__version__"}
