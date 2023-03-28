@@ -29,9 +29,15 @@ jobs:
   static_analysis:
     uses: ./.github/workflows/static_analysis.yml
 
+  format_check:
+    uses: ./.github/workflows/black.yml
+
+  typo_check:
+    uses: ./.github/workflows/typo.yml
+
   deploy_to_pypi:
     runs-on: ubuntu-latest
-    needs: [unit_tests, static_analysis]
+    needs: [unit_tests, static_analysis, format_check, typo_check]
     #TODO - change to success() only if you want to only publish on success
     if: always()
     steps:
