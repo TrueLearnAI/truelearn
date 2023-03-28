@@ -16,11 +16,12 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "truelearn"
 dynamic = ["version"]
-description = "A Machine learning library for recommending open educational resources"
+description = """A Machine learning library that models and predicts learner engagement
+                 with educational resources."""
 readme = "README.rst"
 requires-python = ">=3.7"
 keywords = ["machine learning", "python", "statistics", "probability"]
-license = {file = "LICENSE"}
+license = "MIT License"
 authors = [
     {name = "Sahanbull"},
     {name = "KD-7"},
