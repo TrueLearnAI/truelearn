@@ -52,7 +52,7 @@ jobs:
       # So that we can test the release process before publishing to PyPI
       # To publish to PyPI, set the pypi_release_type input to 'pypi' (has to be run manually)
       - name: Publish to TestPyPI
-        if: ${ github.event.release == 'true' || github.event.inputs.pypi_release_type == 'testpypi'}
+        if: ${{ github.event.release == 'true' || github.event.inputs.pypi_release_type == 'testpypi' }}
         uses: pypa/gh-action-pypi-publish@v1.8.3
         with:
           user: __token__
@@ -61,7 +61,7 @@ jobs:
           verbose: true
 
       - name: Publish to PyPI
-        if: ${ github.event.inputs.pypi_release_type == 'pypi'}
+        if: ${{ github.event.inputs.pypi_release_type == 'pypi' }}
         uses: pypa/gh-action-pypi-publish@v1.8.3
         with:
           user: __token__
