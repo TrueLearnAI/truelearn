@@ -26,6 +26,10 @@ concurrency:
 jobs:
   unit_tests:
     uses: ./.github/workflows/unit_tests.yml
+    with:
+      environment: testing
+    secrets:
+      WIKIFIER_API_KEY: ${{ secrets.WIKIFIER_API_KEY }}
 
   static_analysis:
     uses: ./.github/workflows/static_analysis.yml
