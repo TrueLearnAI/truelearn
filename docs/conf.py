@@ -22,10 +22,7 @@ if os.environ.get("READTHEDOCS"):
     path = Path("./modules/generated/")
     if path.exists():
         shutil.rmtree(str(path))
-    # See GitHub issue : https://github.com/readthedocs/readthedocs.org/issues/1776
-    html_static_path = []
-else:
-    html_static_path = ["_static"]
+
 
 project = "TrueLearn"
 # pylint: disable=redefined-builtin
@@ -92,7 +89,7 @@ def linkcode_resolve(domain, info):
     except Exception:
         filename = info["module"].replace(".", "/") + ".py"
     tag = "main" if "dev" in version else "v" + version
-    return f"https://github.com/comp0016-group1/truelearn/blob/{tag}/{filename}"
+    return f"https://github.com/TrueLearnAI/truelearn/blob/{tag}/{filename}"
 
 
 # -- Options for napoleon extension ------------------------------------------
@@ -108,6 +105,7 @@ napoleon_use_ivar = True
 html_theme = "furo"
 html_logo = "images/TrueLearn_logo.png"
 html_css_files = ["custom.css"]
+html_static_path = ["_static"]
 
 # -- Gallery configuration ---------------------------------------------------
 sphinx_gallery_conf = {
