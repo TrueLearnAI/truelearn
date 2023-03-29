@@ -37,7 +37,7 @@ Base Classes
     :toctree: generated/
     :template: class.rst
 
-    datasets.base.RemoteFileMetaData
+    datasets._base.RemoteFileMetaData
 
 Base Functions
 --------------
@@ -47,8 +47,7 @@ Base Functions
     :toctree: generated/
     :template: function.rst
 
-    datasets.base.check_and_download_file
-
+    datasets._base.check_and_download_file
 
 Classes
 -------
@@ -130,7 +129,7 @@ Base Classes
     :toctree: generated/
     :template: class.rst
 
-    models.BaseKnowledgeComponent
+    models._base.BaseKnowledgeComponent
 
 Classes
 -------
