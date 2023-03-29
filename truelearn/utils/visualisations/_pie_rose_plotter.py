@@ -169,7 +169,7 @@ class RosePlotter(PiePlotter):
         title: str = "Distribution of user's skill.",
     ) -> Self:
         if isinstance(content, Knowledge):
-            content, rest = self._standardise_data(content, True, topics, top_n)
+            content, rest = self._standardise_data(content, True, topics)
 
         rest += content[top_n:]
         content = content[:top_n]
