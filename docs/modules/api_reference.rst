@@ -28,6 +28,7 @@ Base Functions
 
 .. autosummary::
     :toctree: generated/
+    :template: function.rst
 
     datasets.base.check_and_download_file
 
@@ -38,7 +39,6 @@ Classes
 
 .. autosummary::
     :toctree: generated/
-    :template: class.rst
 
     datasets.PEEKKnowledgeComponentGenerator
 
@@ -48,6 +48,7 @@ Functions
 
 .. autosummary::
     :toctree: generated/
+    :template: function.rst
 
     datasets.load_peek_dataset
     datasets.load_peek_dataset_raw
@@ -86,7 +87,7 @@ Classes
 
 
 :mod:`truelearn.models`: Contains the representations used for learning
-========================================================================
+=======================================================================
 .. automodule:: truelearn.models
    :no-members:
    :show-inheritance:
@@ -129,6 +130,7 @@ Functions
 
 .. autosummary::
     :toctree: generated/
+    :template: function.rst
 
     preprocessing.get_values_mean
     preprocessing.get_values_sample_std
@@ -148,11 +150,12 @@ Functions
 
 .. autosummary::
     :toctree: generated/
+    :template: function.rst
 
-        utils.metrics.get_precision_score
-        utils.metrics.get_recall_score
-        utils.metrics.get_accuracy_score
-        utils.metrics.get_f1_score
+    utils.metrics.get_precision_score
+    utils.metrics.get_recall_score
+    utils.metrics.get_accuracy_score
+    utils.metrics.get_f1_score
 
 :mod:`truelearn.utils.visualisations`: Contains plotting functions and classes
 ==============================================================================
@@ -183,3 +186,4 @@ Functions
 
 .. autosummary::
     :toctree: generated/
+    :template: function.rst
