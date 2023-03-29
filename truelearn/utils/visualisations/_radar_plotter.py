@@ -1,8 +1,6 @@
-import datetime
-from typing import Iterable, Tuple, Optional, List, Union
+from typing import Iterable, List, Optional, Tuple, Union
 from typing_extensions import Self
 
-import numpy as np
 import plotly.graph_objects as go
 
 from truelearn.models import Knowledge

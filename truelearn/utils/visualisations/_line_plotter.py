@@ -1,14 +1,10 @@
-import datetime
-from typing import Iterable, Union, Tuple, Optional, List
+from typing import Iterable, List, Optional, Tuple, Union
 from typing_extensions import Self
 
 import plotly.graph_objects as go
-from typing_extensions import Self
 
 from truelearn.models import Knowledge
-from truelearn.utils.visualisations._base import (
-    PlotlyBasePlotter,
-)
+from truelearn.utils.visualisations._base import PlotlyBasePlotter
 
 
 class LinePlotter(PlotlyBasePlotter):

@@ -1,16 +1,19 @@
+from abc import (
+    ABC,
+    abstractmethod
+)
 import datetime
-
-from abc import ABC, abstractmethod
-from typing import Any, Dict, Iterable, Optional, Union, Tuple, List
+from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
 from typing_extensions import final, Self
 
+import matplotlib.pyplot as plt
 from plotly import (
     graph_objects as go,
     basedatatypes as bdt
 )
-import matplotlib.pyplot as plt
 
 from truelearn.models import Knowledge
+
 
 KnowledgeDict = Dict[str, Dict[str, Union[str, float]]]
 

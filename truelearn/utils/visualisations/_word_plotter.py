@@ -1,19 +1,18 @@
-import datetime
-from typing import Iterable, Tuple, Optional
+from typing import Iterable, List, Optional, Tuple, Union
 from typing_extensions import Self
 
 import matplotlib.pyplot as plt
+from wordcloud import WordCloud
 
 from truelearn.models import Knowledge
 from truelearn.utils.visualisations._base import MatplotlibBasePlotter
-from wordcloud import WordCloud
 
 
 class WordPlotter(MatplotlibBasePlotter):
     """Provides utilities for plotting word clouds."""
     def plot(
             self,
-            content: Iterable[Tuple[Iterable, Iterable, str]],
+            content: Union[Knowledge, List[Tuple[float, float, str]]],
             topics: Optional[Iterable[str]]=None,
             top_n: Optional[int]=None,
     ) -> Self:

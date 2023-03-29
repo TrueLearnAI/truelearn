@@ -1,4 +1,4 @@
-from typing import Iterable, Tuple, Optional, Union, List
+from typing import Iterable, List, Optional, Tuple, Union
 from typing_extensions import Self
 
 import numpy as np

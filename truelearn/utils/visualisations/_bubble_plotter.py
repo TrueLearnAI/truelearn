@@ -1,13 +1,14 @@
-from typing import Iterable, Tuple, Optional, Self, Union, List
+from typing import Iterable, List, Optional, Tuple, Union
+from typing_extensions import Self
 
-import plotly.graph_objects as go
-import matplotlib.pyplot as plt
-import matplotlib.cm as cm
-import matplotlib.colors as colors
 import circlify
+import matplotlib.cm as cm
+import matplotlib.pyplot as plt
+import matplotlib.colors as colors
 
 from truelearn.models import Knowledge
 from truelearn.utils.visualisations._base import MatplotlibBasePlotter
+
 
 class BubblePlotter(MatplotlibBasePlotter):
     """Provides utilities for plotting bubble charts."""
