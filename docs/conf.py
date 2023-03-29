@@ -23,7 +23,6 @@ if os.environ.get("READTHEDOCS"):
     if path.exists():
         shutil.rmtree(str(path))
 
-
 project = "TrueLearn"
 # pylint: disable=redefined-builtin
 copyright = "2023, TrueLearn"
@@ -45,6 +44,7 @@ extensions = ["sphinx.ext.autodoc",
               "sphinx.ext.intersphinx",
               "sphinx.ext.doctest",
               "sphinx_copybutton",
+              "sphinx_gallery.gen_gallery",
               ]
 templates_path = ['templates']
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
@@ -92,6 +92,20 @@ def linkcode_resolve(domain, info):
     return f"https://github.com/TrueLearnAI/truelearn/blob/{tag}/{filename}"
 
 
+# -- Gallery configuration ---------------------------------------------------
+sphinx_gallery_conf = {
+    "reference_url": {
+        # The module you locally document uses None
+        "truelearn": None,
+    },
+    "examples_dirs": "../examples",  # path to your example scripts
+    "gallery_dirs": "examples",  # path to where to save gallery generated output,
+    "download_all_examples": False,  # disable download file buttons
+    "remove_config_comments": True,
+    "show_memory": False,
+    "show_signature": False,
+}
+
 # -- Options for napoleon extension ------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/extensions/napoleon.html
 napoleon_include_special_with_doc = True
@@ -106,17 +120,3 @@ html_theme = "furo"
 html_logo = "images/TrueLearn_logo.png"
 html_css_files = ["custom.css"]
 html_static_path = ["_static"]
-
-# -- Gallery configuration ---------------------------------------------------
-sphinx_gallery_conf = {
-    "reference_url": {
-        # The module you locally document uses None
-        "truelearn": None,
-    },
-    "examples_dirs": "../examples",  # path to your example scripts
-    "gallery_dirs": "examples",  # path to where to save gallery generated output,
-    "download_all_examples": False,  # disable download file buttons
-    "remove_config_comments": True,
-    "show_memory": False,
-    "show_signature": False,
-}
