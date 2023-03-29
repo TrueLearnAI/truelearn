@@ -9,9 +9,8 @@
    {% block attributes %}
    {% if attributes %}
    .. rubric:: {{ _('Attributes') }}
-   .. autosummary::
    {% for item in attributes %}
-       ~{{ name }}.{{ item }}
+   .. autoattribute:: {{ name }}.{{ item }}
    {%- endfor %}
    {% endif %}
    {% endblock %}
