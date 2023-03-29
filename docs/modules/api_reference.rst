@@ -6,6 +6,23 @@ Shown is the class and function hierarchy of TrueLearn.
 For a more detailed description of the decisions made during implementation,
 please refer to the :ref:`design` section.
 
+:mod:`truelearn.base`: Contains the base classes for the library
+================================================================
+.. automodule:: truelearn.base
+   :no-members:
+   :show-inheritance:
+
+Base Classes
+------------
+.. currentmodule:: truelearn
+
+.. autosummary::
+    :toctree: generated/
+    :template: class.rst
+
+    base.BaseClassifier
+
+
 :mod:`truelearn.datasets`: Contains utilities for using datasets
 ================================================================
 .. automodule:: truelearn.datasets
@@ -67,7 +84,20 @@ Base Classes
     :toctree: generated/
     :template: class.rst
 
-    learning.base.BaseClassifier
+    learning._base.InterestNoveltyKnowledgeBaseClassifier
+
+Functions
+---------
+.. currentmodule:: truelearn
+
+.. autosummary::
+    :toctree: generated/
+    :template: function.rst
+
+    learning._base.draw_proba_static_constraint
+    learning._base.team_sum_quality
+    learning._base.team_sum_quality_from_kcs
+    learning._base.gather_trueskill_team
 
 Classes
 -------
@@ -92,6 +122,16 @@ Classes
    :no-members:
    :show-inheritance:
 
+Base Classes
+------------
+.. currentmodule:: truelearn
+
+.. autosummary::
+    :toctree: generated/
+    :template: class.rst
+
+    models.BaseKnowledgeComponent
+
 Classes
 -------
 .. currentmodule:: truelearn
@@ -100,8 +140,8 @@ Classes
     :toctree: generated/
     :template: class.rst
 
-    models.BaseKnowledgeComponent
     models.KnowledgeComponent
+    models.HistoryAwareKnowledgeComponent
     models.Knowledge
     models.EventModel
     models.LearnerModel

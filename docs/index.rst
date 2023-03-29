@@ -52,7 +52,7 @@ Related Papers
 
 This work is related to the following papers:
 
-- `TrueLearn A Family of Bayesian Algorithms to Match Lifelong Learners to Open Educational Resources`_ published at the Thirty-forth AAAI Conference on Artifical Intelligence, 2020 at New York, NY, USA. BibTex below::
+- `TrueLearn A Family of Bayesian Algorithms to Match Lifelong Learners to Open Educational Resources`_ published at the Thirty-forth AAAI Conference on Artificial Intelligence, 2020 at New York, NY, USA. BibTex below::
 
    @inproceedings{truelearn2020,
        author = {Bulathwela, S. and Perez-Ortiz, M. and Yilmaz, E. and Shawe-Taylor, J.},
