@@ -1,3 +1,13 @@
+
+/* Furo theme overrides */
+
+h1 {
+    margin-top: 1.75rem;
+    overflow-wrap: break-word;
+}
+
+/* End Furo theme overrides */
+
 /* suppress download button and timing at top/bottom of every tutorial */
 div.sphx-glr-download-link-note,
 div.sphx-glr-download,
