@@ -12,6 +12,7 @@ Welcome to TrueLearn's documentation!
    tutorial/quickstart
    examples/index
    modules/api_reference
+   references
 
 .. toctree::
    :maxdepth: 1
@@ -70,7 +71,7 @@ published in 2022 as part of the Special Issue on AI and Interaction Technologie
 
 .. _Power to the Learner\: Towards Human-Intuitive and Integrative Recommendations with Open Educational Resources: https://www.mdpi.com/2071-1050/14/18/11682
 
-The bibtex entry for the publication is as follows::
+The bibtex entry for the publication can be found here::
 
    @Article{su141811682,
       author = {Bulathwela, Sahan and Pérez-Ortiz, María and Yilmaz, Emine and Shawe-Taylor, John},
