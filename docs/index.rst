@@ -40,7 +40,7 @@ Welcome to TrueLearn's documentation!
    :alt: codecov
 
 
-TrueLearn is a machine learning library for modelling learner engagement with educational resources.
+TrueLearn is a machine learning library for modelling lifelong learner engagement with educational resources.
 
 Get Started
 -----------
