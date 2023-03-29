@@ -139,21 +139,23 @@ class BasePlotter(ABC):
         Args:
             content:
                 the data to use to plot the visualisation. Either a Knowledge
-                object (the learner's knowledge) or an iterable of tuples. Each
+                object (the learner's knowledge) or a list of tuples. Each
                 tuple would represent a different topic / knowledge component.
+                If content is a list of tuples, it is assumed to be already
+                sorted in the desired order (e.g. by mean).
             topics:
                 the list of topics in the learner's knowledge to visualise.
                 If None, all topics are visualised (unless top_n is
                 specified).
             top_n:
                 the number of topics to visualise. E.g. if top_n is 5, then the
-                top 5 topics ranked by mean will be visualised (unless content
-                is a list of tuples, in which case the first 5 tuples would be
-                plotted as the list is already assumed to be in the desired order).
+                top 5 topics ranked by mean will be visualised if content is a
+                Knowledge object or just the first 5 topics if content is a list
+                (in which case content is assumed to be already sorted).
             title:
                 the title that will be displayed on top of the visualisation.
             x_label:
-                the label of the x-axis (if the visualisaition has an x-axis).
+                the label of the x-axis (if the visualisation has an x-axis).
             y_label:
                 the label of the y-axis (if the visualisations has a y-axis).
         """
