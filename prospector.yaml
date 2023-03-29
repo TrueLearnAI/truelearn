@@ -6,6 +6,9 @@ doc-warnings: true
 # See https://black.readthedocs.io/en/stable/the_black_code_style/current_style.html#line-length
 max-line-length: 88
 
+ignore-paths:
+  - docs
+
 pep8:
   full: true
 

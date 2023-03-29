@@ -12,4 +12,4 @@ jobs:
       - name: Check spelling of TrueLearn
         uses: crate-ci/typos@master
         with:
-          files: truelearn
+          files: ./truelearn ./docs
