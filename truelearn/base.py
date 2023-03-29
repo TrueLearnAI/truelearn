@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from typing import Dict, Any
 from typing_extensions import Self, Final, final, Literal
 
-from .models import EventModel
+from truelearn.models import EventModel
 
 
 class BaseClassifier(ABC):
