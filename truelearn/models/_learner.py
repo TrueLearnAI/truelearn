@@ -57,7 +57,7 @@ class LearnerMetaWeights:
         >>> from truelearn.models import LearnerMetaWeights
         >>> # construct an empty learner meta model
         >>> LearnerMetaWeights()  # doctest:+ELLIPSIS
-        LearnerMetaWeights(novelty_weights=Weights(mean=0.0, variance=0.5)...)
+        LearnerMetaWeights(novelty_weights=Weights(mean=0.5, variance=0.5)...)
         >>> # construct a learner meta model with custom weights
         >>> bias_weights = LearnerMetaWeights.Weights(mean=1.0, variance=2.0)
         >>> LearnerMetaWeights(bias_weights=bias_weights)
@@ -67,9 +67,9 @@ class LearnerMetaWeights:
     class Weights(NamedTuple):
         """A namedtuple that represents the weights used in LearnerMetaWeights."""
 
-        mean: float = 0.0
-        variance: float = 0.5
+        mean: float
+        variance: float
 
-    novelty_weights: Weights = Weights()
-    interest_weights: Weights = Weights()
-    bias_weights: Weights = Weights()
+    novelty_weights: Weights = Weights(0.5, 0.5)
+    interest_weights: Weights = Weights(0.5, 0.5)
+    bias_weights: Weights = Weights(0.0, 0.5)

@@ -1,10 +1,12 @@
-from typing import Iterable
+from typing import Iterable, Optional
 
 from sklearn import metrics
 
 
 def get_precision_score(
-    act_labels: Iterable[bool], pred_labels: Iterable[bool]
+    act_labels: Iterable[bool],
+    pred_labels: Iterable[bool],
+    zero_division: Optional[int] = None,
 ) -> float:
     """Get the precision score of the prediction.
 
@@ -14,16 +16,35 @@ def get_precision_score(
     a sample that is negative.
 
     Args:
-        act_labels: An iterable of actual labels
-        pred_labels: An iterable of predicted labels
+        act_labels:
+            An iterable of actual labels
+        pred_labels:
+            An iterable of predicted labels
+        zero_division:
+            Sets the value to return when there is a zero division.
+            Defaults to None, which sets the value to zero and raises a warning.
+            Acceptable values are 0 or 1, which sets the resulting value
+            according.
 
     Returns:
         The precision score.
     """
-    return float(metrics.precision_score(act_labels, pred_labels))
+    # the value check (whether it's 0 or 1) is done inside scikit-learn
+    if zero_division is None:
+        zero_division = "warn"  # type: ignore
+
+    return float(
+        metrics.precision_score(
+            act_labels, pred_labels, zero_division=zero_division  # type: ignore
+        )
+    )
 
 
-def get_recall_score(act_labels: Iterable[bool], pred_labels: Iterable[bool]) -> float:
+def get_recall_score(
+    act_labels: Iterable[bool],
+    pred_labels: Iterable[bool],
+    zero_division: Optional[int] = None,
+) -> float:
     """Get the recall score of the prediction.
 
     The recall is the ratio `tp / (tp + fn)` where `tp` is the number of true positives
@@ -32,13 +53,28 @@ def get_recall_score(act_labels: Iterable[bool], pred_labels: Iterable[bool]) ->
     positive samples.
 
     Args:
-        act_labels: An iterable of actual labels
-        pred_labels: An iterable of predicted labels
+        act_labels:
+            An iterable of actual labels
+        pred_labels:
+            An iterable of predicted labels
+        zero_division:
+            Sets the value to return when there is a zero division.
+            Defaults to None, which sets the value to zero and raises a warning.
+            Acceptable values are 0 or 1, which sets the resulting value
+            according.
 
     Returns:
         The recall score.
     """
-    return float(metrics.recall_score(act_labels, pred_labels))
+    # the value check (whether it's 0 or 1) is done inside scikit-learn
+    if zero_division is None:
+        zero_division = "warn"  # type: ignore
+
+    return float(
+        metrics.recall_score(
+            act_labels, pred_labels, zero_division=zero_division  # type: ignore
+        )
+    )
 
 
 def get_accuracy_score(
@@ -62,7 +98,11 @@ def get_accuracy_score(
     return float(metrics.accuracy_score(act_labels, pred_labels))
 
 
-def get_f1_score(act_labels: Iterable[bool], pred_labels: Iterable[bool]) -> float:
+def get_f1_score(
+    act_labels: Iterable[bool],
+    pred_labels: Iterable[bool],
+    zero_division: Optional[int] = None,
+) -> float:
     """Get the f1 score of the prediction.
 
     The formula for the F1 score is::
@@ -73,10 +113,25 @@ def get_f1_score(act_labels: Iterable[bool], pred_labels: Iterable[bool]) -> flo
     recall, and the lowest possible value is 0, if either precision or recall are zero.
 
     Args:
-        act_labels: An iterable of actual labels
-        pred_labels: An iterable of predicted labels
+        act_labels:
+            An iterable of actual labels
+        pred_labels:
+            An iterable of predicted labels
+        zero_division:
+            Sets the value to return when there is a zero division.
+            Defaults to None, which sets the value to zero and raises a warning.
+            Acceptable values are 0 or 1, which sets the resulting value
+            according.
 
     Returns:
         The f1 score.
     """
-    return float(metrics.f1_score(act_labels, pred_labels))
+    # the value check (whether it's 0 or 1) is done inside scikit-learn
+    if zero_division is None:
+        zero_division = "warn"  # type: ignore
+
+    return float(
+        metrics.f1_score(
+            act_labels, pred_labels, zero_division=zero_division  # type: ignore
+        )
+    )

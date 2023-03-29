@@ -3,10 +3,25 @@ on:
   push:
     branches:
       - main
+    # filter on files that should trigger this workflow
+    paths:
+      - 'pyproject.toml'
+      - '**.py'
+      - '.github/workflows/coverage.yml'
   pull_request:
     branches:
       - main
+    # filter on files that should trigger this workflow
+    paths:
+      - 'pyproject.toml'
+      - '**.py'
+      - '.github/workflows/coverage.yml'
   workflow_dispatch:
+
+# Only cancel concurrent runs of the same workflow
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-coverage
+  cancel-in-progress: true
 
 jobs:
   code_coverage:

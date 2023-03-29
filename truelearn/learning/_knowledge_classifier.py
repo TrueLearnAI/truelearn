@@ -1,7 +1,7 @@
 from typing import Any, Optional, Dict, Iterable
 
 from truelearn.models import LearnerModel, BaseKnowledgeComponent
-from .base import (
+from ._base import (
     InterestNoveltyKnowledgeBaseClassifier,
     gather_trueskill_team,
     team_sum_quality_from_kcs,
@@ -63,12 +63,12 @@ class KnowledgeClassifier(InterestNoveltyKnowledgeBaseClassifier):
         ...         knowledge_classifier.predict_proba(event)
         ...     )
         ...
-        False 0.23090587110296315
-        True 0.7473409927446046
-        False 0.36659215130436745
+        False 0.21009...
+        True 0.78306...
+        False 0.36559...
         >>> knowledge_classifier.get_params()  # doctest:+ELLIPSIS
         {..., 'learner_model': LearnerModel(knowledge=Knowledge(knowledge={2: \
-KnowledgeComponent(mean=0.58097..., variance=0.33159..., ...), ...}), ...}
+KnowledgeComponent(mean=0.60005..., variance=0.31394..., ...), ...}), ...}
     """
 
     _parameter_constraints: Dict[str, Any] = {
@@ -82,8 +82,8 @@ KnowledgeComponent(mean=0.58097..., variance=0.33159..., ...), ...}), ...}
         threshold: float = 0.5,
         init_skill: float = 0.0,
         def_var: float = 0.5,
-        beta: float = 0.1,
-        tau: float = 0.1,
+        beta: float = 0.0,
+        tau: float = 0.0,
         positive_only: bool = True,
         draw_proba_type: str = "dynamic",
         draw_proba_static: Optional[float] = None,
@@ -107,7 +107,8 @@ KnowledgeComponent(mean=0.58097..., variance=0.33159..., ...), ...}), ...}
                 It will be used when the learner interacts with knowledge components
                 at its first time.
             beta:
-                The noise factor.
+                The distance which guarantees about 76% chance of winning.
+                The recommended value is sqrt(def_var) / 2.
             tau:
                 The dynamic factor of learner's learning process.
                 It's used to avoid the halting of the learning process.

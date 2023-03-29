@@ -1,5 +1,10 @@
 name: Spell Check
-on: [pull_request]
+on: [pull_request, workflow_dispatch, workflow_call]
+
+# Only cancel concurrent runs of the same workflow
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-typo
+  cancel-in-progress: true
 
 jobs:
   typos:

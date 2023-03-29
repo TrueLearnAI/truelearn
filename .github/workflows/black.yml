@@ -1,5 +1,18 @@
 name: Format Check
-on: [pull_request]
+on:
+  pull_request:
+    # filter on files that should trigger this workflow
+    paths:
+      - 'pyproject.toml'
+      - '**.py'
+      - '.github/workflows/black.yml'
+  workflow_dispatch:
+  workflow_call:
+
+# Only cancel concurrent runs of the same workflow
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-format
+  cancel-in-progress: true
 
 jobs:
   black:

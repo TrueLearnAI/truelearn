@@ -1,7 +1,10 @@
 from typing import Any, Optional, Dict, Iterable
 
 from truelearn.models import LearnerModel, BaseKnowledgeComponent
-from .base import InterestNoveltyKnowledgeBaseClassifier, gather_trueskill_team
+from ._base import (
+    InterestNoveltyKnowledgeBaseClassifier,
+    gather_trueskill_team,
+)
 
 import trueskill
 
@@ -55,12 +58,12 @@ class NoveltyClassifier(InterestNoveltyKnowledgeBaseClassifier):
         ...         novelty_classifier.predict_proba(event)
         ...     )
         ...
-        False 0.14349542647777908
-        False 0.26256454510369404
-        False 0.18547011328257132
+        False 0.36475...
+        True 0.63319...
+        False 0.37305...
         >>> novelty_classifier.get_params()  # doctest:+ELLIPSIS
-        {..., 'learner_model': LearnerModel(knowledge=Knowledge(knowledge={2: \
-KnowledgeComponent(mean=0.36833..., variance=0.26916..., ...), ...}), ...}
+        {..., 'learner_model': LearnerModel(knowledge=Knowledge(knowledge={1: \
+KnowledgeComponent(mean=-0.36715..., variance=0.29902..., ...), ...}), ...}
     """
 
     _parameter_constraints: Dict[str, Any] = {
@@ -74,9 +77,9 @@ KnowledgeComponent(mean=0.36833..., variance=0.26916..., ...), ...}), ...}
         threshold: float = 0.5,
         init_skill: float = 0.0,
         def_var: float = 0.5,
-        beta: float = 0.1,
-        tau: float = 0.1,
-        positive_only: bool = True,
+        beta: float = 0.35,
+        tau: float = 0.0,
+        positive_only: bool = False,
         draw_proba_type: str = "dynamic",
         draw_proba_static: Optional[float] = None,
         draw_proba_factor: float = 0.1,
@@ -99,7 +102,8 @@ KnowledgeComponent(mean=0.36833..., variance=0.26916..., ...), ...}), ...}
                 It will be used when the learner interacts with knowledge components
                 at its first time.
             beta:
-                The noise factor.
+                The distance which guarantees about 76% chance of winning.
+                The recommended value is sqrt(def_var) / 2.
             tau:
                 The dynamic factor of learner's learning process.
                 It's used to avoid the halting of the learning process.
