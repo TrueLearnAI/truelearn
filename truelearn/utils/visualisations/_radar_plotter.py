@@ -1,5 +1,5 @@
 import datetime
-from typing import Iterable, Tuple, Optional
+from typing import Iterable, Tuple, Optional, List, Union
 from typing_extensions import Self
 
 import numpy as np
@@ -12,25 +12,14 @@ from truelearn.utils.visualisations._base import PlotlyBasePlotter
 class RadarPlotter(PlotlyBasePlotter):
     """Provides utilities for plotting radar charts."""
     def plot(
-            self,
-            content: Iterable[Tuple[Iterable, Iterable, str]],
-            topics: Optional[Iterable[str]]=None,
-            top_n: int = 10,
-            title: str = "Comparison of learner's top 5 subjects",
-            x_label: str = "Subjects",
-            y_label: str = "Mean",
+        self,
+        content: Union[Knowledge, List[Tuple[float, float, str]]],
+        topics: Optional[Iterable[str]]=None,
+        top_n: Optional[int]=None,
+        title: str = "Comparison of learner's top 5 subjects",
+        x_label: str = "Subjects",
+        y_label: str = "Mean",
     ) -> Self:
-        """
-        Plots the radar chart using the data.
-
-        Uses content and layout_data to generate a Figure object and stores
-        it into self.figure.
-
-        Args:
-            top_n: the number of knowledge components to visualise.
-              e.g. top_n = 5 would visualise the top 5 knowledge components 
-              ranked by mean.
-        """
         if isinstance(content, Knowledge):
             content = self._standardise_data(content, False, topics)
 
@@ -58,7 +47,15 @@ class RadarPlotter(PlotlyBasePlotter):
 
         return self
 
-    def _trace(self, r, theta):
+    def _trace(self, r: List[float], theta: List[float]) -> go.Scatterpolar:
+        """Returns a single layer in the radar chart.
+
+        Args:
+            r:
+                the radial position of each point that makes up the layer.
+            theta:
+                the angular position of each point that makes up the layer.
+        """
         r.append(r[0])
         theta.append(theta[0])
         return go.Scatterpolar(
@@ -69,7 +66,13 @@ class RadarPlotter(PlotlyBasePlotter):
             hovertemplate=self._hovertemplate("%{r}")
         )
 
-    def _hovertemplate(self, hoverdata):
+    def _hovertemplate(self, hoverdata: float) -> str:
+        """Returns the string which will be displayed when a point is hovered.
+        
+        Args:
+            hoverdata:
+                the variance value to embed in the string.
+        """
         variance = hoverdata
         return (
             "<br>".join(

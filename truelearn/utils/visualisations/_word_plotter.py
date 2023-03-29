@@ -10,25 +10,13 @@ from wordcloud import WordCloud
 
 
 class WordPlotter(MatplotlibBasePlotter):
-    """Provides utilities for plotting bar charts."""
+    """Provides utilities for plotting word clouds."""
     def plot(
             self,
             content: Iterable[Tuple[Iterable, Iterable, str]],
             topics: Optional[Iterable[str]]=None,
-            top_n: int = 50
+            top_n: Optional[int]=None,
     ) -> Self:
-
-        """
-        Plots the wordcloud chart using the data.
-
-        Uses content and layout_data to generate a Figure object and stores
-        it into self.figure.
-
-        Args:
-            top_n: the number of knowledge components to visualise.
-              e.g. top_n = 5 would visualise the top 5 knowledge components 
-              ranked by mean.
-        """
         if isinstance(content, Knowledge):
             content = self._standardise_data(content, False, topics)
 

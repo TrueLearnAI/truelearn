@@ -1,5 +1,5 @@
 import datetime
-from typing import Iterable, Union, Tuple, Optional
+from typing import Iterable, Union, Tuple, Optional, List
 from typing_extensions import Self
 
 import plotly.graph_objects as go
@@ -14,7 +14,25 @@ from truelearn.utils.visualisations._base import (
 class LinePlotter(PlotlyBasePlotter):
     """Provides utilities for plotting line charts."""
 
-    def _get_kc_details(self, kc, _):
+    def _get_kc_details(self, kc, _) -> Tuple:
+        """Helper function for extracting data from a knowledge component.
+
+        Extracts the title, mean, variance for each timestamp in the knowledge
+        component's history.
+
+        Args:
+            kc:
+                the knowledge component to extract the attributes from.
+        
+        Returns:
+            a tuple consisting of the means and variances of the topic at each
+            timestamp, the title of the topic and the timestamps of when it was
+            updated.
+
+        Raises:
+            TypeError:
+                if any of the knowledge components are not history-aware. 
+        """
         title = kc['title']
         means = []
         variances = []
@@ -32,7 +50,7 @@ class LinePlotter(PlotlyBasePlotter):
 
             data = (means, variances, title, timestamps)
         except KeyError as err:
-            raise ValueError(
+            raise TypeError(
                 "User's knowledge contains KnowledgeComponents. "
                 + "Expected only HistoryAwareKnowledgeComponents."
             ) from err
@@ -40,34 +58,15 @@ class LinePlotter(PlotlyBasePlotter):
         return data
 
     def plot(
-            self,
-            content: Iterable[Tuple[str, Iterable, Iterable]],
-            topics: Optional[Iterable[str]]=None,
-            top_n: Optional[int]=None,
-            variance: bool=False,
-            title: str="Mean of user's top 5 topics over time",
-            x_label: str="Time",
-            y_label: str="Mean",
-        ) -> Self:
-        """Plots the line chart using the data.
-
-        Uses content and layout_data to generate a Figure object and stores
-        it into self.figure.
-
-        Args:
-            content:
-                an iterable of tuples, where each tuple is used to plot a line
-                (represented through Plotly traces). Each tuple is in the form
-                (name, x-values, y_values) where name is the name of the line,
-                x_values are the values to plot along the x-axis and y_values
-                are the values to plot along the y-axis.
-            top_n:
-                the number of knowledge components to visualise.
-                e.g. top_n = 5 would visualise the top 5 knowledge components 
-                ranked by mean.
-            topic_id:
-                the topic_id
-        """
+        self,
+        content: Iterable[Union[Knowledge, List[Tuple[Iterable, Iterable, str]]]],
+        topics: Optional[Iterable[str]]=None,
+        top_n: Optional[int]=None,
+        variance: bool=False,
+        title: str="Mean of user's top 5 topics over time",
+        x_label: str="Time",
+        y_label: str="Mean",
+    ) -> Self:
         if isinstance(content, list):
             content = self._plot_multiple(content, topics)
         else:
@@ -112,10 +111,21 @@ class LinePlotter(PlotlyBasePlotter):
         return data
 
     def _trace(
-            self,
-            tr_data: Tuple[str, Iterable, Iterable],
-            visualise_variance
+        self,
+        tr_data: Tuple[Iterable, Iterable, str, Iterable],
+        visualise_variance: bool
     ) -> go.Scatter:
+        """Returns the Scatter object representing a single line.
+
+        Args:
+            tr_data:
+                the data used to plot the line. A tuple containing the y values
+                and variance of each point, the name of the line (the topic or user
+                it represents) and the x values of each point.
+            visualise_variance:
+                boolean which determines whether to make the error bars
+                at each point visible or not.
+        """
         y_values, variances, name, x_values = tr_data
 
         trace = go.Scatter(

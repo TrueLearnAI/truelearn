@@ -1,4 +1,4 @@
-from typing import Iterable, Tuple, Optional
+from typing import Iterable, Tuple, Optional, Union, List
 from typing_extensions import Self
 
 import numpy as np
@@ -10,33 +10,17 @@ from truelearn.utils.visualisations._base import PlotlyBasePlotter
 
 class BarPlotter(PlotlyBasePlotter):
     """Provides utilities for plotting bar charts."""
+
     def plot(
-            self,
-            content: Iterable[Tuple[Iterable, Iterable, str]],
-            history: bool,
-            topics: Optional[Iterable[str]]=None,
-            top_n: int = 5,
-            title: str = "Comparison of learner's top 5 subjects",
-            x_label: str = "Subjects",
-            y_label: str = "Mean",
+        self,
+        content: Union[Knowledge, List[Tuple[float, float, str]]],
+        history: bool=False,
+        topics: Optional[Iterable[str]]=None,
+        top_n: Optional[int]=None,
+        title: str="Comparison of learner's top subjects",
+        x_label: str="Subjects",
+        y_label: str="Mean",
     ) -> Self:
-
-        """
-        Plots the bar chart using the data.
-
-        Uses content and layout_data to generate a Figure object and stores
-        it into self.figure.
-
-        Args:
-            history: a Boolean value to indicate whether or not the user wants
-              to visualise the history component of the knowledge. If set to 
-              True, number of videos watched by the user and the timestamp of
-              the last video watched by the user will be displayed by the 
-              visualisation hover text.
-            top_n: the number of knowledge components to visualise.
-              e.g. top_n = 5 would visualise the top 5 knowledge components 
-              ranked by mean.
-        """
         if isinstance(content, Knowledge):
             content = self._standardise_data(content, history, topics)
 

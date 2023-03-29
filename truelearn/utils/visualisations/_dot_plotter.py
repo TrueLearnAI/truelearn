@@ -1,4 +1,4 @@
-from typing import Iterable, Tuple, Optional
+from typing import Iterable, Tuple, Optional, Union, List
 from typing_extensions import Self
 
 import numpy as np
@@ -10,33 +10,17 @@ from truelearn.utils.visualisations._base import PlotlyBasePlotter
 
 class DotPlotter(PlotlyBasePlotter):
     """Provides utilities for plotting dot plots."""
+
     def plot(
-            self,
-            content: Iterable[Tuple[Iterable, Iterable, str]],
-            history: bool,
-            topics: Optional[Iterable[str]]=None,
-            top_n: Optional[int]=None,
-            title: str = "Comparison of learner's top 5 subjects",
-            x_label: str = "Subjects",
-            y_label: str = "Mean",
+        self,
+        content: Union[Knowledge, List[Tuple[float, float, str]]],
+        history: bool=False,
+        topics: Optional[Iterable[str]]=None,
+        top_n: Optional[int]=None,
+        title: str = "Comparison of learner's top subjects",
+        x_label: str = "Subjects",
+        y_label: str = "Mean",
     ) -> Self:
-
-        """
-        Plots the dot plot using the data.
-
-        Uses content and history to generate a Figure object and stores
-        it into self.figure.
-
-        Args:
-            history: a Boolean value to indicate whether or not the user wants
-              to visualise the history component of the knowledge. If set to 
-              True, number of videos watched by the user and the timestamp of
-              the last video watched by the user will be displayed by the 
-              visualisation hover text.
-            top_n: the number of knowledge components to visualise.
-              e.g. top_n = 5 would visualise the top 5 knowledge components 
-              ranked by mean.
-        """
         if isinstance(content, Knowledge):
             content = self._standardise_data(content, history, topics)
 
@@ -82,7 +66,7 @@ class DotPlotter(PlotlyBasePlotter):
                          array=variances,
                          color='black',
                          thickness=4,
-                         width=3,  # MAKE WIDTH CHANGE BASED ON HOW MUCH HAS BEEN SPENT ON THE TOPIC
+                         width=3,
                          visible=True),
             customdata=np.transpose([variances, number_of_videos, last_video_watched]),
             hovertemplate=self._hovertemplate(

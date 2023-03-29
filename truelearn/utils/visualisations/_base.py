@@ -1,7 +1,7 @@
 import datetime
 
 from abc import ABC, abstractmethod
-from typing import Dict, Iterable, Optional, Union, Tuple
+from typing import Any, Dict, Iterable, Optional, Union, Tuple, List
 from typing_extensions import final, Self
 
 from plotly import (
@@ -27,7 +27,7 @@ class BasePlotter(ABC):
         raw_data: Knowledge,
         history: bool=False,
         topics: Union[str, Iterable[str], None]=None
-    ) -> Iterable:
+    ) -> List[Tuple]:
         """Converts a KnowledgeDict object to one suitable for generating visualisations.
         
         Optional utility function that converts the dictionary representation
@@ -36,16 +36,20 @@ class BasePlotter(ABC):
 
         Args:
             raw_data:
-                dictionary representation of the learner's knowledge and
-                knowledge components.
+                the learner's knowledge, represented by a Knowledge object.
             topics:
-                optional list of topics to extract the information for from
+                optional iterable of topics to extract the information for from
                 the knowledge object. If not specified, all topics are extracted.
             history:
-                boolean which indicates whether the user wants to visualise.
+                boolean which indicates whether the user has requested access to
+                the knowledge component's timestamps (this allows the visualisations
+                to display more information on hover such as the number of videos
+                watched and the last video watched). If set to True, the Knowledge
+                object must consists of HistoryAwareKnowledgeComponents, or an
+                error will be raised.
 
         Returns:
-            a data structure usable by the plot() method to generate the figure.
+            a data structure suitable for generating the figure via the plot() method.
         """        
         raw_data = knowledge_to_dict(raw_data)
 
@@ -62,7 +66,25 @@ class BasePlotter(ABC):
 
         return content
 
-    def _get_kc_details(self, kc, history):
+    def _get_kc_details(self, kc: Dict[str, Any], history: bool) -> Tuple:
+        """Helper function for extracting data from a knowledge component.
+
+        Extracts the title, mean, variance attributes from a knowledge component.
+        If history is True, also extracts the timestamps from its history.
+
+        Args:
+            kc:
+                the knowledge component to extract the attributes from.
+            history:
+                boolean which determines whether to extract the timestamps.
+
+        Returns:
+            the mean, variance, title and timestamps (if requested) as a tuple.
+
+        Raises:
+            TypeError:
+                if history is True but the kc does not have a history key.
+        """
         title = kc['title']
         mean = kc['mean']
         variance = kc['variance']
@@ -77,7 +99,7 @@ class BasePlotter(ABC):
                 ))
                 data = (mean, variance, title, timestamps)
             except KeyError as err:
-                raise ValueError(
+                raise TypeError(
                     "User's knowledge contains KnowledgeComponents. "
                     + "Expected only HistoryAwareKnowledgeComponents."
                 ) from err
@@ -87,23 +109,50 @@ class BasePlotter(ABC):
         return data
 
     @final
-    def _unix_to_iso(self, t: int):
+    def _unix_to_iso(self, t: int) -> str:
+        """Converts an unix timestamp to an ISO-formatted date string.
+
+        Args:
+            t: 
+                int value representing the unix timestamp.
+        
+        Returns:
+            the ISO date string.
+        """
         return datetime.datetime.utcfromtimestamp(t).strftime("%Y-%m-%d")
 
     @abstractmethod
     def plot(
             self,
-            content: Union[Knowledge, Iterable[Tuple]],
-            title: str,
-            top_n: Optional[int]=None
+            content: Union[Knowledge, List[Tuple]],
+            topics: Optional[Iterable[str]]=None,
+            top_n: Optional[int]=None,
+            title: str="",
+            x_label: str="",
+            y_label: str="",
     ) -> Self:
         """Creates a Plotly Figure object from the data.
 
         Args:
-            title:
-                the name to give to the visualisation
             content:
-                the data to be used to plot the visualisation.
+                the data to use to plot the visualisation. Either a Knowledge
+                object (the learner's knowledge) or an iterable of tuples. Each
+                tuple would represent a different topic / knowledge component.
+            topics:
+                the list of topics in the learner's knowledge to visualise.
+                If None, all topics are visualised (unless top_n is
+                specified).
+            top_n:
+                the number of topics to visualise. E.g. if top_n is 5, then the
+                top 5 topics ranked by mean will be visualised (unless content
+                is a list of tuples, in which case the first 5 tuples would be
+                plotted as the list is already assumed to be in the desired order).
+            title:
+                the title that will be displayed on top of the visualisation.
+            x_label:
+                the label of the x-axis (if the visualisaition has an x-axis).
+            y_label:
+                the label of the y-axis (if the visualisations has a y-axis).
         """
     
     @abstractmethod
@@ -111,12 +160,16 @@ class BasePlotter(ABC):
         """Exports the visualisation as an image file.
 
         Args:
-            path: the local file path in which to create the image file.
-            format: the format of the file. Supported formats include png,
-              jpg/jpeg, webp, svg, pdf and eps (requires the poppler library to
-              be installed).
-            width: the width of the image file.
-            height: the height of the image file.
+            file:
+                the local file path in which to create the image file.
+            format:
+                the format of the file. Supported formats include png,
+                jpg/jpeg, webp, svg, pdf and eps (requires the poppler library to
+                be installed).
+            width:
+                the width of the image file.
+            height:
+                the height of the image file.
         """
 
     @final
@@ -129,7 +182,13 @@ class BasePlotter(ABC):
         """Exports the visualisation as a png file.
 
         Args:
-            path: the local file path in which to create the image file.
+            file:
+                the local file path in which to create the image file (must
+                end with .png).
+            width:
+                the width of the image file.
+            height:
+                the height of the image file.
         """
         self._static_export(file, "png", width, height)
 
@@ -143,7 +202,13 @@ class BasePlotter(ABC):
         """Exports the visualisation as a jpeg file.
 
         Args:
-            path: the local file path in which to create the image file.
+            file:
+                the local file path in which to create the image file (must
+                end with .jpeg).
+            width:
+                the width of the image file.
+            height:
+                the height of the image file.
         """
         self._static_export(file, "jpeg", width, height)
 
@@ -154,10 +219,16 @@ class BasePlotter(ABC):
             width: int=1000,
             height: int=600,
     ) -> None:
-        """Exports the visualisation as a jpeg file.
+        """Exports the visualisation as a webp file.
 
         Args:
-            path: the local file path in which to create the image file.
+            file:
+                the local file path in which to create the image file (must
+                end with .webp).
+            width:
+                the width of the image file.
+            height:
+                the height of the image file.
         """
         self._static_export(file, "webp", width, height)
 
@@ -168,10 +239,16 @@ class BasePlotter(ABC):
             width: int=1000,
             height: int=600,
     ) -> None:
-        """Exports the visualisation as a jpeg file.
+        """Exports the visualisation as an svg file.
 
         Args:
-            path: the local file path in which to create the image file.
+            file:
+                the local file path in which to create the image file (must
+                end with .svg).
+            width:
+                the width of the image file.
+            height:
+                the height of the image file.
         """
         self._static_export(file, "svg", width, height)
 
@@ -182,23 +259,30 @@ class BasePlotter(ABC):
             width: int=1000,
             height: int=600,
     ) -> None:
-        """Exports the visualisation as a jpeg file.
+        """Exports the visualisation as a pdf file.
 
         Args:
-            path: the local file path in which to create the image file.
+            file:
+                the local file path in which to create the image file (must
+                end with .pdf).
+            width:
+                the width of the image file.
+            height:
+                the height of the image file.
         """
         self._static_export(file, "pdf", width, height)
 
 
 class PlotlyBasePlotter(BasePlotter):
+    """Provides additional methods suitable for plotting Plotly figures."""
     
     def _layout(self, layout_data: Tuple[str, str, str]) -> go.Layout:
         """Creates the Layout object for the visualisation.
 
         Args:
             layout_data:
-                a tuple containing the name of the visualisation
-                and the x and y labels.
+                a tuple containing the title of the visualisation and the x and
+                y labels.
         
         Returns:
             the Layout object created with layout_data.
@@ -213,7 +297,20 @@ class PlotlyBasePlotter(BasePlotter):
 
         return layout
 
-    def _hovertemplate(self, hoverdata, history):
+    def _hovertemplate(self, hoverdata: Tuple, history: bool) -> str:
+        """Determines what information is displayed on hover in a dynamic setting.
+
+        Args:
+            hoverdata:
+                a tuple containing the data to display on hover.
+            history:
+                a boolean value which determines which template to use.
+                If history is True, additional information like the number of
+                videos watched and the last video watched are displayed on hover.
+
+        Returns:
+            the string to display when the specific trace is hovered.
+        """
         topic, mean, variance, number_videos, last_video = hoverdata
         return (
             "<br>".join(
@@ -241,7 +338,7 @@ class PlotlyBasePlotter(BasePlotter):
     def show(self) -> None:
         """Opens the visualisation in localhost.
 
-        Equivalent to Plotly's Figure.show() method.
+        Equivalent to calling Plotly's Figure.show() method.
         """
         self.figure.show()
 
@@ -256,19 +353,23 @@ class PlotlyBasePlotter(BasePlotter):
 
     @final
     def to_html(
-            self,
-            file: str,
-            width: str="100%",
-            height: str="100%",
+        self,
+        file: str,
+        width: str="100%",
+        height: str="100%",
     ) -> None:
         """Exports the visualisation to an HTML file.
 
         This will result in the visualisation being interactable.
 
         Args:
-            path: the local file path in which to create the HTML file.
-            width: the width of the visualisation in the HTML file.
-            height: the height of the visualisation in the HTML file.
+            file:
+                the local file path in which to create the html file (must
+                end with .html).
+            width:
+                the width of the image in the HTML file.
+            height:
+                the height of the image in the HTML file.
         """
         self.figure.write_html(
             file=file,
@@ -278,8 +379,13 @@ class PlotlyBasePlotter(BasePlotter):
 
 
 class MatplotlibBasePlotter(BasePlotter):
+    """Provides additional methods suitable for plotting Matplotlib figures."""
     @final
     def show(self):
+        """Opens the visualisation in a Tkinter window.
+
+        Equivalent to calling Matplotlib.pyplot's show() method.
+        """
         plt.show()
 
     @final
@@ -287,16 +393,21 @@ class MatplotlibBasePlotter(BasePlotter):
         plt.savefig(fname=file, format=format)
 
 
-def knowledge_to_dict(knowledge: Knowledge,
-                      mapping: Optional[Dict[int, str]] = None) -> KnowledgeDict:
-    """Convert knowledge to an easy-to-process Python dictionary.
+def knowledge_to_dict(
+        knowledge: Knowledge,
+        mapping: Optional[Dict[int, str]]=None
+    ) -> KnowledgeDict:
+    """Convert knowledge to a Python dictionary.
     
     Returns a copy of the knowledge object in which all the knowledge
     components have been converted to dicts.
+
     Args:
-        knowledge: the knowledge object to copy.
-        mapping: an optional dictionary intended to map the topic IDs
-          in the knowledge components to a different value.
+        knowledge:
+            the knowledge object to copy.
+        mapping:
+            an optional dictionary intended to map the topic IDs
+            in the knowledge components to a different value.
     """
     pairs = knowledge.topic_kc_pairs()
 
