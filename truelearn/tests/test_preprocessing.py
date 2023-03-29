@@ -91,8 +91,8 @@ class TestWikifier:
             wikifier.wikify("Lorem ipsum", key_fn="invalid_key_fn")
 
         assert (
-            "key_fn is expected to be cosine or pagerank. "
-            "Got key_fn=invalid_key_fn instead." == str(excinfo.value)
+            str(excinfo.value) == "key_fn is expected to be cosine or pagerank. "
+            "Got key_fn=invalid_key_fn instead."
         )
 
     @pytest.mark.skipif(
@@ -106,12 +106,13 @@ class TestWikifier:
 
         with pytest.raises(ValueError) as excinfo:
             wikifier.wikify("Lorem ipsum", df_ignore=-1)
-        assert "df_ignore must >= 0. " "Got df_ignore=-1 instead." == str(excinfo.value)
+        assert str(excinfo.value) == "df_ignore must >= 0. " "Got df_ignore=-1 instead."
 
         with pytest.raises(ValueError) as excinfo:
             wikifier.wikify("Lorem ipsum", words_ignore=-1)
-        assert "words_ignore must >= 0. " "Got words_ignore=-1 instead." == str(
-            excinfo.value
+        assert (
+            str(excinfo.value) == "words_ignore must >= 0. "
+            "Got words_ignore=-1 instead."
         )
 
     @pytest.mark.disable_socket
@@ -138,4 +139,4 @@ class TestWikifier:
             preprocessing.Wikifier("You do not need API key for this test").wikify(
                 "Hello World"
             )
-        assert "error in response : this is a test" == str(excinfo.value)
+        assert str(excinfo.value) == "error in response : this is a test"

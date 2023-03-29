@@ -2,8 +2,8 @@ from typing import Any, Dict
 from typing_extensions import Self
 
 from truelearn.models import EventModel
-from .base import BaseClassifier
-from ._constraint import TypeConstraint
+from truelearn.base import BaseClassifier
+from .._constraint import TypeConstraint
 
 
 class PersistentClassifier(BaseClassifier):

@@ -1,4 +1,6 @@
-from typing import Dict, Any, Callable
+from typing import Any, Callable
+
+from truelearn.base import BaseClassifier
 
 
 class TypeConstraint:
@@ -26,7 +28,7 @@ class TypeConstraint:
         """
         return f"TypeConstraint{self.type_constraints}"
 
-    def satisfies(self, obj: Any, param_name: str):
+    def satisfies(self, obj: BaseClassifier, param_name: str):
         """Check if the given the value corresponds to the given param_name\
         satisfies the constraints.
 
@@ -38,7 +40,8 @@ class TypeConstraint:
             TypeError:
                 if the given parameter doesn't match any of the types.
         """
-        param_value = getattr(obj, obj.PARAM_PREFIX + param_name)
+        # pylint: disable=protected-access
+        param_value = getattr(obj, obj._PARAM_PREFIX + param_name)
 
         if type(param_value) not in self.type_constraints:
             param_classname_expected = list(
@@ -77,7 +80,7 @@ class ValueConstraint:
         """
         return f"ValueConstraint{self.value_constraints}"
 
-    def satisfies(self, obj: Any, param_name: str):
+    def satisfies(self, obj: BaseClassifier, param_name: str):
         """Check if the given the value corresponds to the given param_name\
         satisfies the constraints.
 
@@ -89,7 +92,8 @@ class ValueConstraint:
             ValueError:
                 if the given parameter doesn't match any of the values.
         """
-        param_value = getattr(obj, obj.PARAM_PREFIX + param_name)
+        # pylint: disable=protected-access
+        param_value = getattr(obj, obj._PARAM_PREFIX + param_name)
 
         if param_value not in self.value_constraints:
             raise ValueError(
@@ -108,7 +112,7 @@ class FuncConstraint:
         FuncConstraint(number_of_funcs=2)
     """
 
-    def __init__(self, *func_constraints: Callable[[Any, str], None]):
+    def __init__(self, *func_constraints: Callable[[BaseClassifier, str], None]):
         """Init the FuncConstraint class.
 
         Args:
@@ -127,7 +131,7 @@ class FuncConstraint:
         """
         return f"FuncConstraint(number_of_funcs={len(self.func_constraints)})"
 
-    def satisfies(self, obj: Any, param_name: str):
+    def satisfies(self, obj: BaseClassifier, param_name: str):
         """Check if the given the value corresponds to the given param_name\
         satisfies the constraints.
 
@@ -140,37 +144,3 @@ class FuncConstraint:
         """
         for fn in self.func_constraints:
             fn(obj, param_name)
-
-
-def validate_params(obj: Any, constraints: Dict[str, Any]):
-    """Validate the parameters based on the constraints.
-
-    Args:
-        obj:
-            The object to validate.
-        constraints:
-            A dictionary of constraints where key is the attribute name and
-            value is the constraint.
-
-    Raises:
-        TypeError:
-            Types of parameters mismatch their type constraints.
-        ValueError:
-            If the parameter is not any of the valid values in the given tuple,
-            or if the given attribute is not in the given object.
-    """
-    for (
-        param_name,
-        param_constraint,
-    ) in constraints.items():
-        if not hasattr(obj, obj.PARAM_PREFIX + param_name):
-            raise ValueError(
-                f"The specified parameter name {param_name}"
-                f" is not in the class {obj.__class__.__name__!r}."
-            )
-
-        if isinstance(param_constraint, list):
-            for constraint in param_constraint:
-                constraint.satisfies(obj, param_name)
-        else:
-            param_constraint.satisfies(obj, param_name)
