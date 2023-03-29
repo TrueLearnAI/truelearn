@@ -7,6 +7,9 @@ from truelearn.models import Knowledge
 from truelearn.utils.visualisations._base import PlotlyBasePlotter
 
 
+LineChartContentType = List[Tuple[Iterable, Iterable, str, Iterable]]
+
+
 class LinePlotter(PlotlyBasePlotter):
     """Provides utilities for plotting line charts."""
 
@@ -55,13 +58,13 @@ class LinePlotter(PlotlyBasePlotter):
 
     def plot(
         self,
-        content: Iterable[Union[Knowledge, List[Tuple[Iterable, Iterable, str]]]],
-        topics: Optional[Iterable[str]]=None,
-        top_n: Optional[int]=None,
-        variance: bool=False,
-        title: str="Mean of user's top 5 topics over time",
-        x_label: str="Time",
-        y_label: str="Mean",
+        content: Iterable[Union[Knowledge, LineChartContentType]],
+        topics: Optional[Iterable[str]] = None,
+        top_n: Optional[int] = None,
+        title: str = "Mean of user's topics over time",
+        x_label: str = "Time",
+        y_label: str = "Mean",
+        variance: bool = False,
     ) -> Self:
         if isinstance(content, list):
             content = self._plot_multiple(content, topics)
@@ -92,8 +95,8 @@ class LinePlotter(PlotlyBasePlotter):
 
     def _plot_multiple(
             self,
-            content_list: Iterable[Union[Knowledge, Iterable[Tuple[str, Iterable, Iterable]]]],
-            topics: Optional[Iterable[str]]=None,    
+            content_list: Iterable[Union[Knowledge, Iterable[Tuple]]],
+            topics: Optional[Iterable[str]] = None,    
         ):
         data = []
         for content in content_list:

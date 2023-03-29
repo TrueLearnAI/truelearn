@@ -12,11 +12,11 @@ class RadarPlotter(PlotlyBasePlotter):
     def plot(
         self,
         content: Union[Knowledge, List[Tuple[float, float, str]]],
-        topics: Optional[Iterable[str]]=None,
-        top_n: Optional[int]=None,
-        title: str = "Comparison of learner's top 5 subjects",
-        x_label: str = "Subjects",
-        y_label: str = "Mean",
+        topics: Optional[Iterable[str]] = None,
+        top_n: Optional[int] = None,
+        title: str = "Mean and variance across different topics.",
+        x_label: str = "",
+        y_label: str = "",
     ) -> Self:
         if isinstance(content, Knowledge):
             content = self._standardise_data(content, False, topics)
@@ -30,7 +30,8 @@ class RadarPlotter(PlotlyBasePlotter):
         titles = [lst[2] for lst in content]
 
         self.figure = go.Figure(
-            [self._trace(means, titles), self._trace(variances, titles)]
+            [self._trace(means, titles), self._trace(variances, titles)],
+            layout=self._layout((title, None, None))
         )
 
         self.figure.update_layout(
@@ -64,12 +65,15 @@ class RadarPlotter(PlotlyBasePlotter):
             hovertemplate=self._hovertemplate("%{r}")
         )
 
-    def _hovertemplate(self, hoverdata: float) -> str:
+    def _hovertemplate(self, hoverdata: float, history: bool = False) -> str:
         """Returns the string which will be displayed when a point is hovered.
         
         Args:
             hoverdata:
                 the variance value to embed in the string.
+            history:
+                a boolean value which determines which template to use.
+                Makes no difference as of yet.
         """
         variance = hoverdata
         return (

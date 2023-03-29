@@ -10,18 +10,19 @@ from truelearn.utils.visualisations._base import PlotlyBasePlotter
 
 class TreePlotter(PlotlyBasePlotter):
     """Provides utilities for plotting treemaps."""
+
     def plot(
         self,
         content: Union[Knowledge, List[Tuple[float, float, str]]],
-        history: bool,
-        topics: Optional[Iterable[str]]=None,
-        top_n: Optional[int]=None,
-        title: str = "Comparison of learner's top 15 subjects"
+        topics: Optional[Iterable[str]] = None,
+        top_n: Optional[int] = None,
+        title: str = "Comparison of learner's subjects",
+        x_label: str = "",
+        y_label: str = "",
+        history: bool = False,
     ) -> Self:
         if isinstance(content, Knowledge):
             content = self._standardise_data(content, history, topics)
-
-        layout_data = self._layout((title, "", ""))
 
         content = content[:top_n]
 
@@ -48,7 +49,9 @@ class TreePlotter(PlotlyBasePlotter):
             parents = ['']*len(titles),
             marker_colors = ["pink", "royalblue", "lightgray", "purple", 
                             "cyan", "lightgray", "lightblue", "lightgreen"],
-            customdata=np.transpose([titles, means, variances, number_of_videos, last_video_watched]),
+            customdata=np.transpose(
+                [titles, means, variances, number_of_videos, last_video_watched]
+            ),
             hovertemplate=self._hovertemplate(
                 (
                     "%{customdata[0]}",
@@ -59,7 +62,7 @@ class TreePlotter(PlotlyBasePlotter):
                 ),
                 history
             ),
-        ), layout = layout_data)
+        ), layout = self._layout((title, "", "")))
 
         self.figure.update_layout(margin = dict(t=50, l=25, r=25, b=25))
 

@@ -14,27 +14,21 @@ class DotPlotter(PlotlyBasePlotter):
     def plot(
         self,
         content: Union[Knowledge, List[Tuple[float, float, str]]],
-        history: bool=False,
-        topics: Optional[Iterable[str]]=None,
-        top_n: Optional[int]=None,
-        title: str = "Comparison of learner's top subjects",
+        topics: Optional[Iterable[str]] = None,
+        top_n: Optional[int] = None,
+        title: str = "Comparison of learner's subjects",
         x_label: str = "Subjects",
         y_label: str = "Mean",
+        history: bool = False,
     ) -> Self:
         if isinstance(content, Knowledge):
             content = self._standardise_data(content, history, topics)
 
         content = content[:top_n]
 
-        layout_data = self._layout((title, x_label, y_label))
-
         means = [lst[0] for lst in content]
 
         variances = [lst[1] for lst in content]
-
-        mean_min = min(means) - 0.001
-
-        mean_max = max(means) + 0.001
 
         titles = [lst[2] for lst in content]
 
@@ -54,8 +48,8 @@ class DotPlotter(PlotlyBasePlotter):
             y=means,
             marker=dict(
                 size=50,
-                cmax=mean_max,
-                cmin=mean_min,
+                cmax=max(means) + 0.001,
+                cmin=min(means) - 0.001,
                 color=means,
                 colorbar=dict(
                     title="Means"
@@ -80,6 +74,6 @@ class DotPlotter(PlotlyBasePlotter):
                 history
             ),
             mode="markers"),
-            layout=layout_data)
+            layout=self._layout((title, x_label, y_label)))
 
         return self

@@ -11,10 +11,13 @@ from truelearn.utils.visualisations._base import MatplotlibBasePlotter
 class WordPlotter(MatplotlibBasePlotter):
     """Provides utilities for plotting word clouds."""
     def plot(
-            self,
-            content: Union[Knowledge, List[Tuple[float, float, str]]],
-            topics: Optional[Iterable[str]]=None,
-            top_n: Optional[int]=None,
+        self,
+        content: Union[Knowledge, List[Tuple[float, float, str]]],
+        topics: Optional[Iterable[str]] = None,
+        top_n: Optional[int] = None,
+        title: str = "Comparison of learner's subjects",
+        x_label: str = "",
+        y_label: str = "",
     ) -> Self:
         if isinstance(content, Knowledge):
             content = self._standardise_data(content, False, topics)

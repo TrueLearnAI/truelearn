@@ -1,5 +1,8 @@
-"""The truelearn.utils.visualisations module provides Plotter classes for visualising
-output from the classifiers."""
+"""truelearn.utils.visualisations provides utilities for creating visualisations.
+
+The module provides Plotter classes that take the learner's knowledge as
+input and produce various different charts.
+"""
 
 from ._base import knowledge_to_dict
 from ._line_plotter import LinePlotter

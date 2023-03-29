@@ -2,9 +2,11 @@ from typing import Iterable, List, Optional, Tuple, Union
 from typing_extensions import Self
 
 import circlify
-import matplotlib.cm as cm
+from matplotlib import (
+    cm,
+    colors
+)
 import matplotlib.pyplot as plt
-import matplotlib.colors as colors
 
 from truelearn.models import Knowledge
 from truelearn.utils.visualisations._base import MatplotlibBasePlotter
@@ -16,9 +18,11 @@ class BubblePlotter(MatplotlibBasePlotter):
     def plot(
         self,
         content: Union[Knowledge, List[Tuple[float, float, str]]],
-        topics: Optional[Iterable[str]]=None,
-        top_n: Optional[int]=None,
-        title: str = "Comparison of learner's top subjects"
+        topics: Optional[Iterable[str]] = None,
+        top_n: Optional[int] = None,
+        title: str = "Comparison of learner's subjects",
+        x_label: str = "",
+        y_label: str = "",
     ) -> Self:
         if isinstance(content, Knowledge):
             content = self._standardise_data(content, False, topics)
@@ -63,7 +67,14 @@ class BubblePlotter(MatplotlibBasePlotter):
         for i, circle in enumerate(circles):
             if i < len(titles):
                 x, y, r = circle
-                ax.add_patch(plt.Circle((x, y), r, linewidth=2,color=sm.to_rgba(variances[len(variances) - 1 - i])))
+                ax.add_patch(
+                    plt.Circle(
+                        (x, y),
+                        r,
+                        linewidth=2,
+                        color=sm.to_rgba(variances[len(variances) - 1 - i])
+                    )
+                )
                 plt.annotate(
                     titles[len(titles) - 1 - i], 
                     (x,y) ,

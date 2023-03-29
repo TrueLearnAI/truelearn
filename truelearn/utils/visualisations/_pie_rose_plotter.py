@@ -18,8 +18,8 @@ class PiePlotter(PlotlyBasePlotter):
     def _standardise_data(
         self,
         raw_data: Knowledge,
-        history: bool=False,
-        topics: Optional[Iterable[str]]=None,
+        history: bool = False,
+        topics: Optional[Iterable[str]] = None,
     ) -> Iterable:    
         raw_data = knowledge_to_dict(raw_data)
 
@@ -42,11 +42,13 @@ class PiePlotter(PlotlyBasePlotter):
     def plot(
         self,
         content: Union[Knowledge, List[Tuple[float, float, str]]],
-        history: bool=False,
-        topics: Optional[Iterable[str]]=None,
-        top_n: Optional[int]=None,
-        other: bool = False,
+        topics: Optional[Iterable[str]] = None,
+        top_n: Optional[int] = None,
         title: str = "Distribution of user's skill.",
+        x_label: str = "",
+        y_label: str = "",
+        other: bool = False,
+        history: bool = False,
     ) -> Self:
         if isinstance(content, Knowledge):
             content, rest = self._standardise_data(content, history, topics)
@@ -91,7 +93,9 @@ class PiePlotter(PlotlyBasePlotter):
         self.figure = go.Figure(go.Pie(
             labels=titles,
             values=means,
-            customdata=np.transpose([titles, means, variances, number_of_videos, last_video_watched]),
+            customdata=np.transpose(
+                [titles, means, variances, number_of_videos, last_video_watched]
+            ),
             hovertemplate=self._hovertemplate(
                 (
                     "%{customdata[0][0]}",
@@ -160,13 +164,18 @@ class PiePlotter(PlotlyBasePlotter):
 
 
 class RosePlotter(PiePlotter):
+    """Provides utilities for plotting rose charts."""
+
     def plot(
         self,
         content: Union[Knowledge, List[Tuple[float, float, str]]],
-        topics: Optional[Iterable[str]]=None,
-        top_n: Optional[int]=None,
-        other: bool = False,
+        topics: Optional[Iterable[str]] = None,
+        top_n: Optional[int] = None,
         title: str = "Distribution of user's skill.",
+        x_label: str = "",
+        y_label: str = "",
+        other: bool = False,
+        history: bool = False,
     ) -> Self:
         if isinstance(content, Knowledge):
             content, rest = self._standardise_data(content, True, topics)
@@ -189,7 +198,7 @@ class RosePlotter(PiePlotter):
         for i in range(len(widths)-1):
             thetas.append(thetas[i] + widths[i]/2 + widths[i+1]/2)
         
-        variances = [lst[1] for lst in content]
+        variances = [tr_data[1] for tr_data in content]
         variance_min, variance_max = min(variances), max(variances)
 
         colours = [
@@ -197,25 +206,25 @@ class RosePlotter(PiePlotter):
         ]
 
         traces = []
-        for i in range(len(content)):
+        n_of_sectors = len(content)
+        for i in range(n_of_sectors):
             traces.append(
                 self._trace(content[i], thetas[i], widths[i], colours[i])
             )
 
         means = [tr_data[0] for tr_data in content]
         average_mean = sum(means) / len(means)
-        mean_trace = go.Scatterpolar(
-            name="Average mean",
-            r=[average_mean for _ in range(360)],
-            theta=[i for i in range(360)],
-            mode='lines',
-            line_color='black',
+        traces.append(
+            go.Scatterpolar(
+                name="Average mean",
+                r=[average_mean for _ in range(360)],
+                theta=list(range(360)),
+                mode='lines',
+                line_color='black',
+            )
         )
-        traces.append(mean_trace)
 
-        layout_data = self._layout((title, None, None))
-
-        self.figure = go.Figure(data=traces, layout=layout_data)
+        self.figure = go.Figure(data=traces, layout=self._layout((title, None, None)))
 
         topics = [tr_data[2] for tr_data in content]
 
@@ -240,7 +249,7 @@ class RosePlotter(PiePlotter):
         theta,
         width,
         colour,
-        number_of_videos: Optional[int]=None,
+        number_of_videos: Optional[int] = None,
     ) -> go.Barpolar:
         """Returns the Barpolar object representing a single sector.
 

@@ -7,10 +7,7 @@ from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
 from typing_extensions import final, Self
 
 import matplotlib.pyplot as plt
-from plotly import (
-    graph_objects as go,
-    basedatatypes as bdt
-)
+from plotly import graph_objects as go
 
 from truelearn.models import Knowledge
 
@@ -23,19 +20,19 @@ class BasePlotter(ABC):
 
     @final
     def __init__(self):
+        """Initialises figure attribute where the visualisation will be stored."""
         self.figure = None
 
     def _standardise_data(
         self,
         raw_data: Knowledge,
-        history: bool=False,
-        topics: Union[str, Iterable[str], None]=None
+        history: bool = False,
+        topics: Union[str, Iterable[str], None] = None
     ) -> List[Tuple]:
-        """Converts a KnowledgeDict object to one suitable for generating visualisations.
+        """Converts a Knowledge object to one suitable for generating visualisations.
         
-        Optional utility function that converts the dictionary representation
-        of the learner's knowledge (obtainable via the knowledge_to_dict()
-        function) to the Iterable used by plot.
+        Optional utility function that converts the learner's knowledge (obtainable
+        via learner.knowledge) to the Iterable used by plot().
 
         Args:
             raw_data:
@@ -128,13 +125,13 @@ class BasePlotter(ABC):
     def plot(
             self,
             content: Union[Knowledge, List[Tuple]],
-            topics: Optional[Iterable[str]]=None,
-            top_n: Optional[int]=None,
-            title: str="",
-            x_label: str="",
-            y_label: str="",
+            topics: Optional[Iterable[str]] = None,
+            top_n: Optional[int] = None,
+            title: str = "",
+            x_label: str = "",
+            y_label: str = "",
     ) -> Self:
-        """Creates a Plotly Figure object from the data.
+        """Creates a visualisation object from the data.
 
         Args:
             content:
@@ -161,13 +158,13 @@ class BasePlotter(ABC):
         """
     
     @abstractmethod
-    def _static_export(self, file, format, width, height):
+    def _static_export(self, file, format_, width, height):
         """Exports the visualisation as an image file.
 
         Args:
             file:
                 the local file path in which to create the image file.
-            format:
+            format_:
                 the format of the file. Supported formats include png,
                 jpg/jpeg, webp, svg, pdf and eps (requires the poppler library to
                 be installed).
@@ -181,8 +178,8 @@ class BasePlotter(ABC):
     def to_png(
             self,
             file: str,
-            width: int=1000,
-            height: int=600,
+            width: int = 1000,
+            height: int = 600,
     ) -> None:
         """Exports the visualisation as a png file.
 
@@ -201,8 +198,8 @@ class BasePlotter(ABC):
     def to_jpeg(
             self,
             file: str,
-            width: int=1000,
-            height: int=600,
+            width: int = 1000,
+            height: int = 600,
     ) -> None:
         """Exports the visualisation as a jpeg file.
 
@@ -221,8 +218,8 @@ class BasePlotter(ABC):
     def to_webp(
             self,
             file: str,
-            width: int=1000,
-            height: int=600,
+            width: int = 1000,
+            height: int = 600,
     ) -> None:
         """Exports the visualisation as a webp file.
 
@@ -241,8 +238,8 @@ class BasePlotter(ABC):
     def to_svg(
             self,
             file: str,
-            width: int=1000,
-            height: int=600,
+            width: int = 1000,
+            height: int = 600,
     ) -> None:
         """Exports the visualisation as an svg file.
 
@@ -261,8 +258,8 @@ class BasePlotter(ABC):
     def to_pdf(
             self,
             file: str,
-            width: int=1000,
-            height: int=600,
+            width: int = 1000,
+            height: int = 600,
     ) -> None:
         """Exports the visualisation as a pdf file.
 
@@ -339,6 +336,18 @@ class PlotlyBasePlotter(BasePlotter):
             )
         )
     
+    # def _trace(self, trace_data: Tuple) -> go.BaseTraceType:
+    #     """Creates a trace object to incorporate in the visualisation.
+        
+    #     Args:
+    #         trace_data:
+    #             the data used to create the trace. This should have the same
+    #             type as the tuples in the iterable of the plot() method.
+        
+    #     Returns:
+    #         the trace object generated from trace_data.
+    #     """
+    
     @final
     def show(self) -> None:
         """Opens the visualisation in localhost.
@@ -348,10 +357,12 @@ class PlotlyBasePlotter(BasePlotter):
         self.figure.show()
 
     @final
-    def _static_export(self, file: str, format: str, width, height) -> None:
+    def _static_export(
+        self, file: str, format_: str, width: int, height: int
+    ) -> None:
         self.figure.write_image(
             file=file,
-            format=format,
+            format=format_,
             width=width,
             height=height
         )
@@ -360,8 +371,8 @@ class PlotlyBasePlotter(BasePlotter):
     def to_html(
         self,
         file: str,
-        width: str="100%",
-        height: str="100%",
+        width: str = "100%",
+        height: str = "100%",
     ) -> None:
         """Exports the visualisation to an HTML file.
 
@@ -394,13 +405,15 @@ class MatplotlibBasePlotter(BasePlotter):
         plt.show()
 
     @final
-    def _static_export(self, file, format, width, height):
-        plt.savefig(fname=file, format=format)
+    def _static_export(
+        self, file: str, format_: str, width: int, height: int
+    ) -> None:
+        plt.savefig(fname=file, format=format_)
 
 
 def knowledge_to_dict(
         knowledge: Knowledge,
-        mapping: Optional[Dict[int, str]]=None
+        mapping: Optional[Dict[int, str]] = None
     ) -> KnowledgeDict:
     """Convert knowledge to a Python dictionary.
     
