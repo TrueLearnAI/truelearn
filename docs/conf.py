@@ -22,6 +22,10 @@ if os.environ.get('READTHEDOCS'):
     path = Path('./modules/generated/')
     if path.exists():
         shutil.rmtree(str(path))
+    # See GitHub issue : https://github.com/readthedocs/readthedocs.org/issues/1776
+    html_static_path = []
+else:
+    html_static_path = ['_static']
 
 project = 'TrueLearn'
 # pylint: disable=redefined-builtin
@@ -104,12 +108,10 @@ napoleon_attr_annotations = True
 
 html_theme = 'furo'
 html_logo = 'images/TrueLearn_logo.png'
-
-
-# See GitHub issue : https://github.com/readthedocs/readthedocs.org/issues/1776
-html_static_path = []
+html_css_files = [
+    'css/custom.css',
+]
 
 # -- Extensions to the  Napoleon GoogleDocstring class ---------------------
 
 napoleon_use_ivar = True
-
