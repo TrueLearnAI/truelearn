@@ -103,7 +103,7 @@ napoleon_attr_annotations = True
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
 html_theme = 'furo'
-html_logo = 'images/logo.png'
+html_logo = 'images/TrueLearn_logo.png'
 
 
 # See GitHub issue : https://github.com/readthedocs/readthedocs.org/issues/1776
