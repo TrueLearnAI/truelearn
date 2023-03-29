@@ -45,7 +45,7 @@ dependencies = [
     'orjson>=3.8.6',
     'mpmath>=1.2.1',
     'plotly==5.13.0',
-    'matplotlib==3.7.1',
+    'matplotlib==3.5.3',
     'wordcloud==1.8.2.2',
     'circlify==0.15.0',
 ]
