@@ -9,7 +9,7 @@ WikifierResponse = Dict[str, Union[List[Annotation], List[str]]]
 
 
 class Wikifier:
-    """A client that makes requests to the Wikifier API. See https://www.wikifier.org/:
+    """A client that makes requests to the Wikifier API. See https://www.wikifier.org/.
 
     Citation:
         Janez Brank, Gregor Leban, Marko Grobelnik. `Annotating Documents with Relevant

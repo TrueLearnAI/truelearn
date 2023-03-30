@@ -82,7 +82,6 @@ class PEEKKnowledgeComponentGenerator(Protocol):
             description:
                 The description of the knowledge component.
         """
-        ...  # pragma: no cover
 
 
 def __sanity_check(train_limit: Optional[int], test_limit: Optional[int]):
