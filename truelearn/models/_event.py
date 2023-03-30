@@ -8,10 +8,6 @@ from ._knowledge import Knowledge
 class EventModel:
     """A class that models a learning event in TrueLearn algorithm.
 
-    Attributes:
-        knowledge: A knowledge representation of the educational resources.
-        event_time: A float that specifies the POSIX timestamp when the event occurs.
-
     Examples:
         >>> from truelearn.models import EventModel, KnowledgeComponent
         >>> # construct an empty event model
@@ -28,4 +24,7 @@ variance=1.0, ...)}), event_time=None)
     """
 
     knowledge: Knowledge = dataclasses.field(default_factory=Knowledge)
+    """A knowledge representation of the educational resources."""
+
     event_time: Optional[float] = None
+    """A float that specifies the POSIX timestamp when the event occurs."""
