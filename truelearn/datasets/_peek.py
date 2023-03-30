@@ -418,6 +418,25 @@ def load_peek_dataset_raw(
 ) -> Tuple[List[List[str]], List[List[str]], Dict[int, Tuple[str, str, str]]]:
     """Download and Load the raw PEEKDataset.
 
+    Examples:
+        To load the data:
+
+        >>> from truelearn.datasets import load_peek_dataset_raw
+        >>> train, test, mapping = load_peek_dataset_raw(verbose=False)
+        >>> len(train)
+        203590
+        >>> train[0]  # doctest:+ELLIPSIS
+        ['4248', '1', '1', '172.0', ..., '1']
+        >>> len(test)
+        86945
+        >>> test[0]  # doctest:+ELLIPSIS
+        ['12730', '1', '1', '0.0', ..., '0']
+        >>> len(mapping)
+        30367
+        >>> mapping[0]
+        ('https://en.wikipedia.org/wiki/"Hello,_World!"_program', \
+'"Hello, World!" program', "Traditional beginners' computer program")
+
     Args:
         *:
             Use to reject positional arguments.
@@ -458,25 +477,6 @@ def load_peek_dataset_raw(
     Raises:
         ValueError:
             If the train_limit or test_limit is less than 0.
-
-    Examples:
-        To load the data:
-
-        >>> from truelearn.datasets import load_peek_dataset_raw
-        >>> train, test, mapping = load_peek_dataset_raw(verbose=False)
-        >>> len(train)
-        203590
-        >>> train[0]  # doctest:+ELLIPSIS
-        ['4248', '1', '1', '172.0', ..., '1']
-        >>> len(test)
-        86945
-        >>> test[0]  # doctest:+ELLIPSIS
-        ['12730', '1', '1', '0.0', ..., '0']
-        >>> len(mapping)
-        30367
-        >>> mapping[0]
-        ('https://en.wikipedia.org/wiki/"Hello,_World!"_program', \
-'"Hello, World!" program', "Traditional beginners' computer program")
     """
     __sanity_check(train_limit, test_limit)
     train_filepath, test_filepath, mapping_filepath = __download_files(dirname, verbose)
