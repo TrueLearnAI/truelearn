@@ -38,6 +38,7 @@ Classes
 
     datasets.PEEKKnowledgeComponentGenerator
     datasets.RemoteFileMetaData
+    datasets.PEEKData
 
 Functions
 ---------
@@ -47,7 +48,6 @@ Functions
     :toctree: generated/
     :template: function.rst
 
-    datasets.check_and_download_file
     datasets.load_peek_dataset
     datasets.load_peek_dataset_raw
 
