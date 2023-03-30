@@ -18,6 +18,10 @@ class BaseKnowledgeComponent(Protocol):
     snot perfectly accurate.
     """
 
+    mean: float
+    variance: float
+    timestamp: Optional[float]
+
     @property
     @abstractmethod
     def mean(self) -> float:
