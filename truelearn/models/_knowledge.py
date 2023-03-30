@@ -110,7 +110,7 @@ description=None, url=None)
 
     @property
     def timestamp(self) -> Optional[float]:
-        """Optional[float]: The POSIX timestamp of the last update of the knowledge
+        """Optional[float]: The POSIX timestamp of the last update of the knowledge \
         component."""
         return self.__timestamp
 
@@ -290,7 +290,7 @@ title=None, description=None, url=None, history=deque([(0.0, 1.0, None)], maxlen
 
     @property
     def history(self) -> Deque[Tuple[float, float, Optional[float]]]:
-        """Deque[Tuple[float, float, Optional[float]]]: The update history of the
+        """Deque[Tuple[float, float, Optional[float]]]: The update history of the \
         current knowledge component."""
         return self.__history
 

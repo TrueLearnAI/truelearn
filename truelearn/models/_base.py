@@ -31,7 +31,7 @@ class BaseKnowledgeComponent(Protocol):
     @property
     @abstractmethod
     def timestamp(self) -> Optional[float]:
-        """Optional[float]: The POSIX timestamp of the last update of the knowledge
+        """Optional[float]: The POSIX timestamp of the last update of the knowledge \
         component."""
 
     @abstractmethod
