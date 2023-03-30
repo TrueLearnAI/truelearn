@@ -64,6 +64,24 @@ class PEEKKnowledgeComponentGenerator(Protocol):
         title: str,
         description: str,
     ) -> BaseKnowledgeComponent:
+        """Generate a knowledge component.
+
+        Args:
+            *:
+                Used to reject positional arguments.
+            mean:
+                The mean of the knowledge component.
+            variance:
+                The variance of the knowledge component.
+            timestamp:
+                The timestamp of the knowledge component.
+            url:
+                The url of the knowledge component.
+            title:
+                The title of the knowledge component.
+            description:
+                The description of the knowledge component.
+        """
         ...  # pragma: no cover
 
 
@@ -292,6 +310,27 @@ def load_peek_dataset(
 ) -> Tuple[PEEKData, PEEKData, Dict[int, Tuple[str, str, str]]]:
     """Download and Parse PEEKDataset.
 
+    Examples:
+        To load the data:
+
+        >>> from truelearn.datasets import load_peek_dataset
+        >>> train, test, mapping = load_peek_dataset(verbose=False)
+        >>> len(train)
+        14050
+        >>> train[0]  # doctest:+ELLIPSIS
+        (23128, [(EventModel(...), event_time=172.0), False), ..., (EventModel(...), \
+event_time=55932.0), False)])
+        >>> len(test)
+        5969
+        >>> test[0]  # doctest:+ELLIPSIS
+        (25623, [(EventModel(...), event_time=0.0), False), ..., (EventModel(...), \
+event_time=1590.0), False)])
+        >>> len(mapping)
+        30367
+        >>> mapping[0]
+        ('https://en.wikipedia.org/wiki/"Hello,_World!"_program', \
+'"Hello, World!" program', "Traditional beginners' computer program")
+
     Args:
         *:
             Use to reject positional arguments.
@@ -344,27 +383,6 @@ def load_peek_dataset(
     Raises:
         ValueError:
             If the train_limit or test_limit is less than 0.
-
-    Examples:
-        To load the data:
-
-        >>> from truelearn.datasets import load_peek_dataset
-        >>> train, test, mapping = load_peek_dataset(verbose=False)
-        >>> len(train)
-        14050
-        >>> train[0]  # doctest:+ELLIPSIS
-        (23128, [(EventModel(...), event_time=172.0), False), ..., (EventModel(...), \
-event_time=55932.0), False)])
-        >>> len(test)
-        5969
-        >>> test[0]  # doctest:+ELLIPSIS
-        (25623, [(EventModel(...), event_time=0.0), False), ..., (EventModel(...), \
-event_time=1590.0), False)])
-        >>> len(mapping)
-        30367
-        >>> mapping[0]
-        ('https://en.wikipedia.org/wiki/"Hello,_World!"_program', \
-'"Hello, World!" program', "Traditional beginners' computer program")
     """
     __sanity_check(train_limit, test_limit)
     train_filepath, test_filepath, mapping_filepath = __download_files(dirname, verbose)
