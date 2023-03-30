@@ -116,7 +116,7 @@ description=None, url=None)
 
     @property
     def timestamp(self) -> Optional[float]:
-        """The POSIX timestamp of the last update of the knowledge component"""
+        """The POSIX timestamp of the last update of the knowledge component."""
         return self.__timestamp
 
     def update(
