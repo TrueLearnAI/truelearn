@@ -14,20 +14,17 @@ from pathlib import Path
 
 sys.path.insert(0, os.path.abspath(".."))
 
-# If we are on Read the Docs we need to clean up the generated folder
-# before building the docs (it's not done automatically), otherwise
-# old files will be left in the generated folder and Sphinx will not
-# rebuild them.
-# The same is needed for the gallery folder, otherwise the gallery
-# will not be rebuilt, and it will link to the old docs
-if os.environ.get("READTHEDOCS"):
-    path_modules = Path("./modules/generated/")
-    path_gallery = Path("./docs/examples/")
 
-    if path_modules.exists():
-        shutil.rmtree(str(path_modules))
-    if path_gallery.exists():
-        shutil.rmtree(str(path_gallery))
+# We need to clean up the generated folder and gallery, otherwise the
+# old files will be left and Sphinx will not rebuild them.
+path_modules = Path("./modules/generated/")
+path_gallery = Path("./docs/examples/")
+
+if path_modules.exists():
+    shutil.rmtree(str(path_modules))
+if path_gallery.exists():
+    shutil.rmtree(str(path_gallery))
+
 
 project = "TrueLearn"
 # pylint: disable=redefined-builtin
