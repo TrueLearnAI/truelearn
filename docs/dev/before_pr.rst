@@ -36,4 +36,4 @@ Closing
 -------
 You are now ready to ship your PR! 🚀
 
-`Note: If you are a member of core maintainers, make sure you check the next section about how to release TrueLearn.`
+`Note: If you are a member of the core maintainer team, make sure you check the next section about how to release TrueLearn.`

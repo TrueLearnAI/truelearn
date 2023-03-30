@@ -14,6 +14,10 @@ The configuration for the:
 .. _pyproject.toml: https://github.com/comp0016-group1/truelearn/blob/main/pyproject.toml
 .. _prospector.yaml: https://github.com/comp0016-group1/truelearn/blob/main/prospector.yaml
 
+.. note:: You may need to run the commands listed using ``python -m`` to ensure that
+          that the current directory is added to SYS.PATH to prevent module not found errors.
+
+          To do this add ``python -m`` before the command. e.g. ``python -m pytest truelearn``
 
 Running the Unit Tests
 ----------------------
