@@ -37,7 +37,6 @@ Classes
     :toctree: generated/
 
     datasets.PEEKKnowledgeComponentGenerator
-    datasets.RemoteFileMetaData
     datasets.PEEKData
 
 Functions
