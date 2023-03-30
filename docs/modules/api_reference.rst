@@ -35,6 +35,7 @@ Classes
 
 .. autosummary::
     :toctree: generated/
+    :template: class_with_call.rst
 
     datasets.PEEKKnowledgeComponentGenerator
     datasets.PEEKData
