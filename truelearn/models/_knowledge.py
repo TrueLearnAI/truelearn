@@ -30,12 +30,6 @@ description=None, url=None)
 description=None, url=None)
     """
 
-    # These type annotations were necessary for the documentation due to the use
-    # of properties. So their type is shown in the attributes section.
-    description: Optional[str]
-    url: Optional[str]
-    title: Optional[str]
-
     def __init__(
         self,
         *,
@@ -91,32 +85,33 @@ description=None, url=None)
 
     @property
     def title(self) -> Optional[str]:
-        """The title of the knowledge component."""
+        """Optional[str]: The title of the knowledge component."""
         return self.__title
 
     @property
     def description(self) -> Optional[str]:
-        """The description of the knowledge component."""
+        """Optional[str]: The description of the knowledge component."""
         return self.__description
 
     @property
     def url(self) -> Optional[str]:
-        """The url of the knowledge component."""
+        """Optional[str]: The url of the knowledge component."""
         return self.__url
 
     @property
     def mean(self) -> float:
-        """The mean of the knowledge component."""
+        """float: The mean of the knowledge component."""
         return self.__mean
 
     @property
     def variance(self) -> float:
-        """The variance of the knowledge component."""
+        """float: The variance of the knowledge component."""
         return self.__variance
 
     @property
     def timestamp(self) -> Optional[float]:
-        """The POSIX timestamp of the last update of the knowledge component."""
+        """Optional[float]: The POSIX timestamp of the last update of the knowledge
+        component."""
         return self.__timestamp
 
     def update(
@@ -295,7 +290,8 @@ title=None, description=None, url=None, history=deque([(0.0, 1.0, None)], maxlen
 
     @property
     def history(self) -> Deque[Tuple[float, float, Optional[float]]]:
-        """The update history of the current knowledge component."""
+        """Deque[Tuple[float, float, Optional[float]]]: The update history of the
+        current knowledge component."""
         return self.__history
 
     def update(
