@@ -74,21 +74,6 @@ Classes
     learning.PersistentClassifier
     learning.MajorityClassifier
 
-Functions
----------
-.. currentmodule:: truelearn
-
-.. autosummary::
-    :toctree: generated/
-    :template: function.rst
-
-    learning._base.draw_proba_static_constraint
-    learning._base.team_sum_quality
-    learning._base.team_sum_quality_from_kcs
-    learning._base.gather_trueskill_team
-
-
-
 :mod:`truelearn.models`: Contains the representations used for learning
 =======================================================================
 .. automodule:: truelearn.models

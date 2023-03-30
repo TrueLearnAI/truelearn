@@ -2,10 +2,6 @@
 
 from ._base import (
     InterestNoveltyKnowledgeBaseClassifier,
-    draw_proba_static_constraint,
-    team_sum_quality,
-    team_sum_quality_from_kcs,
-    gather_trueskill_team
 )
 
 from ._ink_classifier import INKClassifier
@@ -25,7 +21,4 @@ __all__ = [
     "EngageClassifier",
     "PersistentClassifier",
     "MajorityClassifier",
-    "draw_proba_static_constraint",
-    "team_sum_quality",
-    "team_sum_quality_from_kcs"
 ]
