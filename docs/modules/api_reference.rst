@@ -67,7 +67,6 @@ Classes
 
     learning.INKClassifier
     learning.InterestClassifier
-    learning.InterestNoveltyKnowledgeBaseClassifier
     learning.KnowledgeClassifier
     learning.NoveltyClassifier
     learning.EngageClassifier
