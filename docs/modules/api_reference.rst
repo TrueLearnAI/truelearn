@@ -29,26 +29,6 @@ Base Classes
    :no-members:
    :show-inheritance:
 
-Base Classes
-------------
-.. currentmodule:: truelearn
-
-.. autosummary::
-    :toctree: generated/
-    :template: class.rst
-
-    datasets._base.RemoteFileMetaData
-
-Base Functions
---------------
-.. currentmodule:: truelearn
-
-.. autosummary::
-    :toctree: generated/
-    :template: function.rst
-
-    datasets._base.check_and_download_file
-
 Classes
 -------
 .. currentmodule:: truelearn
@@ -57,6 +37,7 @@ Classes
     :toctree: generated/
 
     datasets.PEEKKnowledgeComponentGenerator
+    datasets.RemoteFileMetaData
 
 Functions
 ---------
@@ -66,6 +47,7 @@ Functions
     :toctree: generated/
     :template: function.rst
 
+    datasets.check_and_download_file
     datasets.load_peek_dataset
     datasets.load_peek_dataset_raw
 
@@ -75,15 +57,22 @@ Functions
    :no-members:
    :show-inheritance:
 
-Base Classes
-------------
+Classes
+-------
 .. currentmodule:: truelearn
 
 .. autosummary::
     :toctree: generated/
     :template: class.rst
 
-    learning._base.InterestNoveltyKnowledgeBaseClassifier
+    learning.INKClassifier
+    learning.InterestClassifier
+    learning.InterestNoveltyKnowledgeBaseClassifier
+    learning.KnowledgeClassifier
+    learning.NoveltyClassifier
+    learning.EngageClassifier
+    learning.PersistentClassifier
+    learning.MajorityClassifier
 
 Functions
 ---------
@@ -98,21 +87,6 @@ Functions
     learning._base.team_sum_quality_from_kcs
     learning._base.gather_trueskill_team
 
-Classes
--------
-.. currentmodule:: truelearn
-
-.. autosummary::
-    :toctree: generated/
-    :template: class.rst
-
-    learning.INKClassifier
-    learning.InterestClassifier
-    learning.KnowledgeClassifier
-    learning.NoveltyClassifier
-    learning.EngageClassifier
-    learning.PersistentClassifier
-    learning.MajorityClassifier
 
 
 :mod:`truelearn.models`: Contains the representations used for learning
@@ -121,16 +95,6 @@ Classes
    :no-members:
    :show-inheritance:
 
-Base Classes
-------------
-.. currentmodule:: truelearn
-
-.. autosummary::
-    :toctree: generated/
-    :template: class.rst
-
-    models._base.BaseKnowledgeComponent
-
 Classes
 -------
 .. currentmodule:: truelearn
@@ -139,6 +103,7 @@ Classes
     :toctree: generated/
     :template: class.rst
 
+    models.BaseKnowledgeComponent
     models.KnowledgeComponent
     models.HistoryAwareKnowledgeComponent
     models.Knowledge
@@ -201,15 +166,6 @@ Functions
 .. automodule:: truelearn.utils.visualisations
    :no-members:
    :show-inheritance:
-
-Base Classes
-------------
-.. currentmodule:: truelearn
-
-.. autosummary::
-    :toctree: generated/
-    :template: class.rst
-
 
 Classes
 -------
