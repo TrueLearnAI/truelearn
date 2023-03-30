@@ -32,9 +32,6 @@ description=None, url=None)
 
     # These type annotations were necessary for the documentation due to the use
     # of properties. So their type is shown in the attributes section.
-    mean: float
-    variance: float
-    timestamp: Optional[float]
     description: Optional[str]
     url: Optional[str]
     title: Optional[str]
