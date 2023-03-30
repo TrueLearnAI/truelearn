@@ -30,6 +30,15 @@ description=None, url=None)
 description=None, url=None)
     """
 
+    # These type annotations were necessary for the documentation due to the use
+    # of properties. So their type is shown in the attributes section.
+    mean: Optional[float]
+    variance: Optional[float]
+    timestamp: Optional[float]
+    description: Optional[str]
+    url: Optional[str]
+    title: Optional[str]
+
     def __init__(
         self,
         *,
@@ -100,14 +109,17 @@ description=None, url=None)
 
     @property
     def mean(self) -> float:
+        """The mean of the knowledge component."""
         return self.__mean
 
     @property
     def variance(self) -> float:
+        """The variance of the knowledge component."""
         return self.__variance
 
     @property
     def timestamp(self) -> Optional[float]:
+        """The POSIX timestamp of the last update of the knowledge component"""
         return self.__timestamp
 
     def update(
