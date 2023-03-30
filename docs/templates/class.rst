@@ -8,7 +8,7 @@
 
    {% block attributes %}
    {% if attributes %}
-   .. rubric:: {{ _('**Attributes**') }}
+   .. rubric:: {{ _('Attributes') }}
    {% for item in attributes %}
    .. autoattribute:: {{ name }}.{{ item }}
    {%- endfor %}
@@ -17,7 +17,7 @@
 
    {% block methods %}
    {% if methods %}
-   .. rubric:: {{ _('**Methods**') }}
+   .. rubric:: {{ _('Methods') }}
    .. autosummary::
    {% for item in methods %}
        ~{{ name }}.{{ item }}
