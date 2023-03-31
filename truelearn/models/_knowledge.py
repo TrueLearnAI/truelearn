@@ -7,7 +7,7 @@ from ._base import BaseKnowledgeComponent
 
 
 class KnowledgeComponent(BaseKnowledgeComponent):
-    """A concrete class that implements AbstractKnowledgeComponent.
+    """A concrete class that implements BaseKnowledgeComponent.
 
     Examples:
         >>> from truelearn.models import KnowledgeComponent
@@ -85,29 +85,33 @@ description=None, url=None)
 
     @property
     def title(self) -> Optional[str]:
-        """The title of the knowledge component."""
+        """Optional[str]: The title of the knowledge component."""
         return self.__title
 
     @property
     def description(self) -> Optional[str]:
-        """The description of the knowledge component."""
+        """Optional[str]: The description of the knowledge component."""
         return self.__description
 
     @property
     def url(self) -> Optional[str]:
-        """The url of the knowledge component."""
+        """Optional[str]: The url of the knowledge component."""
         return self.__url
 
     @property
     def mean(self) -> float:
+        """float: The mean of the knowledge component."""
         return self.__mean
 
     @property
     def variance(self) -> float:
+        """float: The variance of the knowledge component."""
         return self.__variance
 
     @property
     def timestamp(self) -> Optional[float]:
+        """Optional[float]: The POSIX timestamp of the last update of the knowledge \
+        component."""
         return self.__timestamp
 
     def update(
@@ -138,11 +142,11 @@ description=None, url=None)
             *:
                 Use to reject positional arguments.
             mean:
-                The new mean of the AbstractKnowledgeComponent.
+                The new mean of the KnowledgeComponent.
             variance:
-                The new variance of the AbstractKnowledgeComponent.
+                The new variance of the KnowledgeComponent.
             timestamp:
-                An optional new POSIX timestamp of the AbstractKnowledgeComponent.
+                An optional new POSIX timestamp of the KnowledgeComponent.
                 If None is given, the timestamp of the cloned knowledge component is
                 assigned to None.
 
@@ -286,7 +290,8 @@ title=None, description=None, url=None, history=deque([(0.0, 1.0, None)], maxlen
 
     @property
     def history(self) -> Deque[Tuple[float, float, Optional[float]]]:
-        """The update history of the current knowledge component."""
+        """Deque[Tuple[float, float, Optional[float]]]: The update history of the \
+        current knowledge component."""
         return self.__history
 
     def update(
@@ -431,7 +436,7 @@ title=None, description=None, url=None))])
 
         Args:
           topic_id: Hashable:
-          kc: AbstractKnowledgeComponent:
+          kc: BaseKnowledgeComponent:
         """
         self.__knowledge[topic_id] = kc
 

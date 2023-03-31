@@ -47,7 +47,7 @@ jobs:
           # Config in pyproject.toml
           # Calling via python adds the current directory to sys path
           # Prevents module not found errors
-          python -m pytest --cov --cov-report "xml:coverage.xml"
+          pytest --cov --cov-report "xml:coverage.xml"
         env:
           WIKIFIER_API_KEY: ${{ secrets.WIKIFIER_API_KEY }}
 

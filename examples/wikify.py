@@ -1,3 +1,12 @@
+# noqa
+"""
+Wikifier Example
+================
+
+This example shows how to use the ``Wikifier`` class
+to extract Wikipedia topics associated with the given text.
+"""
+
 from truelearn.preprocessing import Wikifier
 
 

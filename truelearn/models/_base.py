@@ -15,23 +15,24 @@ class BaseKnowledgeComponent(Protocol):
     The variance of the knowledge component from the learner will be a dynamic
     value derived from the classifier's training process. This is to respect the
     fact that the skill (model's understanding of the learner's knowledge) is
-    snot perfectly accurate.
+    not perfectly accurate.
     """
 
     @property
     @abstractmethod
     def mean(self) -> float:
-        """The mean of the knowledge component."""
+        """float: The mean of the knowledge component."""
 
     @property
     @abstractmethod
     def variance(self) -> float:
-        """The variance of the knowledge component."""
+        """float: The variance of the knowledge component."""
 
     @property
     @abstractmethod
     def timestamp(self) -> Optional[float]:
-        """The POSIX timestamp of the last update of the knowledge component."""
+        """Optional[float]: The POSIX timestamp of the last update of the knowledge \
+        component."""
 
     @abstractmethod
     def update(

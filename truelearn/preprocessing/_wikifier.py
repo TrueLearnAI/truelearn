@@ -9,7 +9,15 @@ WikifierResponse = Dict[str, Union[List[Annotation], List[str]]]
 
 
 class Wikifier:
-    """A client that makes requests to the wikifier API."""
+    """A client that makes requests to the Wikifier API. See https://www.wikifier.org/.
+
+    Citation:
+        Janez Brank, Gregor Leban, Marko Grobelnik. `Annotating Documents with Relevant
+        Wikipedia Concepts <https://ailab.ijs.si/dunja/SiKDD2017/Papers/Brank_Wikifier
+        .pdf>`_. Proceedings of the Slovenian Conference on Data Mining and Data
+        Warehouses (SiKDD 2017), Ljubljana, Slovenia, 9 October 2017.
+
+    """
 
     def __init__(self, api_key: str) -> None:
         """Init Wikifier class with api_key.

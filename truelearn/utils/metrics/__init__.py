@@ -1,4 +1,5 @@
 """The truelearn.utils.metrics implements the commonly-used metrics in TrueLearn."""
+
 from ._classification import (
     get_precision_score,
     get_recall_score,
