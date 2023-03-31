@@ -1,8 +1,8 @@
+import warnings
 from typing import Iterable, List, Optional, Tuple, Union
 from typing_extensions import Self
 
 import matplotlib.pyplot as plt
-from wordcloud import WordCloud
 
 from truelearn.models import Knowledge
 from truelearn.utils.visualisations._base import MatplotlibBasePlotter
@@ -35,6 +35,19 @@ class WordPlotter(MatplotlibBasePlotter):
 
         for i, t in enumerate(titles):
             word_freq[t] = int(means[i] * 500)
+
+        try:
+            # pylint: disable=import-outside-toplevel
+            from wordcloud import WordCloud  # type: ignore
+        except ImportError:
+            warnings.warn(
+                "You need to install the wordcloud library to use WordPlotter. "
+                "You need to be careful with this class as it may be removed "
+                "in a future release because wordcloud "
+                "library doesn't support Python 3.11+.",
+                FutureWarning,
+            )
+            return self
 
         self.figure = WordCloud(
             width=800,
