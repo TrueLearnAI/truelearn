@@ -20,7 +20,7 @@ class PiePlotter(PlotlyBasePlotter):
         raw_data: Knowledge,
         history: bool = False,
         topics: Optional[Iterable[str]] = None,
-    ) -> Iterable:    
+    ) -> Iterable:
         raw_data = knowledge_to_dict(raw_data)
 
         content = []
@@ -32,18 +32,17 @@ class PiePlotter(PlotlyBasePlotter):
             else:
                 rest.append(data)
 
-        content.sort(
-            key=lambda data: data[0],  # sort based on mean
-            reverse=True
-        )
+        content.sort(key=lambda data: data[0], reverse=True)  # sort based on mean
 
         return content, rest
 
+    # pylint: disable=too-many-locals
     def plot(
         self,
         content: Union[Knowledge, List[Tuple[float, float, str]]],
         topics: Optional[Iterable[str]] = None,
         top_n: Optional[int] = None,
+        *,
         title: str = "Distribution of user's skill.",
         x_label: str = "",
         y_label: str = "",
@@ -76,7 +75,7 @@ class PiePlotter(PlotlyBasePlotter):
             for timestamp in timestamps:
                 number_of_videos.append(len(timestamp))
                 last_video_watched.append(timestamp[-1])
-        
+
             if other:
                 # get average number_of_videos
                 number_of_videos[-1] /= len(rest)
@@ -86,38 +85,35 @@ class PiePlotter(PlotlyBasePlotter):
 
         variance_min, variance_max = min(variances), max(variances)
 
-        colours = [
-            self._get_colour(v, variance_min, variance_max) for v in variances
-        ]
+        colours = [self._get_colour(v, variance_min, variance_max) for v in variances]
 
-        self.figure = go.Figure(go.Pie(
-            labels=titles,
-            values=means,
-            customdata=np.transpose(
-                [titles, means, variances, number_of_videos, last_video_watched]
-            ),
-            hovertemplate=self._hovertemplate(
-                (
-                    "%{customdata[0][0]}",
-                    "%{customdata[0][1]}",
-                    "%{customdata[0][2]}",
-                    "%{customdata[0][3]}",
-                    "%{customdata[0][4]}"
+        self.figure = go.Figure(
+            go.Pie(
+                labels=titles,
+                values=means,
+                customdata=np.transpose(
+                    [titles, means, variances, number_of_videos, last_video_watched]
                 ),
-                history
+                hovertemplate=self._hovertemplate(
+                    (
+                        "%{customdata[0][0]}",
+                        "%{customdata[0][1]}",
+                        "%{customdata[0][2]}",
+                        "%{customdata[0][3]}",
+                        "%{customdata[0][4]}",
+                    ),
+                    history,
+                ),
+                marker={
+                    "colors": colours,
+                },
             ),
-            marker=dict(
-                colors=colours,
-            )
-        ), layout=layout_data)
+            layout=layout_data,
+        )
 
         return self
 
-    def _get_other_data(
-        self,
-        rest: Iterable[Tuple[float, float, str]],
-        history: bool
-    ):
+    def _get_other_data(self, rest: Iterable[Tuple[float, float, str]], history: bool):
         means = [lst[0] for lst in rest]
         variances = [lst[1] for lst in rest]
         average_mean = sum(means) / len(rest)
@@ -135,10 +131,10 @@ class PiePlotter(PlotlyBasePlotter):
         return other_data
 
     def _get_colour(
-            self, variance: float, variance_min: float, variance_max: float
-        ) -> str:
+        self, variance: float, variance_min: float, variance_max: float
+    ) -> str:
         """Maps the variance to a shade of green represented in RGB.
-        
+
         A darker shade represents less variance.
 
         Args:
@@ -166,11 +162,13 @@ class PiePlotter(PlotlyBasePlotter):
 class RosePlotter(PiePlotter):
     """Provides utilities for plotting rose charts."""
 
+    # pylint: disable=too-many-locals
     def plot(
         self,
         content: Union[Knowledge, List[Tuple[float, float, str]]],
         topics: Optional[Iterable[str]] = None,
         top_n: Optional[int] = None,
+        *,
         title: str = "Distribution of user's skill.",
         x_label: str = "",
         y_label: str = "",
@@ -195,22 +193,18 @@ class RosePlotter(PiePlotter):
         total_videos = sum(number_of_videos)
         widths = [(n / total_videos) * 360 for n in number_of_videos]
         thetas = [0]
-        for i in range(len(widths)-1):
-            thetas.append(thetas[i] + widths[i]/2 + widths[i+1]/2)
-        
+        for i in range(len(widths) - 1):
+            thetas.append(thetas[i] + widths[i] / 2 + widths[i + 1] / 2)
+
         variances = [tr_data[1] for tr_data in content]
         variance_min, variance_max = min(variances), max(variances)
 
-        colours = [
-            self._get_colour(v, variance_min, variance_max) for v in variances
-        ]
+        colours = [self._get_colour(v, variance_min, variance_max) for v in variances]
 
         traces = []
         n_of_sectors = len(content)
         for i in range(n_of_sectors):
-            traces.append(
-                self._trace(content[i], thetas[i], widths[i], colours[i])
-            )
+            traces.append(self._trace(content[i], thetas[i], widths[i], colours[i]))
 
         means = [tr_data[0] for tr_data in content]
         average_mean = sum(means) / len(means)
@@ -219,8 +213,8 @@ class RosePlotter(PiePlotter):
                 name="Average mean",
                 r=[average_mean for _ in range(360)],
                 theta=list(range(360)),
-                mode='lines',
-                line_color='black',
+                mode="lines",
+                line_color="black",
             )
         )
 
@@ -229,16 +223,16 @@ class RosePlotter(PiePlotter):
         topics = [tr_data[2] for tr_data in content]
 
         self.figure.update_layout(
-            polar = dict(
-                angularaxis = dict(
-                    tickmode="array",
-                    tickvals=thetas,
-                    ticktext=topics,
-                ),
-                radialaxis = dict(
-                    tickangle=45,
-                )
-            )
+            polar={
+                "angularaxis": {
+                    "tickmode": "array",
+                    "tickvals": thetas,
+                    "ticktext": topics,
+                },
+                "radialaxis": {
+                    "tickangle": 45,
+                },
+            }
         )
 
         return self
@@ -270,29 +264,22 @@ class RosePlotter(PiePlotter):
                 by the sector.
         """
         mean, variance, title, timestamps = tr_data
-    
+
         if not number_of_videos:
             number_of_videos = len(timestamps)
 
         last_video_watched = timestamps[-1]
-        
+
         return go.Barpolar(
             name=title,
             r=[mean],
             width=[width],
             hovertemplate=self._hovertemplate(
-                (
-                    title,
-                    mean,
-                    variance,
-                    number_of_videos,
-                    last_video_watched
-                ),
-                True
+                (title, mean, variance, number_of_videos, last_video_watched), True
             ),
-            thetaunit='degrees',
+            thetaunit="degrees",
             theta=[theta],
-            marker=dict(
-                color=colour,
-            ),
+            marker={
+                "color": colour,
+            },
         )

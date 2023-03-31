@@ -9,11 +9,13 @@ from truelearn.utils.visualisations._base import PlotlyBasePlotter
 
 class RadarPlotter(PlotlyBasePlotter):
     """Provides utilities for plotting radar charts."""
+
     def plot(
         self,
         content: Union[Knowledge, List[Tuple[float, float, str]]],
         topics: Optional[Iterable[str]] = None,
         top_n: Optional[int] = None,
+        *,
         title: str = "Mean and variance across different topics.",
         x_label: str = "",
         y_label: str = "",
@@ -31,17 +33,20 @@ class RadarPlotter(PlotlyBasePlotter):
 
         self.figure = go.Figure(
             [self._trace(means, titles), self._trace(variances, titles)],
-            layout=self._layout((title, None, None))
+            layout=self._layout((title, None, None)),
         )
 
         self.figure.update_layout(
-            polar=dict(
-                radialaxis=dict(
-                visible=True,
-                range=[0, int(max(max(means) + 0.001, max(variances) + 0.001) + 1)]
-                )
-            ),
-            showlegend=False
+            polar={
+                "radialaxis": {
+                    "visible": True,
+                    "range": [
+                        0,
+                        int(max(max(means) + 0.001, max(variances) + 0.001) + 1),
+                    ],
+                }
+            },
+            showlegend=False,
         )
 
         return self
@@ -58,16 +63,16 @@ class RadarPlotter(PlotlyBasePlotter):
         r.append(r[0])
         theta.append(theta[0])
         return go.Scatterpolar(
-            r = r, 
-            theta = theta, 
-            fill = 'toself',
-            name= 'Variances',
-            hovertemplate=self._hovertemplate("%{r}")
+            r=r,
+            theta=theta,
+            fill="toself",
+            name="Variances",
+            hovertemplate=self._hovertemplate("%{r}"),
         )
 
     def _hovertemplate(self, hoverdata: float, history: bool = False) -> str:
         """Returns the string which will be displayed when a point is hovered.
-        
+
         Args:
             hoverdata:
                 the variance value to embed in the string.
@@ -76,11 +81,4 @@ class RadarPlotter(PlotlyBasePlotter):
                 Makes no difference as of yet.
         """
         variance = hoverdata
-        return (
-            "<br>".join(
-                [
-                    f"Variance: {variance}",
-                    "<extra></extra>"
-                ]
-            )
-        )
+        return "<br>".join([f"Variance: {variance}", "<extra></extra>"])

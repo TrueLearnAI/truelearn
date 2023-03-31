@@ -10,12 +10,14 @@ from truelearn.utils.visualisations._base import MatplotlibBasePlotter
 
 class WordPlotter(MatplotlibBasePlotter):
     """Provides utilities for plotting word clouds."""
+
     def plot(
         self,
         content: Union[Knowledge, List[Tuple[float, float, str]]],
         topics: Optional[Iterable[str]] = None,
         top_n: Optional[int] = None,
-        title: str = "Comparison of learner's subjects",
+        *,
+        title: str = "",
         x_label: str = "",
         y_label: str = "",
     ) -> Self:
@@ -30,21 +32,21 @@ class WordPlotter(MatplotlibBasePlotter):
 
         word_freq = {}
 
-        for i,t in enumerate(titles):
-            word_freq[t] = int(means[i]*500)
+        for i, t in enumerate(titles):
+            word_freq[t] = int(means[i] * 500)
 
         self.figure = WordCloud(
             width=800,
             height=400,
             max_words=50,
-            relative_scaling=1,
+            relative_scaling=1,  # type: ignore
             normalize_plurals=False,
-            background_color="white"
+            background_color="white",
         )
 
         self.figure.generate_from_frequencies(word_freq)
 
-        plt.imshow(self.figure, interpolation='bilinear')
-        plt.axis('off')
+        plt.imshow(self.figure, interpolation="bilinear")
+        plt.axis("off")
 
         return self

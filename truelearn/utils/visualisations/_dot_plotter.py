@@ -16,6 +16,7 @@ class DotPlotter(PlotlyBasePlotter):
         content: Union[Knowledge, List[Tuple[float, float, str]]],
         topics: Optional[Iterable[str]] = None,
         top_n: Optional[int] = None,
+        *,
         title: str = "Comparison of learner's subjects",
         x_label: str = "Subjects",
         y_label: str = "Mean",
@@ -43,37 +44,42 @@ class DotPlotter(PlotlyBasePlotter):
             number_of_videos = [None for _ in variances]
             last_video_watched = [None for _ in variances]
 
-        self.figure = go.Figure(data=go.Scatter(
-            x=titles,
-            y=means,
-            marker=dict(
-                size=50,
-                cmax=max(means) + 0.001,
-                cmin=min(means) - 0.001,
-                color=means,
-                colorbar=dict(
-                    title="Means"
+        self.figure = go.Figure(
+            data=go.Scatter(
+                x=titles,
+                y=means,
+                marker={
+                    "size": 50,
+                    "cmax": max(means) + 0.001,
+                    "cmin": min(means) - 0.001,
+                    "color": means,
+                    "colorbar": {"title": "Means"},
+                    "colorscale": "Greens",
+                },
+                error_y={
+                    "type": "data",
+                    "array": variances,
+                    "color": "black",
+                    "thickness": 4,
+                    "width": 3,
+                    "visible": True,
+                },
+                customdata=np.transpose(
+                    [variances, number_of_videos, last_video_watched]
                 ),
-                colorscale="Greens"
-            ),
-            error_y=dict(type='data',
-                         array=variances,
-                         color='black',
-                         thickness=4,
-                         width=3,
-                         visible=True),
-            customdata=np.transpose([variances, number_of_videos, last_video_watched]),
-            hovertemplate=self._hovertemplate(
-                (
-                    "%{x}",
-                    "%{y}",
-                    "%{customdata[0]}",
-                    "%{customdata[1]}",
-                    "%{customdata[2]}"
+                hovertemplate=self._hovertemplate(
+                    (
+                        "%{x}",
+                        "%{y}",
+                        "%{customdata[0]}",
+                        "%{customdata[1]}",
+                        "%{customdata[2]}",
+                    ),
+                    history,
                 ),
-                history
+                mode="markers",
             ),
-            mode="markers"),
-            layout=self._layout((title, x_label, y_label)))
+            layout=self._layout((title, x_label, y_label)),
+        )
 
         return self

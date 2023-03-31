@@ -22,7 +22,7 @@ class LinePlotter(PlotlyBasePlotter):
         Args:
             kc:
                 the knowledge component to extract the attributes from.
-        
+
         Returns:
             a tuple consisting of the means and variances of the topic at each
             timestamp, the title of the topic and the timestamps of when it was
@@ -30,22 +30,19 @@ class LinePlotter(PlotlyBasePlotter):
 
         Raises:
             TypeError:
-                if any of the knowledge components are not history-aware. 
+                if any of the knowledge components are not history-aware.
         """
-        title = kc['title']
+        title = kc["title"]
         means = []
         variances = []
         timestamps = []
         try:
-            for mean, variance, timestamp in kc['history']:
+            for mean, variance, timestamp in kc["history"]:
                 means.append(mean)
                 variances.append(variance)
                 timestamps.append(timestamp)
 
-            timestamps = list(map(
-                self._unix_to_iso,
-                timestamps
-            ))
+            timestamps = list(map(self._unix_to_iso, timestamps))
 
             data = (means, variances, title, timestamps)
         except KeyError as err:
@@ -75,29 +72,26 @@ class LinePlotter(PlotlyBasePlotter):
 
         layout_data = self._layout((title, x_label, y_label))
 
-        self.figure = go.Figure(
-            data=traces,
-            layout=layout_data
-        )
+        self.figure = go.Figure(data=traces, layout=layout_data)
 
         return self
 
     def _plot_single(
-            self,
-            content: Iterable[Tuple[str, Iterable, Iterable]],
-            topics: Optional[Iterable[str]],
-            top_n: Optional[int]
+        self,
+        content: Iterable[Tuple[str, Iterable, Iterable]],
+        topics: Optional[Iterable[str]],
+        top_n: Optional[int],
     ):
         if isinstance(content, Knowledge):
             content = self._standardise_data(content, True, topics)
-            
+
         return content[:top_n]
 
     def _plot_multiple(
-            self,
-            content_list: Iterable[Union[Knowledge, Iterable[Tuple]]],
-            topics: Optional[Iterable[str]] = None,    
-        ):
+        self,
+        content_list: Iterable[Union[Knowledge, Iterable[Tuple]]],
+        topics: Optional[Iterable[str]] = None,
+    ):
         data = []
         for content in content_list:
             if isinstance(content, Knowledge):
@@ -112,7 +106,7 @@ class LinePlotter(PlotlyBasePlotter):
     def _trace(
         self,
         tr_data: Tuple[Iterable, Iterable, str, Iterable],
-        visualise_variance: bool
+        visualise_variance: bool,
     ) -> go.Scatter:
         """Returns the Scatter object representing a single line.
 
@@ -131,13 +125,13 @@ class LinePlotter(PlotlyBasePlotter):
             name=name,
             x=x_values,
             y=y_values,
-            mode='lines+markers',
-            marker=dict(size=8),
-            line=dict(width=2),
-            error_y=dict(
-                array=variances,
-                visible=visualise_variance,
-            )
+            mode="lines+markers",
+            marker={"size": 8},
+            line={"width": 2},
+            error_y={
+                "array": variances,
+                "visible": visualise_variance,
+            },
         )
 
         return trace

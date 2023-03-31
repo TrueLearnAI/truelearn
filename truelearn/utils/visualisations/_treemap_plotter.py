@@ -16,6 +16,7 @@ class TreePlotter(PlotlyBasePlotter):
         content: Union[Knowledge, List[Tuple[float, float, str]]],
         topics: Optional[Iterable[str]] = None,
         top_n: Optional[int] = None,
+        *,
         title: str = "Comparison of learner's subjects",
         x_label: str = "",
         y_label: str = "",
@@ -43,27 +44,38 @@ class TreePlotter(PlotlyBasePlotter):
             number_of_videos = [None for _ in variances]
             last_video_watched = [None for _ in variances]
 
-        self.figure = go.Figure(go.Treemap(
-            labels = titles,
-            values = means,
-            parents = ['']*len(titles),
-            marker_colors = ["pink", "royalblue", "lightgray", "purple", 
-                            "cyan", "lightgray", "lightblue", "lightgreen"],
-            customdata=np.transpose(
-                [titles, means, variances, number_of_videos, last_video_watched]
-            ),
-            hovertemplate=self._hovertemplate(
-                (
-                    "%{customdata[0]}",
-                    "%{customdata[1]}",
-                    "%{customdata[2]}",
-                    "%{customdata[3]}",
-                    "%{customdata[4]}"
+        self.figure = go.Figure(
+            go.Treemap(
+                labels=titles,
+                values=means,
+                parents=[""] * len(titles),
+                marker_colors=[
+                    "pink",
+                    "royalblue",
+                    "lightgray",
+                    "purple",
+                    "cyan",
+                    "lightgray",
+                    "lightblue",
+                    "lightgreen",
+                ],
+                customdata=np.transpose(
+                    [titles, means, variances, number_of_videos, last_video_watched]
                 ),
-                history
+                hovertemplate=self._hovertemplate(
+                    (
+                        "%{customdata[0]}",
+                        "%{customdata[1]}",
+                        "%{customdata[2]}",
+                        "%{customdata[3]}",
+                        "%{customdata[4]}",
+                    ),
+                    history,
+                ),
             ),
-        ), layout = self._layout((title, "", "")))
+            layout=self._layout((title, "", "")),
+        )
 
-        self.figure.update_layout(margin = dict(t=50, l=25, r=25, b=25))
+        self.figure.update_layout(margin={"t": 50, "l": 25, "r": 25, "b": 25})
 
         return self

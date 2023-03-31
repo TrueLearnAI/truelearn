@@ -1,8 +1,5 @@
-from abc import (
-    ABC,
-    abstractmethod
-)
 import datetime
+from abc import ABC, abstractmethod
 from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
 from typing_extensions import final, Self
 
@@ -27,10 +24,10 @@ class BasePlotter(ABC):
         self,
         raw_data: Knowledge,
         history: bool = False,
-        topics: Union[str, Iterable[str], None] = None
+        topics: Union[str, Iterable[str], None] = None,
     ) -> List[Tuple]:
         """Converts a Knowledge object to one suitable for generating visualisations.
-        
+
         Optional utility function that converts the learner's knowledge (obtainable
         via learner.knowledge) to the Iterable used by plot().
 
@@ -50,7 +47,7 @@ class BasePlotter(ABC):
 
         Returns:
             a data structure suitable for generating the figure via the plot() method.
-        """        
+        """
         raw_data = knowledge_to_dict(raw_data)
 
         content = []
@@ -59,10 +56,7 @@ class BasePlotter(ABC):
             if (topics is None) or (data[2] in topics or data[2] == topics):
                 content.append(data)
 
-        content.sort(
-            key=lambda data: data[0],  # sort based on mean
-            reverse=True
-        )
+        content.sort(key=lambda data: data[0], reverse=True)  # sort based on mean
 
         return content
 
@@ -85,18 +79,15 @@ class BasePlotter(ABC):
             TypeError:
                 if history is True but the kc does not have a history key.
         """
-        title = kc['title']
-        mean = kc['mean']
-        variance = kc['variance']
+        title = kc["title"]
+        mean = kc["mean"]
+        variance = kc["variance"]
         timestamps = []
         if history:
             try:
-                for _, _, timestamp in kc['history']:
+                for _, _, timestamp in kc["history"]:
                     timestamps.append(timestamp)
-                timestamps = list(map(
-                    self._unix_to_iso,
-                    timestamps
-                ))
+                timestamps = list(map(self._unix_to_iso, timestamps))
                 data = (mean, variance, title, timestamps)
             except KeyError as err:
                 raise TypeError(
@@ -105,7 +96,7 @@ class BasePlotter(ABC):
                 ) from err
         else:
             data = (mean, variance, title)
-        
+
         return data
 
     @final
@@ -113,9 +104,9 @@ class BasePlotter(ABC):
         """Converts an unix timestamp to an ISO-formatted date string.
 
         Args:
-            t: 
+            t:
                 int value representing the unix timestamp.
-        
+
         Returns:
             the ISO date string.
         """
@@ -123,13 +114,14 @@ class BasePlotter(ABC):
 
     @abstractmethod
     def plot(
-            self,
-            content: Union[Knowledge, List[Tuple]],
-            topics: Optional[Iterable[str]] = None,
-            top_n: Optional[int] = None,
-            title: str = "",
-            x_label: str = "",
-            y_label: str = "",
+        self,
+        content: Union[Knowledge, List[Tuple]],
+        topics: Optional[Iterable[str]] = None,
+        top_n: Optional[int] = None,
+        *,
+        title: str = "",
+        x_label: str = "",
+        y_label: str = "",
     ) -> Self:
         """Creates a visualisation object from the data.
 
@@ -156,7 +148,7 @@ class BasePlotter(ABC):
             y_label:
                 the label of the y-axis (if the visualisations has a y-axis).
         """
-    
+
     @abstractmethod
     def _static_export(self, file, format_, width, height):
         """Exports the visualisation as an image file.
@@ -176,10 +168,10 @@ class BasePlotter(ABC):
 
     @final
     def to_png(
-            self,
-            file: str,
-            width: int = 1000,
-            height: int = 600,
+        self,
+        file: str,
+        width: int = 1000,
+        height: int = 600,
     ) -> None:
         """Exports the visualisation as a png file.
 
@@ -196,10 +188,10 @@ class BasePlotter(ABC):
 
     @final
     def to_jpeg(
-            self,
-            file: str,
-            width: int = 1000,
-            height: int = 600,
+        self,
+        file: str,
+        width: int = 1000,
+        height: int = 600,
     ) -> None:
         """Exports the visualisation as a jpeg file.
 
@@ -216,10 +208,10 @@ class BasePlotter(ABC):
 
     @final
     def to_webp(
-            self,
-            file: str,
-            width: int = 1000,
-            height: int = 600,
+        self,
+        file: str,
+        width: int = 1000,
+        height: int = 600,
     ) -> None:
         """Exports the visualisation as a webp file.
 
@@ -236,10 +228,10 @@ class BasePlotter(ABC):
 
     @final
     def to_svg(
-            self,
-            file: str,
-            width: int = 1000,
-            height: int = 600,
+        self,
+        file: str,
+        width: int = 1000,
+        height: int = 600,
     ) -> None:
         """Exports the visualisation as an svg file.
 
@@ -256,10 +248,10 @@ class BasePlotter(ABC):
 
     @final
     def to_pdf(
-            self,
-            file: str,
-            width: int = 1000,
-            height: int = 600,
+        self,
+        file: str,
+        width: int = 1000,
+        height: int = 600,
     ) -> None:
         """Exports the visualisation as a pdf file.
 
@@ -277,7 +269,7 @@ class BasePlotter(ABC):
 
 class PlotlyBasePlotter(BasePlotter):
     """Provides additional methods suitable for plotting Plotly figures."""
-    
+
     def _layout(self, layout_data: Tuple[str, str, str]) -> go.Layout:
         """Creates the Layout object for the visualisation.
 
@@ -285,7 +277,7 @@ class PlotlyBasePlotter(BasePlotter):
             layout_data:
                 a tuple containing the title of the visualisation and the x and
                 y labels.
-        
+
         Returns:
             the Layout object created with layout_data.
         """
@@ -293,8 +285,8 @@ class PlotlyBasePlotter(BasePlotter):
 
         layout = go.Layout(
             title=title,
-            xaxis=dict(title=x_label),
-            yaxis=dict(title=y_label),
+            xaxis={"title": x_label},
+            yaxis={"title": y_label},
         )
 
         return layout
@@ -322,32 +314,32 @@ class PlotlyBasePlotter(BasePlotter):
                     f"Variance: {variance}",
                     f"Number of Videos Watched: {number_videos}",
                     f"Last Video Watched On: {last_video}",
-                    "<extra></extra>"
+                    "<extra></extra>",
                 ]
             )
-            if history else
-            "<br>".join(
+            if history
+            else "<br>".join(
                 [
                     f"Topic: {topic}",
                     f"Mean: {mean}",
                     f"Variance: {variance}",
-                    "<extra></extra>"
+                    "<extra></extra>",
                 ]
             )
         )
-    
+
     # def _trace(self, trace_data: Tuple) -> go.BaseTraceType:
     #     """Creates a trace object to incorporate in the visualisation.
-        
+
     #     Args:
     #         trace_data:
     #             the data used to create the trace. This should have the same
     #             type as the tuples in the iterable of the plot() method.
-        
+
     #     Returns:
     #         the trace object generated from trace_data.
     #     """
-    
+
     @final
     def show(self) -> None:
         """Opens the visualisation in localhost.
@@ -357,15 +349,8 @@ class PlotlyBasePlotter(BasePlotter):
         self.figure.show()
 
     @final
-    def _static_export(
-        self, file: str, format_: str, width: int, height: int
-    ) -> None:
-        self.figure.write_image(
-            file=file,
-            format=format_,
-            width=width,
-            height=height
-        )
+    def _static_export(self, file: str, format_: str, width: int, height: int) -> None:
+        self.figure.write_image(file=file, format=format_, width=width, height=height)
 
     @final
     def to_html(
@@ -391,11 +376,12 @@ class PlotlyBasePlotter(BasePlotter):
             file=file,
             default_width=width,
             default_height=height,
-        )        
+        )
 
 
 class MatplotlibBasePlotter(BasePlotter):
     """Provides additional methods suitable for plotting Matplotlib figures."""
+
     @final
     def show(self):
         """Opens the visualisation in a Tkinter window.
@@ -405,18 +391,15 @@ class MatplotlibBasePlotter(BasePlotter):
         plt.show()
 
     @final
-    def _static_export(
-        self, file: str, format_: str, width: int, height: int
-    ) -> None:
+    def _static_export(self, file: str, format_: str, width: int, height: int) -> None:
         plt.savefig(fname=file, format=format_)
 
 
 def knowledge_to_dict(
-        knowledge: Knowledge,
-        mapping: Optional[Dict[int, str]] = None
-    ) -> KnowledgeDict:
+    knowledge: Knowledge, mapping: Optional[Dict[int, str]] = None
+) -> KnowledgeDict:
     """Convert knowledge to a Python dictionary.
-    
+
     Returns a copy of the knowledge object in which all the knowledge
     components have been converted to dicts.
 
