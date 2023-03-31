@@ -65,7 +65,7 @@ class DotPlotter(PlotlyBasePlotter):
                     "visible": True,
                 },
                 customdata=np.transpose(
-                    [variances, number_of_videos, last_video_watched] # type: ignore
+                    [variances, number_of_videos, last_video_watched]  # type: ignore
                 ),
                 hovertemplate=self._hovertemplate(
                     (
