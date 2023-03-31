@@ -79,6 +79,12 @@ def linkcode_resolve(domain, info):
         obj = sys.modules[info["module"]]
         for part in info["fullname"].split("."):
             obj = getattr(obj, part)
+
+        # only links to truelearn modules
+        fullname = ".".join([obj.__module__, obj.__name__])
+        if not fullname.startswith("truelearn"):
+            raise RuntimeError("Not a truelearn module")
+
         fn = inspect.getsourcefile(obj)
         if fn is not None:
             fn = os.path.relpath(fn, start=os.path.dirname(truelearn.__file__))
