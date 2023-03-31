@@ -46,9 +46,9 @@ dependencies = [
     'scikit-learn>=1.0.2',
     'orjson>=3.8.6',
     'mpmath>=1.2.1',
-    'plotly==5.13.0',
-    'matplotlib==3.5.3',
-    'circlify==0.15.0',
+    'plotly>=5.13.0',
+    'matplotlib>=3.5.3',
+    'circlify>=0.15.0',
 ]
 [project.urls]
 Homepage = "https://truelearnai.github.io/TrueLearn-website/"
