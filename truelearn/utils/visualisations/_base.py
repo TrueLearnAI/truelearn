@@ -1,6 +1,6 @@
 import datetime
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
+from typing import Any, Dict, Iterable, List, Optional, Tuple, Union, Hashable
 from typing_extensions import final, Self
 
 import matplotlib.pyplot as plt
@@ -9,7 +9,7 @@ from plotly import graph_objects as go
 from truelearn.models import Knowledge
 
 
-KnowledgeDict = Dict[str, Dict[str, Union[str, float]]]
+KnowledgeDict = Dict[Hashable, Dict[str, Union[str, float]]]
 
 
 class BasePlotter(ABC):
@@ -48,10 +48,10 @@ class BasePlotter(ABC):
         Returns:
             a data structure suitable for generating the figure via the plot() method.
         """
-        raw_data = knowledge_to_dict(raw_data)
+        raw_data_dict = knowledge_to_dict(raw_data)
 
         content = []
-        for _, kc in raw_data.items():
+        for _, kc in raw_data_dict.items():
             data = self._get_kc_details(kc, history)
             if (topics is None) or (data[2] in topics or data[2] == topics):
                 content.append(data)
@@ -291,6 +291,7 @@ class PlotlyBasePlotter(BasePlotter):
 
         return layout
 
+    # TODO: remove this from Base in the next version
     def _hovertemplate(self, hoverdata: Tuple, history: bool) -> str:
         """Determines what information is displayed on hover in a dynamic setting.
 
@@ -346,11 +347,16 @@ class PlotlyBasePlotter(BasePlotter):
 
         Equivalent to calling Plotly's Figure.show() method.
         """
-        self.figure.show()
+        # TODO: add more sensible warnings when it's None
+        if self.figure is not None:
+            self.figure.show()
 
     @final
     def _static_export(self, file: str, format_: str, width: int, height: int) -> None:
-        self.figure.write_image(file=file, format=format_, width=width, height=height)
+        if self.figure is not None:
+            self.figure.write_image(
+                file=file, format=format_, width=width, height=height
+            )
 
     @final
     def to_html(
@@ -372,11 +378,12 @@ class PlotlyBasePlotter(BasePlotter):
             height:
                 the height of the image in the HTML file.
         """
-        self.figure.write_html(
-            file=file,
-            default_width=width,
-            default_height=height,
-        )
+        if self.figure is not None:
+            self.figure.write_html(
+                file=file,
+                default_width=width,
+                default_height=height,
+            )
 
 
 class MatplotlibBasePlotter(BasePlotter):
@@ -395,9 +402,7 @@ class MatplotlibBasePlotter(BasePlotter):
         plt.savefig(fname=file, format=format_)
 
 
-def knowledge_to_dict(
-    knowledge: Knowledge, mapping: Optional[Dict[int, str]] = None
-) -> KnowledgeDict:
+def knowledge_to_dict(knowledge: Knowledge) -> KnowledgeDict:
     """Convert knowledge to a Python dictionary.
 
     Returns a copy of the knowledge object in which all the knowledge
@@ -406,16 +411,11 @@ def knowledge_to_dict(
     Args:
         knowledge:
             the knowledge object to copy.
-        mapping:
-            an optional dictionary intended to map the topic IDs
-            in the knowledge components to a different value.
     """
     pairs = knowledge.topic_kc_pairs()
 
     knowledge_dict = {}
     for topic, kc in pairs:
-        if mapping:
-            topic = mapping[topic]
         knowledge_dict[topic] = kc.export_as_dict()
 
     return knowledge_dict

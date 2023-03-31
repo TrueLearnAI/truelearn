@@ -13,7 +13,7 @@ class DotPlotter(PlotlyBasePlotter):
 
     def plot(
         self,
-        content: Union[Knowledge, List[Tuple[float, float, str]]],
+        content: Union[Knowledge, List[Tuple]],
         topics: Optional[Iterable[str]] = None,
         top_n: Optional[int] = None,
         *,
@@ -65,7 +65,7 @@ class DotPlotter(PlotlyBasePlotter):
                     "visible": True,
                 },
                 customdata=np.transpose(
-                    [variances, number_of_videos, last_video_watched]
+                    [variances, number_of_videos, last_video_watched] # type: ignore
                 ),
                 hovertemplate=self._hovertemplate(
                     (

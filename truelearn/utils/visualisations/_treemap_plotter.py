@@ -13,7 +13,7 @@ class TreePlotter(PlotlyBasePlotter):
 
     def plot(
         self,
-        content: Union[Knowledge, List[Tuple[float, float, str]]],
+        content: Union[Knowledge, List[Tuple]],
         topics: Optional[Iterable[str]] = None,
         top_n: Optional[int] = None,
         *,
@@ -60,7 +60,13 @@ class TreePlotter(PlotlyBasePlotter):
                     "lightgreen",
                 ],
                 customdata=np.transpose(
-                    [titles, means, variances, number_of_videos, last_video_watched]
+                    [
+                        titles,
+                        means,
+                        variances,
+                        number_of_videos,
+                        last_video_watched,
+                    ]  # type: ignore
                 ),
                 hovertemplate=self._hovertemplate(
                     (

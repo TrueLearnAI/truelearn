@@ -8,6 +8,7 @@ from truelearn.models import Knowledge
 from truelearn.utils.visualisations._base import MatplotlibBasePlotter
 
 
+# TODO: use a different Base for this
 class WordPlotter(MatplotlibBasePlotter):
     """Provides utilities for plotting word clouds."""
 

@@ -11,9 +11,10 @@ from truelearn.utils.visualisations._base import PlotlyBasePlotter
 class BarPlotter(PlotlyBasePlotter):
     """Provides utilities for plotting bar charts."""
 
+    # TODO: make List[Tuple] strongly typed in the future
     def plot(
         self,
-        content: Union[Knowledge, List[Tuple[float, float, str]]],
+        content: Union[Knowledge, List[Tuple]],
         topics: Optional[Iterable[str]] = None,
         top_n: Optional[int] = None,
         *,
@@ -65,7 +66,7 @@ class BarPlotter(PlotlyBasePlotter):
                     "visible": True,
                 },
                 customdata=np.transpose(
-                    [variances, number_of_videos, last_video_watched]
+                    [variances, number_of_videos, last_video_watched] # type: ignore
                 ),
                 hovertemplate=self._hovertemplate(
                     (

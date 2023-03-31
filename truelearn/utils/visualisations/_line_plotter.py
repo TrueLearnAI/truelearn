@@ -55,20 +55,23 @@ class LinePlotter(PlotlyBasePlotter):
 
     def plot(
         self,
-        content: Iterable[Union[Knowledge, LineChartContentType]],
+        content: Union[
+            List[Union[Knowledge, List[Tuple]]], Union[Knowledge, List[Tuple]]
+        ],
         topics: Optional[Iterable[str]] = None,
         top_n: Optional[int] = None,
+        *,
         title: str = "Mean of user's topics over time",
         x_label: str = "Time",
         y_label: str = "Mean",
         variance: bool = False,
     ) -> Self:
         if isinstance(content, list):
-            content = self._plot_multiple(content, topics)
+            content_dict = self._plot_multiple(content, topics)
         else:
-            content = self._plot_single(content, topics, top_n)
+            content_dict = self._plot_single(content, topics, top_n)
 
-        traces = [self._trace(tr_data, variance) for tr_data in content]
+        traces = [self._trace(tr_data, variance) for tr_data in content_dict]
 
         layout_data = self._layout((title, x_label, y_label))
 
@@ -76,9 +79,10 @@ class LinePlotter(PlotlyBasePlotter):
 
         return self
 
+    # TODO: combine this with multiple later
     def _plot_single(
         self,
-        content: Iterable[Tuple[str, Iterable, Iterable]],
+        content: Union[Knowledge, List[Tuple]],
         topics: Optional[Iterable[str]],
         top_n: Optional[int],
     ):

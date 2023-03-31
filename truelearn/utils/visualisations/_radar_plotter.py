@@ -12,7 +12,7 @@ class RadarPlotter(PlotlyBasePlotter):
 
     def plot(
         self,
-        content: Union[Knowledge, List[Tuple[float, float, str]]],
+        content: Union[Knowledge, List[Tuple]],
         topics: Optional[Iterable[str]] = None,
         top_n: Optional[int] = None,
         *,
@@ -33,7 +33,7 @@ class RadarPlotter(PlotlyBasePlotter):
 
         self.figure = go.Figure(
             [self._trace(means, titles), self._trace(variances, titles)],
-            layout=self._layout((title, None, None)),
+            layout=self._layout((title, "", "")),
         )
 
         self.figure.update_layout(
@@ -51,7 +51,7 @@ class RadarPlotter(PlotlyBasePlotter):
 
         return self
 
-    def _trace(self, r: List[float], theta: List[float]) -> go.Scatterpolar:
+    def _trace(self, r: List[float], theta: List[str]) -> go.Scatterpolar:
         """Returns a single layer in the radar chart.
 
         Args:
@@ -70,15 +70,15 @@ class RadarPlotter(PlotlyBasePlotter):
             hovertemplate=self._hovertemplate("%{r}"),
         )
 
-    def _hovertemplate(self, hoverdata: float, history: bool = False) -> str:
+    def _hovertemplate(self, hoverdata: str, history: bool = False) -> str:
         """Returns the string which will be displayed when a point is hovered.
 
         Args:
             hoverdata:
-                the variance value to embed in the string.
+                the format string.
             history:
                 a boolean value which determines which template to use.
                 Makes no difference as of yet.
         """
-        variance = hoverdata
-        return "<br>".join([f"Variance: {variance}", "<extra></extra>"])
+        # TODO: fix this to show mean and variance correctly
+        return "<br>".join([f"Value: {hoverdata}", "<extra></extra>"])

@@ -2,7 +2,7 @@ from typing import Iterable, List, Optional, Tuple, Union
 from typing_extensions import Self
 
 import circlify
-from matplotlib import cm, colors
+from matplotlib import cm, colors, patches
 import matplotlib.pyplot as plt
 
 from truelearn.models import Knowledge
@@ -65,7 +65,7 @@ class BubblePlotter(MatplotlibBasePlotter):
             if i < len(titles):
                 x, y, r = circle
                 ax.add_patch(
-                    plt.Circle(
+                    patches.Circle(
                         (x, y),
                         r,
                         linewidth=2,
