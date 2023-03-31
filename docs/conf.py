@@ -77,20 +77,25 @@ def linkcode_resolve(domain, info):
         # https://github.com/numpy/numpy/blob/master/doc/source/conf.py#L286
 
         obj = sys.modules[info["module"]]
-        for part in info["fullname"].split('.'):
+        for part in info["fullname"].split("."):
             obj = getattr(obj, part)
         fn = inspect.getsourcefile(obj)
-        fn = os.path.relpath(fn, start=os.path.dirname(truelearn.__file__))
+        if fn is not None:
+            fn = os.path.relpath(fn, start=os.path.dirname(truelearn.__file__))
         source, lineno = inspect.getsourcelines(obj)
         return fn, lineno, lineno + len(source) - 1
 
     if domain != "py" or not info["module"]:
         return None
+
     try:
         source_info = find_source()
         filename = f"truelearn/{source_info[0]}#L{source_info[1]}-L{source_info[2]}"
     except Exception:
-        filename = info["module"].replace(".", "/") + ".py"
+        # no source code found
+        # return None, so [source] is not linked incorrectly
+        return None
+
     tag = "main" if "dev" in version else "v" + version
     return f"https://github.com/TrueLearnAI/truelearn/blob/{tag}/{filename}"
 
