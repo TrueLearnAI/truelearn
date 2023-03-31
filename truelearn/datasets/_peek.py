@@ -63,7 +63,7 @@ class PEEKKnowledgeComponentGenerator(Protocol):
         url: str,
         title: str,
         description: str,
-    ) -> BaseKnowledgeComponent: # type: ignore
+    ) -> BaseKnowledgeComponent:  # type: ignore
         """Generate a knowledge component.
 
         Args:
