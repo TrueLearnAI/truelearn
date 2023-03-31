@@ -42,6 +42,7 @@
    :target: https://truelearnai.github.io/
    :alt: TrueLearn
 
+
 User Installation
 #################
 
@@ -50,7 +51,6 @@ User Installation
    pip install -U truelearn
 
 For more information on installation, see the `Getting Started guide <https://truelearn.readthedocs.io/en/stable/tutorial/quickstart.html>`_.
-
 
 Documentation
 #############
@@ -76,6 +76,7 @@ and credit will always be given.
 Please see: `Contributing Guide <https://truelearn.readthedocs.io/en/stable/dev/index.html>`_ for more information!
 We have listed a brief guide below.
 
+
 Source Code
 -----------
 
@@ -87,17 +88,17 @@ You can check out the latest the source code with the following command::
 Testing
 -------
 
-After installing TrueLearn, you can run the tests with the following command::
+After installing TrueLearn, you can run the tests from outside the source directory
+(you will need to have pytest installed)::
 
    pytest truelearn
 
 See the `Testing guide <https://truelearn.readthedocs.io/en/stable/dev/testing.html>`_
 for a more detailed explanation.
 
+
 Before submitting a PR
 ----------------------
 
 Please make sure you have followed the Guidelines outlined in the
 `Contributing Guide: Before/During PR  <https://truelearn.readthedocs.io/en/stable/dev/before_pr.html>`_.
-
-
