@@ -3,29 +3,11 @@ from abc import ABC, abstractmethod
 from typing import Dict, Any
 from typing_extensions import Self, Final, final, Literal
 
-from .models import EventModel
+from truelearn.models import EventModel
 
 
 class BaseClassifier(ABC):
-    """The base class of all the classifiers in TrueLearn.
-
-    Every subclass of the BaseClassifier should define their
-    `_parameter_constraints`. This specified the parameters exposed
-    via the `get_params` method and the constraints on the type of
-    the parameters.
-
-    The `_parameter_constraints` is a dictionary that maps parameter
-    names to its constraint/list of constraints.
-    The constraint types are defined in ._constraints. Each constraint
-    type defines its way of determining whether the parameter `satisfies`
-    the constraint.
-    Having a list of constraints as the value in the dictionary means that
-    all of them must be satisfied. Notice that the order of the constraints
-    in the list is important as the `self._validate_params` validates them in
-    sequential order.
-    To do the constraint check based on this, simply call `self._validate_params()`
-    in your classifier.
-    """
+    """The base class of all the classifiers in TrueLearn."""
 
     _PARAM_PREFIX: str = "_"
 
@@ -171,6 +153,23 @@ class BaseClassifier(ABC):
     @final
     def _validate_params(self) -> None:
         """Validate types of given arguments in __init__.
+
+        Every subclass of the BaseClassifier should define their
+        `_parameter_constraints`. This specified the parameters exposed
+        via the `get_params` method and the constraints on the type of
+        the parameters.
+
+        The `_parameter_constraints` is a dictionary that maps parameter
+        names to its constraint/list of constraints.
+        The constraint types are defined in ._constraints. Each constraint
+        type defines its way of determining whether the parameter `satisfies`
+        the constraint.
+        Having a list of constraints as the value in the dictionary means that
+        all of them must be satisfied. Notice that the order of the constraints
+        in the list is important as the `self._validate_params` validates them in
+        sequential order.
+        To do the constraint check based on this, simply call `self._validate_params()`
+        in your classifier.
 
         Raises:
             TypeError:

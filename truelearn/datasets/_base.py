@@ -7,17 +7,16 @@ from os import path
 
 @dataclasses.dataclass
 class RemoteFileMetaData:
-    """Remote file metadata.
-
-    Args:
-        url: The url of the file.
-        filename: The filename of the downloaded file.
-        expected_sha256: The expected sha256 sum of the file.
-    """
+    """Remote file metadata."""
 
     url: str
+    """The url of the file."""
+
     filename: str
+    """The filename of the downloaded file."""
+
     expected_sha256: str
+    """The expected sha256 sum of the file."""
 
 
 def _sha256sum(filepath) -> str:

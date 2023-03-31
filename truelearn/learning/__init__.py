@@ -1,4 +1,4 @@
-"""The truelearn.learning module implements classifiers in TrueLearn paper."""
+"""The truelearn.learning module implements the classifiers in TrueLearn paper."""
 
 from ._ink_classifier import INKClassifier
 from ._interest_classifier import InterestClassifier

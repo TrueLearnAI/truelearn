@@ -2,11 +2,12 @@
 # See https://setuptools.pypa.io/en/latest/userguide/pyproject_config.html
 # for more information about the pyproject.toml file.
 
-# Recommended Packaging Guide
+# Recommended Packaging Guide (for reference)
 # Run:
 # 1. `pip install --upgrade build` to install the build package.
 # 2. `python -m build` to build the package.
 # 3. `twine upload dist/*` to upload the package to PyPI.
+# Note: This is managed by the Python Publish GitHub Action
 
 [build-system]
 requires = ["setuptools>=60"]
@@ -15,11 +16,12 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "truelearn"
 dynamic = ["version"]
-description = "A Machine learning library for recommending open educational resources"
+description = """A Machine learning library that models and predicts learner engagement
+                 with educational resources."""
 readme = "README.rst"
 requires-python = ">=3.7"
 keywords = ["machine learning", "python", "statistics", "probability"]
-license = {file = "LICENSE"}
+license = { text = "MIT License" }
 authors = [
     {name = "Sahanbull"},
     {name = "KD-7"},
@@ -36,7 +38,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
     "Topic :: Software Development :: Libraries",
-    "Topic :: Software Development :: Libraries :: Python Module",
+    "Topic :: Education",
 ]
 dependencies = [
     'typing-extensions>=4.4.0',
@@ -49,6 +51,12 @@ dependencies = [
     'wordcloud==1.8.2.2',
     'circlify==0.15.0',
 ]
+[project.urls]
+Homepage = "https://truelearnai.github.io/TrueLearn-website/"
+Documentation = "https://truelearn.readthedocs.io/en/stable/"
+Issues = "https://github.com/TrueLearnAI/truelearn/issues"
+Source = "https://github.com/TrueLearnAI/truelearn"
+ChangeLog = "https://github.com/TrueLearnAI/truelearn/blob/main/docs/changelog.rst"
 
 [tool.setuptools.dynamic]
 version = {attr = "truelearn.__version__"}
@@ -62,8 +70,8 @@ packages = ["truelearn"]
 [project.optional-dependencies]
 tests = ["pytest>=7.2.1", "pytest-cov>=4.0.0", "pytest-socket>=0.6.0"]
 linters = ["prospector[with_bandit,with_mypy]>=1.8.4"]
-docs = ["sphinx>=5.3.0", "furo>=2022.12.7"]
-dev = ["truelearn[tests, linters]","black>=22.12.0"]
+docs = ["sphinx>=5.3.0", "furo>=2022.12.7","sphinx_copybutton>=0.5.1", "sphinx-gallery>=0.12.2", "Pillow>=9.4.0"]
+dev = ["truelearn[tests, linters, docs]","black>=22.12.0"]
 
 [tool.black]
 line-length = 88

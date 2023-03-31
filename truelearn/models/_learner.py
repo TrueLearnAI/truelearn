@@ -8,15 +8,6 @@ from ._knowledge import Knowledge
 class LearnerModel:
     """The model of a learner.
 
-    Attributes:
-        knowledge:
-            A representation of the learner's knowledge.
-        number_of_engagements:
-            An int indicating how many educational resources learners are engaged with.
-        number_of_non_engagements:
-            An int indicating how many educational resources learners are not
-            engaged with.
-
     Examples:
         >>> from truelearn.models import LearnerModel, KnowledgeComponent
         >>> # construct an empty learner model
@@ -35,23 +26,19 @@ variance=1.0, ...)}), number_of_engagements=0, number_of_non_engagements=0)
     """
 
     knowledge: Knowledge = dataclasses.field(default_factory=Knowledge)
+    """A representation of the learner's knowledge."""
+
     number_of_engagements: int = 0
+    """An int indicating how many educational resources learners are engaged with."""
+
     number_of_non_engagements: int = 0
+    """An int indicating how many educational resources learners are not engaged 
+    with."""
 
 
 @dataclasses.dataclass
 class LearnerMetaWeights:
     """Store the weights used in meta training.
-
-    Attributes:
-        novelty_weights:
-            A dict that stores the "mean" and "variance" of the learner's
-            knowledge/novelty weights.
-        interest_weights:
-            A dict that stores the "mean" and "variance" of the learner's
-            interest weights.
-        bias_weights:
-            A dict that stores the "mean" and "variance" of a bias variable.
 
     Examples:
         >>> from truelearn.models import LearnerMetaWeights
@@ -71,5 +58,12 @@ class LearnerMetaWeights:
         variance: float
 
     novelty_weights: Weights = Weights(0.5, 0.5)
+    """A dict that stores the "mean" and "variance" of the learner's 
+    knowledge/novelty weights."""
+
     interest_weights: Weights = Weights(0.5, 0.5)
+    """"A dict that stores the "mean" and "variance" of the learner's interest 
+    weights."""
+
     bias_weights: Weights = Weights(0.0, 0.5)
+    """A dict that stores the "mean" and "variance" of a bias variable."""

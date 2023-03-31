@@ -63,8 +63,25 @@ class PEEKKnowledgeComponentGenerator(Protocol):
         url: str,
         title: str,
         description: str,
-    ) -> BaseKnowledgeComponent:
-        ...  # pragma: no cover
+    ) -> BaseKnowledgeComponent:  # type: ignore
+        """Generate a knowledge component.
+
+        Args:
+            *:
+                Used to reject positional arguments.
+            mean:
+                The mean of the knowledge component.
+            variance:
+                The variance of the knowledge component.
+            timestamp:
+                The timestamp of the knowledge component.
+            url:
+                The url of the knowledge component.
+            title:
+                The title of the knowledge component.
+            description:
+                The description of the knowledge component.
+        """
 
 
 def __sanity_check(train_limit: Optional[int], test_limit: Optional[int]):
@@ -292,6 +309,27 @@ def load_peek_dataset(
 ) -> Tuple[PEEKData, PEEKData, Dict[int, Tuple[str, str, str]]]:
     """Download and Parse PEEKDataset.
 
+    Examples:
+        To load the data:
+
+        >>> from truelearn.datasets import load_peek_dataset
+        >>> train, test, mapping = load_peek_dataset(verbose=False)
+        >>> len(train)
+        14050
+        >>> train[0]  # doctest:+ELLIPSIS
+        (23128, [(EventModel(...), event_time=172.0), False), ..., (EventModel(...), \
+event_time=55932.0), False)])
+        >>> len(test)
+        5969
+        >>> test[0]  # doctest:+ELLIPSIS
+        (25623, [(EventModel(...), event_time=0.0), False), ..., (EventModel(...), \
+event_time=1590.0), False)])
+        >>> len(mapping)
+        30367
+        >>> mapping[0]
+        ('https://en.wikipedia.org/wiki/"Hello,_World!"_program', \
+'"Hello, World!" program', "Traditional beginners' computer program")
+
     Args:
         *:
             Use to reject positional arguments.
@@ -344,27 +382,6 @@ def load_peek_dataset(
     Raises:
         ValueError:
             If the train_limit or test_limit is less than 0.
-
-    Examples:
-        To load the data:
-
-        >>> from truelearn.datasets import load_peek_dataset
-        >>> train, test, mapping = load_peek_dataset(verbose=False)
-        >>> len(train)
-        14050
-        >>> train[0]  # doctest:+ELLIPSIS
-        (23128, [(EventModel(...), event_time=172.0), False), ..., (EventModel(...), \
-event_time=55932.0), False)])
-        >>> len(test)
-        5969
-        >>> test[0]  # doctest:+ELLIPSIS
-        (25623, [(EventModel(...), event_time=0.0), False), ..., (EventModel(...), \
-event_time=1590.0), False)])
-        >>> len(mapping)
-        30367
-        >>> mapping[0]
-        ('https://en.wikipedia.org/wiki/"Hello,_World!"_program', \
-'"Hello, World!" program', "Traditional beginners' computer program")
     """
     __sanity_check(train_limit, test_limit)
     train_filepath, test_filepath, mapping_filepath = __download_files(dirname, verbose)
@@ -400,6 +417,25 @@ def load_peek_dataset_raw(
     verbose: bool = True,
 ) -> Tuple[List[List[str]], List[List[str]], Dict[int, Tuple[str, str, str]]]:
     """Download and Load the raw PEEKDataset.
+
+    Examples:
+        To load the data:
+
+        >>> from truelearn.datasets import load_peek_dataset_raw
+        >>> train, test, mapping = load_peek_dataset_raw(verbose=False)
+        >>> len(train)
+        203590
+        >>> train[0]  # doctest:+ELLIPSIS
+        ['4248', '1', '1', '172.0', ..., '1']
+        >>> len(test)
+        86945
+        >>> test[0]  # doctest:+ELLIPSIS
+        ['12730', '1', '1', '0.0', ..., '0']
+        >>> len(mapping)
+        30367
+        >>> mapping[0]
+        ('https://en.wikipedia.org/wiki/"Hello,_World!"_program', \
+'"Hello, World!" program', "Traditional beginners' computer program")
 
     Args:
         *:
@@ -441,25 +477,6 @@ def load_peek_dataset_raw(
     Raises:
         ValueError:
             If the train_limit or test_limit is less than 0.
-
-    Examples:
-        To load the data:
-
-        >>> from truelearn.datasets import load_peek_dataset_raw
-        >>> train, test, mapping = load_peek_dataset_raw(verbose=False)
-        >>> len(train)
-        203590
-        >>> train[0]  # doctest:+ELLIPSIS
-        ['4248', '1', '1', '172.0', ..., '1']
-        >>> len(test)
-        86945
-        >>> test[0]  # doctest:+ELLIPSIS
-        ['12730', '1', '1', '0.0', ..., '0']
-        >>> len(mapping)
-        30367
-        >>> mapping[0]
-        ('https://en.wikipedia.org/wiki/"Hello,_World!"_program', \
-'"Hello, World!" program', "Traditional beginners' computer program")
     """
     __sanity_check(train_limit, test_limit)
     train_filepath, test_filepath, mapping_filepath = __download_files(dirname, verbose)

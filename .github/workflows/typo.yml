@@ -1,8 +1,9 @@
 name: Spell Check
-on: [pull_request]
+on: [pull_request, workflow_dispatch, workflow_call]
 
+# Only cancel concurrent runs of the same workflow
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}-typo
   cancel-in-progress: true
 
 jobs:
@@ -16,4 +17,4 @@ jobs:
       - name: Check spelling of TrueLearn
         uses: crate-ci/typos@master
         with:
-          files: truelearn
+          files: ./truelearn ./docs
