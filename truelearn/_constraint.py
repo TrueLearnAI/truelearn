@@ -38,7 +38,7 @@ class TypeConstraint:
             param_name: A str representing the name of the parameter.
 
         Raises:
-            TypeMismatchError:
+            TrueLearnTypeError:
                 if the given parameter doesn't match any of the types.
         """
         # pylint: disable=protected-access
@@ -88,7 +88,7 @@ class ValueConstraint:
             param_name: A str representing the name of the parameter.
 
         Raises:
-            ValueMismatchError:
+            TrueLearnValueError:
                 if the given parameter doesn't match any of the values.
         """
         # pylint: disable=protected-access

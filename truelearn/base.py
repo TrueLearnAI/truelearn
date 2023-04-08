@@ -112,9 +112,9 @@ class BaseClassifier(ABC):
             The updated classifier.
 
         Raises:
-            TypeMismatchError:
+            TrueLearnTypeError:
                 Types of parameters does not satisfy their constraints.
-            ValueMismatchError:
+            TrueLearnValueError:
                 Values of parameters does not satisfy their constraints.
             InvalidArgumentError:
                 If the given argument name is not in the class.
@@ -174,9 +174,9 @@ class BaseClassifier(ABC):
         in your classifier.
 
         Raises:
-            TypeMismatchError:
+            TrueLearnTypeError:
                 Types of parameters does not satisfy their constraints.
-            ValueMismatchError:
+            TrueLearnValueError:
                 Values of parameters does not satisfy their constraints.
         """
         for (
