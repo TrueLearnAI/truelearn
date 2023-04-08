@@ -88,12 +88,12 @@ You can check out the latest the source code with the following command::
 Testing
 -------
 
-After installing TrueLearn, you can run the tests from outside the source directory
+After cloning the repository, you can run the tests from the source directory
 (you will need to have pytest installed)::
 
    pytest truelearn
 
-See the `Testing guide <https://truelearn.readthedocs.io/en/stable/dev/testing.html>`_
+See the `Contributing Guide: Testing guide <https://truelearn.readthedocs.io/en/latest/dev/testing.html>`_
 for a more detailed explanation.
 
 
@@ -101,4 +101,4 @@ Before submitting a PR
 ----------------------
 
 Please make sure you have followed the Guidelines outlined in the
-`Contributing Guide: Before/During PR  <https://truelearn.readthedocs.io/en/stable/dev/before_pr.html>`_.
+`Contributing Guide: Before/During PR  <https://truelearn.readthedocs.io/en/latest/dev/before_pr.html>`_.

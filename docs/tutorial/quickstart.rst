@@ -6,7 +6,9 @@ Getting Started
 Installation
 ------------
 
-TrueLearn requires Python 3.7+ to run. You can install it from https://www.python.org/downloads/.
+TrueLearn requires Python 3.7+ to run. You can install it by using::
+
+    pip install -U truelearn
 
 It's highly recommended to use a virtual environment to use TrueLearn as it can help avoid potential conflicts.
 You can use either `venv <https://docs.python.org/3/tutorial/venv.html>`_ or `conda <https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html>`_
