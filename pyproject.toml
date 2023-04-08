@@ -60,8 +60,9 @@ ChangeLog = "https://github.com/TrueLearnAI/truelearn/blob/main/docs/changelog.r
 [tool.setuptools.dynamic]
 version = {attr = "truelearn.__version__"}
 
-[tool.setuptools]
-packages = ["truelearn"]
+[tool.setuptools.packages.find]
+include = ["truelearn*"]
+exclude = ["truelearn.tests*"]  # exclude tests from build artifacts
 
 # You install the optional dependencies by doing:
 # pip install truelearn[name_of_optional_dependency]
