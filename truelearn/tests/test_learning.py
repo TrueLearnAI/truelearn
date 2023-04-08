@@ -5,6 +5,11 @@ import pytest
 
 from truelearn import base, learning, models
 from truelearn import _constraint
+from truelearn.errors import (
+    InvalidArgumentError,
+    TrueLearnTypeError,
+    TrueLearnValueError,
+)
 
 
 def check_farray_close(farr1, farr2):
@@ -35,7 +40,7 @@ class MockClassifier(base.BaseClassifier):
 
 
 class TestBase:
-    def test_useless_key_with_get_params_throw(self, monkeypatch):
+    def test_useless_key_with_get_params_skip(self, monkeypatch):
         monkeypatch.setattr(
             MockClassifier,
             "_parameter_constraints",
@@ -43,13 +48,7 @@ class TestBase:
         )
 
         classifier = MockClassifier()
-        with pytest.raises(ValueError) as excinfo:
-            classifier.get_params()
-        assert (
-            str(excinfo.value)
-            == "The specified parameter name useless_key is not in the "
-            "class 'MockClassifier'."
-        )
+        classifier.get_params()
 
     def test_set_params_empty_no_effect(self):
         classifier = MockClassifier()
@@ -60,7 +59,7 @@ class TestBase:
             params == classifier.get_params() == {"holder": MockClassifier.HOLDER_VALUE}
         )
 
-    def test_useless_key_with_validate_params_throw(self, monkeypatch):
+    def test_useless_key_with_validate_params_skip(self, monkeypatch):
         monkeypatch.setattr(
             MockClassifier,
             "_parameter_constraints",
@@ -71,13 +70,7 @@ class TestBase:
         )
 
         classifier = MockClassifier()
-        with pytest.raises(ValueError) as excinfo:
-            classifier._validate_params()
-        assert (
-            str(excinfo.value)
-            == "The specified parameter name useless_key is not in the "
-            "class 'MockClassifier'."
-        )
+        classifier._validate_params()
 
     def test_validate_params_type_mismatch_throw(self, monkeypatch):
         parameter_constraints = {
@@ -92,7 +85,7 @@ class TestBase:
         )
 
         classifier = MockClassifier()
-        with pytest.raises(TypeError) as excinfo:
+        with pytest.raises(TrueLearnTypeError) as excinfo:
             classifier._validate_params()
         assert (
             str(excinfo.value) == "The holder parameter of "
@@ -147,7 +140,7 @@ class TestMajorityClassifier:
             "threshold": 0.5,
         }
 
-        with pytest.raises(TypeError) as excinfo:
+        with pytest.raises(TrueLearnTypeError) as excinfo:
             classifier.set_params(non_engagement=1.0)
         assert (
             str(excinfo.value) == "The non_engagement parameter of "
@@ -184,13 +177,11 @@ class TestPersistentClassifier:
         classifier.set_params(engage_with_last=True)
         assert classifier.get_params() == {"engage_with_last": True}
 
-        with pytest.raises(KeyError) as excinfo:
+        with pytest.raises(InvalidArgumentError) as excinfo:
             classifier.set_params(helloworld=1.0)
         assert (
-            str(excinfo.value) == '"'
-            "The given parameter helloworld is not in the "
+            str(excinfo.value) == "The given argument helloworld is not in the "
             "class 'PersistentClassifier'."
-            '"'
         )
 
 
@@ -282,7 +273,7 @@ class TestKnowledgeClassifier:
         classifier.set_params(tau=0.2)
         assert classifier.get_params()["tau"] == 0.2
 
-        with pytest.raises(ValueError) as excinfo:
+        with pytest.raises(TrueLearnValueError) as excinfo:
             classifier.set_params(draw_proba_type="static")
             classifier.predict_proba(models.EventModel())
         assert (
@@ -301,7 +292,7 @@ class TestKnowledgeClassifier:
         assert classifier.predict_proba(event) == 0.5
 
     def test_knowledge_throw(self):
-        with pytest.raises(TypeError) as excinfo:
+        with pytest.raises(TrueLearnTypeError) as excinfo:
             learning.KnowledgeClassifier(threshold=0)
         assert (
             str(excinfo.value) == "The threshold parameter of "
@@ -309,7 +300,7 @@ class TestKnowledgeClassifier:
             "must be one of the classes in ['float']. Got 'int' instead."
         )
 
-        with pytest.raises(TypeError) as excinfo:
+        with pytest.raises(TrueLearnTypeError) as excinfo:
             learning.KnowledgeClassifier(init_skill=0)
         assert (
             str(excinfo.value) == "The init_skill parameter of "
@@ -317,7 +308,7 @@ class TestKnowledgeClassifier:
             "must be one of the classes in ['float']. Got 'int' instead."
         )
 
-        with pytest.raises(TypeError) as excinfo:
+        with pytest.raises(TrueLearnTypeError) as excinfo:
             learning.KnowledgeClassifier(def_var=1)
         assert (
             str(excinfo.value) == "The def_var parameter of "
@@ -325,7 +316,7 @@ class TestKnowledgeClassifier:
             "must be one of the classes in ['float']. Got 'int' instead."
         )
 
-        with pytest.raises(TypeError) as excinfo:
+        with pytest.raises(TrueLearnTypeError) as excinfo:
             learning.KnowledgeClassifier(beta=0)
         assert (
             str(excinfo.value) == "The beta parameter of "
@@ -333,7 +324,7 @@ class TestKnowledgeClassifier:
             "must be one of the classes in ['float']. Got 'int' instead."
         )
 
-        with pytest.raises(TypeError) as excinfo:
+        with pytest.raises(TrueLearnTypeError) as excinfo:
             learning.KnowledgeClassifier(tau=1)
         assert (
             str(excinfo.value) == "The tau parameter of "
@@ -341,7 +332,7 @@ class TestKnowledgeClassifier:
             "must be one of the classes in ['float']. Got 'int' instead."
         )
 
-        with pytest.raises(ValueError) as excinfo:
+        with pytest.raises(TrueLearnValueError) as excinfo:
             learning.KnowledgeClassifier(draw_proba_type="hello world")
         assert (
             str(excinfo.value) == "The draw_proba_type parameter of "
@@ -350,7 +341,7 @@ class TestKnowledgeClassifier:
             "Got 'hello world' instead."
         )
 
-        with pytest.raises(ValueError) as excinfo:
+        with pytest.raises(TrueLearnValueError) as excinfo:
             learning.KnowledgeClassifier(
                 draw_proba_type="static", draw_proba_static=None
             )
@@ -360,7 +351,7 @@ class TestKnowledgeClassifier:
             "not be None."
         )
 
-        with pytest.raises(TypeError) as excinfo:
+        with pytest.raises(TrueLearnTypeError) as excinfo:
             learning.KnowledgeClassifier(draw_proba_factor=1)
         assert (
             str(excinfo.value) == "The draw_proba_factor parameter of "
@@ -441,7 +432,7 @@ class TestNoveltyClassifier:
         classifier.set_params(tau=0.2)
         assert classifier.get_params()["tau"] == 0.2
 
-        with pytest.raises(ValueError) as excinfo:
+        with pytest.raises(TrueLearnValueError) as excinfo:
             classifier.set_params(draw_proba_type="static")
             classifier.predict_proba(models.EventModel())
         assert (
@@ -460,7 +451,7 @@ class TestNoveltyClassifier:
         assert math.isclose(classifier.predict_proba(event), 0.5773502691896257)
 
     def test_novelty_throw(self):
-        with pytest.raises(TypeError) as excinfo:
+        with pytest.raises(TrueLearnTypeError) as excinfo:
             learning.NoveltyClassifier(threshold=0)
         assert (
             str(excinfo.value) == "The threshold parameter of "
@@ -468,7 +459,7 @@ class TestNoveltyClassifier:
             "must be one of the classes in ['float']. Got 'int' instead."
         )
 
-        with pytest.raises(TypeError) as excinfo:
+        with pytest.raises(TrueLearnTypeError) as excinfo:
             learning.NoveltyClassifier(init_skill=0)
         assert (
             str(excinfo.value) == "The init_skill parameter of "
@@ -476,7 +467,7 @@ class TestNoveltyClassifier:
             "must be one of the classes in ['float']. Got 'int' instead."
         )
 
-        with pytest.raises(TypeError) as excinfo:
+        with pytest.raises(TrueLearnTypeError) as excinfo:
             learning.NoveltyClassifier(def_var=1)
         assert (
             str(excinfo.value) == "The def_var parameter of "
@@ -484,7 +475,7 @@ class TestNoveltyClassifier:
             "must be one of the classes in ['float']. Got 'int' instead."
         )
 
-        with pytest.raises(TypeError) as excinfo:
+        with pytest.raises(TrueLearnTypeError) as excinfo:
             learning.NoveltyClassifier(beta=0)
         assert (
             str(excinfo.value) == "The beta parameter of "
@@ -492,7 +483,7 @@ class TestNoveltyClassifier:
             "must be one of the classes in ['float']. Got 'int' instead."
         )
 
-        with pytest.raises(TypeError) as excinfo:
+        with pytest.raises(TrueLearnTypeError) as excinfo:
             learning.NoveltyClassifier(tau=1)
         assert (
             str(excinfo.value) == "The tau parameter of "
@@ -500,7 +491,7 @@ class TestNoveltyClassifier:
             "must be one of the classes in ['float']. Got 'int' instead."
         )
 
-        with pytest.raises(ValueError) as excinfo:
+        with pytest.raises(TrueLearnValueError) as excinfo:
             learning.NoveltyClassifier(draw_proba_type="hello world")
         assert (
             str(excinfo.value) == "The draw_proba_type parameter of "
@@ -509,7 +500,7 @@ class TestNoveltyClassifier:
             "Got 'hello world' instead."
         )
 
-        with pytest.raises(ValueError) as excinfo:
+        with pytest.raises(TrueLearnValueError) as excinfo:
             learning.NoveltyClassifier(draw_proba_type="static", draw_proba_static=None)
         assert (
             str(excinfo.value)
@@ -517,7 +508,7 @@ class TestNoveltyClassifier:
             "not be None."
         )
 
-        with pytest.raises(TypeError) as excinfo:
+        with pytest.raises(TrueLearnTypeError) as excinfo:
             learning.NoveltyClassifier(draw_proba_factor=1)
         assert (
             str(excinfo.value) == "The draw_proba_factor parameter of "
@@ -619,7 +610,7 @@ class TestInterestClassifier:
         classifier.set_params(tau=0.2)
         assert classifier.get_params()["tau"] == 0.2
 
-        with pytest.raises(ValueError) as excinfo:
+        with pytest.raises(TrueLearnValueError) as excinfo:
             classifier.set_params(draw_proba_type="static")
             classifier.predict_proba(models.EventModel())
         assert (
@@ -638,7 +629,7 @@ class TestInterestClassifier:
         assert classifier.predict_proba(event) == 0.5
 
     def test_interest_throw(self):
-        with pytest.raises(TypeError) as excinfo:
+        with pytest.raises(TrueLearnTypeError) as excinfo:
             learning.InterestClassifier(threshold=0)
         assert (
             str(excinfo.value) == "The threshold parameter of "
@@ -646,7 +637,7 @@ class TestInterestClassifier:
             "must be one of the classes in ['float']. Got 'int' instead."
         )
 
-        with pytest.raises(TypeError) as excinfo:
+        with pytest.raises(TrueLearnTypeError) as excinfo:
             learning.InterestClassifier(init_skill=0)
         assert (
             str(excinfo.value) == "The init_skill parameter of "
@@ -654,7 +645,7 @@ class TestInterestClassifier:
             "must be one of the classes in ['float']. Got 'int' instead."
         )
 
-        with pytest.raises(TypeError) as excinfo:
+        with pytest.raises(TrueLearnTypeError) as excinfo:
             learning.InterestClassifier(def_var=1)
         assert (
             str(excinfo.value) == "The def_var parameter of "
@@ -662,7 +653,7 @@ class TestInterestClassifier:
             "must be one of the classes in ['float']. Got 'int' instead."
         )
 
-        with pytest.raises(TypeError) as excinfo:
+        with pytest.raises(TrueLearnTypeError) as excinfo:
             learning.InterestClassifier(beta=0)
         assert (
             str(excinfo.value) == "The beta parameter of "
@@ -670,7 +661,7 @@ class TestInterestClassifier:
             "must be one of the classes in ['float']. Got 'int' instead."
         )
 
-        with pytest.raises(TypeError) as excinfo:
+        with pytest.raises(TrueLearnTypeError) as excinfo:
             learning.InterestClassifier(tau=1)
         assert (
             str(excinfo.value) == "The tau parameter of "
@@ -678,7 +669,7 @@ class TestInterestClassifier:
             "must be one of the classes in ['float']. Got 'int' instead."
         )
 
-        with pytest.raises(ValueError) as excinfo:
+        with pytest.raises(TrueLearnValueError) as excinfo:
             learning.InterestClassifier(draw_proba_type="hello world")
         assert (
             str(excinfo.value) == "The draw_proba_type parameter of "
@@ -687,7 +678,7 @@ class TestInterestClassifier:
             "Got 'hello world' instead."
         )
 
-        with pytest.raises(ValueError) as excinfo:
+        with pytest.raises(TrueLearnValueError) as excinfo:
             learning.InterestClassifier(
                 draw_proba_type="static", draw_proba_static=None
             )
@@ -697,7 +688,7 @@ class TestInterestClassifier:
             "not be None."
         )
 
-        with pytest.raises(TypeError) as excinfo:
+        with pytest.raises(TrueLearnTypeError) as excinfo:
             learning.InterestClassifier(draw_proba_factor=1)
         assert (
             str(excinfo.value) == "The draw_proba_factor parameter of "
@@ -705,7 +696,7 @@ class TestInterestClassifier:
             "must be one of the classes in ['float']. Got 'int' instead."
         )
 
-        with pytest.raises(ValueError) as excinfo:
+        with pytest.raises(TrueLearnValueError) as excinfo:
             learning.InterestClassifier(decay_func_type="hello world")
         assert (
             str(excinfo.value) == "The decay_func_type parameter of "
@@ -714,7 +705,7 @@ class TestInterestClassifier:
             "Got 'hello world' instead."
         )
 
-        with pytest.raises(TypeError) as excinfo:
+        with pytest.raises(TrueLearnTypeError) as excinfo:
             learning.InterestClassifier(decay_func_factor=1)
         assert (
             str(excinfo.value) == "The decay_func_factor parameter of "
@@ -722,7 +713,7 @@ class TestInterestClassifier:
             "must be one of the classes in ['float']. Got 'int' instead."
         )
 
-        with pytest.raises(ValueError) as excinfo:
+        with pytest.raises(TrueLearnValueError) as excinfo:
             classifier = learning.InterestClassifier()
             classifier.fit(models.EventModel(), True)
         assert (
@@ -730,7 +721,7 @@ class TestInterestClassifier:
             == "The event time should not be None when using InterestClassifier."
         )
 
-        with pytest.raises(ValueError) as excinfo:
+        with pytest.raises(TrueLearnValueError) as excinfo:
             learner_model = models.LearnerModel(
                 models.Knowledge(
                     {1: models.KnowledgeComponent(mean=0.0, variance=1.0)}
@@ -835,7 +826,7 @@ class TestINKClassifier:
         assert classifier.get_params()["novelty_classifier__tau"] == 0.2
 
     def test_ink_throw(self):
-        with pytest.raises(TypeError) as excinfo:
+        with pytest.raises(TrueLearnTypeError) as excinfo:
             learning.INKClassifier(threshold=0)
         assert (
             str(excinfo.value) == "The threshold parameter of "
@@ -843,7 +834,7 @@ class TestINKClassifier:
             "must be one of the classes in ['float']. Got 'int' instead."
         )
 
-        with pytest.raises(TypeError) as excinfo:
+        with pytest.raises(TrueLearnTypeError) as excinfo:
             learning.INKClassifier(tau=1)
         assert (
             str(excinfo.value) == "The tau parameter of "

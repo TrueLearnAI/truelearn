@@ -6,6 +6,7 @@ from typing_extensions import final, Self
 import matplotlib.pyplot as plt
 from plotly import graph_objects as go
 
+from truelearn.errors import TrueLearnTypeError
 from truelearn.models import Knowledge
 
 
@@ -76,7 +77,7 @@ class BasePlotter(ABC):
             the mean, variance, title and timestamps (if requested) as a tuple.
 
         Raises:
-            TypeError:
+            TrueLearnTypeError:
                 if history is True but the kc does not have a history key.
         """
         title = kc["title"]
@@ -90,7 +91,7 @@ class BasePlotter(ABC):
                 timestamps = [self._unix_to_iso(timestamp) for timestamp in timestamps]
                 data = (mean, variance, title, timestamps)
             except KeyError as err:
-                raise TypeError(
+                raise TrueLearnTypeError(
                     "User's knowledge contains KnowledgeComponents. "
                     + "Expected only HistoryAwareKnowledgeComponents."
                 ) from err

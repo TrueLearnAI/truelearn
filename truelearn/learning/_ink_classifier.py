@@ -120,10 +120,10 @@ mean=0.12698..., variance=0.39796...))...}
                 only incorrect predictions lead to the update of the weights.
 
         Raises:
-            TypeError:
-                Types of parameters mismatch their constraints.
-            ValueError:
-                If the parameter is not any of the valid values in the given tuple.
+            TrueLearnTypeError:
+                Types of parameters does not satisfy their constraints.
+            TrueLearnValueError:
+                Values of parameters does not satisfy their constraints.
         """
         self._novelty_classifier = novelty_classifier or NoveltyClassifier()
         self._interest_classifier = interest_classifier or InterestClassifier()

@@ -15,6 +15,7 @@ import itertools
 from typing import Tuple, Dict, List, Optional
 from typing_extensions import TypeAlias, Protocol
 
+from truelearn.errors import TrueLearnValueError
 from truelearn.models import (
     EventModel,
     Knowledge,
@@ -98,15 +99,17 @@ def __sanity_check(train_limit: Optional[int], test_limit: Optional[int]):
             If None, it means no limit.
 
     Raises:
-        ValueError:
+        TrueLearnValueError:
             If the train_limit or test_limit is less than 0.
     """
     if train_limit is not None and train_limit < 0:
-        raise ValueError(
+        raise TrueLearnValueError(
             f"train_limit must >= 0. Got train_limit={train_limit} instead."
         )
     if test_limit is not None and test_limit < 0:
-        raise ValueError(f"test_limit must >= 0. Got test_limit={test_limit} instead.")
+        raise TrueLearnValueError(
+            f"test_limit must >= 0. Got test_limit={test_limit} instead."
+        )
 
 
 def __download_files(dirname: str = ".", verbose: bool = True) -> Tuple[str, str, str]:
@@ -370,7 +373,7 @@ event_time=1590.0), False)])
             )
 
     Raises:
-        ValueError:
+        TrueLearnValueError:
             If the train_limit or test_limit is less than 0.
     """
     __sanity_check(train_limit, test_limit)
@@ -465,7 +468,7 @@ def load_peek_dataset_raw(
             )
 
     Raises:
-        ValueError:
+        TrueLearnValueError:
             If the train_limit or test_limit is less than 0.
     """
     __sanity_check(train_limit, test_limit)

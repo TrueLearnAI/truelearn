@@ -4,6 +4,8 @@ from typing import Optional
 from urllib import request
 from os import path
 
+from truelearn.errors import TrueLearnValueError
+
 
 @dataclasses.dataclass
 class RemoteFileMetaData:
@@ -47,9 +49,14 @@ def _download_file(
         verbose:
             If True, this function outputs some information
             about the downloaded file.
+
+    Raises:
+        TrueLearnValueError:
+            1) The given url is not a valid https url.
+            2) If the sha256sum does not match the expected one.
     """
     if not url.lower().startswith("https://"):
-        raise ValueError(f"The given url {url} is not a valid https url.")
+        raise TrueLearnValueError(f"The given url {url} is not a valid https url.")
 
     if verbose:
         print(f"Downloading {url} into {filepath}")
@@ -60,7 +67,7 @@ def _download_file(
 
     actual_sha256 = _sha256sum(filepath)
     if expected_sha256 != actual_sha256:
-        raise IOError(
+        raise TrueLearnValueError(
             f"{filepath} has an SHA256 checksum ({actual_sha256}) "
             f"differing from expected ({expected_sha256}), "
             "file may be corrupted."
@@ -89,6 +96,10 @@ def check_and_download_file(
 
     Returns:
         Full path of the created file.
+
+    Raises:
+        TrueLearnValueError:
+            If the sha256sum does not match the expected one.
     """
     filepath = (
         remote_file.filename

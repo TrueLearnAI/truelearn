@@ -5,6 +5,7 @@ from urllib import request
 import pytest
 
 from truelearn import preprocessing
+from truelearn.errors import WikifierError, TrueLearnValueError
 
 WIKIFIER_API_KEY = os.environ.get("WIKIFIER_API_KEY", None)
 
@@ -56,7 +57,7 @@ class TestWikifier:
         assert annotation["wikiDataItemId"] == "Q12136"
 
     def test_wikifier_invalid_api_key(self):
-        with pytest.raises(ValueError, match="user-key-not-found"):
+        with pytest.raises(WikifierError, match="user-key-not-found"):
             wikifier = preprocessing.Wikifier("invalid_api_key")
 
             sample_text = """Lorem ipsum dolor sit amet, consectetur adipiscing elit,
@@ -87,7 +88,7 @@ class TestWikifier:
     def test_wikifier_invalid_key_fn(self):
         wikifier = preprocessing.Wikifier(WIKIFIER_API_KEY)  # type: ignore
 
-        with pytest.raises(ValueError) as excinfo:
+        with pytest.raises(TrueLearnValueError) as excinfo:
             wikifier.wikify("Lorem ipsum", key_fn="invalid_key_fn")
 
         assert (
@@ -104,11 +105,11 @@ class TestWikifier:
     def test_wikifier_invalid_df_and_words_ignore(self):
         wikifier = preprocessing.Wikifier(WIKIFIER_API_KEY)  # type: ignore
 
-        with pytest.raises(ValueError) as excinfo:
+        with pytest.raises(TrueLearnValueError) as excinfo:
             wikifier.wikify("Lorem ipsum", df_ignore=-1)
         assert str(excinfo.value) == "df_ignore must >= 0. " "Got df_ignore=-1 instead."
 
-        with pytest.raises(ValueError) as excinfo:
+        with pytest.raises(TrueLearnValueError) as excinfo:
             wikifier.wikify("Lorem ipsum", words_ignore=-1)
         assert (
             str(excinfo.value) == "words_ignore must >= 0. "
@@ -129,13 +130,11 @@ class TestWikifier:
 
             @staticmethod
             def read():
-                b = bytearray()
-                b.extend(map(ord, '{"error": "this is a test"}'))
-                return b
+                return '{"error": "this is a test"}'.encode("utf-8")
 
         monkeypatch.setattr(request, "urlopen", mock_urlopen)
 
-        with pytest.raises(ValueError) as excinfo:
+        with pytest.raises(WikifierError) as excinfo:
             preprocessing.Wikifier("You do not need API key for this test").wikify(
                 "Hello World"
             )

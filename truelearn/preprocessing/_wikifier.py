@@ -3,20 +3,16 @@ from urllib import parse, request
 
 import orjson
 
+from truelearn.errors import TrueLearnValueError, WikifierError
+
+
 Annotation = Dict[str, Union[str, float, None]]
 WikifierResponse = Dict[str, Union[List[Annotation], List[str]]]
 
 
 class Wikifier:
-    """A client that makes requests to the Wikifier API. See https://www.wikifier.org/.
-
-    Citation:
-        Janez Brank, Gregor Leban, Marko Grobelnik. `Annotating Documents with Relevant
-        Wikipedia Concepts <https://ailab.ijs.si/dunja/SiKDD2017/Papers/Brank_Wikifier
-        .pdf>`_. Proceedings of the Slovenian Conference on Data Mining and Data
-        Warehouses (SiKDD 2017), Ljubljana, Slovenia, 9 October 2017.
-
-    """
+    """A client that makes requests to the Wikifier API. \
+    See https://www.wikifier.org/."""
 
     def __init__(self, api_key: str) -> None:
         """Init Wikifier class with api_key.
@@ -66,23 +62,26 @@ class Wikifier:
             "url", "cosine", "pageRank", and "wikiDataItemId".
 
         Raises:
-            ValueError:
-                1) The response from Wikifier contained an error message.
-                2) The API key is not valid.
-                3) The key_fn is neither cosine nor pagerank.
-                4) The df_ignore or words_ignore is less than 0.
+            WikifierError:
+                1) The API key is not valid.
+                2) The response from Wikifier contains an error message.
+            TrueLearnValueError:
+                1) The key_fn is neither cosine nor pagerank.
+                2) The df_ignore or words_ignore is less than 0.
             urllib.error.HTTPError:
                 The HTTP request returns a status code representing
                 an error.
         """
         if df_ignore < 0:
-            raise ValueError(f"df_ignore must >= 0. Got df_ignore={df_ignore} instead.")
+            raise TrueLearnValueError(
+                f"df_ignore must >= 0. Got df_ignore={df_ignore} instead."
+            )
         if words_ignore < 0:
-            raise ValueError(
+            raise TrueLearnValueError(
                 f"words_ignore must >= 0. Got words_ignore={words_ignore} instead."
             )
         if key_fn not in ("cosine", "pagerank"):
-            raise ValueError(
+            raise TrueLearnValueError(
                 "key_fn is expected to be cosine or pagerank."
                 f" Got key_fn={key_fn} instead."
             )
@@ -109,8 +108,13 @@ class Wikifier:
                 Wikifier API, also used to ignore frequently-occurring words.
 
         Raises:
-            ValueError: The response from Wikifier contained an error message
-              or the API key is not valid.
+            InvalidAPIKeyError:
+                The API key is not valid.
+            WikifierError:
+                The response from Wikifier contains an error message.
+            urllib.error.HTTPError:
+                The HTTP request returns a status code representing
+                an error.
 
         Returns:
             The http response.
@@ -129,10 +133,10 @@ class Wikifier:
         with request.urlopen(url) as r:  # nosec
             resp = orjson.loads(r.read().decode("utf-8"))
             if "error" in resp:
-                raise ValueError(f"error in response : {resp['error']}")
+                raise WikifierError(f"error in response : {resp['error']}")
             if "status" in resp:
                 # will trigger if key is not valid
-                raise ValueError(resp["status"])
+                raise WikifierError(resp["status"])
             return resp
 
     @staticmethod

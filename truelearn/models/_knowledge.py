@@ -4,6 +4,7 @@ from typing import Iterable, Hashable, Any, Optional, Dict, Tuple, Deque
 from typing_extensions import Self
 
 from ._base import BaseKnowledgeComponent
+from truelearn.errors import TrueLearnValueError
 
 
 class KnowledgeComponent(BaseKnowledgeComponent):
@@ -258,11 +259,11 @@ title=None, description=None, url=None, history=deque([(0.0, 1.0, None)], maxlen
             A string description of the HistoryAwareKnowledgeComponent object.
 
         Raises:
-            ValueError:
+            TrueLearnValueError:
                 If the n_max_object is less than 0.
         """
         if n_max_object < 0:
-            raise ValueError(
+            raise TrueLearnValueError(
                 f"Expected n_max_object>=0. Got n_max_object={n_max_object} instead."
             )
 
@@ -384,11 +385,11 @@ title=None, description=None, url=None))])
             A string description of the Knowledge object.
 
         Raises:
-            ValueError:
+            TrueLearnValueError:
                 If the n_max_object is less than 0.
         """
         if n_max_object < 0:
-            raise ValueError(
+            raise TrueLearnValueError(
                 f"Expected n_max_object>=0. Got n_max_object={n_max_object} instead."
             )
 

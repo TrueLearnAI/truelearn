@@ -3,6 +3,7 @@ from typing_extensions import Self
 
 import plotly.graph_objects as go
 
+from truelearn.errors import TrueLearnTypeError
 from truelearn.models import Knowledge
 from truelearn.utils.visualisations._base import PlotlyBasePlotter
 
@@ -29,7 +30,7 @@ class LinePlotter(PlotlyBasePlotter):
             updated.
 
         Raises:
-            TypeError:
+            TrueLearnTypeError:
                 if any of the knowledge components are not history-aware.
         """
         title = kc["title"]
@@ -46,7 +47,7 @@ class LinePlotter(PlotlyBasePlotter):
 
             data = (means, variances, title, timestamps)
         except KeyError as err:
-            raise TypeError(
+            raise TrueLearnTypeError(
                 "User's knowledge contains KnowledgeComponents. "
                 + "Expected only HistoryAwareKnowledgeComponents."
             ) from err

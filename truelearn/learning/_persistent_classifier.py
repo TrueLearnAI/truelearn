@@ -38,6 +38,12 @@ class PersistentClassifier(BaseClassifier):
 
         Args:
             engage_with_last: whether the learner engages with the last learnable unit.
+
+        Raises:
+            TrueLearnTypeError:
+                Types of parameters does not satisfy their constraints.
+            TrueLearnValueError:
+                Values of parameters does not satisfy their constraints.
         """
         super().__init__()
 
