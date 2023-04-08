@@ -85,11 +85,25 @@ You can check out the latest the source code with the following command::
    git clone https://github.com/TrueLearnAI/truelearn.git
 
 
+Installing TrueLearn from source
+--------------------------------
+
+After cloning the repository, you can install TrueLearn locally from source::
+
+   # for zsh, see below
+   pip install -e .[dev]
+
+   # if you are using zsh
+   pip install -e ".[dev]"
+
+See the `Contributing Guide: Getting Started <https://truelearn.readthedocs.io/en/latest/dev/get_started.html>`_
+for a more detailed explanation.
+
+
 Testing
 -------
 
-After cloning the repository, you can run the tests from the source directory
-(you will need to have pytest installed)::
+After installation, you can run the tests from the source directory::
 
    pytest truelearn
 
