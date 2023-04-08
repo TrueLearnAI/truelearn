@@ -168,19 +168,9 @@ def __restructure_line(
     label = bool(int(label))
 
     # extract topic_id from topics
-    topic_ids = list(
-        map(
-            lambda topic_id: int(float(topic_id[1])),
-            filter(lambda idx: idx[0] % 2 == 0, enumerate(topics)),
-        )
-    )
+    topic_ids = [int(float(topic_id)) for topic_id in topics[0::2]]
     # extract topic_skills from topics
-    topic_skills = list(
-        map(
-            lambda topic_skill: float(topic_skill[1]),
-            filter(lambda idx: idx[0] % 2 == 1, enumerate(topics)),
-        )
-    )
+    topic_skills = [float(topic_skill) for topic_skill in topics[1::2]]
 
     # remove -1 (empty topic_id and skill)
     topic_ids.append(-1)  # append -1 to avoid ValueError when calling .index

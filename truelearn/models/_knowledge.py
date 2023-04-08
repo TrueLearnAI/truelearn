@@ -243,11 +243,7 @@ title=None, description=None, url=None, history=deque([(0.0, 1.0, None)], maxlen
             url=url,
         )
 
-        if history is None:
-            history = collections.deque(maxlen=history_limit)
-        else:
-            if history.maxlen != history_limit:
-                history = collections.deque(history, maxlen=history_limit)
+        history = collections.deque(history or [], maxlen=history_limit)
         self.__history = history
 
     def __repr__(self, n_max_object: int = 1) -> str:
@@ -319,7 +315,7 @@ title=None, description=None, url=None, history=deque([(0.0, 1.0, None)], maxlen
             title=self.title,
             description=self.description,
             url=self.url,
-            history=self.__history.copy(),
+            history=self.__history,
             history_limit=self.__history.maxlen,
         )
 
@@ -374,9 +370,7 @@ title=None, description=None, url=None))])
         """
         super().__init__()
 
-        if knowledge is None:
-            knowledge = {}
-        self.__knowledge = knowledge
+        self.__knowledge = knowledge or {}
 
     def __repr__(self, n_max_object: int = 1) -> str:
         """Print the Knowledge object.

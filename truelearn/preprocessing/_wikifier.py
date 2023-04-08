@@ -1,4 +1,3 @@
-import itertools
 from typing import Optional, Union, Dict, List, Iterable, cast
 from urllib import parse, request
 
@@ -209,4 +208,4 @@ class Wikifier:
             reverse=True,
         )
 
-        return list(itertools.islice(annotations, top_n))
+        return annotations[:top_n]

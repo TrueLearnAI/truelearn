@@ -44,9 +44,7 @@ class TypeConstraint:
         param_value = getattr(obj, obj._PARAM_PREFIX + param_name)
 
         if type(param_value) not in self.type_constraints:
-            param_classname_expected = list(
-                map(lambda cls: cls.__name__, self.type_constraints)
-            )
+            param_classname_expected = [cls.__name__ for cls in self.type_constraints]
             raise TypeError(
                 f"The {param_name} parameter of class {obj.__class__.__name__!r}"
                 " must be one of the classes"

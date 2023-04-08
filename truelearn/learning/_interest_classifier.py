@@ -161,7 +161,9 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
             tau=tau,
             beta=beta,
             # learner always win in interest
-            # so there is no "positive_only" in it
+            # so we should always update regardless of the actual label
+            # positive_only should be disabled to ensure the update method
+            # is always called
             positive_only=False,
             draw_proba_type=draw_proba_type,
             draw_proba_static=draw_proba_static,

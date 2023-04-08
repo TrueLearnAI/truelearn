@@ -125,10 +125,7 @@ def gather_trueskill_team(
         created from the given iterable of knowledge components.
     """
     return tuple(
-        map(
-            lambda kc: env.create_rating(mu=kc.mean, sigma=math.sqrt(kc.variance)),
-            kcs,
-        )
+        env.create_rating(mu=kc.mean, sigma=math.sqrt(kc.variance)) for kc in kcs
     )
 
 
@@ -222,17 +219,13 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
         """
         super().__init__()
 
-        if learner_model is None:
-            self._learner_model = LearnerModel()
-        else:
-            self._learner_model = learner_model
+        self._learner_model = learner_model or LearnerModel()
         self._threshold = threshold
         self._init_skill = init_skill
         self._def_var = def_var
         self._tau = tau
         self._beta = beta
         self._positive_only = positive_only
-
         self._draw_proba_type = draw_proba_type
         self._draw_proba_factor = draw_proba_factor
         self._draw_proba_static = draw_proba_static

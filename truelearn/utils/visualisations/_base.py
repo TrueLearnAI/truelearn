@@ -87,7 +87,7 @@ class BasePlotter(ABC):
             try:
                 for _, _, timestamp in kc["history"]:
                     timestamps.append(timestamp)
-                timestamps = list(map(self._unix_to_iso, timestamps))
+                timestamps = [self._unix_to_iso(timestamp) for timestamp in timestamps]
                 data = (mean, variance, title, timestamps)
             except KeyError as err:
                 raise TypeError(

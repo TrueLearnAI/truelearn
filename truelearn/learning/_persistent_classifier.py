@@ -33,7 +33,7 @@ class PersistentClassifier(BaseClassifier):
         "engage_with_last": TypeConstraint(bool),
     }
 
-    def __init__(self, engage_with_last: bool = False) -> None:
+    def __init__(self, *, engage_with_last: bool = False) -> None:
         """Init PersistentClassifier object.
 
         Args:

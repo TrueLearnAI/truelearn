@@ -122,7 +122,9 @@ class PiePlotter(PlotlyBasePlotter):
         return self
 
     def _get_other_data(self, rest: Iterable[Tuple], history: bool):
+        # make it a list because we use it a lot of time
         rest = list(rest)
+
         means = [lst[0] for lst in rest]
         variances = [lst[1] for lst in rest]
         average_mean = sum(means) / len(rest)

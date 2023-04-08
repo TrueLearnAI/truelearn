@@ -8,7 +8,7 @@ from truelearn import _constraint
 
 
 def check_farray_close(farr1, farr2):
-    status = list(map(lambda t: math.isclose(*t), zip(farr1, farr2)))
+    status = (math.isclose(n, m) for n, m in zip(farr1, farr2))
 
     if not all(status):
         assert False, "farr1 is not equal to farr2.\n" f"{farr1} != {farr2}"

@@ -22,12 +22,13 @@ class RemoteFileMetaData:
 def _sha256sum(filepath) -> str:
     chunk_size = 65536
     hash_val = hashlib.sha256()
-    with open(filepath, "rb") as file:
-        while True:
-            chunk = file.read(chunk_size)
-            if not chunk:
-                break
-            hash_val.update(chunk)
+    buffer = bytearray(chunk_size)
+    write_view = memoryview(buffer)
+
+    with open(filepath, "rb", buffering=0) as file:
+        # 3.8+: use walrus operator instead
+        for bytes_read in iter(lambda: file.readinto(write_view), 0):
+            hash_val.update(write_view[:bytes_read])
     return hash_val.hexdigest()
 
 
@@ -67,7 +68,10 @@ def _download_file(
 
 
 def check_and_download_file(
-    *, remote_file: RemoteFileMetaData, dirname: Optional[str] = None, verbose: bool
+    *,
+    remote_file: RemoteFileMetaData,
+    dirname: Optional[str],
+    verbose: bool,
 ) -> str:
     """Download a remote file and check the sha256.
 

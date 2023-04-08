@@ -46,6 +46,7 @@ class WordPlotter(MatplotlibBasePlotter):
                 "in a future release because wordcloud "
                 "library doesn't support Python 3.11+.",
                 FutureWarning,
+                stacklevel=2,
             )
             return self
 

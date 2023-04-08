@@ -42,7 +42,7 @@ class LinePlotter(PlotlyBasePlotter):
                 variances.append(variance)
                 timestamps.append(timestamp)
 
-            timestamps = list(map(self._unix_to_iso, timestamps))
+            timestamps = [self._unix_to_iso(timestamp) for timestamp in timestamps]
 
             data = (means, variances, title, timestamps)
         except KeyError as err:
