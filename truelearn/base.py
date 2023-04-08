@@ -6,6 +6,9 @@ from typing_extensions import Self, Final, final, Literal
 from truelearn.models import EventModel
 
 
+__all__ = ["BaseClassifier"]
+
+
 class BaseClassifier(ABC):
     """The base class of all the classifiers in TrueLearn."""
 
