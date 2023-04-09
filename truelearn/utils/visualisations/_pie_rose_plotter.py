@@ -209,13 +209,14 @@ class RosePlotter(PlotlyBasePlotter):
         """
         super().__init__(title, xlabel, ylabel)
 
-    # pylint: disable=too-many-locals
+    # pylint: disable=too-many-locals,too-many-arguments
     def plot(
         self,
         content: Knowledge,
         topics: Optional[Iterable[str]] = None,
         top_n: Optional[int] = None,
         other: bool = False,
+        random_state: Optional[random.Random] = None,
     ) -> Self:
         """Plot the graph based on the given data.
 
@@ -232,12 +233,17 @@ class RosePlotter(PlotlyBasePlotter):
             other:
                 Whether to group all other unused topics together into a "Other"
                 category and visualise it.
+            random_state:
+                An optional random.Random object that will be used to randomly
+                shuffle knowledge components, so that they will not be ranked
+                by mean.
         """
         content_dict, rest = self._standardise_data(content, True, topics)
         rest += content_dict[top_n:]
         content_dict = content_dict[:top_n]
 
-        random.shuffle(content_dict)
+        random_state = random_state or random.Random()
+        random_state.shuffle(content_dict)
 
         if other:
             content_dict.append(_summarize_other(rest, True))
