@@ -100,7 +100,7 @@ class BasePlotter(ABC):
     @abstractmethod
     def plot(
         self,
-        content: Union[Knowledge, List[Tuple]],
+        content: Knowledge,
         topics: Optional[Iterable[str]] = None,
         top_n: Optional[int] = None,
     ) -> Self:
@@ -108,17 +108,13 @@ class BasePlotter(ABC):
 
         Args:
             content:
-                the data to use to plot the visualisation. Either a Knowledge
-                object (the learner's knowledge) or a list of tuples. Each
-                tuple would represent a different topic / knowledge component.
-                If content is a list of tuples, it is assumed to be already
-                sorted in the desired order (e.g. by mean).
+                The Knowledge object to use to plot the visualisation.
             topics:
-                the list of topics in the learner's knowledge to visualise.
+                The list of topics in the learner's knowledge to visualise.
                 If None, all topics are visualised (unless top_n is
                 specified).
             top_n:
-                the number of topics to visualise. E.g. if top_n is 5, then the
+                The number of topics to visualise. E.g. if top_n is 5, then the
                 top 5 topics ranked by mean will be visualised if content is a
                 Knowledge object or just the first 5 topics if content is a list
                 (in which case content is assumed to be already sorted).
