@@ -35,7 +35,7 @@ class RadarPlotter(PlotlyBasePlotter):
         topics: Optional[Iterable[str]] = None,
         top_n: Optional[int] = None,
     ) -> Self:
-        content_dict = self._standardise_data(content, False, topics)[:top_n]
+        content_dict, _ = self._standardise_data(content, False, topics)[:top_n]
 
         means = [lst[0] for lst in content_dict]
         variances = [lst[1] for lst in content_dict]
