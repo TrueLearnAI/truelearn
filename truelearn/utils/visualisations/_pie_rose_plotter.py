@@ -1,5 +1,5 @@
 import random
-from typing import Iterable, List, Optional, Tuple, Union
+from typing import Iterable, Optional, Tuple, List
 from typing_extensions import Self
 
 import numpy as np
@@ -13,22 +13,40 @@ from truelearn.utils.visualisations._base import (
 
 
 class PiePlotter(PlotlyBasePlotter):
-    """Provides utilities for plotting pie charts."""
+    """Pie Plotter."""
 
-    # TODO: strongly typed this in the future
+    def __init__(
+        self,
+        title: str = "Distribution of user's skill.",
+        xlabel: str = "",
+        ylabel: str = "",
+    ):
+        """Init a Pie plotter.
+
+        Args:
+            title: the default title of the visualization
+            xlabel: the default x label of the visualization
+            ylabel: the default y label of the visualization
+        """
+        super().__init__(title, xlabel, ylabel)
+
+    # TODO: make this the general version of the standardise data
     def _standardise_data(
         self,
         raw_data: Knowledge,
         history: bool = False,
         topics: Optional[Iterable[str]] = None,
-    ) -> Iterable:
+    ) -> Tuple[List, List]:
+        if topics is not None:
+            topics = set(topics)
+
         raw_data_dict = knowledge_to_dict(raw_data)
 
         content = []
         rest = []
-        for _, kc in raw_data_dict.items():
+        for kc in raw_data_dict.values():
             data = self._get_kc_details(kc, history)
-            if (topics is None) or (data[2] in topics):
+            if topics is None or data[2] in topics:
                 content.append(data)
             else:
                 rest.append(data)
@@ -37,41 +55,26 @@ class PiePlotter(PlotlyBasePlotter):
 
         return content, rest
 
-    # pylint: disable=too-many-locals
+    # pylint: disable=too-many-locals,too-many-arguments
     def plot(
         self,
-        content: Union[Knowledge, List[Tuple]],
+        content: Knowledge,
         topics: Optional[Iterable[str]] = None,
         top_n: Optional[int] = None,
-        *,
-        title: str = "Distribution of user's skill.",
-        x_label: str = "",
-        y_label: str = "",
         other: bool = False,
         history: bool = False,
     ) -> Self:
-        if isinstance(content, Knowledge):
-            content_dict, rest = self._standardise_data(content, history, topics)
-        else:
-            content_dict = content
-            rest = []
-
+        content_dict, rest = self._standardise_data(content, history, topics)
         rest += content_dict[top_n:]
         content_dict = content_dict[:top_n]
 
         if other:
-            content_dict.append(self._get_other_data(rest, history))
+            content_dict.append(self._summarize_other(rest, history))
 
-        layout_data = self._layout((title, "", ""))
-
-        means = [lst[0] for lst in content_dict]
-
-        variances = [lst[1] for lst in content_dict]
-
-        titles = [lst[2] for lst in content_dict]
+        means, variances, titles, *others = list(zip(*content_dict))
 
         if history:
-            timestamps = [lst[3] for lst in content_dict]
+            timestamps = others[0]
             number_of_videos = []
             last_video_watched = []
             for timestamp in timestamps:
@@ -79,28 +82,27 @@ class PiePlotter(PlotlyBasePlotter):
                 last_video_watched.append(timestamp[-1])
 
             if other:
-                # get average number_of_videos
+                # get average number_of_videos for others
                 number_of_videos[-1] /= len(rest)
         else:
-            number_of_videos = [None for _ in variances]
-            last_video_watched = [None for _ in variances]
+            number_of_videos = last_video_watched = [None] * len(variances)
 
         variance_min, variance_max = min(variances), max(variances)
 
         colours = [self._get_colour(v, variance_min, variance_max) for v in variances]
 
-        self.figure = go.Figure(
+        self.figure.add_trace(
             go.Pie(
                 labels=titles,
                 values=means,
                 customdata=np.transpose(
-                    [
+                    np.array([
                         titles,
                         means,
                         variances,
                         number_of_videos,
                         last_video_watched,
-                    ]  # type: ignore
+                    ], dtype=object)
                 ),
                 hovertemplate=self._hovertemplate(
                     (
@@ -115,26 +117,21 @@ class PiePlotter(PlotlyBasePlotter):
                 marker={
                     "colors": colours,
                 },
-            ),
-            layout=layout_data,
+            )
         )
 
         return self
 
-    def _get_other_data(self, rest: Iterable[Tuple], history: bool):
-        # make it a list because we use it a lot of time
-        rest = list(rest)
-
+    def _summarize_other(self, rest: List[Tuple], history: bool):
         means = [lst[0] for lst in rest]
         variances = [lst[1] for lst in rest]
+
         average_mean = sum(means) / len(rest)
         average_variance = sum(variances) / len(rest)
-        if history:
-            timestamps = []
-            for lst in rest:
-                timestamps += lst[3]  # concatenate timestamps
 
-            timestamps[-1] = "N/A"  # alternatively, sort timestamps
+        if history:
+            timestamps = [lst[3] for lst in rest]
+            # timestamps[-1] = "N/A"  # alternatively, sort timestamps
             other_data = (average_mean, average_variance, "Other", timestamps)
         else:
             other_data = (average_mean, average_variance, "Other")
@@ -171,40 +168,33 @@ class PiePlotter(PlotlyBasePlotter):
 
 
 class RosePlotter(PiePlotter):
-    """Provides utilities for plotting rose charts."""
+    """Rose Pie Plotter."""
 
-    # pylint: disable=too-many-locals
+    # TODO: respect history
+    # pylint: disable=too-many-locals,too-many-arguments
     def plot(
         self,
-        content: Union[Knowledge, List[Tuple]],
+        content: Knowledge,
         topics: Optional[Iterable[str]] = None,
         top_n: Optional[int] = None,
-        *,
-        title: str = "Distribution of user's skill.",
-        x_label: str = "",
-        y_label: str = "",
         other: bool = False,
-        history: bool = False,
+        history: bool = True,
     ) -> Self:
-        if isinstance(content, Knowledge):
-            content_dict, rest = self._standardise_data(content, True, topics)
-        else:
-            content_dict = content
-
-        # TODO: type standardise data correctly to fix this
-        rest += content_dict[top_n:]  # type: ignore
+        content_dict, rest = self._standardise_data(content, True, topics)
+        rest += content_dict[top_n:]
         content_dict = content_dict[:top_n]
 
         random.shuffle(content_dict)
 
         if other:
-            content_dict.append(self._get_other_data(rest, True))
+            content_dict.append(self._summarize_other(rest, True))
 
         number_of_videos = [len(tr_data[3]) for tr_data in content_dict]
         if other:
-            number_of_videos[-1] = int(number_of_videos[-1] / len(rest))
+            number_of_videos[-1] /= len(rest)  # type: ignore
 
         total_videos = sum(number_of_videos)
+
         widths = [(n / total_videos) * 360 for n in number_of_videos]
         thetas = [0.0]
         for i in range(len(widths) - 1):
@@ -234,10 +224,9 @@ class RosePlotter(PiePlotter):
             )
         )
 
-        self.figure = go.Figure(data=traces, layout=self._layout((title, "", "")))
+        self.figure.add_traces(data=traces)
 
         topics = [tr_data[2] for tr_data in content_dict]
-
         self.figure.update_layout(
             polar={
                 "angularaxis": {
@@ -253,23 +242,19 @@ class RosePlotter(PiePlotter):
 
         return self
 
-    # TODO: add typing information and fix this in the next version
-    # pylint: disable=too-many-arguments
     def _trace(
         self,
-        tr_data,
-        theta,
-        width,
-        colour,
-        number_of_videos: Optional[int] = None,
+        tr_data: Tuple[float, float, str, List[Tuple[float, float, float]]],
+        theta: float,
+        width: float,
+        colour: str,
     ) -> go.Barpolar:
         """Returns the Barpolar object representing a single sector.
 
         Args:
             tr_data:
-                the data used to plot the sector. A tuple containing the mean,
-                variance, title and timestamps of the topic represented by the
-                sector.
+                the data used to plot the sector. A list of tuples containing the mean,
+                variance, title and timestamps of the topic represented by the sector.
             theta:
                 the position of the sector alongside the angular axis,
                 given in degrees.
@@ -277,15 +262,9 @@ class RosePlotter(PiePlotter):
                 the width of the sector, given in degrees.
             colour:
                 the colour of the sector, given as an rgb string. E.g. 'rgb(0,0,0)'.
-            number_of_videos:
-                the number of videos watched for the topic represented
-                by the sector.
         """
         mean, variance, title, timestamps = tr_data
-
-        if not number_of_videos:
-            number_of_videos = len(timestamps)
-
+        number_of_videos = len(timestamps)
         last_video_watched = timestamps[-1]
 
         return go.Barpolar(
