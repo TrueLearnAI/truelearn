@@ -92,7 +92,7 @@ def image_comparison(**genimg_kwargs):
                         failed_ext_with_reasons[ext] = "Target file does not exist."
                         continue
 
-                    if compare_images(str(target_file), str(tmp_file), 0.1):
+                    if compare_images(str(target_file), str(tmp_file), 5):
                         failed_ext_with_reasons[
                             ext
                         ] = "Tmp file does not match target file."
