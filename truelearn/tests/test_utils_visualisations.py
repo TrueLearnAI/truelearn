@@ -1,5 +1,4 @@
 # pylint: disable=missing-function-docstring,missing-class-docstring
-import filecmp
 import functools
 import random
 import pathlib
@@ -8,6 +7,7 @@ import os
 import sys
 
 import pytest
+from matplotlib.testing.compare import compare_images
 
 from truelearn import learning, datasets, models
 from truelearn.utils import visualisations
@@ -66,10 +66,9 @@ def image_comparison():
             The plotter type. Supported plotter types are: "plotly", "matplotlib"
     """
     # can support more file types if:
-    # - we convert each type to png
-    # - check to ensure the converted files are similar
-    #   within a tolerance
-    extensions = [".png", ".jpg", ".jpeg"]
+    # - use custom way to convert each type to png
+    # - use compare_images to check if they are similar within some tol
+    extensions = [".png"]
 
     def image_comparison_class_decorator(tclass):
         # only works for class decorator
@@ -93,7 +92,7 @@ def image_comparison():
                         failed_ext_with_reasons[ext] = "Target file does not exist."
                         continue
 
-                    if not filecmp.cmp(str(target_file), str(tmp_file)):
+                    if compare_images(str(target_file), str(tmp_file), 0.1):
                         failed_ext_with_reasons[
                             ext
                         ] = "Tmp file does not match target file."
