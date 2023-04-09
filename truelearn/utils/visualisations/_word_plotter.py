@@ -24,6 +24,14 @@ class WordPlotter(MatplotlibBasePlotter):
         """Init a word cloud plotter."""
         super().__init__("", "", "")
 
+        warnings.warn(
+            "This class may be removed in a future release "
+            "because wordcloud library doesn't support Python 3.10+, "
+            "and it is not actively maintained.",
+            FutureWarning,
+            stacklevel=2,
+        )
+
     def plot(
         self,
         content: Knowledge,
@@ -60,16 +68,17 @@ class WordPlotter(MatplotlibBasePlotter):
             from wordcloud import WordCloud  # type: ignore
         except ImportError:
             warnings.warn(
-                "You need to install the wordcloud library to use WordPlotter. "
-                "You need to be careful with this class as it may be removed "
-                "in a future release because wordcloud "
-                "library doesn't support Python 3.11+.",
+                "Missing wordcloud dependency. "
+                "It is possible that you are using Python 3.10+ as "
+                "wordcloud dependency is not installed for Python 3.10+.",
                 FutureWarning,
                 stacklevel=2,
             )
             return self
 
         wc_data = WordCloud(
+            width=800,
+            height=400,
             max_words=50,
             relative_scaling=1,  # type: ignore
             normalize_plurals=False,

@@ -56,7 +56,7 @@ def resources():
                 ...
 
 
-def image_comparison():
+def image_comparison(**genimg_kwargs):
     """Class decorator for image comparison.
 
     Args:
@@ -86,7 +86,7 @@ def image_comparison():
                     tmp_file = tmp_path_dir / str(func.__name__ + ext)
                     target_file = target_path_dir / str(func.__name__ + ext)
 
-                    plotter.savefig(str(tmp_file))
+                    plotter.savefig(str(tmp_file), **genimg_kwargs)
 
                     if not target_file.exists():
                         failed_ext_with_reasons[ext] = "Target file does not exist."
@@ -129,7 +129,7 @@ def image_comparison():
     return image_comparison_class_decorator
 
 
-@image_comparison()
+@image_comparison(width=800, height=600)
 class TestBarPlotter:
     def test_default(self, resources):
         plotter = visualisations.BarPlotter()
@@ -145,7 +145,7 @@ class TestBubblePlot:
         return plotter
 
 
-@image_comparison()
+@image_comparison(width=800, height=600)
 class TestDotPlotter:
     def test_default(self, resources):
         plotter = visualisations.DotPlotter()
@@ -153,7 +153,7 @@ class TestDotPlotter:
         return plotter
 
 
-@image_comparison()
+@image_comparison(width=800, height=600)
 class TestLinePlotterSingleUser:
     def test_default(self, resources):
         plotter = visualisations.LinePlotter()
@@ -161,7 +161,7 @@ class TestLinePlotterSingleUser:
         return plotter
 
 
-@image_comparison()
+@image_comparison(width=800, height=600)
 class TestLinePlotterMultipleUsers:
     def test_default(self, resources):
         plotter = visualisations.LinePlotter()
@@ -169,7 +169,7 @@ class TestLinePlotterMultipleUsers:
         return plotter
 
 
-@image_comparison()
+@image_comparison(width=800, height=600)
 class TestPiePlotter:
     def test_default(self, resources):
         plotter = visualisations.PiePlotter()
@@ -177,7 +177,7 @@ class TestPiePlotter:
         return plotter
 
 
-@image_comparison()
+@image_comparison(width=800, height=600)
 class TestRosePlotter:
     def test_default(self, resources):
         random_state = random.Random(42)
@@ -186,7 +186,7 @@ class TestRosePlotter:
         return plotter
 
 
-@image_comparison()
+@image_comparison(width=800, height=600)
 class TestRadarPlotter:
     def test_default(self, resources):
         plotter = visualisations.RadarPlotter()
@@ -194,7 +194,7 @@ class TestRadarPlotter:
         return plotter
 
 
-@image_comparison()
+@image_comparison(width=800, height=600)
 class TestTreePlotter:
     def test_default(self, resources):
         plotter = visualisations.TreePlotter()
