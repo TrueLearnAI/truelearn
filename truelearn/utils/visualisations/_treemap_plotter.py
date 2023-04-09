@@ -9,11 +9,16 @@ from truelearn.utils.visualisations._base import PlotlyBasePlotter
 
 
 class TreePlotter(PlotlyBasePlotter):
-    """Treemap Plotter.
+    """Treemap plotter.
 
-    Visualise the learner's knowledge in a treemap.
-    Each subject is represented by a rectangle.
-    The size of the rectangle is determined by the mean.
+    In the treemap, each knowledge component is represented by a rectangle
+    of a certain size and colour.
+
+    The size of the rectangle is proportional to the mean of the knowledge
+    component.
+
+    The color of the rectangle is used to differentiate different knowledge
+    components.
     """
 
     def __init__(
@@ -22,7 +27,7 @@ class TreePlotter(PlotlyBasePlotter):
         xlabel: str = "",
         ylabel: str = "",
     ):
-        """Init a TreeMap plotter.
+        """Init a treemap plotter.
 
         Args:
             title: The default title of the visualization

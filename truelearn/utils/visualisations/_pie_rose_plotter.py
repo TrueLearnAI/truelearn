@@ -13,7 +13,7 @@ from truelearn.utils.visualisations._base import PlotlyBasePlotter
 def _summarize_other(rest: List[Tuple], history: bool):
     """Summarize information for all topics that are not used.
 
-    This method is called if the user wants to group all unused topics into a
+    This method is called if the learner wants to group all unused topics into a
     category called "Other". This method summarizes necessary information, such as
     average mean and variance from the given topics.
     """
@@ -58,15 +58,26 @@ def _get_colour(variance: float, variance_min: float, variance_max: float) -> st
 
 
 class PiePlotter(PlotlyBasePlotter):
-    """Pie Plotter."""
+    """Pie plotter.
+
+    In the pie chart, each knowledge component is represented by a sector
+    with a certain angle and shade.
+
+    The angle of the sector is proportional to the mean of the knowledge component.
+
+    The shade of the sector is used to differentiate different knowledge components.
+
+    On hover, additional information, like mean and variance of the knowledge
+    component, is displayed.
+    """
 
     def __init__(
         self,
-        title: str = "Distribution of user's skill.",
+        title: str = "Distribution of learner's skill.",
         xlabel: str = "",
         ylabel: str = "",
     ):
-        """Init a Pie plotter.
+        """Init a pie plotter.
 
         Args:
             title: The default title of the visualization
@@ -167,7 +178,36 @@ class PiePlotter(PlotlyBasePlotter):
 
 
 class RosePlotter(PlotlyBasePlotter):
-    """Rose Pie Plotter."""
+    """Rose pie plotter.
+
+    In the rose pie chart, each knowledge component is represented by a sector
+    with a certain angle, shade, and radius.
+
+    The angle of the sector is proportional to the number of learning events
+    in which the learner acquires this knowledge.
+
+    The shade of the sector is used to differentiate different knowledge components.
+
+    The radius of the sector is proportional to the mean of the knowledge component.
+
+    On hover, additional information, like mean and variance of the knowledge
+    component, is displayed.
+    """
+
+    def __init__(
+        self,
+        title: str = "Distribution of learner's skill.",
+        xlabel: str = "",
+        ylabel: str = "",
+    ):
+        """Init a rose pie plotter.
+
+        Args:
+            title: The default title of the visualization
+            xlabel: The default x label of the visualization
+            ylabel: The default y label of the visualization
+        """
+        super().__init__(title, xlabel, ylabel)
 
     # pylint: disable=too-many-locals
     def plot(
@@ -226,7 +266,8 @@ class RosePlotter(PlotlyBasePlotter):
             )
 
         means = [tr_data[0] for tr_data in content_dict]
-        average_mean = sum(means) / len(means)
+        average_mean = float(statistics.mean(means))
+
         traces.append(
             go.Scatterpolar(
                 name="Average mean",

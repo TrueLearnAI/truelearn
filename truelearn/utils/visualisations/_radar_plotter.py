@@ -8,10 +8,13 @@ from truelearn.utils.visualisations._base import PlotlyBasePlotter
 
 
 class RadarPlotter(PlotlyBasePlotter):
-    """Radar Plotter.
+    """Radar plotter.
 
-    Visualise the learner's knowledge by using radar plot.
-    Each subject is shown in different sectors.
+    In the radar chart, each knowledge component is represented by two radii.
+
+    One of the radii represents the variance of the knowledge component.
+
+    The other one represents the mean of the knowledge component.
     """
 
     def __init__(
@@ -20,7 +23,7 @@ class RadarPlotter(PlotlyBasePlotter):
         xlabel: str = "",
         ylabel: str = "",
     ):
-        """Init a Dot plotter.
+        """Init a radar plotter.
 
         Args:
             title: The default title of the visualization
