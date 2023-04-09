@@ -1,4 +1,5 @@
 import warnings
+import random
 from typing import Iterable, Optional
 from typing_extensions import Self
 
@@ -28,6 +29,7 @@ class WordPlotter(MatplotlibBasePlotter):
         content: Knowledge,
         topics: Optional[Iterable[str]] = None,
         top_n: Optional[int] = None,
+        random_state: Optional[random.Random] = None,
     ) -> Self:
         """Plot the graph based on the given data.
 
@@ -41,6 +43,8 @@ class WordPlotter(MatplotlibBasePlotter):
             top_n:
                 The number of topics to visualise. E.g. if top_n is 5, then the
                 top 5 topics ranked by mean will be visualised.
+            random_state:
+                An optional random.Random object that will be used to draw word cloud.
         """
         content_dict, _ = self._standardise_data(content, False, topics)[:top_n]
 
@@ -70,6 +74,7 @@ class WordPlotter(MatplotlibBasePlotter):
             relative_scaling=1,  # type: ignore
             normalize_plurals=False,
             background_color="white",
+            random_state=random_state,
         ).generate_from_frequencies(word_freq)
 
         self.ax.imshow(wc_data, interpolation="bilinear")

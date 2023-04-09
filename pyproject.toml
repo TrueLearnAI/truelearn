@@ -49,6 +49,8 @@ dependencies = [
     'plotly>=5.13.0',
     'matplotlib>=3.5.3',
     'circlify>=0.15.0',
+    "wordcloud>=1.8.2.2; python_version < '3.10'",
+    "kaleido",
 ]
 [project.urls]
 Homepage = "https://truelearnai.github.io/TrueLearn-website/"
