@@ -65,9 +65,9 @@ class PiePlotter(PlotlyBasePlotter):
         """Init a Pie plotter.
 
         Args:
-            title: the default title of the visualization
-            xlabel: the default x label of the visualization
-            ylabel: the default y label of the visualization
+            title: The default title of the visualization
+            xlabel: The default x label of the visualization
+            ylabel: The default y label of the visualization
         """
         super().__init__(title, xlabel, ylabel)
 
@@ -258,19 +258,19 @@ class RosePlotter(PlotlyBasePlotter):
         width: float,
         colour: str,
     ) -> go.Barpolar:
-        """Returns the Barpolar object representing a single sector.
+        """Return the Barpolar object representing a single sector.
 
         Args:
             tr_data:
-                the data used to plot the sector. A list of tuples containing the mean,
+                The data used to plot the sector. A list of tuples containing the mean,
                 variance, title and timestamps of the topic represented by the sector.
             theta:
-                the position of the sector alongside the angular axis,
+                The position of the sector alongside the angular axis,
                 given in degrees.
             width:
-                the width of the sector, given in degrees.
+                The width of the sector, given in degrees.
             colour:
-                the colour of the sector, given as an rgb string. E.g. 'rgb(0,0,0)'.
+                The colour of the sector, given as an rgb string. E.g. 'rgb(0,0,0)'.
         """
         mean, variance, title, timestamps = tr_data
         number_of_videos = len(timestamps)

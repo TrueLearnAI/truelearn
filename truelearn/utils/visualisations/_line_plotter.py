@@ -30,33 +30,34 @@ class LinePlotter(PlotlyBasePlotter):
         xlabel: str = "Time",
         ylabel: str = "Mean",
     ):
-        """Init a Bubble plotter.
+        """Init a Line plotter.
 
         Args:
-            title: the default title of the visualization
-            xlabel: the default x label of the visualization
-            ylabel: the default y label of the visualization
+            title: The default title of the visualization
+            xlabel: The default x label of the visualization
+            ylabel: The default y label of the visualization
         """
         super().__init__(title, xlabel, ylabel)
 
     def _get_kc_details(self, kc, _) -> Tuple:
-        """Helper function for extracting data from a knowledge component.
+        """Extract data from a knowledge component.
 
-        Extracts the title, mean, variance for each timestamp in the knowledge
-        component's history.
+        Extract the title, means, variances and timestamps in the knowledge
+        component, where means, variances and timestamps are extracted from
+        the history of the knowledge component.
 
         Args:
             kc:
-                the knowledge component to extract the attributes from.
+                The knowledge component to extract the attributes from.
 
         Returns:
-            a tuple consisting of the means and variances of the topic at each
+            A tuple consisting of the means and variances of the topic at each
             timestamp, the title of the topic and the timestamps of when it was
             updated.
 
         Raises:
             TrueLearnTypeError:
-                if any of the knowledge components are not history-aware.
+                If any of the knowledge components are not history-aware.
         """
         title = kc["title"]
         means = []
@@ -99,9 +100,9 @@ class LinePlotter(PlotlyBasePlotter):
                 Whether to visualise variance.
         """
         if isinstance(content, list):
-            content_dict = self._plot_multiple(content, topics)
+            content_dict = self._content_for_multiple(content, topics)
         else:
-            content_dict = self._plot_single(content, topics, top_n)
+            content_dict = self._content_for_single(content, topics, top_n)
 
         traces = [self._trace(tr_data, variance) for tr_data in content_dict]
 
@@ -109,7 +110,7 @@ class LinePlotter(PlotlyBasePlotter):
 
         return self
 
-    def _plot_single(
+    def _content_for_single(
         self,
         content: Knowledge,
         topics: Optional[Iterable[str]],
@@ -118,7 +119,7 @@ class LinePlotter(PlotlyBasePlotter):
         content_dict, _ = self._standardise_data(content, True, topics)
         return content_dict[:top_n]
 
-    def _plot_multiple(
+    def _content_for_multiple(
         self,
         content_list: Iterable[Knowledge],
         topics: Optional[Iterable[str]] = None,
@@ -137,16 +138,15 @@ class LinePlotter(PlotlyBasePlotter):
         tr_data: Tuple[Iterable, Iterable, str, Iterable],
         visualise_variance: bool,
     ) -> go.Scatter:
-        """Returns the Scatter object representing a single line.
+        """Return the Scatter object representing a single line.
 
         Args:
             tr_data:
-                the data used to plot the line. A tuple containing the y values
+                The data used to plot the line. A tuple containing the mean
                 and variance of each point, the name of the line (the topic or user
-                it represents) and the x values of each point.
+                it represents) and the time when the learning event happens.
             visualise_variance:
-                boolean which determines whether to make the error bars
-                at each point visible or not.
+                Whether to make the error bars at each point visible.
         """
         means, variances, name, timestamps = tr_data
 
