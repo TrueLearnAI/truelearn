@@ -9,8 +9,6 @@ on:
       - '**.py'
       - '.github/workflows/unit_tests.yml'
   pull_request:
-    branches:
-      - main
     # filter on files that should trigger this workflow
     paths:
       - 'pyproject.toml'
