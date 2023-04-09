@@ -23,9 +23,9 @@ class RadarPlotter(PlotlyBasePlotter):
         """Init a Dot plotter.
 
         Args:
-            title: the default title of the visualization
-            xlabel: the default x label of the visualization
-            ylabel: the default y label of the visualization
+            title: The default title of the visualization
+            xlabel: The default x label of the visualization
+            ylabel: The default y label of the visualization
         """
         super().__init__(title, xlabel, ylabel)
 
@@ -101,14 +101,14 @@ class RadarPlotter(PlotlyBasePlotter):
             hovertemplate=self._hovertemplate("%{r}"),
         )
 
-    def _hovertemplate(self, hoverdata: str, history: bool = False) -> str:
-        """Returns the string which will be displayed when a point is hovered.
+    def _hovertemplate(self, hover_fmt: str, history: bool = False) -> str:
+        """Return the string that specifies the hover template.
 
         Args:
-            hoverdata:
+            hover_fmt:
                 the format string.
             history:
                 a boolean value which determines which template to use.
                 Makes no difference as of yet.
         """
-        return "<br>".join([f"Value: {hoverdata}", "<extra></extra>"])
+        return "<br>".join([f"Value: {hover_fmt}", "<extra></extra>"])

@@ -10,9 +10,6 @@ from truelearn.errors import TrueLearnTypeError
 from truelearn.models import Knowledge
 
 
-KnowledgeDict = Dict[Hashable, Dict[str, Union[str, float]]]
-
-
 class BasePlotter(ABC):
     """The base class of all the plotters."""
 
@@ -30,20 +27,23 @@ class BasePlotter(ABC):
 
         Args:
             raw_data:
-                the learner's knowledge, represented by a Knowledge object.
+                The learner's knowledge, represented by a Knowledge object.
             history:
-                boolean which indicates whether the user has requested access to
-                the knowledge component's timestamps (this allows the visualisations
-                to display more information on hover such as the number of videos
-                watched and the last video watched). If set to True, the Knowledge
-                object must consists of HistoryAwareKnowledgeComponents, or an
-                error will be raised.
+                Whether the user wants to use the knowledge component's timestamps
+                (this allows the visualisations to display more information on
+                hover such as the number of videos watched and the last video watched).
+                If set to True, the Knowledge object must consists of knowledge
+                components that respects HistoryAwareKnowledgeComponents protocol,
+                or an error will be raised.
             topics:
-                optional iterable of topics to extract the information for from
-                the knowledge object. If not specified, all topics are extracted.
+                An optional iterable of topics. The method will extract all the topics
+                that are present in this iterables.
+                If not specified, all topics are extracted.
 
         Returns:
-            a data structure suitable for generating the figure via the plot() method.
+            A tuple containing (content, rest) where content contains topics that are in
+            the iterable of topics and rest contains topics that are not in
+            the iterable of topics.
         """
         # make topics a set
         if topics is not None:
@@ -69,20 +69,20 @@ class BasePlotter(ABC):
         """Extract data from a knowledge component.
 
         Extracts the title, mean, variance attributes from a knowledge component.
-        If history is True, also extracts the timestamps from its history.
+        If history is True, also extracts the timestamps from history.
 
         Args:
             kc:
                 the knowledge component to extract the attributes from.
             history:
-                boolean which determines whether to extract the timestamps.
+                 Whether to extract the timestamps from kc.
 
         Returns:
-            the mean, variance, title and timestamps (if requested) as a tuple.
+            A tuple containing the mean, variance, title and timestamps (if requested).
 
         Raises:
             TrueLearnTypeError:
-                if history is True but the kc does not have a history key.
+                if history is True but the kc does not have a history attribute.
         """
         title = kc["title"]
         mean = kc["mean"]
@@ -119,9 +119,9 @@ class PlotlyBasePlotter(BasePlotter):
         """Init a Plotly Plotter.
 
         Args:
-            title: the default title of the visualization
-            xlabel: the default x label of the visualization
-            ylabel: the default y label of the visualization
+            title: The default title of the visualization
+            xlabel: The default x label of the visualization
+            ylabel: The default y label of the visualization
         """
         super().__init__()
         self.figure = go.Figure()
@@ -131,22 +131,21 @@ class PlotlyBasePlotter(BasePlotter):
         self.xlabel(xlabel)
         self.ylabel(ylabel)
 
-    # TODO: remove this from Base in the next version
-    def _hovertemplate(self, hoverdata: Tuple, history: bool) -> str:
-        """Determines what information is displayed on hover in a dynamic setting.
+    def _hovertemplate(self, hover_fmt: Tuple, history: bool) -> str:
+        """Determine what information is displayed on hover.
 
         Args:
             hoverdata:
-                a tuple containing the data to display on hover.
+                A tuple containing some format strings that specify how to format data.
             history:
-                a boolean value which determines which template to use.
+                A boolean value which determines which template to use.
                 If history is True, additional information like the number of
                 videos watched and the last video watched are displayed on hover.
 
         Returns:
-            the string to display when the specific trace is hovered.
+            The hover template.
         """
-        topic, mean, variance, number_videos, last_video = hoverdata
+        topic, mean, variance, number_videos, last_video = hover_fmt
         return (
             "<br>".join(
                 [
@@ -170,15 +169,15 @@ class PlotlyBasePlotter(BasePlotter):
         )
 
     @final
-    def show(self) -> None:
-        """Display the visualisation in a new web page.
+    def show(self):
+        """Display the visualisation in a new webpage.
 
         Equivalent to calling Plotly's Figure.show() method.
         """
         self.figure.show()
 
     @final
-    def savefig(self, file: str, **kargs) -> None:
+    def savefig(self, file: str, **kargs):
         """Export the visualisation to a file.
 
         Args:
@@ -193,19 +192,19 @@ class PlotlyBasePlotter(BasePlotter):
 
                 If you want to export a HTML file, you can optionally pass in
                     default_width:
-                        the default width of the image in the HTML file.
+                        The default width of the image in the HTML file.
                     default_height:
-                        the default height of the image in the HTML file.
+                        The default height of the image in the HTML file.
 
                 If you want to export an image file, you can optionally pass in
                     width:
-                        the default width of the image.
+                        The default width of the image.
                     height:
-                        the default height of the image.
+                        The default height of the image.
 
         Notes:
             You can refer to Plotly's documentation for `write_image` and `write_html`
-            to find out more supported arguments for image and html files.
+            to find out more supported arguments.
         """
         if file.endswith(".html"):
             self.figure.write_html(file=file, **kargs)
@@ -248,9 +247,9 @@ class MatplotlibBasePlotter(BasePlotter):
         """Init a matplotlib Plotter.
 
         Args:
-            title: the default title of the visualization
-            xlabel: the default x label of the visualization
-            ylabel: the default y label of the visualization
+            title: The default title of the visualization
+            xlabel: The default x label of the visualization
+            ylabel: The default y label of the visualization
         """
         super().__init__()
         self.fig, self.ax = plt.subplots()
@@ -261,7 +260,7 @@ class MatplotlibBasePlotter(BasePlotter):
 
     @final
     def show(self):
-        """Display the figure if in interactive mode."""
+        """Display the figure if the caller is in interactive mode."""
         self.fig.show()
 
     @final
@@ -297,7 +296,7 @@ class MatplotlibBasePlotter(BasePlotter):
 
         Notes:
             You can refer to matplotlib's documentation for `savefig`
-            to find out more supported arguments for saving image files.
+            to find out more supported arguments.
         """
         self.fig.savefig(fname=file, **kargs)
 
@@ -329,15 +328,18 @@ class MatplotlibBasePlotter(BasePlotter):
         self.ax.set_ylabel(text)
 
 
-def knowledge_to_dict(knowledge: Knowledge) -> KnowledgeDict:
+def knowledge_to_dict(
+    knowledge: Knowledge,
+) -> Dict[Hashable, Dict[str, Union[str, float]]]:
     """Convert knowledge to a Python dictionary.
-
-    Returns a copy of the knowledge object in which all the knowledge
-    components have been converted to dicts.
 
     Args:
         knowledge:
             the knowledge object to copy.
+
+    Returns:
+        A dictionary mapping topic id to knowledge component.
+        The knowledge component is in dictionary format.
     """
 
     def export_as_dict_with_title(topic_id, kc):
@@ -355,11 +357,11 @@ def knowledge_to_dict(knowledge: Knowledge) -> KnowledgeDict:
     }
 
 
-def unix_to_iso(t: int) -> str:
+def unix_to_iso(t: float) -> str:
     """Convert an unix timestamp to an ISO-formatted date string.
 
     Args:
-        t: int value representing the unix timestamp.
+        t: value representing the POSIX timestamp.
 
     Returns:
         the ISO date string.
