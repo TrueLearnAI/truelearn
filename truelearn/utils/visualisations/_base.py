@@ -16,13 +16,13 @@ KnowledgeDict = Dict[Hashable, Dict[str, Union[str, float]]]
 class BasePlotter(ABC):
     """The base class of all the plotters."""
 
-    # TODO: extract this out
+    @final
     def _standardise_data(
         self,
         raw_data: Knowledge,
         history: bool = False,
         topics: Optional[Iterable[str]] = None,
-    ) -> List[Tuple]:
+    ) -> Tuple[List[Tuple], List[Tuple]]:
         """Convert a Knowledge object to one suitable for generating visualisations.
 
         Optional utility function that converts the learner's knowledge (obtainable
@@ -52,16 +52,19 @@ class BasePlotter(ABC):
         raw_data_dict = knowledge_to_dict(raw_data)
 
         content = []
+        rest = []
+
         for kc in raw_data_dict.values():
             data = self._get_kc_details(kc, history)
             if topics is None or data[2] in topics:
                 content.append(data)
+            else:
+                rest.append(data)
 
         content.sort(key=lambda data: data[0], reverse=True)  # sort based on mean
 
-        return content
+        return content, rest
 
-    # TODO: extract this out
     def _get_kc_details(self, kc: Dict[str, Any], history: bool) -> Tuple:
         """Extract data from a knowledge component.
 

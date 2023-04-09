@@ -39,7 +39,7 @@ class DotPlotter(PlotlyBasePlotter):
         top_n: Optional[int] = None,
         history: bool = False,
     ) -> Self:
-        content_dict = self._standardise_data(content, history, topics)[:top_n]
+        content_dict, _ = self._standardise_data(content, history, topics)[:top_n]
 
         means, variances, titles, *others = list(zip(*content_dict))
 

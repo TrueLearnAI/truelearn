@@ -6,10 +6,7 @@ import numpy as np
 import plotly.graph_objects as go
 
 from truelearn.models import Knowledge
-from truelearn.utils.visualisations._base import (
-    PlotlyBasePlotter,
-    knowledge_to_dict,
-)
+from truelearn.utils.visualisations._base import PlotlyBasePlotter
 
 
 class PiePlotter(PlotlyBasePlotter):
@@ -29,31 +26,6 @@ class PiePlotter(PlotlyBasePlotter):
             ylabel: the default y label of the visualization
         """
         super().__init__(title, xlabel, ylabel)
-
-    # TODO: make this the general version of the standardise data
-    def _standardise_data(
-        self,
-        raw_data: Knowledge,
-        history: bool = False,
-        topics: Optional[Iterable[str]] = None,
-    ) -> Tuple[List, List]:
-        if topics is not None:
-            topics = set(topics)
-
-        raw_data_dict = knowledge_to_dict(raw_data)
-
-        content = []
-        rest = []
-        for kc in raw_data_dict.values():
-            data = self._get_kc_details(kc, history)
-            if topics is None or data[2] in topics:
-                content.append(data)
-            else:
-                rest.append(data)
-
-        content.sort(key=lambda data: data[0], reverse=True)  # sort based on mean
-
-        return content, rest
 
     # pylint: disable=too-many-locals,too-many-arguments
     def plot(

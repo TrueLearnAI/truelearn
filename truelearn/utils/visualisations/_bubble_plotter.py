@@ -40,7 +40,7 @@ class BubblePlotter(MatplotlibBasePlotter):
         topics: Optional[Iterable[str]] = None,
         top_n: Optional[int] = None,
     ) -> Self:
-        content_dict = self._standardise_data(content, False, topics)[:top_n]
+        content_dict, _ = self._standardise_data(content, False, topics)[:top_n]
 
         means, variances, titles = list(zip(*content_dict))
         circles = circlify.circlify(

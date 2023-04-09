@@ -97,7 +97,8 @@ class LinePlotter(PlotlyBasePlotter):
         topics: Optional[Iterable[str]],
         top_n: Optional[int],
     ):
-        return self._standardise_data(content, True, topics)[:top_n]
+        content_dict, _ = self._standardise_data(content, True, topics)
+        return content_dict[:top_n]
 
     def _plot_multiple(
         self,
@@ -106,10 +107,10 @@ class LinePlotter(PlotlyBasePlotter):
     ):
         data = []
         for content in content_list:
-            content = self._standardise_data(content, True, topics)
+            content_dict, _ = self._standardise_data(content, True, topics)
             # select one topic from each learner
-            if content:  # if user Knowledge contains at least 1 topic in topics
-                data.append(content[0])
+            if content_dict:  # if user Knowledge contains at least 1 topic in topics
+                data.append(content_dict[0])
 
         return data
 
