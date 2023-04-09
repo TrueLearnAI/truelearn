@@ -151,18 +151,6 @@ class PlotlyBasePlotter(BasePlotter):
         self.xlabel(xlabel)
         self.ylabel(ylabel)
 
-    def _layout(self, layout_data: Tuple[str, str, str]) -> go.Layout:
-        """Create the Layout object for the visualisation."""
-        title, x_label, y_label = layout_data
-
-        layout = go.Layout(
-            title=title,
-            xaxis={"title": x_label},
-            yaxis={"title": y_label},
-        )
-
-        return layout
-
     # TODO: remove this from Base in the next version
     def _hovertemplate(self, hoverdata: Tuple, history: bool) -> str:
         """Determines what information is displayed on hover in a dynamic setting.
