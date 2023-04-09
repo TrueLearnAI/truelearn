@@ -11,10 +11,10 @@ from truelearn.utils.visualisations._base import PlotlyBasePlotter
 class BarPlotter(PlotlyBasePlotter):
     """Bar Plotter.
 
-    Visualise the learner's knowledge in terms of bar chart.
+    Visualise the learner's knowledge in terms of bar.
     Each subject is represented by a bar in the chart.
-    The height of the bar is the mean of the subject, and
-    the error bar is related to the variance of the subject.
+    The height and shade of the bar is related to the mean of the subject,
+    and the error bar is related to the variance of the subject.
     """
 
     def __init__(
