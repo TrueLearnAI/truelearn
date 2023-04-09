@@ -96,13 +96,16 @@ class PiePlotter(PlotlyBasePlotter):
                 labels=titles,
                 values=means,
                 customdata=np.transpose(
-                    np.array([
-                        titles,
-                        means,
-                        variances,
-                        number_of_videos,
-                        last_video_watched,
-                    ], dtype=object)
+                    np.array(
+                        [
+                            titles,
+                            means,
+                            variances,
+                            number_of_videos,
+                            last_video_watched,
+                        ],
+                        dtype=object,
+                    )
                 ),
                 hovertemplate=self._hovertemplate(
                     (
