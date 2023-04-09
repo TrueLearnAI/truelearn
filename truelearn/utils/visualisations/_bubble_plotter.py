@@ -1,4 +1,4 @@
-from typing import Iterable, List, Optional, Tuple, Union
+from typing import Iterable, Optional
 from typing_extensions import Self
 
 import circlify
@@ -10,40 +10,46 @@ from truelearn.utils.visualisations._base import MatplotlibBasePlotter
 
 
 class BubblePlotter(MatplotlibBasePlotter):
-    """Provides utilities for plotting bubble charts."""
+    """Bubble Plotter.
+
+    Visualise the learner's knowledge in terms of bubble.
+    Each subject is represented by a bubble in the chart.
+    The diameter of the circle is proportional to the mean of the subject,
+    and the shade of the circle represents the variance of the subject.
+    """
+
+    def __init__(
+        self,
+        title: str = "Comparison of learner's subjects",
+        xlabel: str = "",
+        ylabel: str = "",
+    ):
+        """Init a Bubble plotter.
+
+        Args:
+            title: the default title of the visualization
+            xlabel: the default x label of the visualization
+            ylabel: the default y label of the visualization
+        """
+        super().__init__(title, xlabel, ylabel)
 
     # pylint: disable=too-many-locals
     def plot(
         self,
-        content: Union[Knowledge, List[Tuple[float, float, str]]],
+        content: Knowledge,
         topics: Optional[Iterable[str]] = None,
         top_n: Optional[int] = None,
-        *,
-        title: str = "Comparison of learner's subjects",
-        x_label: str = "",
-        y_label: str = "",
     ) -> Self:
-        if isinstance(content, Knowledge):
-            content = self._standardise_data(content, False, topics)
+        content_dict = self._standardise_data(content, False, topics)[:top_n]
 
-        content = content[:top_n]
-
-        means = [lst[0] * 10 for lst in content]
-
-        variances = [lst[1] for lst in content]
-
-        titles = [lst[2] for lst in content]
-
+        means, variances, titles = list(zip(*content_dict))
         circles = circlify.circlify(
             means, show_enclosure=True, target_enclosure=circlify.Circle(x=0, y=0, r=1)
         )
 
-        fig, ax = plt.subplots(figsize=(11.75, 10))
+        self.ax.axis("off")
 
-        ax.set_title(title)
-
-        ax.axis("off")
-
+        # set limit for x and y axis
         lim = max(
             max(
                 abs(circle.x) + circle.r,
@@ -64,7 +70,7 @@ class BubblePlotter(MatplotlibBasePlotter):
         for i, circle in enumerate(circles):
             if i < len(titles):
                 x, y, r = circle
-                ax.add_patch(
+                self.ax.add_patch(
                     patches.Circle(
                         (x, y),
                         r,
@@ -76,7 +82,8 @@ class BubblePlotter(MatplotlibBasePlotter):
                     titles[len(titles) - 1 - i], (x, y), va="center", ha="center"
                 )
 
-        cbar = fig.colorbar(sm, ax=ax)
+        # setup the colorbar on the right
+        cbar = self.fig.colorbar(sm, ax=self.ax)
         cbar.ax.set_ylabel("Variance")
 
         return self
