@@ -10,12 +10,12 @@ from truelearn.utils.visualisations._base import PlotlyBasePlotter
 
 
 class LinePlotter(PlotlyBasePlotter):
-    """Line Plotter.
+    """Line plotter.
 
-    It can provide 2 kinds of visualization:
+    Line plotter provides 2 kinds of visualization:
 
-    - Single user + Multiple topics over time
-    - Multiple users + Single topic over time
+    - Mean of multiple knowledge components for one learner vs. time
+    - Mean of a topic from multiple learners vs. time
 
     In each mode, the x-axis represents the time
     and the y-axis represents the mean of the topic.
@@ -30,7 +30,7 @@ class LinePlotter(PlotlyBasePlotter):
         xlabel: str = "Time",
         ylabel: str = "Mean",
     ):
-        """Init a Line plotter.
+        """Init a line plotter.
 
         Args:
             title: The default title of the visualization
@@ -66,7 +66,7 @@ class LinePlotter(PlotlyBasePlotter):
 
         if "history" not in kc:
             raise TrueLearnTypeError(
-                "User's knowledge does not contain history. "
+                "Learner's knowledge does not contain history. "
                 "You can use HistoryAwareKnowledgeComponents."
             )
 
@@ -137,7 +137,7 @@ class LinePlotter(PlotlyBasePlotter):
         for content in content_list:
             content_dict, _ = self._standardise_data(content, True, topics)
             # select one topic from each learner
-            if content_dict:  # if user Knowledge contains at least 1 topic in topics
+            if content_dict:  # if learner Knowledge contains at least 1 topic in topics
                 data.append(content_dict[0])
 
         return data
@@ -152,8 +152,8 @@ class LinePlotter(PlotlyBasePlotter):
         Args:
             tr_data:
                 The data used to plot the line. A tuple containing the mean
-                and variance of each point, the name of the line (the topic or user
-                it represents) and the time when the learning event happens.
+                and variance of each point, the name of the line (the topic or
+                the leanrer it represents) and the time when the learning event happens.
             visualise_variance:
                 Whether to make the error bars at each point visible.
         """

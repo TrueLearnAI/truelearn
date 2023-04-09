@@ -7,16 +7,20 @@ from truelearn.utils.visualisations._base import MatplotlibBasePlotter
 
 
 class WordPlotter(MatplotlibBasePlotter):
-    """Word Cloud.
+    """Word cloud plotter.
 
-    Visualise the learner's knowledge by using word cloud.
-    Each subject is shown as words in the chart.
-    The size of the words is related to the mean of the subject.
-    The larger the average, the larger the word.
+    In word cloud plotter, each knowledge is represented by some words of
+    a certain size and colour.
+
+    The size of the words is proportional to the mean of the knowledge
+    component the word represents.
+
+    The color of the words is used to differentiate different knowledge
+    components.
     """
 
     def __init__(self):
-        """Init a Word Plotter."""
+        """Init a word cloud plotter."""
         super().__init__("", "", "")
 
     def plot(

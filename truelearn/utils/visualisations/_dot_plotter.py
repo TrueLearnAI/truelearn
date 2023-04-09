@@ -9,12 +9,18 @@ from truelearn.utils.visualisations._base import PlotlyBasePlotter
 
 
 class DotPlotter(PlotlyBasePlotter):
-    """Dot Plotter.
+    """Dot plotter.
 
-    Visualise the learner's knowledge in terms of dot.
-    Each subject is represented by a dot in the chart.
-    The height and shade of the dot is related to mean of the subject,
-    and the error bar is related to the variance of the subject.
+    In the dot chart, each knowledge component is represented by a dot
+    with height, shade and an error bar.
+
+    The height of the dot represents the mean of the knowledge component.
+
+    The shade of the dot also represents the mean of the knowledge component.
+    The darker the shade, the greater the mean.
+
+    The length of the error bar is related to the variance of the knowledge
+    component. The greater the variance, the greater the length.
     """
 
     def __init__(
@@ -23,7 +29,7 @@ class DotPlotter(PlotlyBasePlotter):
         xlabel: str = "Subjects",
         ylabel: str = "Mean",
     ):
-        """Init a Dot plotter.
+        """Init a dot plotter.
 
         Args:
             title: The default title of the visualization

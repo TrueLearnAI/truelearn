@@ -10,12 +10,15 @@ from truelearn.utils.visualisations._base import MatplotlibBasePlotter
 
 
 class BubblePlotter(MatplotlibBasePlotter):
-    """Bubble Plotter.
+    """Bubble plotter.
 
-    Visualise the learner's knowledge in terms of bubble.
-    Each subject is represented by a bubble in the chart.
-    The diameter of the circle is proportional to the mean of the subject,
-    and the shade of the circle represents the variance of the subject.
+    In the bubble chart, each knowledge component is represented by a bubble
+    of a certain size and shade.
+
+    The size of the bubble is proportional to the mean of the knowledge component.
+
+    The shade of the bubble represents the variance of the knowledge component.
+    The lighter the shade, the greater the variance.
     """
 
     def __init__(
@@ -24,7 +27,7 @@ class BubblePlotter(MatplotlibBasePlotter):
         xlabel: str = "",
         ylabel: str = "",
     ):
-        """Init a Bubble plotter.
+        """Init a bubble plotter.
 
         Args:
             title: The default title of the visualization
