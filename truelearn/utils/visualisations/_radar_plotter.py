@@ -1,4 +1,4 @@
-from typing import Iterable, List, Optional, Tuple, Union
+from typing import Iterable, List, Optional
 from typing_extensions import Self
 
 import plotly.graph_objects as go
@@ -8,32 +8,50 @@ from truelearn.utils.visualisations._base import PlotlyBasePlotter
 
 
 class RadarPlotter(PlotlyBasePlotter):
-    """Provides utilities for plotting radar charts."""
+    """Radar Plotter.
+
+    Visualise the learner's knowledge by using radar plot.
+    Each subject is shown in different sectors.
+    """
+
+    def __init__(
+        self,
+        title: str = "Mean and variance across different topics.",
+        xlabel: str = "",
+        ylabel: str = "",
+    ):
+        """Init a Dot plotter.
+
+        Args:
+            title: the default title of the visualization
+            xlabel: the default x label of the visualization
+            ylabel: the default y label of the visualization
+        """
+        super().__init__(title, xlabel, ylabel)
 
     def plot(
         self,
-        content: Union[Knowledge, List[Tuple]],
+        content: Knowledge,
         topics: Optional[Iterable[str]] = None,
         top_n: Optional[int] = None,
-        *,
-        title: str = "Mean and variance across different topics.",
-        x_label: str = "",
-        y_label: str = "",
     ) -> Self:
-        if isinstance(content, Knowledge):
-            content = self._standardise_data(content, False, topics)
+        content_dict = self._standardise_data(content, False, topics)[:top_n]
 
-        content = content[:top_n]
+        means = [lst[0] for lst in content_dict]
+        variances = [lst[1] for lst in content_dict]
+        titles = [lst[2] for lst in content_dict]
 
-        means = [lst[0] for lst in content]
+        # need to add the first element to the list again
+        # otherwise, the last line will not properly shown
+        means.append(means[0])
+        variances.append(variances[0])
+        titles.append(titles[0])
 
-        variances = [lst[1] for lst in content]
-
-        titles = [lst[2] for lst in content]
-
-        self.figure = go.Figure(
-            [self._trace(means, titles), self._trace(variances, titles)],
-            layout=self._layout((title, "", "")),
+        self.figure.add_traces(
+            [
+                self._trace(means, titles, "Means"),
+                self._trace(variances, titles, "Variances"),
+            ],
         )
 
         self.figure.update_layout(
@@ -51,22 +69,22 @@ class RadarPlotter(PlotlyBasePlotter):
 
         return self
 
-    def _trace(self, r: List[float], theta: List[str]) -> go.Scatterpolar:
+    def _trace(self, r: List[float], topics: List[str], name: str) -> go.Scatterpolar:
         """Returns a single layer in the radar chart.
 
         Args:
             r:
-                the radial position of each point that makes up the layer.
-            theta:
-                the angular position of each point that makes up the layer.
+                The radial position of each point that makes up the layer.
+            topics:
+                The topics that need to be shown.
+            name:
+                The name of the trace.
         """
-        r.append(r[0])
-        theta.append(theta[0])
         return go.Scatterpolar(
             r=r,
-            theta=theta,
+            theta=topics,
             fill="toself",
-            name="Variances",
+            name=name,
             hovertemplate=self._hovertemplate("%{r}"),
         )
 
@@ -80,5 +98,4 @@ class RadarPlotter(PlotlyBasePlotter):
                 a boolean value which determines which template to use.
                 Makes no difference as of yet.
         """
-        # TODO: fix this to show mean and variance correctly
         return "<br>".join([f"Value: {hoverdata}", "<extra></extra>"])
