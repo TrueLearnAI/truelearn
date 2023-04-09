@@ -46,15 +46,15 @@ class BasePlotter(ABC):
             a data structure suitable for generating the figure via the plot() method.
         """
         # make topics a set
-        topics = topics or set()
-        topics = set(topics)
+        if topics is not None:
+            topics = set(topics)
 
         raw_data_dict = knowledge_to_dict(raw_data)
 
         content = []
         for kc in raw_data_dict.values():
             data = self._get_kc_details(kc, history)
-            if (topics is None) or data[2] in topics:
+            if topics is None or data[2] in topics:
                 content.append(data)
 
         content.sort(key=lambda data: data[0], reverse=True)  # sort based on mean
@@ -90,8 +90,8 @@ class BasePlotter(ABC):
 
         if "history" not in kc:
             raise TrueLearnTypeError(
-                "User's knowledge contains KnowledgeComponents. "
-                + "Expected only HistoryAwareKnowledgeComponents."
+                "User's knowledge does not contain history. "
+                + "You can use HistoryAwareKnowledgeComponents."
             )
         timestamps = [unix_to_iso(timestamp) for _, _, timestamp in kc["history"]]
 
@@ -139,11 +139,21 @@ class BasePlotter(ABC):
 class PlotlyBasePlotter(BasePlotter):
     """Base class for Plotly Plotters."""
 
-    @final
-    def __init__(self) -> None:
-        """Init a Plotly Plotter."""
+    def __init__(self, title: str, xlabel: str, ylabel: str):
+        """Init a Plotly Plotter.
+
+        Args:
+            title: the default title of the visualization
+            xlabel: the default x label of the visualization
+            ylabel: the default y label of the visualization
+        """
         super().__init__()
         self.figure = go.Figure()
+
+        # set default title, xlabel and ylabel
+        self.title(title)
+        self.xlabel(xlabel)
+        self.ylabel(ylabel)
 
     def _layout(self, layout_data: Tuple[str, str, str]) -> go.Layout:
         """Create the Layout object for the visualisation."""
@@ -270,10 +280,20 @@ class PlotlyBasePlotter(BasePlotter):
 class MatplotlibBasePlotter(BasePlotter):
     """Base class for Matplotlib Plotters."""
 
-    def __init__(self):
-        """Init a Matplotlib Plotter."""
+    def __init__(self, title: str, xlabel: str, ylabel: str):
+        """Init a matplotlib Plotter.
+
+        Args:
+            title: the default title of the visualization
+            xlabel: the default x label of the visualization
+            ylabel: the default y label of the visualization
+        """
         super().__init__()
         self.fig, self.ax = plt.subplots()
+
+        self.title(title)
+        self.xlabel(xlabel)
+        self.ylabel(ylabel)
 
     @final
     def show(self):
@@ -347,13 +367,20 @@ def knowledge_to_dict(knowledge: Knowledge) -> KnowledgeDict:
         knowledge:
             the knowledge object to copy.
     """
-    pairs = knowledge.topic_kc_pairs()
 
-    knowledge_dict = {}
-    for topic, kc in pairs:
-        knowledge_dict[topic] = kc.export_as_dict()
+    def export_as_dict_with_title(topic_id, kc):
+        kc_dict = kc.export_as_dict()
 
-    return knowledge_dict
+        # in case that the title is None,
+        # we try to use topic_id as the title
+        kc_dict["title"] = kc_dict["title"] or str(topic_id)
+
+        return kc_dict
+
+    return {
+        topic_id: export_as_dict_with_title(topic_id, kc)
+        for topic_id, kc in knowledge.topic_kc_pairs()
+    }
 
 
 def unix_to_iso(t: int) -> str:
