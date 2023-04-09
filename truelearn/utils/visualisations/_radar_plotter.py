@@ -35,6 +35,19 @@ class RadarPlotter(PlotlyBasePlotter):
         topics: Optional[Iterable[str]] = None,
         top_n: Optional[int] = None,
     ) -> Self:
+        """Plot the graph based on the given data.
+
+        Args:
+            content:
+                The Knowledge object to use to plot the visualisation.
+            topics:
+                The list of topics in the learner's knowledge to visualise.
+                If None, all topics are visualised (unless top_n is
+                specified, see below).
+            top_n:
+                The number of topics to visualise. E.g. if top_n is 5, then the
+                top 5 topics ranked by mean will be visualised.
+        """
         content_dict, _ = self._standardise_data(content, False, topics)[:top_n]
 
         means = [lst[0] for lst in content_dict]

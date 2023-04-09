@@ -39,6 +39,23 @@ class BarPlotter(PlotlyBasePlotter):
         top_n: Optional[int] = None,
         history: bool = False,
     ) -> Self:
+        """Plot the graph based on the given data.
+
+        Args:
+            content:
+                The Knowledge object to use to plot the visualisation.
+            topics:
+                The list of topics in the learner's knowledge to visualise.
+                If None, all topics are visualised (unless top_n is
+                specified, see below).
+            top_n:
+                The number of topics to visualise. E.g. if top_n is 5, then the
+                top 5 topics ranked by mean will be visualised.
+            history:
+                Whether to utilize history information in the visualisation.
+                If this is set to True, an attribute called history must be
+                present in all knowledge components.
+        """
         content_dict, _ = self._standardise_data(content, history, topics)[:top_n]
 
         means, variances, titles, *others = list(zip(*content_dict))
