@@ -91,7 +91,7 @@ class BasePlotter(ABC):
         if "history" not in kc:
             raise TrueLearnTypeError(
                 "User's knowledge does not contain history. "
-                + "You can use HistoryAwareKnowledgeComponents."
+                "You can use HistoryAwareKnowledgeComponents."
             )
         timestamps = [unix_to_iso(timestamp) for _, _, timestamp in kc["history"]]
 
