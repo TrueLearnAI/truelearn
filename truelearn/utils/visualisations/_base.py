@@ -297,6 +297,16 @@ class MatplotlibBasePlotter(BasePlotter):
         self.fig.show()
 
     @final
+    def set_size_inches(self, width: float, height: float):
+        """Set the figure size in inches.
+
+        Args:
+            width: width
+            height: height
+        """
+        self.fig.set_size_inches(width, height)
+
+    @final
     def savefig(self, file: str, **kargs):
         """Export the visualisation to a file.
 
@@ -314,10 +324,8 @@ class MatplotlibBasePlotter(BasePlotter):
                 to find out the supported file formats in your platform.
 
                 You can optionally pass in these arguments:
-                    width:
-                        the default width of the image.
-                    height:
-                        the default height of the image.
+                    dpi:
+                        The dpi of the image.
 
         Notes:
             You can refer to matplotlib's documentation for `savefig`
