@@ -129,7 +129,7 @@ def image_comparison(**genimg_kwargs):
     return image_comparison_class_decorator
 
 
-@image_comparison(width=800, height=600)
+@image_comparison(width=800, height=600, scale=1)
 class TestBarPlotter:
     def test_default(self, resources):
         plotter = visualisations.BarPlotter()
@@ -145,7 +145,7 @@ class TestBubblePlot:
         return plotter
 
 
-@image_comparison(width=800, height=600)
+@image_comparison(width=800, height=600, scale=1)
 class TestDotPlotter:
     def test_default(self, resources):
         plotter = visualisations.DotPlotter()
@@ -153,7 +153,7 @@ class TestDotPlotter:
         return plotter
 
 
-@image_comparison(width=800, height=600)
+@image_comparison(width=800, height=600, scale=1)
 class TestLinePlotterSingleUser:
     def test_default(self, resources):
         plotter = visualisations.LinePlotter()
@@ -161,7 +161,7 @@ class TestLinePlotterSingleUser:
         return plotter
 
 
-@image_comparison(width=800, height=600)
+@image_comparison(width=800, height=600, scale=1)
 class TestLinePlotterMultipleUsers:
     def test_default(self, resources):
         plotter = visualisations.LinePlotter()
@@ -169,7 +169,7 @@ class TestLinePlotterMultipleUsers:
         return plotter
 
 
-@image_comparison(width=800, height=600)
+@image_comparison(width=800, height=600, scale=1)
 class TestPiePlotter:
     def test_default(self, resources):
         plotter = visualisations.PiePlotter()
@@ -177,7 +177,7 @@ class TestPiePlotter:
         return plotter
 
 
-@image_comparison(width=800, height=600)
+@image_comparison(width=800, height=600, scale=1)
 class TestRosePlotter:
     def test_default(self, resources):
         random_state = random.Random(42)
@@ -186,7 +186,7 @@ class TestRosePlotter:
         return plotter
 
 
-@image_comparison(width=800, height=600)
+@image_comparison(width=800, height=600, scale=1)
 class TestRadarPlotter:
     def test_default(self, resources):
         plotter = visualisations.RadarPlotter()
@@ -194,7 +194,7 @@ class TestRadarPlotter:
         return plotter
 
 
-@image_comparison(width=800, height=600)
+@image_comparison(width=800, height=600, scale=1)
 class TestTreePlotter:
     def test_default(self, resources):
         plotter = visualisations.TreePlotter()
