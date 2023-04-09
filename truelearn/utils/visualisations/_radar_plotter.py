@@ -106,9 +106,9 @@ class RadarPlotter(PlotlyBasePlotter):
 
         Args:
             hover_fmt:
-                the format string.
+                The format string.
             history:
-                a boolean value which determines which template to use.
-                Makes no difference as of yet.
+                A boolean value which determines which template to use.
+                This doesn't make any difference in radar plotter.
         """
         return "<br>".join([f"Value: {hover_fmt}", "<extra></extra>"])

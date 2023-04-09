@@ -1,4 +1,5 @@
 import random
+import statistics
 from typing import Iterable, Optional, Tuple, List
 from typing_extensions import Self
 
@@ -10,24 +11,27 @@ from truelearn.utils.visualisations._base import PlotlyBasePlotter
 
 
 def _summarize_other(rest: List[Tuple], history: bool):
+    """Summarize information for all topics that are not used.
+
+    This method is called if the user wants to group all unused topics into a
+    category called "Other". This method summarizes necessary information, such as
+    average mean and variance from the given topics.
+    """
     means = [lst[0] for lst in rest]
     variances = [lst[1] for lst in rest]
 
-    average_mean = sum(means) / len(rest)
-    average_variance = sum(variances) / len(rest)
+    average_mean = float(statistics.mean(means))
+    average_variance = float(statistics.mean(variances))
 
     if history:
         timestamps = [lst[3] for lst in rest]
-        # timestamps[-1] = "N/A"  # alternatively, sort timestamps
-        other_data = (average_mean, average_variance, "Other", timestamps)
-    else:
-        other_data = (average_mean, average_variance, "Other")
+        return average_mean, average_variance, "Other", timestamps
 
-    return other_data
+    return average_mean, average_variance, "Other"
 
 
 def _get_colour(variance: float, variance_min: float, variance_max: float) -> str:
-    """Maps the variance to a shade of green represented in RGB.
+    """Map the variance to a shade of green represented in RGB.
 
     A darker shade represents less variance.
 

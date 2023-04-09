@@ -116,6 +116,10 @@ class LinePlotter(PlotlyBasePlotter):
         topics: Optional[Iterable[str]],
         top_n: Optional[int],
     ):
+        """Extract content from Knowledge.
+
+        This method is called if the plotter only visualises one learner.
+        """
         content_dict, _ = self._standardise_data(content, True, topics)
         return content_dict[:top_n]
 
@@ -124,6 +128,11 @@ class LinePlotter(PlotlyBasePlotter):
         content_list: Iterable[Knowledge],
         topics: Optional[Iterable[str]] = None,
     ):
+        """Extract content from a iterable of Knowledge.
+
+        This method is called if the plotter visualises more than one learner.
+        It tries to extract one topic from each learner.
+        """
         data = []
         for content in content_list:
             content_dict, _ = self._standardise_data(content, True, topics)
@@ -135,7 +144,7 @@ class LinePlotter(PlotlyBasePlotter):
 
     def _trace(
         self,
-        tr_data: Tuple[Iterable, Iterable, str, Iterable],
+        tr_data: Tuple[Iterable[float], Iterable[float], str, Iterable[float]],
         visualise_variance: bool,
     ) -> go.Scatter:
         """Return the Scatter object representing a single line.
