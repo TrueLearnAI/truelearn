@@ -1,4 +1,4 @@
-from typing import Iterable, List, Optional, Tuple, Union
+from typing import Iterable, Optional
 from typing_extensions import Self
 
 import numpy as np
@@ -9,43 +9,53 @@ from truelearn.utils.visualisations._base import PlotlyBasePlotter
 
 
 class DotPlotter(PlotlyBasePlotter):
-    """Provides utilities for plotting dot plots."""
+    """Dot Plotter.
+
+    Visualise the learner's knowledge in terms of dot.
+    Each subject is represented by a dot in the chart.
+    The height and shade of the dot is related to mean of the subject,
+    and the error bar is related to the variance of the subject.
+    """
+
+    def __init__(
+        self,
+        title: str = "Comparison of learner's subjects",
+        xlabel: str = "Subjects",
+        ylabel: str = "Mean",
+    ):
+        """Init a Dot plotter.
+
+        Args:
+            title: the default title of the visualization
+            xlabel: the default x label of the visualization
+            ylabel: the default y label of the visualization
+        """
+        super().__init__(title, xlabel, ylabel)
 
     def plot(
         self,
-        content: Union[Knowledge, List[Tuple]],
+        content: Knowledge,
         topics: Optional[Iterable[str]] = None,
         top_n: Optional[int] = None,
-        *,
-        title: str = "Comparison of learner's subjects",
-        x_label: str = "Subjects",
-        y_label: str = "Mean",
         history: bool = False,
     ) -> Self:
-        if isinstance(content, Knowledge):
-            content = self._standardise_data(content, history, topics)
+        content_dict = self._standardise_data(content, history, topics)[:top_n]
 
-        content = content[:top_n]
+        means, variances, titles, *others = list(zip(*content_dict))
 
-        means = [lst[0] for lst in content]
-
-        variances = [lst[1] for lst in content]
-
-        titles = [lst[2] for lst in content]
-
+        # TODO: potential duplication
         if history:
-            timestamps = [lst[3] for lst in content]
+            timestamps = others[0]
             number_of_videos = []
             last_video_watched = []
             for timestamp in timestamps:
                 number_of_videos.append(len(timestamp))
                 last_video_watched.append(timestamp[-1])
         else:
-            number_of_videos = [None for _ in variances]
-            last_video_watched = [None for _ in variances]
+            number_of_videos = last_video_watched = [None] * len(variances)
 
-        self.figure = go.Figure(
-            data=go.Scatter(
+        self.figure.add_trace(
+            go.Scatter(
                 x=titles,
                 y=means,
                 marker={
@@ -78,8 +88,7 @@ class DotPlotter(PlotlyBasePlotter):
                     history,
                 ),
                 mode="markers",
-            ),
-            layout=self._layout((title, x_label, y_label)),
+            )
         )
 
         return self
