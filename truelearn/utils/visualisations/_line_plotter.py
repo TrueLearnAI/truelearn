@@ -9,11 +9,32 @@ from truelearn.models import Knowledge
 from truelearn.utils.visualisations._base import PlotlyBasePlotter
 
 
-LineChartContentType = List[Tuple[Iterable, Iterable, str, Iterable]]
-
-
 class LinePlotter(PlotlyBasePlotter):
-    """Provides utilities for plotting line charts."""
+    """Line Plotter.
+
+    It can provide 2 kinds of visualization:
+
+    - Single user + Multiple topics
+    - Multiple users + Single topic
+
+    In each mode, the x-axis represents the time
+    and the y-axis represents the mean of the topic.
+    """
+
+    def __init__(
+        self,
+        title: str = "",
+        xlabel: str = "Time",
+        ylabel: str = "Mean",
+    ):
+        """Init a Bubble plotter.
+
+        Args:
+            title: the default title of the visualization
+            xlabel: the default x label of the visualization
+            ylabel: the default y label of the visualization
+        """
+        super().__init__(title, xlabel, ylabel)
 
     def _get_kc_details(self, kc, _) -> Tuple:
         """Helper function for extracting data from a knowledge component.
@@ -38,34 +59,25 @@ class LinePlotter(PlotlyBasePlotter):
         means = []
         variances = []
         timestamps = []
-        try:
-            for mean, variance, timestamp in kc["history"]:
-                means.append(mean)
-                variances.append(variance)
-                timestamps.append(timestamp)
 
-            timestamps = [unix_to_iso(timestamp) for timestamp in timestamps]
-
-            data = (means, variances, title, timestamps)
-        except KeyError as err:
+        if "history" not in kc:
             raise TrueLearnTypeError(
-                "User's knowledge contains KnowledgeComponents. "
-                + "Expected only HistoryAwareKnowledgeComponents."
-            ) from err
+                "User's knowledge does not contain history. "
+                "You can use HistoryAwareKnowledgeComponents."
+            )
 
-        return data
+        for mean, variance, timestamp in kc["history"]:
+            means.append(mean)
+            variances.append(variance)
+            timestamps.append(unix_to_iso(timestamp))
+
+        return means, variances, title, timestamps
 
     def plot(
         self,
-        content: Union[
-            List[Union[Knowledge, List[Tuple]]], Union[Knowledge, List[Tuple]]
-        ],
+        content: Union[List[Knowledge], Knowledge],
         topics: Optional[Iterable[str]] = None,
         top_n: Optional[int] = None,
-        *,
-        title: str = "Mean of user's topics over time",
-        x_label: str = "Time",
-        y_label: str = "Mean",
         variance: bool = False,
     ) -> Self:
         if isinstance(content, list):
@@ -75,37 +87,29 @@ class LinePlotter(PlotlyBasePlotter):
 
         traces = [self._trace(tr_data, variance) for tr_data in content_dict]
 
-        layout_data = self._layout((title, x_label, y_label))
-
-        self.figure = go.Figure(data=traces, layout=layout_data)
+        self.figure.add_traces(traces)
 
         return self
 
-    # TODO: combine this with multiple later
     def _plot_single(
         self,
-        content: Union[Knowledge, List[Tuple]],
+        content: Knowledge,
         topics: Optional[Iterable[str]],
         top_n: Optional[int],
     ):
-        if isinstance(content, Knowledge):
-            content = self._standardise_data(content, True, topics)
-
-        return content[:top_n]
+        return self._standardise_data(content, True, topics)[:top_n]
 
     def _plot_multiple(
         self,
-        content_list: Iterable[Union[Knowledge, Iterable[Tuple]]],
+        content_list: Iterable[Knowledge],
         topics: Optional[Iterable[str]] = None,
     ):
         data = []
         for content in content_list:
-            if isinstance(content, Knowledge):
-                content = self._standardise_data(content, True, topics)
-                if content:  # if user Knowledge contains at least 1 topic in topics
-                    data.append(content[0])
-            else:
-                data.append(content)
+            content = self._standardise_data(content, True, topics)
+            # select one topic from each learner
+            if content:  # if user Knowledge contains at least 1 topic in topics
+                data.append(content[0])
 
         return data
 
@@ -125,12 +129,12 @@ class LinePlotter(PlotlyBasePlotter):
                 boolean which determines whether to make the error bars
                 at each point visible or not.
         """
-        y_values, variances, name, x_values = tr_data
+        means, variances, name, timestamps = tr_data
 
         trace = go.Scatter(
             name=name,
-            x=x_values,
-            y=y_values,
+            x=timestamps,
+            y=means,
             mode="lines+markers",
             marker={"size": 8},
             line={"width": 2},
