@@ -14,11 +14,14 @@ class LinePlotter(PlotlyBasePlotter):
 
     It can provide 2 kinds of visualization:
 
-    - Single user + Multiple topics
-    - Multiple users + Single topic
+    - Single user + Multiple topics over time
+    - Multiple users + Single topic over time
 
     In each mode, the x-axis represents the time
     and the y-axis represents the mean of the topic.
+
+    Because history must be used in this plotter,
+    you need to use the knowledge components that support history.
     """
 
     def __init__(
@@ -80,6 +83,21 @@ class LinePlotter(PlotlyBasePlotter):
         top_n: Optional[int] = None,
         variance: bool = False,
     ) -> Self:
+        """Plot the graph based on the given data.
+
+        Args:
+            content:
+                The Knowledge object to use to plot the visualisation.
+            topics:
+                The list of topics in the learner's knowledge to visualise.
+                If None, all topics are visualised (unless top_n is
+                specified, see below).
+            top_n:
+                The number of topics to visualise. E.g. if top_n is 5, then the
+                top 5 topics ranked by mean will be visualised.
+            variance:
+                Whether to visualise variance.
+        """
         if isinstance(content, list):
             content_dict = self._plot_multiple(content, topics)
         else:

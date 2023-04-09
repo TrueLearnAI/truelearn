@@ -1,7 +1,7 @@
 import datetime
 from abc import ABC, abstractmethod
 from typing import Any, Dict, Iterable, List, Optional, Tuple, Union, Hashable
-from typing_extensions import final, Self
+from typing_extensions import final
 
 import matplotlib.pyplot as plt
 from plotly import graph_objects as go
@@ -99,29 +99,6 @@ class BasePlotter(ABC):
         timestamps = [unix_to_iso(timestamp) for _, _, timestamp in kc["history"]]
 
         return mean, variance, title, timestamps
-
-    @abstractmethod
-    def plot(
-        self,
-        content: Knowledge,
-        topics: Optional[Iterable[str]] = None,
-        top_n: Optional[int] = None,
-    ) -> Self:
-        """Creates a visualisation object from the data.
-
-        Args:
-            content:
-                The Knowledge object to use to plot the visualisation.
-            topics:
-                The list of topics in the learner's knowledge to visualise.
-                If None, all topics are visualised (unless top_n is
-                specified).
-            top_n:
-                The number of topics to visualise. E.g. if top_n is 5, then the
-                top 5 topics ranked by mean will be visualised if content is a
-                Knowledge object or just the first 5 topics if content is a list
-                (in which case content is assumed to be already sorted).
-        """
 
     @abstractmethod
     def savefig(self, file: str, **kargs):

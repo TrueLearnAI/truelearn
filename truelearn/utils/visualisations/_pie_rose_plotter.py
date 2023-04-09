@@ -9,6 +9,50 @@ from truelearn.models import Knowledge
 from truelearn.utils.visualisations._base import PlotlyBasePlotter
 
 
+def _summarize_other(rest: List[Tuple], history: bool):
+    means = [lst[0] for lst in rest]
+    variances = [lst[1] for lst in rest]
+
+    average_mean = sum(means) / len(rest)
+    average_variance = sum(variances) / len(rest)
+
+    if history:
+        timestamps = [lst[3] for lst in rest]
+        # timestamps[-1] = "N/A"  # alternatively, sort timestamps
+        other_data = (average_mean, average_variance, "Other", timestamps)
+    else:
+        other_data = (average_mean, average_variance, "Other")
+
+    return other_data
+
+
+def _get_colour(variance: float, variance_min: float, variance_max: float) -> str:
+    """Maps the variance to a shade of green represented in RGB.
+
+    A darker shade represents less variance.
+
+    Args:
+        variance:
+            Float value representing the variance of a knowledge component.
+        variance_min:
+            The smallest variance values from all the knowledge components
+            we are plotting.
+        variance_max:
+            The largest variance values from all the knowledge components
+            we are plotting.
+
+    Returns:
+        A colour string to use when plotting the figure.
+    """
+    variance_range = variance_max - variance_min
+    variance = (variance - variance_min) / variance_range
+    r = 20 + variance * 227
+    g = 69 + variance * 183
+    b = 38 + variance * 206
+
+    return f"rgb({r},{g},{b})"
+
+
 class PiePlotter(PlotlyBasePlotter):
     """Pie Plotter."""
 
@@ -36,12 +80,32 @@ class PiePlotter(PlotlyBasePlotter):
         other: bool = False,
         history: bool = False,
     ) -> Self:
+        """Plot the graph based on the given data.
+
+        Args:
+            content:
+                The Knowledge object to use to plot the visualisation.
+            topics:
+                The list of topics in the learner's knowledge to visualise.
+                If None, all topics are visualised (unless top_n is
+                specified, see below).
+            top_n:
+                The number of topics to visualise. E.g. if top_n is 5, then the
+                top 5 topics ranked by mean will be visualised.
+            other:
+                Whether to group all other unused topics together into a "Other"
+                category and visualise it.
+            history:
+                Whether to utilize history information in the visualisation.
+                If this is set to True, an attribute called history must be
+                present in all knowledge components.
+        """
         content_dict, rest = self._standardise_data(content, history, topics)
         rest += content_dict[top_n:]
         content_dict = content_dict[:top_n]
 
         if other:
-            content_dict.append(self._summarize_other(rest, history))
+            content_dict.append(_summarize_other(rest, history))
 
         means, variances, titles, *others = list(zip(*content_dict))
 
@@ -61,7 +125,7 @@ class PiePlotter(PlotlyBasePlotter):
 
         variance_min, variance_max = min(variances), max(variances)
 
-        colours = [self._get_colour(v, variance_min, variance_max) for v in variances]
+        colours = [_get_colour(v, variance_min, variance_max) for v in variances]
 
         self.figure.add_trace(
             go.Pie(
@@ -97,64 +161,34 @@ class PiePlotter(PlotlyBasePlotter):
 
         return self
 
-    def _summarize_other(self, rest: List[Tuple], history: bool):
-        means = [lst[0] for lst in rest]
-        variances = [lst[1] for lst in rest]
 
-        average_mean = sum(means) / len(rest)
-        average_variance = sum(variances) / len(rest)
-
-        if history:
-            timestamps = [lst[3] for lst in rest]
-            # timestamps[-1] = "N/A"  # alternatively, sort timestamps
-            other_data = (average_mean, average_variance, "Other", timestamps)
-        else:
-            other_data = (average_mean, average_variance, "Other")
-
-        return other_data
-
-    def _get_colour(
-        self, variance: float, variance_min: float, variance_max: float
-    ) -> str:
-        """Maps the variance to a shade of green represented in RGB.
-
-        A darker shade represents less variance.
-
-        Args:
-            variance:
-                Float value representing the variance of a knowledge component.
-            variance_min:
-                The smallest variance values from all the knowledge components
-                we are plotting.
-            variance_max:
-                The largest variance values from all the knowledge components
-                we are plotting.
-
-        Returns:
-            A colour string to use when plotting the figure.
-        """
-        variance_range = variance_max - variance_min
-        variance = (variance - variance_min) / variance_range
-        r = 20 + variance * 227
-        g = 69 + variance * 183
-        b = 38 + variance * 206
-
-        return f"rgb({r},{g},{b})"
-
-
-class RosePlotter(PiePlotter):
+class RosePlotter(PlotlyBasePlotter):
     """Rose Pie Plotter."""
 
-    # TODO: respect history
-    # pylint: disable=too-many-locals,too-many-arguments
+    # pylint: disable=too-many-locals
     def plot(
         self,
         content: Knowledge,
         topics: Optional[Iterable[str]] = None,
         top_n: Optional[int] = None,
         other: bool = False,
-        history: bool = True,
     ) -> Self:
+        """Plot the graph based on the given data.
+
+        Args:
+            content:
+                The Knowledge object to use to plot the visualisation.
+            topics:
+                The list of topics in the learner's knowledge to visualise.
+                If None, all topics are visualised (unless top_n is
+                specified, see below).
+            top_n:
+                The number of topics to visualise. E.g. if top_n is 5, then the
+                top 5 topics ranked by mean will be visualised.
+            other:
+                Whether to group all other unused topics together into a "Other"
+                category and visualise it.
+        """
         content_dict, rest = self._standardise_data(content, True, topics)
         rest += content_dict[top_n:]
         content_dict = content_dict[:top_n]
@@ -162,7 +196,7 @@ class RosePlotter(PiePlotter):
         random.shuffle(content_dict)
 
         if other:
-            content_dict.append(self._summarize_other(rest, True))
+            content_dict.append(_summarize_other(rest, True))
 
         number_of_videos = [len(tr_data[3]) for tr_data in content_dict]
         if other:
@@ -178,7 +212,7 @@ class RosePlotter(PiePlotter):
         variances = [tr_data[1] for tr_data in content_dict]
         variance_min, variance_max = min(variances), max(variances)
 
-        colours = [self._get_colour(v, variance_min, variance_max) for v in variances]
+        colours = [_get_colour(v, variance_min, variance_max) for v in variances]
 
         traces = []
         n_of_sectors = len(content_dict)
