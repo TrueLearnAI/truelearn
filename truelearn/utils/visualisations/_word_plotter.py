@@ -1,40 +1,38 @@
 import warnings
-from typing import Iterable, List, Optional, Tuple, Union
+from typing import Iterable, Optional
 from typing_extensions import Self
-
-import matplotlib.pyplot as plt
 
 from truelearn.models import Knowledge
 from truelearn.utils.visualisations._base import MatplotlibBasePlotter
 
 
-# TODO: use a different Base for this
 class WordPlotter(MatplotlibBasePlotter):
-    """Provides utilities for plotting word clouds."""
+    """Word Cloud.
+
+    Visualise the learner's knowledge by using word cloud.
+    Each subject is shown as words in the chart.
+    The size of the words is related to the mean of the subject.
+    The larger the average, the larger the word.
+    """
+
+    def __init__(self):
+        """Init a Word Plotter."""
+        super().__init__("", "", "")
 
     def plot(
         self,
-        content: Union[Knowledge, List[Tuple[float, float, str]]],
+        content: Knowledge,
         topics: Optional[Iterable[str]] = None,
         top_n: Optional[int] = None,
-        *,
-        title: str = "",
-        x_label: str = "",
-        y_label: str = "",
     ) -> Self:
-        if isinstance(content, Knowledge):
-            content = self._standardise_data(content, False, topics)
+        content_dict = self._standardise_data(content, False, topics)[:top_n]
 
-        content = content[:top_n]
-
-        means = [lst[0] for lst in content]
-
-        titles = [lst[2].lower() for lst in content]
+        means = [lst[0] for lst in content_dict]
+        titles = [lst[2].lower() for lst in content_dict]
 
         word_freq = {}
-
-        for i, t in enumerate(titles):
-            word_freq[t] = int(means[i] * 500)
+        for title, mean in zip(titles, means):
+            word_freq[title] = int(mean * 500)
 
         try:
             # pylint: disable=import-outside-toplevel
@@ -50,18 +48,14 @@ class WordPlotter(MatplotlibBasePlotter):
             )
             return self
 
-        self.figure = WordCloud(
-            width=800,
-            height=400,
+        wc_data = WordCloud(
             max_words=50,
             relative_scaling=1,  # type: ignore
             normalize_plurals=False,
             background_color="white",
-        )
+        ).generate_from_frequencies(word_freq)
 
-        self.figure.generate_from_frequencies(word_freq)
-
-        plt.imshow(self.figure, interpolation="bilinear")
-        plt.axis("off")
+        self.ax.imshow(wc_data, interpolation="bilinear")
+        self.ax.axis("off")
 
         return self
