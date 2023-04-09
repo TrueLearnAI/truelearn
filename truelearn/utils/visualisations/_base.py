@@ -16,18 +16,14 @@ KnowledgeDict = Dict[Hashable, Dict[str, Union[str, float]]]
 class BasePlotter(ABC):
     """The base class of all the plotters."""
 
-    @final
-    def __init__(self):
-        """Initialises figure attribute where the visualisation will be stored."""
-        self.figure = None
-
+    # TODO: extract this out
     def _standardise_data(
         self,
         raw_data: Knowledge,
         history: bool = False,
-        topics: Union[str, Iterable[str], None] = None,
+        topics: Optional[Iterable[str]] = None,
     ) -> List[Tuple]:
-        """Converts a Knowledge object to one suitable for generating visualisations.
+        """Convert a Knowledge object to one suitable for generating visualisations.
 
         Optional utility function that converts the learner's knowledge (obtainable
         via learner.knowledge) to the Iterable used by plot().
@@ -35,9 +31,6 @@ class BasePlotter(ABC):
         Args:
             raw_data:
                 the learner's knowledge, represented by a Knowledge object.
-            topics:
-                optional iterable of topics to extract the information for from
-                the knowledge object. If not specified, all topics are extracted.
             history:
                 boolean which indicates whether the user has requested access to
                 the knowledge component's timestamps (this allows the visualisations
@@ -45,24 +38,32 @@ class BasePlotter(ABC):
                 watched and the last video watched). If set to True, the Knowledge
                 object must consists of HistoryAwareKnowledgeComponents, or an
                 error will be raised.
+            topics:
+                optional iterable of topics to extract the information for from
+                the knowledge object. If not specified, all topics are extracted.
 
         Returns:
             a data structure suitable for generating the figure via the plot() method.
         """
+        # make topics a set
+        topics = topics or set()
+        topics = set(topics)
+
         raw_data_dict = knowledge_to_dict(raw_data)
 
         content = []
-        for _, kc in raw_data_dict.items():
+        for kc in raw_data_dict.values():
             data = self._get_kc_details(kc, history)
-            if (topics is None) or (data[2] in topics or data[2] == topics):
+            if (topics is None) or data[2] in topics:
                 content.append(data)
 
         content.sort(key=lambda data: data[0], reverse=True)  # sort based on mean
 
         return content
 
+    # TODO: extract this out
     def _get_kc_details(self, kc: Dict[str, Any], history: bool) -> Tuple:
-        """Helper function for extracting data from a knowledge component.
+        """Extract data from a knowledge component.
 
         Extracts the title, mean, variance attributes from a knowledge component.
         If history is True, also extracts the timestamps from its history.
@@ -83,35 +84,18 @@ class BasePlotter(ABC):
         title = kc["title"]
         mean = kc["mean"]
         variance = kc["variance"]
-        timestamps = []
-        if history:
-            try:
-                for _, _, timestamp in kc["history"]:
-                    timestamps.append(timestamp)
-                timestamps = [self._unix_to_iso(timestamp) for timestamp in timestamps]
-                data = (mean, variance, title, timestamps)
-            except KeyError as err:
-                raise TrueLearnTypeError(
-                    "User's knowledge contains KnowledgeComponents. "
-                    + "Expected only HistoryAwareKnowledgeComponents."
-                ) from err
-        else:
-            data = (mean, variance, title)
 
-        return data
+        if not history:
+            return mean, variance, title
 
-    @final
-    def _unix_to_iso(self, t: int) -> str:
-        """Converts an unix timestamp to an ISO-formatted date string.
+        if "history" not in kc:
+            raise TrueLearnTypeError(
+                "User's knowledge contains KnowledgeComponents. "
+                + "Expected only HistoryAwareKnowledgeComponents."
+            )
+        timestamps = [unix_to_iso(timestamp) for _, _, timestamp in kc["history"]]
 
-        Args:
-            t:
-                int value representing the unix timestamp.
-
-        Returns:
-            the ISO date string.
-        """
-        return datetime.datetime.utcfromtimestamp(t).strftime("%Y-%m-%d")
+        return mean, variance, title, timestamps
 
     @abstractmethod
     def plot(
@@ -119,10 +103,6 @@ class BasePlotter(ABC):
         content: Union[Knowledge, List[Tuple]],
         topics: Optional[Iterable[str]] = None,
         top_n: Optional[int] = None,
-        *,
-        title: str = "",
-        x_label: str = "",
-        y_label: str = "",
     ) -> Self:
         """Creates a visualisation object from the data.
 
@@ -142,146 +122,31 @@ class BasePlotter(ABC):
                 top 5 topics ranked by mean will be visualised if content is a
                 Knowledge object or just the first 5 topics if content is a list
                 (in which case content is assumed to be already sorted).
-            title:
-                the title that will be displayed on top of the visualisation.
-            x_label:
-                the label of the x-axis (if the visualisation has an x-axis).
-            y_label:
-                the label of the y-axis (if the visualisations has a y-axis).
         """
 
     @abstractmethod
-    def _static_export(self, file, format_, width, height):
-        """Exports the visualisation as an image file.
+    def savefig(self, file: str, **kargs):
+        """Export the visualisation as a file.
 
         Args:
             file:
-                the local file path in which to create the image file.
-            format_:
-                the format of the file. Supported formats include png,
-                jpg/jpeg, webp, svg, pdf and eps (requires the poppler library to
-                be installed).
-            width:
-                the width of the image file.
-            height:
-                the height of the image file.
+                The local file path in which to create the file.
+            **kargs:
+                The arguments supported by each plotter.
         """
-
-    @final
-    def to_png(
-        self,
-        file: str,
-        width: int = 1000,
-        height: int = 600,
-    ) -> None:
-        """Exports the visualisation as a png file.
-
-        Args:
-            file:
-                the local file path in which to create the image file (must
-                end with .png).
-            width:
-                the width of the image file.
-            height:
-                the height of the image file.
-        """
-        self._static_export(file, "png", width, height)
-
-    @final
-    def to_jpeg(
-        self,
-        file: str,
-        width: int = 1000,
-        height: int = 600,
-    ) -> None:
-        """Exports the visualisation as a jpeg file.
-
-        Args:
-            file:
-                the local file path in which to create the image file (must
-                end with .jpeg).
-            width:
-                the width of the image file.
-            height:
-                the height of the image file.
-        """
-        self._static_export(file, "jpeg", width, height)
-
-    @final
-    def to_webp(
-        self,
-        file: str,
-        width: int = 1000,
-        height: int = 600,
-    ) -> None:
-        """Exports the visualisation as a webp file.
-
-        Args:
-            file:
-                the local file path in which to create the image file (must
-                end with .webp).
-            width:
-                the width of the image file.
-            height:
-                the height of the image file.
-        """
-        self._static_export(file, "webp", width, height)
-
-    @final
-    def to_svg(
-        self,
-        file: str,
-        width: int = 1000,
-        height: int = 600,
-    ) -> None:
-        """Exports the visualisation as an svg file.
-
-        Args:
-            file:
-                the local file path in which to create the image file (must
-                end with .svg).
-            width:
-                the width of the image file.
-            height:
-                the height of the image file.
-        """
-        self._static_export(file, "svg", width, height)
-
-    @final
-    def to_pdf(
-        self,
-        file: str,
-        width: int = 1000,
-        height: int = 600,
-    ) -> None:
-        """Exports the visualisation as a pdf file.
-
-        Args:
-            file:
-                the local file path in which to create the image file (must
-                end with .pdf).
-            width:
-                the width of the image file.
-            height:
-                the height of the image file.
-        """
-        self._static_export(file, "pdf", width, height)
 
 
 class PlotlyBasePlotter(BasePlotter):
-    """Provides additional methods suitable for plotting Plotly figures."""
+    """Base class for Plotly Plotters."""
+
+    @final
+    def __init__(self) -> None:
+        """Init a Plotly Plotter."""
+        super().__init__()
+        self.figure = go.Figure()
 
     def _layout(self, layout_data: Tuple[str, str, str]) -> go.Layout:
-        """Creates the Layout object for the visualisation.
-
-        Args:
-            layout_data:
-                a tuple containing the title of the visualisation and the x and
-                y labels.
-
-        Returns:
-            the Layout object created with layout_data.
-        """
+        """Create the Layout object for the visualisation."""
         title, x_label, y_label = layout_data
 
         layout = go.Layout(
@@ -330,77 +195,146 @@ class PlotlyBasePlotter(BasePlotter):
             )
         )
 
-    # def _trace(self, trace_data: Tuple) -> go.BaseTraceType:
-    #     """Creates a trace object to incorporate in the visualisation.
-
-    #     Args:
-    #         trace_data:
-    #             the data used to create the trace. This should have the same
-    #             type as the tuples in the iterable of the plot() method.
-
-    #     Returns:
-    #         the trace object generated from trace_data.
-    #     """
-
     @final
     def show(self) -> None:
-        """Opens the visualisation in localhost.
+        """Display the visualisation in a new web page.
 
         Equivalent to calling Plotly's Figure.show() method.
         """
-        # TODO: add more sensible warnings when it's None
-        if self.figure is not None:
-            self.figure.show()
+        self.figure.show()
 
     @final
-    def _static_export(self, file: str, format_: str, width: int, height: int) -> None:
-        if self.figure is not None:
-            self.figure.write_image(
-                file=file, format=format_, width=width, height=height
-            )
-
-    @final
-    def to_html(
-        self,
-        file: str,
-        width: str = "100%",
-        height: str = "100%",
-    ) -> None:
-        """Exports the visualisation to an HTML file.
-
-        This will result in the visualisation being interactable.
+    def savefig(self, file: str, **kargs) -> None:
+        """Export the visualisation to a file.
 
         Args:
             file:
-                the local file path in which to create the html file (must
-                end with .html).
-            width:
-                the width of the image in the HTML file.
-            height:
-                the height of the image in the HTML file.
+                The local file path in which to create the file.
+            **kargs:
+                Optional supported arguments as shown below.
+
+                This method supports saving the visualisation in various formats.
+                Most platforms support the following formats:
+                "png", "jpg" or "jpeg", "svg", "pdf", "html".
+
+                If you want to export a HTML file, you can optionally pass in
+                    default_width:
+                        the default width of the image in the HTML file.
+                    default_height:
+                        the default height of the image in the HTML file.
+
+                If you want to export an image file, you can optionally pass in
+                    width:
+                        the default width of the image.
+                    height:
+                        the default height of the image.
+
+        Notes:
+            You can refer to Plotly's documentation for `write_image` and `write_html`
+            to find out more supported arguments for image and html files.
         """
-        if self.figure is not None:
-            self.figure.write_html(
-                file=file,
-                default_width=width,
-                default_height=height,
-            )
+        if file.endswith(".html"):
+            self.figure.write_html(file=file, **kargs)
+            return
+
+        self.figure.write_image(file=file, **kargs)
+
+    @final
+    def title(self, text: str):
+        """Set the title of the figure.
+
+        Args:
+            text: The title of the figure.
+        """
+        self.figure.update_layout(title=text)
+
+    @final
+    def xlabel(self, text: str):
+        """Set the x label of the figure.
+
+        Args:
+            text: The x label of the figure.
+        """
+        self.figure.update_xaxes(title_text=text)
+
+    @final
+    def ylabel(self, text: str):
+        """Set the y label of the figure.
+
+        Args:
+            text: The y label of the figure.
+        """
+        self.figure.update_yaxes(title_text=text)
 
 
 class MatplotlibBasePlotter(BasePlotter):
-    """Provides additional methods suitable for plotting Matplotlib figures."""
+    """Base class for Matplotlib Plotters."""
+
+    def __init__(self):
+        """Init a Matplotlib Plotter."""
+        super().__init__()
+        self.fig, self.ax = plt.subplots()
 
     @final
     def show(self):
-        """Opens the visualisation in a Tkinter window.
-
-        Equivalent to calling Matplotlib.pyplot's show() method.
-        """
-        plt.show()
+        """Display the figure if in interactive mode."""
+        self.fig.show()
 
     @final
-    def _static_export(self, file: str, format_: str, width: int, height: int) -> None:
-        plt.savefig(fname=file, format=format_)
+    def savefig(self, file: str, **kargs):
+        """Export the visualisation to a file.
+
+        Args:
+            file:
+                The local file path in which to create the file.
+            **kargs:
+                Optional supported arguments as shown below.
+
+                This method supports saving the visualisation in various formats.
+                Most platforms support the following formats:
+                "png", "jpg" or "jpeg", "svg", "pdf".
+
+                You can use `print(plotter.fig.canvas.get_supported_filetypes())`
+                to find out the supported file formats in your platform.
+
+                You can optionally pass in these arguments:
+                    width:
+                        the default width of the image.
+                    height:
+                        the default height of the image.
+
+        Notes:
+            You can refer to matplotlib's documentation for `savefig`
+            to find out more supported arguments for saving image files.
+        """
+        self.fig.savefig(fname=file, **kargs)
+
+    @final
+    def title(self, text: str):
+        """Set the title of the figure.
+
+        Args:
+            text: The title of the figure.
+        """
+        self.ax.set_title(text)
+
+    @final
+    def xlabel(self, text: str):
+        """Set the x label of the figure.
+
+        Args:
+            text: The x label of the figure.
+        """
+        self.ax.set_xlabel(text)
+
+    @final
+    def ylabel(self, text: str):
+        """Set the y label of the figure.
+
+        Args:
+            text: The y label of the figure.
+        """
+        self.ax.set_ylabel(text)
 
 
 def knowledge_to_dict(knowledge: Knowledge) -> KnowledgeDict:
@@ -420,3 +354,15 @@ def knowledge_to_dict(knowledge: Knowledge) -> KnowledgeDict:
         knowledge_dict[topic] = kc.export_as_dict()
 
     return knowledge_dict
+
+
+def unix_to_iso(t: int) -> str:
+    """Convert an unix timestamp to an ISO-formatted date string.
+
+    Args:
+        t: int value representing the unix timestamp.
+
+    Returns:
+        the ISO date string.
+    """
+    return datetime.datetime.utcfromtimestamp(t).strftime("%Y-%m-%d")

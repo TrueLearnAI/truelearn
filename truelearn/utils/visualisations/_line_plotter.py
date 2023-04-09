@@ -3,6 +3,7 @@ from typing_extensions import Self
 
 import plotly.graph_objects as go
 
+from ._base import unix_to_iso
 from truelearn.errors import TrueLearnTypeError
 from truelearn.models import Knowledge
 from truelearn.utils.visualisations._base import PlotlyBasePlotter
@@ -43,7 +44,7 @@ class LinePlotter(PlotlyBasePlotter):
                 variances.append(variance)
                 timestamps.append(timestamp)
 
-            timestamps = [self._unix_to_iso(timestamp) for timestamp in timestamps]
+            timestamps = [unix_to_iso(timestamp) for timestamp in timestamps]
 
             data = (means, variances, title, timestamps)
         except KeyError as err:

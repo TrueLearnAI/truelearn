@@ -4,7 +4,6 @@ The module provides Plotter classes that take the learner's knowledge as
 input and produce various different charts.
 """
 
-from ._base import knowledge_to_dict
 from ._line_plotter import LinePlotter
 from ._pie_rose_plotter import PiePlotter, RosePlotter
 from ._bar_plotter import BarPlotter
@@ -15,7 +14,6 @@ from ._radar_plotter import RadarPlotter
 from ._treemap_plotter import TreePlotter
 
 __all__ = [
-    "knowledge_to_dict",
     "LinePlotter",
     "PiePlotter",
     "RosePlotter",
