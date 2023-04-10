@@ -10,7 +10,4 @@
    .. automethod:: __call__
    {% endblock %}
 
-.. raw:: html
-
-    <div class="clearer"></div>
 

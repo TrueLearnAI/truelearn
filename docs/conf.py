@@ -63,7 +63,6 @@ intersphinx_mapping = {
     "trueskill": ("https://trueskill.org/", None),
 }
 
-
 # -- Options for linkcode extension ------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/extensions/linkcode.html
 # Code below from:
@@ -122,8 +121,7 @@ sphinx_gallery_conf = {
 
 # -- Options for napoleon extension ------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/extensions/napoleon.html
-napoleon_include_special_with_doc = True
-napoleon_include_init_with_doc = True
+napoleon_include_special_with_doc = False
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
@@ -132,3 +130,13 @@ html_theme = "furo"
 html_logo = "images/TrueLearn_logo.png"
 html_css_files = ["custom.css"]
 html_static_path = ["_static"]
+
+# -- Options for Furo theme --------------------------------------------------
+html_theme_options = {
+    "light_css_variables": {
+        "color-api-background": "#f8f9fb",
+    },
+    "dark_css_variables": {
+        "color-api-background": "#1e1e1e",
+    },
+}

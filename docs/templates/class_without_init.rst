@@ -16,17 +16,22 @@
    {% endblock %}
 
    {% block methods %}
-   {% if methods %}
+   {% if '__init__' in methods and methods|length == 1 %}
+   {% else %}
    .. rubric:: {{ _('Methods') }}
    .. autosummary::
    {% for item in methods %}
+   {% if item != '__init__' %}
        ~{{ name }}.{{ item }}
+   {%- endif %}
    {%- endfor %}
    {% endif %}
    {% endblock %}
 
    {% if methods %}
    {% for method in methods %}
+   {% if method != '__init__' %}
    .. automethod:: {{ method }}
+   {% endif %}
    {% endfor %}
    {% endif %}
