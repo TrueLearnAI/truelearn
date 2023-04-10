@@ -106,7 +106,11 @@ def file_comparison(plotter_type: str, config: Optional[Dict[str, Dict]] = None)
 
     Args:
         plotter_type:
-            The plotter type. Supported plotter types are: "plotly", "matplotlib"
+            The plotter type. Supported plotter types are: "plotly", "matplotlib".
+            Based on the given type, the method will determine the file format
+            to be tested and how to compare the resulting files.
+            For plotly type, the method will test `.html` and `.json`.
+            For matplotlib type, the method will test `.png`.
         config:
             A dictionary containing the configuration for each extension.
     """
@@ -115,10 +119,9 @@ def file_comparison(plotter_type: str, config: Optional[Dict[str, Dict]] = None)
     if plotter_type == "plotly":
         # only support html and json for plotly
         # because the backend engine that plotly uses
-        # to generate imgaes is platform dependent.
-        # (Because it uses Chrome).
-        # Therefore, there is no way to generate consistent
-        # images cross different platforms.
+        # to generate imgaes is platform dependent
+        # Therefore, to be able to provide consistent
+        # and replicable tests, we test against json and html.
         extensions = {
             ".json": config.get(".json", {}),
             ".html": {
@@ -139,6 +142,7 @@ def file_comparison(plotter_type: str, config: Optional[Dict[str, Dict]] = None)
         }
 
         def file_cmp_func(filename1, filename2):
+            # for images, we only require them to be similar within a tolerance
             return compare_images(filename1, filename2, tol=0.1) is None
 
     def file_comparison_class_decorator(tclass):
