@@ -21,6 +21,8 @@ BASELINE_DIR = (
 )  # directory relative to truelearn/tests
 TMP_PATH = pathlib.Path("./tests")  # directory relative to .
 UUID = "71903f8e-0ae2-4fd1-9c0c-2290e95b21e9"  # a randomly chosen UUID, affect HTML gen
+# TODO: document bound
+BOUND = 3
 
 
 @pytest.fixture(scope="module")
@@ -39,12 +41,11 @@ def resources():
     knowledge = classifier.get_learner_model().knowledge
 
     # separate that knowledge into two parts, so we can test plotter
-    # that utilizes multiple learners
-    BOUND = 3
+    # that utilises multiple learners
     knowledge_small = models.Knowledge(dict(list(knowledge.topic_kc_pairs())[:BOUND]))
     knowledge_large = models.Knowledge(dict(list(knowledge.topic_kc_pairs())[BOUND:]))
 
-    yield (knowledge, knowledge_large, knowledge_small)
+    yield knowledge, knowledge_large, knowledge_small
 
     try:
         dirs_to_remove = os.listdir(TMP_PATH)

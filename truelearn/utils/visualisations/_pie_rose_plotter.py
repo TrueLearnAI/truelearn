@@ -108,7 +108,7 @@ class PiePlotter(PlotlyBasePlotter):
                 The number of topics to visualise. E.g. if top_n is 5, then the
                 top 5 topics ranked by mean will be visualised.
             other:
-                Whether to group all other unused topics together into a "Other"
+                Whether to group all other unused topics together into an "Other"
                 category and visualise it.
             history:
                 Whether to utilize history information in the visualisation.
@@ -231,7 +231,7 @@ class RosePlotter(PlotlyBasePlotter):
                 The number of topics to visualise. E.g. if top_n is 5, then the
                 top 5 topics ranked by mean will be visualised.
             other:
-                Whether to group all other unused topics together into a "Other"
+                Whether to group all other unused topics together into an "Other"
                 category and visualise it.
             random_state:
                 An optional random.Random object that will be used to randomly
@@ -321,7 +321,7 @@ class RosePlotter(PlotlyBasePlotter):
             width:
                 The width of the sector, given in degrees.
             colour:
-                The colour of the sector, given as an rgb string. E.g. 'rgb(0,0,0)'.
+                The colour of the sector, given as a rgb string. E.g. 'rgb(0,0,0)'.
         """
         mean, variance, title, timestamps = tr_data
         number_of_videos = len(timestamps)

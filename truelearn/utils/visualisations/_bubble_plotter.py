@@ -65,7 +65,7 @@ class BubblePlotter(MatplotlibBasePlotter):
 
         self.ax.axis("off")
 
-        # set limit for x and y axis
+        # set limit for x and y-axis
         lim = max(
             max(
                 abs(circle.x) + circle.r,
@@ -98,7 +98,7 @@ class BubblePlotter(MatplotlibBasePlotter):
                     titles[len(titles) - 1 - i], (x, y), va="center", ha="center"
                 )
 
-        # setup the colorbar on the right
+        # set up the colorbar on the right
         cbar = self.fig.colorbar(sm, ax=self.ax)
         cbar.ax.set_ylabel("Variance")
 

@@ -128,7 +128,7 @@ class LinePlotter(PlotlyBasePlotter):
         content_list: Iterable[Knowledge],
         topics: Optional[Iterable[str]] = None,
     ):
-        """Extract content from a iterable of Knowledge.
+        """Extract content from an iterable of Knowledge.
 
         This method is called if the plotter visualises more than one learner.
         It tries to extract one topic from each learner.
@@ -153,7 +153,7 @@ class LinePlotter(PlotlyBasePlotter):
             tr_data:
                 The data used to plot the line. A tuple containing the mean
                 and variance of each point, the name of the line (the topic or
-                the leanrer it represents) and the time when the learning event happens.
+                the learner it represents) and the time when the learning event happens.
             visualise_variance:
                 Whether to make the error bars at each point visible.
         """

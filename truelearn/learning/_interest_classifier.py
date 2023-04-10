@@ -165,8 +165,8 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
             def_var=def_var,
             tau=tau,
             beta=beta,
-            # learner always win in interest
-            # so we should always update regardless of the actual label
+            # learner always wins in interest classifier
+            # hence we should always update regardless of the actual label
             # positive_only should be disabled to ensure the update method
             # is always called
             positive_only=False,

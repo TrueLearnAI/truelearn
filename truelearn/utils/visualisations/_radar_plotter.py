@@ -58,7 +58,7 @@ class RadarPlotter(PlotlyBasePlotter):
         titles = [lst[2] for lst in content_dict]
 
         # need to add the first element to the list again
-        # otherwise, the last line will not properly shown
+        # otherwise, the last line will not properly show
         means.append(means[0])
         variances.append(variances[0])
         titles.append(titles[0])
