@@ -127,8 +127,8 @@ You can find out all the generated baseline files in that directory. Your next s
 Then, when you run the test again, if the file you generated matches the baseline file, your test will pass.
 
 Due to the way that file comparison tests work, all visualisation tests must be grouped into classes.
-We recommend that you name all tests that make use of file comparison `TestXXXPlotter`, where `XXXPlotter` is the plotter you want to test.
-If you do not use file comparisons, you can simply create `TestXXXPlotterNormal` and
+We recommend that you name all tests that make use of file comparison ``TestXXXPlotter``, where ``XXXPlotter`` is the plotter you want to test.
+If you do not use file comparisons, you can simply create ``TestXXXPlotterNormal`` and
 place all tests that do not use file comparisons in this class.
 
 You can see the documentation of ``file_comparison`` for additional information about its use.
