@@ -9,6 +9,7 @@ import sys
 from typing import Dict, Optional, Callable
 
 import pytest
+from matplotlib import font_manager
 from matplotlib.testing.compare import compare_images
 
 from truelearn import learning, datasets, models
@@ -260,5 +261,12 @@ class TestWordPlotter:
     def test_default(self, resources):
         random_state = random.Random(42)
         plotter = visualisations.WordPlotter()
-        plotter.plot(resources[0], random_state=random_state)
+
+        try:
+            file = font_manager.findfont("Arial")
+        except OSError:
+            pytest.skip("Cannot find font `Arial` which is used by baseline image.")
+
+        plotter.plot(resources[0], random_state=random_state, font_path=file)
+
         return plotter

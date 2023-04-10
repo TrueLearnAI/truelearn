@@ -1,5 +1,4 @@
 import warnings
-import random
 from typing import Iterable, Optional
 from typing_extensions import Self
 
@@ -37,7 +36,7 @@ class WordPlotter(MatplotlibBasePlotter):
         content: Knowledge,
         topics: Optional[Iterable[str]] = None,
         top_n: Optional[int] = None,
-        random_state: Optional[random.Random] = None,
+        **kwargs,
     ) -> Self:
         """Plot the graph based on the given data.
 
@@ -51,8 +50,13 @@ class WordPlotter(MatplotlibBasePlotter):
             top_n:
                 The number of topics to visualise. E.g. if top_n is 5, then the
                 top 5 topics ranked by mean will be visualised.
-            random_state:
-                An optional random.Random object that will be used to draw word cloud.
+            **kwargs:
+                Additional arguments that control the instantiation of the
+                WordCloud object.
+
+                You can pass in all the parameters supported by WordCloud object.
+                You can refer to `wordcloud` documentation for all the supported
+                arguments.
         """
         content_dict, _ = self._standardise_data(content, False, topics)[:top_n]
 
@@ -78,16 +82,18 @@ class WordPlotter(MatplotlibBasePlotter):
             )
             return self
 
-        wc_data = WordCloud(
-            font_path="Times New Roman",
-            width=800,
-            height=400,
-            max_words=50,
-            relative_scaling=1,  # type: ignore
-            normalize_plurals=False,
-            background_color="white",
-            random_state=random_state,
-        ).generate_from_frequencies(word_freq)
+        # default arguments
+        wc_args = {
+            "width": 800,
+            "height": 400,
+            "max_words": 50,
+            "relative_scaling": 1,
+            "normalize_plurals": False,
+            "background_color": "white",
+            **kwargs,
+        }
+
+        wc_data = WordCloud(**wc_args).generate_from_frequencies(word_freq)
 
         self.ax.imshow(wc_data, interpolation="bilinear")
         self.ax.axis("off")
