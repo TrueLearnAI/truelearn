@@ -263,6 +263,8 @@ class TestWordPlotter:
         plotter = visualisations.WordPlotter()
 
         file = font_manager.findfont("DejaVu Sans")
+        print(file)
+
         plotter.plot(resources[0], random_state=random_state, font_path=file)
 
         return plotter
