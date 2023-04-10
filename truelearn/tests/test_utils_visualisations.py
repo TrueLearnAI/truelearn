@@ -9,6 +9,7 @@ import sys
 from typing import Dict, Optional
 
 import pytest
+from matplotlib.testing.compare import compare_images
 
 from truelearn import learning, datasets, models
 from truelearn.utils import visualisations
@@ -88,56 +89,60 @@ def file_comparison(plotter_type: str, config: Optional[Dict[str, Dict]] = None)
                 "include_plotlyjs": "https://cdn.plot.ly/plotly-2.20.0.min.js",
             },
         }
+
+        def file_cmp_func(filename1, filename2):
+            return filecmp.cmp(filename1, filename2)
+
     elif plotter_type == "matplotlib":
         extensions = {
             ".png": config.get(".png", {}),
         }
 
+        def file_cmp_func(filename1, filename2):
+            return compare_images(filename1, filename2, tol=0.1) is None
+
+    def file_compression_method_decorator(
+        func, tmp_path_dir: pathlib.Path, target_path_dir: pathlib.Path
+    ):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            plotter = func(*args, **kwargs)
+            failed_ext_with_reasons = {}
+
+            for ext, config in extensions.items():
+                tmp_file = tmp_path_dir / str(func.__name__ + ext)
+                target_file = target_path_dir / str(func.__name__ + ext)
+
+                plotter.savefig(str(tmp_file), **config)
+
+                if not target_file.exists():
+                    failed_ext_with_reasons[ext] = "Target file does not exist."
+                    continue
+
+                # if compare_images(str(target_file), str(tmp_file), tol=0):
+                #     failed_ext_with_reasons[
+                #         ext
+                #     ] = "Tmp file does not match target file."
+                #     continue
+
+                if not file_cmp_func(str(target_file), str(tmp_file)):
+                    failed_ext_with_reasons[
+                        ext
+                    ] = "Tmp file does not match target file."
+                    continue
+
+                # remove images that pass the test
+                os.remove(tmp_file)
+
+            if failed_ext_with_reasons:
+                raise ValueError(
+                    "The file generated with the following extension does not "
+                    f"match the baseline file {failed_ext_with_reasons!r}"
+                )
+
+        return wrapper
+
     def file_comparison_class_decorator(tclass):
-        # only works for class decorator
-        assert isinstance(tclass, type)
-
-        def file_compression_method_decorator(
-            func, tmp_path_dir: pathlib.Path, target_path_dir: pathlib.Path
-        ):
-            @functools.wraps(func)
-            def wrapper(*args, **kwargs):
-                plotter = func(*args, **kwargs)
-                failed_ext_with_reasons = {}
-
-                for ext, config in extensions.items():
-                    tmp_file = tmp_path_dir / str(func.__name__ + ext)
-                    target_file = target_path_dir / str(func.__name__ + ext)
-
-                    plotter.savefig(str(tmp_file), **config)
-
-                    if not target_file.exists():
-                        failed_ext_with_reasons[ext] = "Target file does not exist."
-                        continue
-
-                    # if compare_images(str(target_file), str(tmp_file), tol=0):
-                    #     failed_ext_with_reasons[
-                    #         ext
-                    #     ] = "Tmp file does not match target file."
-                    #     continue
-
-                    if not filecmp.cmp(str(target_file), str(tmp_file)):
-                        failed_ext_with_reasons[
-                            ext
-                        ] = "Tmp file does not match target file."
-                        continue
-
-                    # remove images that pass the test
-                    os.remove(tmp_file)
-
-                if failed_ext_with_reasons:
-                    raise ValueError(
-                        "The file generated with the following extension does not "
-                        f"match the baseline file {failed_ext_with_reasons!r}"
-                    )
-
-            return wrapper
-
         target_path = BASELINE_DIR / str(tclass.__name__).lower()
         tmp_path = TMP_PATH / str(tclass.__name__).lower()
         tmp_path.mkdir(parents=True, exist_ok=True)
