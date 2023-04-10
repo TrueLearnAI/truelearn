@@ -2,19 +2,23 @@
 import functools
 import random
 import pathlib
+import filecmp
 import types
 import os
 import sys
+from typing import Dict, Optional
 
 import pytest
-from matplotlib.testing.compare import compare_images
 
 from truelearn import learning, datasets, models
 from truelearn.utils import visualisations
 
 
-BASELINE_DIR = "baseline_files"  # directory relative to truelearn/tests
+BASELINE_DIR = (
+    pathlib.Path(__file__).parent / "baseline_files"
+)  # directory relative to truelearn/tests
 TMP_PATH = pathlib.Path("./tests")  # directory relative to .
+UUID = "71903f8e-0ae2-4fd1-9c0c-2290e95b21e9"  # a randomly chosen UUID, affect HTML gen
 
 
 @pytest.fixture(scope="module")
@@ -56,25 +60,44 @@ def resources():
                 ...
 
 
-def image_comparison(**genimg_kwargs):
+def file_comparison(plotter_type: str, config: Optional[Dict[str, Dict]] = None):
     """Class decorator for image comparison.
 
     Args:
-        func:
-            The function to decorate.
-        type_of_plotter:
+        plotter_type:
             The plotter type. Supported plotter types are: "plotly", "matplotlib"
+        config:
+            A dictionary containing the configuration for each extension.
     """
-    # can support more file types if:
-    # - use custom way to convert each type to png
-    # - use compare_images to check if they are similar within some tol
-    extensions = [".png"]
+    config = config or {}
 
-    def image_comparison_class_decorator(tclass):
+    if plotter_type == "plotly":
+        # only support html and json for plotly
+        # because the backend engine that plotly uses
+        # to generate imgaes is platform dependent.
+        # (Because it uses Chrome).
+        # Therefore, there is no way to generate consistent
+        # images cross different platforms.
+        extensions = {
+            ".json": config.get(".json", {}),
+            ".html": {
+                **config.get(".html", {}),
+                # overwrite settings for div_id and include_plotlyjs
+                # as they directly affect the generated output
+                "div_id": UUID,
+                "include_plotlyjs": "https://cdn.plot.ly/plotly-2.20.0.min.js",
+            },
+        }
+    elif plotter_type == "matplotlib":
+        extensions = {
+            ".png": config.get(".png", {}),
+        }
+
+    def file_comparison_class_decorator(tclass):
         # only works for class decorator
         assert isinstance(tclass, type)
 
-        def image_compression_method_decorator(
+        def file_compression_method_decorator(
             func, tmp_path_dir: pathlib.Path, target_path_dir: pathlib.Path
         ):
             @functools.wraps(func)
@@ -82,17 +105,23 @@ def image_comparison(**genimg_kwargs):
                 plotter = func(*args, **kwargs)
                 failed_ext_with_reasons = {}
 
-                for ext in extensions:
+                for ext, config in extensions.items():
                     tmp_file = tmp_path_dir / str(func.__name__ + ext)
                     target_file = target_path_dir / str(func.__name__ + ext)
 
-                    plotter.savefig(str(tmp_file), **genimg_kwargs)
+                    plotter.savefig(str(tmp_file), **config)
 
                     if not target_file.exists():
                         failed_ext_with_reasons[ext] = "Target file does not exist."
                         continue
 
-                    if compare_images(str(target_file), str(tmp_file), tol=10):
+                    # if compare_images(str(target_file), str(tmp_file), tol=0):
+                    #     failed_ext_with_reasons[
+                    #         ext
+                    #     ] = "Tmp file does not match target file."
+                    #     continue
+
+                    if not filecmp.cmp(str(target_file), str(tmp_file)):
                         failed_ext_with_reasons[
                             ext
                         ] = "Tmp file does not match target file."
@@ -109,43 +138,43 @@ def image_comparison(**genimg_kwargs):
 
             return wrapper
 
-        target_path = (
-            pathlib.Path(__file__).parent / BASELINE_DIR / str(tclass.__name__).lower()
-        )
+        target_path = BASELINE_DIR / str(tclass.__name__).lower()
         tmp_path = TMP_PATH / str(tclass.__name__).lower()
         tmp_path.mkdir(parents=True, exist_ok=True)
 
         for key in dir(tclass):
             value = getattr(tclass, key)
             if isinstance(value, types.FunctionType):
-                wrapped = image_compression_method_decorator(
+                wrapped = file_compression_method_decorator(
                     value, tmp_path, target_path
                 )
                 setattr(tclass, key, wrapped)
 
-        # method decorator
         return tclass
 
-    return image_comparison_class_decorator
+    return file_comparison_class_decorator
 
 
-@image_comparison(width=800, height=600, scale=1)
+@file_comparison(plotter_type="plotly")
 class TestBarPlotter:
     def test_default(self, resources):
         plotter = visualisations.BarPlotter()
         plotter.plot(resources[0])
+        plotter.figure.update_layout()
         return plotter
 
 
-@image_comparison()
-class TestBubblePlot:
+@file_comparison(
+    plotter_type="matplotlib",
+)
+class TestBubblePlotter:
     def test_default(self, resources):
         plotter = visualisations.BubblePlotter()
         plotter.plot(resources[2])
         return plotter
 
 
-@image_comparison(width=800, height=600, scale=1)
+@file_comparison(plotter_type="plotly")
 class TestDotPlotter:
     def test_default(self, resources):
         plotter = visualisations.DotPlotter()
@@ -153,7 +182,7 @@ class TestDotPlotter:
         return plotter
 
 
-@image_comparison(width=800, height=600, scale=1)
+@file_comparison(plotter_type="plotly")
 class TestLinePlotterSingleUser:
     def test_default(self, resources):
         plotter = visualisations.LinePlotter()
@@ -161,7 +190,7 @@ class TestLinePlotterSingleUser:
         return plotter
 
 
-@image_comparison(width=800, height=600, scale=1)
+@file_comparison(plotter_type="plotly")
 class TestLinePlotterMultipleUsers:
     def test_default(self, resources):
         plotter = visualisations.LinePlotter()
@@ -169,7 +198,7 @@ class TestLinePlotterMultipleUsers:
         return plotter
 
 
-@image_comparison(width=800, height=600, scale=1)
+@file_comparison(plotter_type="plotly")
 class TestPiePlotter:
     def test_default(self, resources):
         plotter = visualisations.PiePlotter()
@@ -177,7 +206,7 @@ class TestPiePlotter:
         return plotter
 
 
-@image_comparison(width=800, height=600, scale=1)
+@file_comparison(plotter_type="plotly")
 class TestRosePlotter:
     def test_default(self, resources):
         random_state = random.Random(42)
@@ -186,7 +215,7 @@ class TestRosePlotter:
         return plotter
 
 
-@image_comparison(width=800, height=600, scale=1)
+@file_comparison(plotter_type="plotly")
 class TestRadarPlotter:
     def test_default(self, resources):
         plotter = visualisations.RadarPlotter()
@@ -194,7 +223,7 @@ class TestRadarPlotter:
         return plotter
 
 
-@image_comparison(width=800, height=600, scale=1)
+@file_comparison(plotter_type="plotly")
 class TestTreePlotter:
     def test_default(self, resources):
         plotter = visualisations.TreePlotter()
@@ -202,10 +231,12 @@ class TestTreePlotter:
         return plotter
 
 
-@image_comparison()
 @pytest.mark.skipif(
     sys.version_info >= (3, 10),
     reason="WordPlotter only supports Python version < 3.10",
+)
+@file_comparison(
+    plotter_type="matplotlib",
 )
 class TestWordPlotter:
     def test_default(self, resources):

@@ -188,13 +188,17 @@ class PlotlyBasePlotter(BasePlotter):
 
                 This method supports saving the visualisation in various formats.
                 Most platforms support the following formats:
-                "png", "jpg" or "jpeg", "svg", "pdf", "html".
+                "png", "jpg" or "jpeg", "svg", "pdf", "html", "json".
 
                 If you want to export a HTML file, you can optionally pass in
                     default_width:
                         The default width of the image in the HTML file.
                     default_height:
                         The default height of the image in the HTML file.
+
+                If you want to export a JSON file, you can optionally pass in
+                    pretty:
+                        Whether the saved JSON representation should be pretty-printed.
 
                 If you want to export an image file, you can optionally pass in
                     width:
@@ -208,6 +212,9 @@ class PlotlyBasePlotter(BasePlotter):
         """
         if file.endswith(".html"):
             self.figure.write_html(file=file, **kargs)
+            return
+        if file.endswith(".json"):
+            self.figure.write_json(file=file, **kargs)
             return
 
         self.figure.write_image(file=file, **kargs)
