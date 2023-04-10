@@ -9,7 +9,6 @@ import sys
 from typing import Dict, Optional, Callable
 
 import pytest
-from matplotlib import font_manager
 from matplotlib.testing.compare import compare_images
 
 from truelearn import learning, datasets, models
@@ -254,17 +253,10 @@ class TestTreePlotter:
     sys.version_info >= (3, 8),
     reason="WordPlotter only supports Python version == 3.7",
 )
-@file_comparison(
-    plotter_type="matplotlib",
-)
 class TestWordPlotter:
-    def test_default(self, resources):
+    # no way to test this in a cross-platform way
+    # because wordcloud renders the same font differently on different operating systems
+    def test_generate_files_no_error(self, resources):
         random_state = random.Random(42)
         plotter = visualisations.WordPlotter()
-
-        file = font_manager.findfont("DejaVu Sans")
-        print(file)
-
-        plotter.plot(resources[0], random_state=random_state, font_path=file)
-
-        return plotter
+        plotter.plot(resources[0], random_state=random_state)
