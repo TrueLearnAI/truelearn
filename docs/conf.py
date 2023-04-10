@@ -132,3 +132,13 @@ html_theme = "furo"
 html_logo = "images/TrueLearn_logo.png"
 html_css_files = ["custom.css"]
 html_static_path = ["_static"]
+
+# -- Options for Furo theme --------------------------------------------------
+html_theme_options = {
+    "light_css_variables": {
+        "color-api-background": "#f8f9fb",
+    },
+    "dark_css_variables": {
+        "color-api-background": "#1e1e1e",
+    },
+}
