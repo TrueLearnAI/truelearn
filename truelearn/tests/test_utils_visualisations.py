@@ -368,6 +368,11 @@ class TestTreePlotter:
         plotter.plot(resources[0])
         return plotter
 
+    def test_history(self, resources):
+        plotter = visualisations.TreePlotter()
+        plotter.plot(resources[0], history=True)
+        return plotter
+
 
 @pytest.mark.skipif(
     sys.version_info >= (3, 8),
