@@ -61,7 +61,9 @@ class BasePlotter(ABC):
             else:
                 rest.append(data)
 
-        content.sort(key=lambda data: data[0], reverse=True)  # sort based on mean
+        content.sort(
+            key=lambda tuple_kc: tuple_kc[0], reverse=True
+        )  # sort based on mean
 
         return content, rest
 
@@ -131,11 +133,11 @@ class PlotlyBasePlotter(BasePlotter):
         self.xlabel(xlabel)
         self.ylabel(ylabel)
 
-    def _hovertemplate(self, hover_fmt: Tuple, history: bool) -> str:
+    def _hover_template(self, hover_fmt: Tuple, history: bool) -> str:
         """Determine what information is displayed on hover.
 
         Args:
-            hoverdata:
+            hover_fmt:
                 A tuple containing some format strings that specify how to format data.
             history:
                 A boolean value which determines which template to use.

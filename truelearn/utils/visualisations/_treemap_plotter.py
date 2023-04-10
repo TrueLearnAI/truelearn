@@ -78,7 +78,7 @@ class TreePlotter(PlotlyBasePlotter):
             go.Treemap(
                 labels=titles,
                 values=means,
-                parents=[None] * len(titles),
+                parents=[""] * len(titles),
                 marker_colors=[
                     "pink",
                     "royalblue",
@@ -98,7 +98,7 @@ class TreePlotter(PlotlyBasePlotter):
                         last_video_watched,
                     ]  # type: ignore
                 ),
-                hovertemplate=self._hovertemplate(
+                hovertemplate=self._hover_template(
                     (
                         "%{customdata[0]}",
                         "%{customdata[1]}",

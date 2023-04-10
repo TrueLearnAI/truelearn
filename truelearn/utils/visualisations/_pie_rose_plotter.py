@@ -158,7 +158,7 @@ class PiePlotter(PlotlyBasePlotter):
                         dtype=object,
                     )
                 ),
-                hovertemplate=self._hovertemplate(
+                hovertemplate=self._hover_template(
                     (
                         "%{customdata[0][0]}",
                         "%{customdata[0][1]}",
@@ -331,7 +331,7 @@ class RosePlotter(PlotlyBasePlotter):
             name=title,
             r=[mean],
             width=[width],
-            hovertemplate=self._hovertemplate(
+            hovertemplate=self._hover_template(
                 (title, mean, variance, number_of_videos, last_video_watched), True
             ),
             thetaunit="degrees",

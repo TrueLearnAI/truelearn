@@ -101,10 +101,10 @@ class RadarPlotter(PlotlyBasePlotter):
             theta=topics,
             fill="toself",
             name=name,
-            hovertemplate=self._hovertemplate("%{r}"),
+            hovertemplate=self._hover_template("%{r}"),
         )
 
-    def _hovertemplate(self, hover_fmt: str, history: bool = False) -> str:
+    def _hover_template(self, hover_fmt: str, history: bool = False) -> str:
         """Return the string that specifies the hover template.
 
         Args:

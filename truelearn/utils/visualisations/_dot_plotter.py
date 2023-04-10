@@ -100,7 +100,7 @@ class DotPlotter(PlotlyBasePlotter):
                 customdata=np.transpose(
                     [variances, number_of_videos, last_video_watched]  # type: ignore
                 ),
-                hovertemplate=self._hovertemplate(
+                hovertemplate=self._hover_template(
                     (
                         "%{x}",
                         "%{y}",
