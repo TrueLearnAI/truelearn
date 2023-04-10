@@ -262,11 +262,7 @@ class TestWordPlotter:
         random_state = random.Random(42)
         plotter = visualisations.WordPlotter()
 
-        try:
-            file = font_manager.findfont("Arial")
-        except OSError:
-            pytest.skip("Cannot find font `Arial` which is used by baseline image.")
-
+        file = font_manager.findfont("DejaVu Sans")
         plotter.plot(resources[0], random_state=random_state, font_path=file)
 
         return plotter
