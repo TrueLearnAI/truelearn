@@ -184,11 +184,11 @@ class Range:
         Returns:
             A string description of the range object.
         """
-        symbols = [">", ">=", "<=", "<"]
+        symbols = [">=", ">", "<=", "<"]
         fmt_strs = []
         for symbol, val in zip(
             symbols,
-            [self.greater, self.greater_or_equal, self.less_or_equal, self.less],
+            [self.greater_or_equal, self.greater, self.less_or_equal, self.less],
         ):
             if not val:
                 continue
