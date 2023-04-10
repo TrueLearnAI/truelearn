@@ -4,6 +4,7 @@ from datetime import datetime as dt
 
 import trueskill
 
+from truelearn.errors import TrueLearnValueError
 from truelearn.models import (
     LearnerModel,
     BaseKnowledgeComponent,
@@ -12,8 +13,9 @@ from ._base import (
     InterestNoveltyKnowledgeBaseClassifier,
     gather_trueskill_team,
     team_sum_quality_from_kcs,
+    greater_than_or_equal_to_zero_constraint,
 )
-from .._constraint import TypeConstraint, ValueConstraint
+from .._constraint import TypeConstraint, ValueConstraint, FuncConstraint
 
 
 class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
@@ -87,7 +89,10 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
     _parameter_constraints: Dict[str, Any] = {
         **InterestNoveltyKnowledgeBaseClassifier._parameter_constraints,
         "decay_func_type": ValueConstraint("short", "long"),
-        "decay_func_factor": TypeConstraint(float),
+        "decay_func_factor": [
+            TypeConstraint(float),
+            FuncConstraint(greater_than_or_equal_to_zero_constraint),
+        ],
     }
 
     def __init__(
@@ -119,7 +124,7 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
                 It will be used when the learner interacts with knowledge components
                 at its first time.
             def_var:
-                The initial variance of the learner's knowledge component.
+                The initial variance (>0) of the learner's knowledge component.
                 It will be used when the learner interacts with knowledge components
                 at its first time.
             beta:
@@ -136,22 +141,23 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
                 the draw probability based on the learner's previous engagement
                 stats with educational resources.
             draw_proba_static:
-                The global draw probability.
+                The global draw probability (>=0).
             draw_proba_factor:
-                A factor that will be applied to both static and dynamic
+                A factor (>=0) that will be applied to both static and dynamic
                 draw probability.
             decay_func_type:
                 A str specifying the type of the interest decay function.
                 The allowed values are "short" and "long".
             decay_func_factor:
-                A factor that will be used in both short and long
+                A factor (>=0) that will be used in both short and long
                 interest decay function. Defaults to 0, which disables
-                the interest decay function.
+                the interest decay function .
 
         Raises:
-            ValueError:
-                If draw_proba_type is neither "static" nor "dynamic";
-                If decay_func_type is neither "short" nor "long".
+            TrueLearnTypeError:
+                Types of parameters does not satisfy their constraints.
+            TrueLearnValueError:
+                Values of parameters does not satisfy their constraints.
         """
         super().__init__(
             learner_model=learner_model,
@@ -161,7 +167,9 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
             tau=tau,
             beta=beta,
             # learner always win in interest
-            # so there is no "positive_only" in it
+            # so we should always update regardless of the actual label
+            # positive_only should be disabled to ensure the update method
+            # is always called
             positive_only=False,
             draw_proba_type=draw_proba_type,
             draw_proba_static=draw_proba_static,
@@ -219,12 +227,12 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
             An iterable of trueskill.Rating.
 
         Raises:
-            ValueError:
+            TrueLearnValueError:
                 If the event timestamp is None or any timestamp of
                 the learner's knowledge components is None.
         """
         if event_time is None:
-            raise ValueError(
+            raise TrueLearnValueError(
                 "The event time should not be None when using InterestClassifier."
             )
 
@@ -237,7 +245,7 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
             learner_kc: BaseKnowledgeComponent,
         ) -> BaseKnowledgeComponent:
             if learner_kc.timestamp is None:
-                raise ValueError(
+                raise TrueLearnValueError(
                     "The timestamp field of knowledge component"
                     " should not be None if using InterestClassifier."
                 )

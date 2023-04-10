@@ -3,7 +3,11 @@ from abc import ABC, abstractmethod
 from typing import Dict, Any
 from typing_extensions import Self, Final, final, Literal
 
+from truelearn.errors import InvalidArgumentError
 from truelearn.models import EventModel
+
+
+__all__ = ["BaseClassifier"]
 
 
 class BaseClassifier(ABC):
@@ -78,10 +82,7 @@ class BaseClassifier(ABC):
         out = {}
         for key in param_names:
             if not hasattr(self, self._PARAM_PREFIX + key):
-                raise ValueError(
-                    f"The specified parameter name {key}"
-                    f" is not in the class {self.__class__.__name__!r}."
-                )
+                continue
 
             value = getattr(self, self._PARAM_PREFIX + key)
             if deep and isinstance(value, BaseClassifier):
@@ -111,10 +112,11 @@ class BaseClassifier(ABC):
             The updated classifier.
 
         Raises:
-            TypeError:
-                If the given value doesn't have the same type
-                as the original value.
-            KeyError:
+            TrueLearnTypeError:
+                Types of parameters does not satisfy their constraints.
+            TrueLearnValueError:
+                Values of parameters does not satisfy their constraints.
+            InvalidArgumentError:
                 If the given argument name is not in the class.
         """
         # avoid running `self.get_params` if there is no given params
@@ -131,8 +133,8 @@ class BaseClassifier(ABC):
         for key, value in args.items():
             key, delim, sub_key = key.partition(BaseClassifier.__DEEP_PARAM_DELIMITER)
             if key not in valid_params:
-                raise KeyError(
-                    f"The given parameter {key}"
+                raise InvalidArgumentError(
+                    f"The given argument {key}"
                     f" is not in the class {self.__class__.__name__!r}."
                 )
 
@@ -172,21 +174,17 @@ class BaseClassifier(ABC):
         in your classifier.
 
         Raises:
-            TypeError:
-                Types of parameters mismatch their constraints.
-            ValueError:
-                If the parameter is not any of the valid values in the given tuple.
+            TrueLearnTypeError:
+                Types of parameters does not satisfy their constraints.
+            TrueLearnValueError:
+                Values of parameters does not satisfy their constraints.
         """
         for (
             param_name,
             param_constraint,
         ) in self._parameter_constraints.items():
             if not hasattr(self, self._PARAM_PREFIX + param_name):
-                raise ValueError(
-                    f"The specified parameter name {param_name}"
-                    f" is not in the class {self.__class__.__name__!r}."
-                )
-
+                continue
             if isinstance(param_constraint, list):
                 for constraint in param_constraint:
                     constraint.satisfies(self, param_name)

@@ -120,21 +120,14 @@ mean=0.12698..., variance=0.39796...))...}
                 only incorrect predictions lead to the update of the weights.
 
         Raises:
-            TypeError:
-                Types of parameters mismatch their constraints.
-            ValueError:
-                If the parameter is not any of the valid values in the given tuple.
+            TrueLearnTypeError:
+                Types of parameters does not satisfy their constraints.
+            TrueLearnValueError:
+                Values of parameters does not satisfy their constraints.
         """
-        if novelty_classifier is None:
-            novelty_classifier = NoveltyClassifier()
-        if interest_classifier is None:
-            interest_classifier = InterestClassifier()
-        if learner_meta_weights is None:
-            learner_meta_weights = LearnerMetaWeights()
-
-        self._learner_meta_weights = learner_meta_weights
-        self._novelty_classifier = novelty_classifier
-        self._interest_classifier = interest_classifier
+        self._novelty_classifier = novelty_classifier or NoveltyClassifier()
+        self._interest_classifier = interest_classifier or InterestClassifier()
+        self._learner_meta_weights = learner_meta_weights or LearnerMetaWeights()
         self._threshold = threshold
         self._tau = tau
         self._greedy = greedy
@@ -311,7 +304,10 @@ mean=0.12698..., variance=0.39796...))...}
         """Get the learner model associated with this classifier.
 
         Returns:
-            A learner model associated with this classifier.
+            A tuple (novelty_learner, interest_learner, meta_weights) where
+            novelty_learner is the learner model associated with the NoveltyClassifier,
+            interest_learner is the learner model associated with the
+            interestClassifier, meta_weights is the weights used in this classifier.
         """
         return (
             self._novelty_classifier.get_learner_model(),

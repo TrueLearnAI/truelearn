@@ -12,6 +12,7 @@ from truelearn.models import (
     LearnerModel,
 )
 from truelearn.base import BaseClassifier
+from truelearn.errors import TrueLearnValueError
 from .._constraint import (
     TypeConstraint,
     ValueConstraint,
@@ -27,16 +28,58 @@ def draw_proba_static_constraint(obj: BaseClassifier, _):
         obj: The object to check.
         _: Use to accept param_name.
 
-    Returns:
-        a ValueError object if the draw_proba_static is not property set,
-        which means it's None while draw_proba_type is static. If everything
-        is properly set, it returns None.
+    Raises:
+        TrueLearnValueError:
+            If the draw_proba_static is not property set,
+            which means it's None while draw_proba_type is static.
     """
     params = obj.get_params(deep=False)
     if params["draw_proba_type"] == "static" and params["draw_proba_static"] is None:
-        raise ValueError(
+        raise TrueLearnValueError(
             "When draw_proba_type is set to static,"
             " the draw_proba_static should not be None."
+        )
+
+
+def greater_than_zero_constraint(obj: BaseClassifier, param_name: str):
+    """Check whether the value of given parameter is greater than 0.
+
+    The value must be of type float.
+
+    Args:
+        obj: The object to check.
+        param_name: The name of the parameter.
+
+    Raises:
+        TrueLearnValueError:
+            If the value is not >0.
+    """
+    params = obj.get_params(deep=False)
+    value = params[param_name]
+    if isinstance(value, float) and value <= 0:
+        raise TrueLearnValueError(
+            f"{param_name} is expected to be >0. Got {value} instead."
+        )
+
+
+def greater_than_or_equal_to_zero_constraint(obj: BaseClassifier, param_name: str):
+    """Check whether the value of given parameter is greater than or equal to 0.
+
+    The value must be of type float.
+
+    Args:
+        obj: The object to check.
+        param_name: The name of the parameter.
+
+    Raises:
+        TrueLearnValueError:
+            If the value is not >=0.
+    """
+    params = obj.get_params(deep=False)
+    value = params[param_name]
+    if isinstance(value, float) and value < 0:
+        raise TrueLearnValueError(
+            f"{param_name} is expected to be >=0. Got {value} instead."
         )
 
 
@@ -125,10 +168,7 @@ def gather_trueskill_team(
         created from the given iterable of knowledge components.
     """
     return tuple(
-        map(
-            lambda kc: env.create_rating(mu=kc.mean, sigma=math.sqrt(kc.variance)),
-            kcs,
-        )
+        env.create_rating(mu=kc.mean, sigma=math.sqrt(kc.variance)) for kc in kcs
     )
 
 
@@ -152,16 +192,24 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
         "learner_model": TypeConstraint(LearnerModel),
         "threshold": TypeConstraint(float),
         "init_skill": TypeConstraint(float),
-        "def_var": TypeConstraint(float),
+        "def_var": [
+            TypeConstraint(float),
+            FuncConstraint(greater_than_zero_constraint),
+        ],
         "tau": TypeConstraint(float),
         "beta": TypeConstraint(float),
         "positive_only": TypeConstraint(bool),
         "draw_proba_type": ValueConstraint("static", "dynamic"),
         "draw_proba_static": [
             TypeConstraint(float, type(None)),
-            FuncConstraint(draw_proba_static_constraint),
+            FuncConstraint(
+                draw_proba_static_constraint, greater_than_or_equal_to_zero_constraint
+            ),
         ],
-        "draw_proba_factor": TypeConstraint(float),
+        "draw_proba_factor": [
+            TypeConstraint(float),
+            FuncConstraint(greater_than_or_equal_to_zero_constraint),
+        ],
     }
 
     def __init__(
@@ -192,7 +240,7 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
                 It will be used when the learner interacts with some
                 knowledge components at its first time.
             def_var:
-                The initial variance of the learner's knowledge component.
+                The initial variance (>0) of the learner's knowledge component.
                 It will be used when the learner interacts with some
                 knowledge components at its first time.
             beta:
@@ -212,27 +260,26 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
                 based on the learner's previous engagement stats
                 with educational resources.
             draw_proba_static:
-                The global draw probability.
+                The global draw probability (>=0).
             draw_proba_factor:
-                A factor that will be applied to both
+                A factor (>=0) that will be applied to both
                 static and dynamic draw probability.
 
         Raises:
-            ValueError: If draw_proba_type is neither "static" nor "dynamic".
+            TrueLearnTypeError:
+                Types of parameters does not satisfy their constraints.
+            TrueLearnValueError:
+                Values of parameters does not satisfy their constraints.
         """
         super().__init__()
 
-        if learner_model is None:
-            self._learner_model = LearnerModel()
-        else:
-            self._learner_model = learner_model
+        self._learner_model = learner_model or LearnerModel()
         self._threshold = threshold
         self._init_skill = init_skill
         self._def_var = def_var
         self._tau = tau
         self._beta = beta
         self._positive_only = positive_only
-
         self._draw_proba_type = draw_proba_type
         self._draw_proba_factor = draw_proba_factor
         self._draw_proba_static = draw_proba_static

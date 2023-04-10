@@ -1,5 +1,5 @@
-Get Started
-===========
+Getting Started
+===============
 
 The Basics
 ----------
@@ -12,19 +12,16 @@ For larger changes, consider creating an issue to outline the changes you are pr
 If you need any help, please feel free to create a new discussion. Our team will be happy to help you.
 
 
-Prerequisites
--------------
-TrueLearn is a Python library that intends to support Python 3.7+.
-So, make sure you have the Python 3.7 installed.
+Install TrueLearn from source
+-----------------------------
+TrueLearn is a Python library that requires Python 3.7+ to run. So, make sure you have the Python 3.7 installed.
 
-After installing Python 3.7 and cloning the repository, install TrueLearn locally with::
+After installing Python 3.7 and cloning the repository, install TrueLearn locally from source::
 
-    # for zsh, see below
     pip install -e .[dev]
 
-If you are using zsh, you may need to install TrueLearn with::
+If you are using zsh, you may need to run::
 
-    # if you are using zsh
     pip install -e ".[dev]"
 
 Using ``pip install -e`` will install TrueLearn in editable mode, which means that when you make any changes to the source code,

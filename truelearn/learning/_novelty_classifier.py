@@ -98,7 +98,7 @@ KnowledgeComponent(mean=-0.36715..., variance=0.29902..., ...), ...}), ...}
                 It will be used when the learner interacts with knowledge components
                 at its first time.
             def_var:
-                The initial variance of the learner's knowledge component.
+                The initial variance (>0) of the learner's knowledge component.
                 It will be used when the learner interacts with knowledge components
                 at its first time.
             beta:
@@ -118,13 +118,16 @@ KnowledgeComponent(mean=-0.36715..., variance=0.29902..., ...), ...}), ...}
                 the draw probability based on the learner's previous engagement
                 stats with educational resources.
             draw_proba_static:
-                The global draw probability.
+                The global draw probability (>=0).
             draw_proba_factor:
-                A factor that will be applied to both static and dynamic
+                A factor (>=0) that will be applied to both static and dynamic
                 draw probability.
 
         Raises:
-            ValueError: If draw_proba_type is neither "static" nor "dynamic".
+            TrueLearnTypeError:
+                Types of parameters does not satisfy their constraints.
+            TrueLearnValueError:
+                Values of parameters does not satisfy their constraints.
         """
         super().__init__(
             learner_model=learner_model,

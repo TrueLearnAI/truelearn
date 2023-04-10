@@ -33,11 +33,17 @@ class PersistentClassifier(BaseClassifier):
         "engage_with_last": TypeConstraint(bool),
     }
 
-    def __init__(self, engage_with_last: bool = False) -> None:
+    def __init__(self, *, engage_with_last: bool = False) -> None:
         """Init PersistentClassifier object.
 
         Args:
             engage_with_last: whether the learner engages with the last learnable unit.
+
+        Raises:
+            TrueLearnTypeError:
+                Types of parameters does not satisfy their constraints.
+            TrueLearnValueError:
+                Values of parameters does not satisfy their constraints.
         """
         super().__init__()
 
