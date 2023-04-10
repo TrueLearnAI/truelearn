@@ -1,4 +1,4 @@
-from typing import Any, Callable
+from typing import Any, Callable, List, Optional
 
 from truelearn.base import BaseClassifier
 from truelearn.errors import TrueLearnTypeError, TrueLearnValueError
@@ -63,12 +63,19 @@ class ValueConstraint:
         ValueConstraint(1, 2, 3)
     """
 
-    def __init__(self, *value_constraints: Any):
+    def __init__(self, *value_constraints: Any, vtype: type = object):
         """Init the ValueConstraint class.
 
         Args:
-            *value_constraints: A tuple of value constraints
+            *value_constraints:
+                A tuple of value constraints
+            vtype:
+                The type of the given values. Defaults to object.
+                This is typically used if the type constraint of the parameter
+                supports multuple types, and you only want to check the value
+                for one of the types listed in the type constraint.
         """
+        self.vtype = vtype
         self.value_constraints = value_constraints
 
     def __repr__(self):
@@ -93,6 +100,10 @@ class ValueConstraint:
         """
         # pylint: disable=protected-access
         param_value = getattr(obj, obj._PARAM_PREFIX + param_name)
+
+        # only check satisfiability if the given type matches the vtype
+        if not isinstance(param_value, self.vtype):
+            return
 
         if param_value not in self.value_constraints:
             raise TrueLearnValueError(
@@ -143,3 +154,60 @@ class FuncConstraint:
         """
         for fn in self.func_constraints:
             fn(obj, param_name)
+
+
+class Range:
+    """Represent value range.
+
+    It can be used in conjunction with ValueConstraint to
+    check that the value of an argument is within a range.
+
+    Notice, the value used here must support comparison operators.
+    """
+
+    def __init__(
+        self,
+        gt: Optional[List] = None,
+        ge: Optional[List] = None,
+        le: Optional[List] = None,
+        lt: Optional[List] = None,
+    ):
+        """Init a Range object."""
+        self.greater = gt or []
+        self.greater_or_equal = ge or []
+        self.less_or_equal = le or []
+        self.less = lt or []
+
+    def __repr__(self) -> str:
+        """Get a description of the range object.
+
+        Returns:
+            A string description of the range object.
+        """
+        symbols = [">", ">=", "<=", "<"]
+        fmt_strs = []
+        for symbol, val in zip(
+            symbols,
+            [self.greater, self.greater_or_equal, self.less_or_equal, self.less],
+        ):
+            if not val:
+                continue
+            fmt_strs.append(f"{symbol}{val}")
+        return f"Range({', '.join(fmt_strs)})"
+
+    def __eq__(self, other):
+        """Check whether the given object is within the specified range.
+
+        Args:
+            other:
+                The given object.
+
+        Returns:
+            Whether the value is within the range.
+        """
+        return (
+            all(other > num for num in self.greater)
+            and all(other >= num for num in self.greater_or_equal)
+            and all(other <= num for num in self.less_or_equal)
+            and all(other < num for num in self.less)
+        )
