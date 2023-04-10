@@ -30,7 +30,3 @@
    .. automethod:: {{ method }}
    {% endfor %}
    {% endif %}
-
-.. raw:: html
-
-    <div class="clearer"></div>
