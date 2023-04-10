@@ -6,7 +6,7 @@ import filecmp
 import types
 import os
 import sys
-from typing import Dict, Optional
+from typing import Dict, Optional, Callable
 
 import pytest
 from matplotlib.testing.compare import compare_images
@@ -61,6 +61,44 @@ def resources():
                 ...
 
 
+def _file_comparison_method_wrapper_generator(
+    func,
+    extensions: Dict[str, Dict],
+    file_cmp_func: Callable[[str, str], bool],
+    tmp_path_dir: pathlib.Path,
+    target_path_dir: pathlib.Path,
+):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        plotter = func(*args, **kwargs)
+        failed_ext_with_reasons = {}
+
+        for ext, config in extensions.items():
+            tmp_file = tmp_path_dir / str(func.__name__ + ext)
+            target_file = target_path_dir / str(func.__name__ + ext)
+
+            plotter.savefig(str(tmp_file), **config)
+
+            if not target_file.exists():
+                failed_ext_with_reasons[ext] = "Target file does not exist."
+                continue
+
+            if not file_cmp_func(str(target_file), str(tmp_file)):
+                failed_ext_with_reasons[ext] = "Tmp file does not match target file."
+                continue
+
+            # remove images that pass the test
+            os.remove(tmp_file)
+
+        if failed_ext_with_reasons:
+            raise ValueError(
+                "The file generated with the following extension does not "
+                f"match the baseline file {failed_ext_with_reasons!r}"
+            )
+
+    return wrapper
+
+
 def file_comparison(plotter_type: str, config: Optional[Dict[str, Dict]] = None):
     """Class decorator for image comparison.
 
@@ -101,46 +139,14 @@ def file_comparison(plotter_type: str, config: Optional[Dict[str, Dict]] = None)
         def file_cmp_func(filename1, filename2):
             return compare_images(filename1, filename2, tol=0.1) is None
 
-    def file_compression_method_decorator(
-        func, tmp_path_dir: pathlib.Path, target_path_dir: pathlib.Path
-    ):
-        @functools.wraps(func)
-        def wrapper(*args, **kwargs):
-            plotter = func(*args, **kwargs)
-            failed_ext_with_reasons = {}
-
-            for ext, config in extensions.items():
-                tmp_file = tmp_path_dir / str(func.__name__ + ext)
-                target_file = target_path_dir / str(func.__name__ + ext)
-
-                plotter.savefig(str(tmp_file), **config)
-
-                if not target_file.exists():
-                    failed_ext_with_reasons[ext] = "Target file does not exist."
-                    continue
-
-                # if compare_images(str(target_file), str(tmp_file), tol=0):
-                #     failed_ext_with_reasons[
-                #         ext
-                #     ] = "Tmp file does not match target file."
-                #     continue
-
-                if not file_cmp_func(str(target_file), str(tmp_file)):
-                    failed_ext_with_reasons[
-                        ext
-                    ] = "Tmp file does not match target file."
-                    continue
-
-                # remove images that pass the test
-                os.remove(tmp_file)
-
-            if failed_ext_with_reasons:
-                raise ValueError(
-                    "The file generated with the following extension does not "
-                    f"match the baseline file {failed_ext_with_reasons!r}"
-                )
-
-        return wrapper
+    def file_comparison_method_decorator(func):
+        return _file_comparison_method_wrapper_generator(
+            func,
+            extensions,
+            file_cmp_func,
+            BASELINE_DIR / str(func.__name__),
+            TMP_PATH / str(func.__name__),
+        )
 
     def file_comparison_class_decorator(tclass):
         target_path = BASELINE_DIR / str(tclass.__name__).lower()
@@ -150,14 +156,21 @@ def file_comparison(plotter_type: str, config: Optional[Dict[str, Dict]] = None)
         for key in dir(tclass):
             value = getattr(tclass, key)
             if isinstance(value, types.FunctionType):
-                wrapped = file_compression_method_decorator(
-                    value, tmp_path, target_path
+                wrapped = _file_comparison_method_wrapper_generator(
+                    value, extensions, file_cmp_func, tmp_path, target_path
                 )
                 setattr(tclass, key, wrapped)
 
         return tclass
 
-    return file_comparison_class_decorator
+    # make it work for both class and method decorator
+    def driver(obj):
+        if isinstance(obj, type):
+            return file_comparison_class_decorator(obj)
+        # method
+        return file_comparison_method_decorator(obj)
+
+    return driver
 
 
 @file_comparison(plotter_type="plotly")
