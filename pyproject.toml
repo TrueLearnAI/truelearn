@@ -51,7 +51,7 @@ dependencies = [
     'circlify>=0.15.0',
 ]
 [project.urls]
-Homepage = "https://truelearnai.github.io/TrueLearn-website/"
+Homepage = "https://truelearnai.github.io/"
 Documentation = "https://truelearn.readthedocs.io/en/stable/"
 Issues = "https://github.com/TrueLearnAI/truelearn/issues"
 Source = "https://github.com/TrueLearnAI/truelearn"

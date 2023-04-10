@@ -87,9 +87,9 @@ This work is related to the following papers:
    }
 
 
-.. _TrueLearn A Family of Bayesian Algorithms to Match Lifelong Learners to Open Educational Resources: https://arxiv.org/abs/2002.00001
+.. _TrueLearn A Family of Bayesian Algorithms to Match Lifelong Learners to Open Educational Resources: https://arxiv.org/abs/1911.09471
 .. _Power to the Learner\: Towards Human-Intuitive and Integrative Recommendations with Open Educational Resources: https://www.mdpi.com/2071-1050/14/18/11682
-.. _PEEK\: A Large Dataset of Learner Engagement with Educational Videos: https://arxiv.org/abs/2106.00683
+.. _PEEK\: A Large Dataset of Learner Engagement with Educational Videos: https://arxiv.org/abs/2109.03154
 
 
 .. include:: changelog.rst
