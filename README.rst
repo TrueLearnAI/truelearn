@@ -90,7 +90,6 @@ Installing TrueLearn from source
 
 After cloning the repository, you can install TrueLearn locally from source::
 
-   # for zsh, see below
    pip install -e .[dev]
 
    # if you are using zsh
