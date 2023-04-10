@@ -68,9 +68,11 @@ class WordPlotter(MatplotlibBasePlotter):
             from wordcloud import WordCloud  # type: ignore
         except ImportError:
             warnings.warn(
-                "Missing wordcloud dependency. "
-                "It is possible that you are using Python 3.10+ as "
-                "wordcloud dependency is not installed for Python 3.10+.",
+                "Missing `wordcloud` dependency. "
+                "You can install it via `pip install wordcloud`. "
+                "Notice, `wordcloud` library does not support "
+                "Python 3.10+ and is not actively tested against "
+                "Python version >= 3.8.",
                 FutureWarning,
                 stacklevel=2,
             )
