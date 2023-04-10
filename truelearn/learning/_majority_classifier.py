@@ -49,6 +49,12 @@ class MajorityClassifier(BaseClassifier):
             engagement: The number of learner's engagement.
             non_engagement: The number of learner's non_engagement.
             threshold: A float that determines the classification threshold.
+
+        Raises:
+            TrueLearnTypeError:
+                Types of parameters does not satisfy their constraints.
+            TrueLearnValueError:
+                Values of parameters does not satisfy their constraints.
         """
         super().__init__()
 

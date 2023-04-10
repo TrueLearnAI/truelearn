@@ -6,12 +6,13 @@ from pytest_socket import disable_socket, enable_socket
 
 from truelearn import datasets
 from truelearn.datasets import _base
+from truelearn.errors import TrueLearnValueError
 
 
 class TestBase:
     @pytest.mark.disable_socket
     def test_download_non_https_url(self):
-        with pytest.raises(ValueError) as excinfo:
+        with pytest.raises(TrueLearnValueError) as excinfo:
             _base._download_file(
                 filepath=".",
                 url="http://",
@@ -51,7 +52,7 @@ class TestBase:
         filepath = directory / "truelearn_sha256sum_test.txt"
         filepath.write_text("")
 
-        with pytest.raises(IOError) as excinfo:
+        with pytest.raises(TrueLearnValueError) as excinfo:
             _base._download_file(
                 filepath=str(filepath),
                 url="https://",
@@ -98,13 +99,13 @@ class TestPEEKDataset:
         assert len(mapping) == 30367
 
     def test_load_peek_dataset_with_invalid_limit(self):
-        with pytest.raises(ValueError) as excinfo:
+        with pytest.raises(TrueLearnValueError) as excinfo:
             datasets.load_peek_dataset(train_limit=-1)
         assert (
             str(excinfo.value) == "train_limit must >= 0. Got train_limit=-1 instead."
         )
 
-        with pytest.raises(ValueError) as excinfo:
+        with pytest.raises(TrueLearnValueError) as excinfo:
             datasets.load_peek_dataset(test_limit=-1)
         assert str(excinfo.value) == "test_limit must >= 0. Got test_limit=-1 instead."
 
@@ -152,12 +153,12 @@ class TestPEEKDataset:
         assert len(mapping) == 30367
 
     def test_load_peek_dataset_raw_with_invalid_limit(self):
-        with pytest.raises(ValueError) as excinfo:
+        with pytest.raises(TrueLearnValueError) as excinfo:
             datasets.load_peek_dataset_raw(train_limit=-1)
         assert (
             str(excinfo.value) == "train_limit must >= 0. Got train_limit=-1 instead."
         )
 
-        with pytest.raises(ValueError) as excinfo:
+        with pytest.raises(TrueLearnValueError) as excinfo:
             datasets.load_peek_dataset_raw(test_limit=-1)
         assert str(excinfo.value) == "test_limit must >= 0. Got test_limit=-1 instead."

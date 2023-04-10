@@ -85,15 +85,28 @@ You can check out the latest the source code with the following command::
    git clone https://github.com/TrueLearnAI/truelearn.git
 
 
+Installing TrueLearn from source
+--------------------------------
+
+After cloning the repository, you can install TrueLearn locally from source::
+
+   pip install -e .[dev]
+
+   # if you are using zsh
+   pip install -e ".[dev]"
+
+See the `Contributing Guide: Getting Started <https://truelearn.readthedocs.io/en/latest/dev/get_started.html>`_
+for a more detailed explanation.
+
+
 Testing
 -------
 
-After installing TrueLearn, you can run the tests from outside the source directory
-(you will need to have pytest installed)::
+After installation, you can run the tests from the source directory::
 
    pytest truelearn
 
-See the `Testing guide <https://truelearn.readthedocs.io/en/stable/dev/testing.html>`_
+See the `Contributing Guide: Testing guide <https://truelearn.readthedocs.io/en/latest/dev/testing.html>`_
 for a more detailed explanation.
 
 
@@ -101,4 +114,4 @@ Before submitting a PR
 ----------------------
 
 Please make sure you have followed the Guidelines outlined in the
-`Contributing Guide: Before/During PR  <https://truelearn.readthedocs.io/en/stable/dev/before_pr.html>`_.
+`Contributing Guide: Before/During PR  <https://truelearn.readthedocs.io/en/latest/dev/before_pr.html>`_.

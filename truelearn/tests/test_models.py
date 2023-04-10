@@ -4,6 +4,7 @@ import collections
 import pytest
 
 from truelearn import models
+from truelearn.errors import TrueLearnValueError
 
 
 class TestLearnerModel:
@@ -210,7 +211,7 @@ title=None, description=None, url=None, history=\
 deque([(91.0, 91.0, 91.0), (92.0, 92.0, 92.0), ...], maxlen=10))"
         )
 
-        with pytest.raises(ValueError) as excinfo:
+        with pytest.raises(TrueLearnValueError) as excinfo:
             kc.__repr__(-1)  # pylint: disable=unnecessary-dunder-call
         assert (
             str(excinfo.value)
@@ -285,7 +286,7 @@ timestamp=None, title=None, description=None, url=None), 2: KnowledgeComponent(\
 mean=1.0, variance=1.0, timestamp=None, title=None, description=None, url=None)})"
         )
 
-        with pytest.raises(ValueError) as excinfo:
+        with pytest.raises(TrueLearnValueError) as excinfo:
             knowledge.__repr__(-1)  # pylint: disable=unnecessary-dunder-call
         assert (
             str(excinfo.value)

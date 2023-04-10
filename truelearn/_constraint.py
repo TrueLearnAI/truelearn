@@ -1,6 +1,7 @@
 from typing import Any, Callable
 
 from truelearn.base import BaseClassifier
+from truelearn.errors import TrueLearnTypeError, TrueLearnValueError
 
 
 class TypeConstraint:
@@ -37,17 +38,15 @@ class TypeConstraint:
             param_name: A str representing the name of the parameter.
 
         Raises:
-            TypeError:
+            TrueLearnTypeError:
                 if the given parameter doesn't match any of the types.
         """
         # pylint: disable=protected-access
         param_value = getattr(obj, obj._PARAM_PREFIX + param_name)
 
         if type(param_value) not in self.type_constraints:
-            param_classname_expected = list(
-                map(lambda cls: cls.__name__, self.type_constraints)
-            )
-            raise TypeError(
+            param_classname_expected = [cls.__name__ for cls in self.type_constraints]
+            raise TrueLearnTypeError(
                 f"The {param_name} parameter of class {obj.__class__.__name__!r}"
                 " must be one of the classes"
                 f" in {param_classname_expected!r}."
@@ -89,14 +88,14 @@ class ValueConstraint:
             param_name: A str representing the name of the parameter.
 
         Raises:
-            ValueError:
+            TrueLearnValueError:
                 if the given parameter doesn't match any of the values.
         """
         # pylint: disable=protected-access
         param_value = getattr(obj, obj._PARAM_PREFIX + param_name)
 
         if param_value not in self.value_constraints:
-            raise ValueError(
+            raise TrueLearnValueError(
                 f"The {param_name} parameter of class {obj.__class__.__name__!r}"
                 " must be one of the value inside "
                 f"tuple {self.value_constraints!r}. Got {param_value!r} instead.",

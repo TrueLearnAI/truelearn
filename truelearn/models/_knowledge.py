@@ -4,6 +4,7 @@ from typing import Iterable, Hashable, Any, Optional, Dict, Tuple, Deque
 from typing_extensions import Self
 
 from ._base import BaseKnowledgeComponent
+from truelearn.errors import TrueLearnValueError
 
 
 class KnowledgeComponent(BaseKnowledgeComponent):
@@ -243,11 +244,7 @@ title=None, description=None, url=None, history=deque([(0.0, 1.0, None)], maxlen
             url=url,
         )
 
-        if history is None:
-            history = collections.deque(maxlen=history_limit)
-        else:
-            if history.maxlen != history_limit:
-                history = collections.deque(history, maxlen=history_limit)
+        history = collections.deque(history or [], maxlen=history_limit)
         self.__history = history
 
     def __repr__(self, n_max_object: int = 1) -> str:
@@ -262,11 +259,11 @@ title=None, description=None, url=None, history=deque([(0.0, 1.0, None)], maxlen
             A string description of the HistoryAwareKnowledgeComponent object.
 
         Raises:
-            ValueError:
+            TrueLearnValueError:
                 If the n_max_object is less than 0.
         """
         if n_max_object < 0:
-            raise ValueError(
+            raise TrueLearnValueError(
                 f"Expected n_max_object>=0. Got n_max_object={n_max_object} instead."
             )
 
@@ -319,7 +316,7 @@ title=None, description=None, url=None, history=deque([(0.0, 1.0, None)], maxlen
             title=self.title,
             description=self.description,
             url=self.url,
-            history=self.__history.copy(),
+            history=self.__history,
             history_limit=self.__history.maxlen,
         )
 
@@ -374,9 +371,7 @@ title=None, description=None, url=None))])
         """
         super().__init__()
 
-        if knowledge is None:
-            knowledge = {}
-        self.__knowledge = knowledge
+        self.__knowledge = knowledge or {}
 
     def __repr__(self, n_max_object: int = 1) -> str:
         """Print the Knowledge object.
@@ -390,11 +385,11 @@ title=None, description=None, url=None))])
             A string description of the Knowledge object.
 
         Raises:
-            ValueError:
+            TrueLearnValueError:
                 If the n_max_object is less than 0.
         """
         if n_max_object < 0:
-            raise ValueError(
+            raise TrueLearnValueError(
                 f"Expected n_max_object>=0. Got n_max_object={n_max_object} instead."
             )
 
