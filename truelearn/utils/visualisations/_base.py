@@ -271,16 +271,6 @@ class MatplotlibBasePlotter(BasePlotter):
         self.fig.show()
 
     @final
-    def set_size_inches(self, width: float, height: float):
-        """Set the figure size in inches.
-
-        Args:
-            width: width
-            height: height
-        """
-        self.fig.set_size_inches(width, height)
-
-    @final
     def savefig(self, file: str, **kargs):
         """Export the visualisation to a file.
 

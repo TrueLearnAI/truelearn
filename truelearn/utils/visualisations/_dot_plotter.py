@@ -66,7 +66,6 @@ class DotPlotter(PlotlyBasePlotter):
 
         means, variances, titles, *others = list(zip(*content_dict))
 
-        # TODO: potential duplication
         if history:
             timestamps = others[0]
             number_of_videos = []
