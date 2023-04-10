@@ -63,7 +63,6 @@ intersphinx_mapping = {
     "trueskill": ("https://trueskill.org/", None),
 }
 
-
 # -- Options for linkcode extension ------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/extensions/linkcode.html
 # Code below from:
@@ -122,8 +121,7 @@ sphinx_gallery_conf = {
 
 # -- Options for napoleon extension ------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/extensions/napoleon.html
-napoleon_include_special_with_doc = True
-napoleon_include_init_with_doc = True
+napoleon_include_special_with_doc = False
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output

@@ -18,7 +18,7 @@ Base Classes
 
 .. autosummary::
     :toctree: generated/
-    :template: class.rst
+    :template: class_without_init.rst
 
     base.BaseClassifier
 
@@ -85,15 +85,20 @@ Classes
 
 .. autosummary::
     :toctree: generated/
-    :template: class.rst
+    :template: class_without_init.rst
 
     models.BaseKnowledgeComponent
-    models.KnowledgeComponent
-    models.HistoryAwareKnowledgeComponent
-    models.Knowledge
     models.EventModel
     models.LearnerModel
     models.LearnerMetaWeights
+
+    :toctree: generated/
+    :template: class.rst
+
+    models.KnowledgeComponent
+    models.HistoryAwareKnowledgeComponent
+    models.Knowledge
+
 
 :mod:`truelearn.preprocessing`: Contains preprocessing functions and classes
 ============================================================================
