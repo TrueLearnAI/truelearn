@@ -79,6 +79,7 @@ class WordPlotter(MatplotlibBasePlotter):
             return self
 
         wc_data = WordCloud(
+            font_path="Times New Roman",
             width=800,
             height=400,
             max_words=50,
