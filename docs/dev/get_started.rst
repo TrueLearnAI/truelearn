@@ -18,12 +18,10 @@ TrueLearn is a Python library that requires Python 3.7+ to run. So, make sure yo
 
 After installing Python 3.7 and cloning the repository, install TrueLearn locally from source::
 
-    # for zsh, see below
     pip install -e .[dev]
 
 If you are using zsh, you may need to run::
 
-    # if you are using zsh
     pip install -e ".[dev]"
 
 Using ``pip install -e`` will install TrueLearn in editable mode, which means that when you make any changes to the source code,

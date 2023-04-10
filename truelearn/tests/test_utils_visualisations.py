@@ -13,6 +13,7 @@ from matplotlib.testing.compare import compare_images
 
 from truelearn import learning, datasets, models
 from truelearn.utils import visualisations
+from truelearn.errors import TrueLearnTypeError
 
 
 BASELINE_DIR = (
@@ -139,15 +140,6 @@ def file_comparison(plotter_type: str, config: Optional[Dict[str, Dict]] = None)
         def file_cmp_func(filename1, filename2):
             return compare_images(filename1, filename2, tol=0.1) is None
 
-    def file_comparison_method_decorator(func):
-        return _file_comparison_method_wrapper_generator(
-            func,
-            extensions,
-            file_cmp_func,
-            BASELINE_DIR / str(func.__name__),
-            TMP_PATH / str(func.__name__),
-        )
-
     def file_comparison_class_decorator(tclass):
         target_path = BASELINE_DIR / str(tclass.__name__).lower()
         tmp_path = TMP_PATH / str(tclass.__name__).lower()
@@ -163,14 +155,98 @@ def file_comparison(plotter_type: str, config: Optional[Dict[str, Dict]] = None)
 
         return tclass
 
-    # make it work for both class and method decorator
-    def driver(obj):
-        if isinstance(obj, type):
-            return file_comparison_class_decorator(obj)
-        # method
-        return file_comparison_method_decorator(obj)
+    return file_comparison_class_decorator
 
-    return driver
+
+@file_comparison(plotter_type="plotly")
+class TestBasePlotter:
+    def test_standardise_data_with_topics_via_bar(self, resources):
+        plotter = visualisations.BarPlotter()
+        plotter.plot(resources[0], topics=["Posterior Probability", "Algorithm"])
+        return plotter
+
+
+class TestBasePlotterNormal:
+    def test_no_history_throw_via_bar_history(self):
+        plotter = visualisations.BarPlotter()
+
+        with pytest.raises(TrueLearnTypeError) as excinfo:
+            plotter.plot(
+                models.Knowledge(
+                    {1: models.KnowledgeComponent(mean=0.0, variance=0.5)}
+                ),
+                history=True,
+            )
+        assert (
+            str(excinfo.value) == "Learner's knowledge does not contain history. "
+            "You can use HistoryAwareKnowledgeComponents."
+        )
+
+
+class TestPlotlyBasePlotter:
+    def test_show_no_error_via_bar(self):
+        plotter = visualisations.BarPlotter()
+        plotter.show()
+
+    def test_savefig_no_error(self, resources, tmp_path):
+        plotter = visualisations.BarPlotter()
+        plotter.plot(resources[0])
+        plotter.savefig(
+            os.path.join(tmp_path, "TestPlotlyBasePlotter.test_savefig_no_error.png")
+        )
+        plotter.savefig(
+            os.path.join(tmp_path, "TestPlotlyBasePlotter.test_savefig_no_error.jpg")
+        )
+        plotter.savefig(
+            os.path.join(tmp_path, "TestPlotlyBasePlotter.test_savefig_no_error.jpeg")
+        )
+        plotter.savefig(
+            os.path.join(tmp_path, "TestPlotlyBasePlotter.test_savefig_no_error.svg")
+        )
+        plotter.savefig(
+            os.path.join(tmp_path, "TestPlotlyBasePlotter.test_savefig_no_error.pdf")
+        )
+        plotter.savefig(
+            os.path.join(tmp_path, "TestPlotlyBasePlotter.test_savefig_no_error.html")
+        )
+        plotter.savefig(
+            os.path.join(tmp_path, "TestPlotlyBasePlotter.test_savefig_no_error.json")
+        )
+
+
+class TestMatplotlibBasePlotter:
+    def test_show_no_error_via_bubble(self):
+        plotter = visualisations.BubblePlotter()
+        plotter.show()
+
+    def test_savefig_no_error(self, resources, tmp_path):
+        plotter = visualisations.BubblePlotter()
+        plotter.plot(resources[2])
+        plotter.savefig(
+            os.path.join(
+                tmp_path, "TestMatplotlibBasePlotter.test_savefig_no_error.png"
+            )
+        )
+        plotter.savefig(
+            os.path.join(
+                tmp_path, "TestMatplotlibBasePlotter.test_savefig_no_error.jpg"
+            )
+        )
+        plotter.savefig(
+            os.path.join(
+                tmp_path, "TestMatplotlibBasePlotter.test_savefig_no_error.jpeg"
+            )
+        )
+        plotter.savefig(
+            os.path.join(
+                tmp_path, "TestMatplotlibBasePlotter.test_savefig_no_error.svg"
+            )
+        )
+        plotter.savefig(
+            os.path.join(
+                tmp_path, "TestMatplotlibBasePlotter.test_savefig_no_error.pdf"
+            )
+        )
 
 
 @file_comparison(plotter_type="plotly")
@@ -178,7 +254,11 @@ class TestBarPlotter:
     def test_default(self, resources):
         plotter = visualisations.BarPlotter()
         plotter.plot(resources[0])
-        plotter.figure.update_layout()
+        return plotter
+
+    def test_history(self, resources):
+        plotter = visualisations.BarPlotter()
+        plotter.plot(resources[0], history=True)
         return plotter
 
 
@@ -199,6 +279,11 @@ class TestDotPlotter:
         plotter.plot(resources[2])
         return plotter
 
+    def test_history(self, resources):
+        plotter = visualisations.DotPlotter()
+        plotter.plot(resources[2], history=True)
+        return plotter
+
 
 @file_comparison(plotter_type="plotly")
 class TestLinePlotterSingleUser:
@@ -206,6 +291,20 @@ class TestLinePlotterSingleUser:
         plotter = visualisations.LinePlotter()
         plotter.plot(resources[0])
         return plotter
+
+
+class TestLinePlotterSingleUserNormal:
+    def test_no_history_throw(self):
+        plotter = visualisations.LinePlotter()
+
+        with pytest.raises(TrueLearnTypeError) as excinfo:
+            plotter.plot(
+                models.Knowledge({1: models.KnowledgeComponent(mean=0.0, variance=0.5)})
+            )
+        assert (
+            str(excinfo.value) == "Learner's knowledge does not contain history. "
+            "You can use HistoryAwareKnowledgeComponents."
+        )
 
 
 @file_comparison(plotter_type="plotly")
@@ -223,6 +322,21 @@ class TestPiePlotter:
         plotter.plot(resources[2])
         return plotter
 
+    def test_history(self, resources):
+        plotter = visualisations.PiePlotter()
+        plotter.plot(resources[2], history=True)
+        return plotter
+
+    def test_other(self, resources):
+        plotter = visualisations.PiePlotter()
+        plotter.plot(resources[2], other=True)
+        return plotter
+
+    def test_history_and_other(self, resources):
+        plotter = visualisations.PiePlotter()
+        plotter.plot(resources[2], other=True)
+        return plotter
+
 
 @file_comparison(plotter_type="plotly")
 class TestRosePlotter:
@@ -230,6 +344,12 @@ class TestRosePlotter:
         random_state = random.Random(42)
         plotter = visualisations.RosePlotter()
         plotter.plot(resources[2], random_state=random_state)
+        return plotter
+
+    def test_other(self, resources):
+        random_state = random.Random(42)
+        plotter = visualisations.RosePlotter()
+        plotter.plot(resources[2], other=True, random_state=random_state)
         return plotter
 
 
@@ -246,6 +366,11 @@ class TestTreePlotter:
     def test_default(self, resources):
         plotter = visualisations.TreePlotter()
         plotter.plot(resources[0])
+        return plotter
+
+    def test_history(self, resources):
+        plotter = visualisations.TreePlotter()
+        plotter.plot(resources[0], history=True)
         return plotter
 
 
