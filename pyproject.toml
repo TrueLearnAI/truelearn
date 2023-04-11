@@ -72,8 +72,8 @@ exclude = ["truelearn.tests*"]  # exclude tests from build artifacts
 [project.optional-dependencies]
 tests = ["pytest>=7.2.1", "pytest-cov>=4.0.0", "pytest-socket>=0.6.0"]
 linters = ["prospector[with_bandit,with_mypy]>=1.8.4"]
-docs = ["sphinx>=5.3.0", "furo>=2023.03.27","sphinx_copybutton>=0.5.1", "sphinx-gallery>=0.12.2", "Pillow>=9.4.0"]
-dev = ["truelearn[tests, linters, docs]","black>=22.12.0"]
+docs = ["sphinx>=5.3.0", "furo>=2023.03.27", "sphinx_copybutton>=0.5.1", "sphinx-gallery>=0.12.2", "Pillow>=9.4.0"]
+dev = ["truelearn[tests, linters, docs]", "black>=22.12.0"]
 
 [tool.black]
 line-length = 88

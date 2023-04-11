@@ -97,8 +97,8 @@ Also, based on the ``pytest`` rules, you need to make sure that the names of you
         ...
 
 
-Writing an visualisation test
-"""""""""""""""""""""""""""""
+Writing a visualisation test
+""""""""""""""""""""""""""""
 
 Writing a test for visualisation is a bit more difficult than a simple test.
 In tests for visualisation, we typically want to test our generated file is identical or similar to a baseline file.
