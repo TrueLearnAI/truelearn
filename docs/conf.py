@@ -31,7 +31,6 @@ project = "TrueLearn"
 copyright = "2023, TrueLearn"
 author = "TrueLearn Team"
 
-# pylint: disable=wrong-import-position
 import truelearn
 
 version = truelearn.__version__
@@ -40,16 +39,17 @@ release = truelearn.__version__
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = ["sphinx.ext.autodoc",
-              "sphinx.ext.linkcode",
-              "sphinx.ext.autosummary",
-              "sphinx.ext.napoleon",
-              "sphinx.ext.intersphinx",
-              "sphinx.ext.doctest",
-              "sphinx_copybutton",
-              "sphinx_gallery.gen_gallery",
-              ]
-templates_path = ['templates']
+extensions = [
+    "sphinx.ext.autodoc",
+    "sphinx.ext.linkcode",
+    "sphinx.ext.autosummary",
+    "sphinx.ext.napoleon",
+    "sphinx.ext.intersphinx",
+    "sphinx.ext.doctest",
+    "sphinx_copybutton",
+    "sphinx_gallery.gen_gallery",
+]
+templates_path = ["templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 # -- Options for autodoc extension -------------------------------------------
@@ -67,6 +67,7 @@ intersphinx_mapping = {
 # https://www.sphinx-doc.org/en/master/usage/extensions/linkcode.html
 # Code below from:
 # https://github.com/Lasagne/Lasagne/blob/master/docs/conf.py#L114
+
 
 def linkcode_resolve(domain, info):
     """Determine the URL corresponding to the sourcecode."""
@@ -106,6 +107,13 @@ def linkcode_resolve(domain, info):
 
 
 # -- Gallery configuration ---------------------------------------------------
+from plotly.io._sg_scraper import plotly_sg_scraper
+
+image_scrapers = (
+    "matplotlib",
+    plotly_sg_scraper,
+)
+
 sphinx_gallery_conf = {
     "reference_url": {
         # The module you locally document uses None
@@ -117,6 +125,7 @@ sphinx_gallery_conf = {
     "remove_config_comments": True,
     "show_memory": False,
     "show_signature": False,
+    "image_scrapers": image_scrapers,
 }
 
 # -- Options for napoleon extension ------------------------------------------

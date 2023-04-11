@@ -15,9 +15,7 @@ from truelearn.preprocessing import Wikifier
 API_KEY = ""
 
 
-# pylint: disable=missing-function-docstring
-def main():
-    sample_text = """
+sample_text = """
 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
 incididunt ut labore et dolore magna aliqua. Ac odio tempor orci dapibus
 ultrices in iaculis nunc sed. Adipiscing elit duis tristique sollicitudin nibh.
@@ -70,11 +68,7 @@ aliquam ultrices sagittis orci a scelerisque. Curabitur gravida arcu ac tortor
 dignissim. Ridiculus mus mauris vitae ultricies leo integer.
     """
 
-    wikifier = Wikifier(API_KEY)
+wikifier = Wikifier(API_KEY)
 
-    annotations = wikifier.wikify(sample_text)
-    print(annotations)
-
-
-if __name__ == "__main__":
-    main()
+annotations = wikifier.wikify(sample_text)
+print(annotations)
