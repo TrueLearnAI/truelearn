@@ -102,7 +102,7 @@ def linkcode_resolve(domain, info):
         # return None, so [source] is not linked incorrectly
         return None
 
-    tag = "main" if "dev" in version else "v" + version
+    tag = "main" if "dev" in version else version
     return f"https://github.com/TrueLearnAI/truelearn/blob/{tag}/{filename}"
 
 
