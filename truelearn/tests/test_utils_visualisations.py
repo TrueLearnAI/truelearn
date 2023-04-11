@@ -271,6 +271,11 @@ class TestBarPlotter:
         plotter.plot(models.Knowledge())
         return plotter
 
+    def test_top_n(self, resources):
+        plotter = visualisations.BarPlotter()
+        plotter.plot(resources[0], top_n=3)
+        return plotter
+
 
 @file_comparison(
     plotter_type="matplotlib",
@@ -284,6 +289,11 @@ class TestBubblePlotter:
     def test_empty_knowledge(self):
         plotter = visualisations.BubblePlotter()
         plotter.plot(models.Knowledge())
+        return plotter
+
+    def test_top_n(self, resources):
+        plotter = visualisations.BubblePlotter()
+        plotter.plot(resources[0], top_n=3)
         return plotter
 
 
@@ -304,6 +314,11 @@ class TestDotPlotter:
         plotter.plot(models.Knowledge())
         return plotter
 
+    def test_top_n(self, resources):
+        plotter = visualisations.DotPlotter()
+        plotter.plot(resources[0], top_n=3)
+        return plotter
+
 
 @file_comparison(plotter_type="plotly")
 class TestLinePlotterSingleUser:
@@ -315,6 +330,11 @@ class TestLinePlotterSingleUser:
     def test_empty_knowledge(self):
         plotter = visualisations.LinePlotter()
         plotter.plot(models.Knowledge())
+        return plotter
+
+    def test_top_n(self, resources):
+        plotter = visualisations.LinePlotter()
+        plotter.plot(resources[0], top_n=3)
         return plotter
 
 
@@ -377,6 +397,11 @@ class TestPiePlotter:
         plotter.plot(models.Knowledge())
         return plotter
 
+    def test_top_n(self, resources):
+        plotter = visualisations.PiePlotter()
+        plotter.plot(resources[0], top_n=3)
+        return plotter
+
 
 @file_comparison(plotter_type="plotly")
 class TestRosePlotter:
@@ -393,8 +418,15 @@ class TestRosePlotter:
         return plotter
 
     def test_empty_knowledge(self):
+        random_state = random.Random(42)
         plotter = visualisations.RosePlotter()
-        plotter.plot(models.Knowledge())
+        plotter.plot(models.Knowledge(), random_state=random_state)
+        return plotter
+
+    def test_top_n(self, resources):
+        random_state = random.Random(42)
+        plotter = visualisations.RosePlotter()
+        plotter.plot(resources[0], top_n=3, random_state=random_state)
         return plotter
 
 
@@ -408,6 +440,11 @@ class TestRadarPlotter:
     def test_empty_knowledge(self):
         plotter = visualisations.RadarPlotter()
         plotter.plot(models.Knowledge())
+        return plotter
+
+    def test_top_n(self, resources):
+        plotter = visualisations.RadarPlotter()
+        plotter.plot(resources[0], top_n=3)
         return plotter
 
 
@@ -428,6 +465,11 @@ class TestTreePlotter:
         plotter.plot(models.Knowledge())
         return plotter
 
+    def test_top_n(self, resources):
+        plotter = visualisations.TreePlotter()
+        plotter.plot(resources[0], top_n=3)
+        return plotter
+
 
 @pytest.mark.skipif(
     sys.version_info >= (3, 8),
@@ -442,5 +484,6 @@ class TestWordPlotter:
         plotter.plot(resources[0], random_state=random_state)
 
     def test_empty_knowledge_no_throw(self):
+        random_state = random.Random(42)
         plotter = visualisations.WordPlotter()
-        plotter.plot(models.Knowledge())
+        plotter.plot(models.Knowledge(), random_state=random_state)
