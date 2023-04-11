@@ -473,7 +473,7 @@ class TestTreePlotter:
 
 @pytest.mark.skipif(
     sys.version_info >= (3, 8),
-    reason="WordPlotter only supports Python version == 3.7",
+    reason="WordPlotter only supports Python version <= 3.7",
 )
 class TestWordPlotter:
     # no way to test this in a cross-platform way
