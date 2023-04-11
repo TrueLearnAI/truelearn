@@ -28,8 +28,6 @@ class TreePlotter(PlotlyBasePlotter):
     def __init__(
         self,
         title: str = "Comparison of learner's subjects",
-        xlabel: str = "",
-        ylabel: str = "",
     ):
         """Init a treemap plotter.
 
@@ -38,7 +36,7 @@ class TreePlotter(PlotlyBasePlotter):
             xlabel: The default x label of the visualization
             ylabel: The default y label of the visualization
         """
-        super().__init__(title, xlabel, ylabel)
+        super().__init__(title, "", "")
 
     def plot(
         self,
