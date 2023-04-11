@@ -42,12 +42,12 @@ release = truelearn.__version__
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.linkcode",
-    "sphinx.ext.autosummary",
     "sphinx.ext.napoleon",
     "sphinx.ext.intersphinx",
     "sphinx.ext.doctest",
     "sphinx_copybutton",
     "sphinx_gallery.gen_gallery",
+    "sphinx.ext.autosummary",
 ]
 templates_path = ["templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
@@ -102,7 +102,7 @@ def linkcode_resolve(domain, info):
         # return None, so [source] is not linked incorrectly
         return None
 
-    tag = "main" if "dev" in version else "v" + version
+    tag = "main" if "dev" in version else version
     return f"https://github.com/TrueLearnAI/truelearn/blob/{tag}/{filename}"
 
 

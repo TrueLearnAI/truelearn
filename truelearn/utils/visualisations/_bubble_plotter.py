@@ -27,17 +27,13 @@ class BubblePlotter(MatplotlibBasePlotter):
     def __init__(
         self,
         title: str = "Comparison of learner's subjects",
-        xlabel: str = "",
-        ylabel: str = "",
     ):
         """Init a bubble plotter.
 
         Args:
             title: The default title of the visualization
-            xlabel: The default x label of the visualization
-            ylabel: The default y label of the visualization
         """
-        super().__init__(title, xlabel, ylabel)
+        super().__init__(title, "", "")
 
     # pylint: disable=too-many-locals
     def plot(

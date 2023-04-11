@@ -79,17 +79,13 @@ class PiePlotter(PlotlyBasePlotter):
     def __init__(
         self,
         title: str = "Distribution of learner's skill.",
-        xlabel: str = "",
-        ylabel: str = "",
     ):
         """Init a pie plotter.
 
         Args:
             title: The default title of the visualization
-            xlabel: The default x label of the visualization
-            ylabel: The default y label of the visualization
         """
-        super().__init__(title, xlabel, ylabel)
+        super().__init__(title, "", "")
 
     # pylint: disable=too-many-locals,too-many-arguments
     def plot(
@@ -211,17 +207,13 @@ class RosePlotter(PlotlyBasePlotter):
     def __init__(
         self,
         title: str = "Distribution of learner's skill.",
-        xlabel: str = "",
-        ylabel: str = "",
     ):
         """Init a rose pie plotter.
 
         Args:
             title: The default title of the visualization
-            xlabel: The default x label of the visualization
-            ylabel: The default y label of the visualization
         """
-        super().__init__(title, xlabel, ylabel)
+        super().__init__(title, "", "")
 
     # pylint: disable=too-many-locals,too-many-arguments
     def plot(
