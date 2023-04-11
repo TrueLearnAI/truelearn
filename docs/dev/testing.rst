@@ -97,14 +97,14 @@ Also, based on the ``pytest`` rules, you need to make sure that the names of you
         ...
 
 
-Writing an visualisation test
+Writing a visualisation test
 """""""""""""""""""""""""""""
 
-Writing a test for visualisation is a bit more difficult than a simple test.
-In tests for visualisation, we typically want to test our generated file is identical or similar to a baseline file.
-We call this file comparison test in truelearn.
+Writing a test for a visualisation is more difficult than ordinary unit tests.
+In these tests, we typically want to test that our generated file is identical or similar to a baseline file,
+which we will refer to as a "file comparison test".
 
-To write a file comparison test for visualisation, you only need to add a simple class decorator to your class.
+To write a file comparison test, you only need to add a simple class decorator to your class.
 
 For example, this is a simple file comparison test inside ``truelearn/tests/test_utils_visualisations.py``::
 
@@ -120,11 +120,11 @@ For example, this is a simple file comparison test inside ``truelearn/tests/test
             plotter.plot(resources[0], history=True)
             return plotter
 
-The first time this test is run, because there will be no baseline image to compare against, so the test will fail.
-But you will find that there is a directory called ``tests`` generated in your current working directory.
-Inside it, there will be a directory whose name is lowercase for the test class name (i.e. ``testbarplotter`` for the example above).
-You can find out all the generated baseline files in that directory. Your next step is copy this directory to ``truelearn/tests/baseline_files/``.
-Then, when you run the test again, if the file you generated matches the baseline file, your test will pass.
+The first time this test is run, there will be no baseline image to compare against, so the test will fail.
+But you will find that a directory called ``tests`` has been generated in your current working directory.
+Inside it, there will be a directory whose name is lowercase for the test class name where you can find all of the generated baseline files (i.e. ``testbarplotter`` for the example above).
+Your next step is copy this directory to ``truelearn/tests/baseline_files/``.
+Then, when you run the test again, if the file you generated matches the baseline, your test will pass.
 
 Due to the way that file comparison tests work, all visualisation tests must be grouped into classes.
 We recommend that you name all tests that make use of file comparison ``TestXXXPlotter``, where ``XXXPlotter`` is the plotter you want to test.
