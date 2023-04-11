@@ -389,7 +389,7 @@ class TestPiePlotter:
 
     def test_history_and_other(self, resources):
         plotter = visualisations.PiePlotter()
-        plotter.plot(resources[2], other=True)
+        plotter.plot(resources[2], history=True, other=True)
         return plotter
 
     def test_empty_knowledge(self):
