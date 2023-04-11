@@ -46,6 +46,16 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx.ext.doctest",
     "sphinx_copybutton",
+    # for some mysteriou reason, if we put sphinx_gallery
+    # below autosummary (which means if it is loaded after autosummary),
+    # trueskill in truelearn.learning will not be properly
+    # imported (``dir(trueskill)`` does not include trueskill
+    # methods and classes and ``trueskill.__all__`` is an empty list)
+    #
+    # Note: An alternative solution is to add a higher priority of
+    # ``generate_gallery_rst`` method in ``sphinx_gallery.gen_gallery``
+    # which controls the gallery generation. It is registered via
+    # app.connect('builder-inited', generate_gallery_rst).
     "sphinx_gallery.gen_gallery",
     "sphinx.ext.autosummary",
 ]
