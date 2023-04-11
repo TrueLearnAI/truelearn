@@ -1,1 +1,1 @@
-"""The truelearn.utils module contains all of the utilities for TrueLearn."""
+"""The truelearn.utils module contains all the utilities for TrueLearn."""

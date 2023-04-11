@@ -1,50 +1,88 @@
-from typing import Iterable, List, Optional, Tuple, Union
+from typing import Iterable, Optional
 from typing_extensions import Self
 
 import numpy as np
 import plotly.graph_objects as go
 
 from truelearn.models import Knowledge
-from truelearn.utils.visualisations._base import PlotlyBasePlotter
+from truelearn.utils.visualisations._base import (
+    PlotlyBasePlotter,
+    unzip_content_dict,
+    unzip_content_dict_history,
+)
 
 
 class TreePlotter(PlotlyBasePlotter):
-    """Provides utilities for plotting treemaps."""
+    """Treemap plotter.
+
+    In the treemap, each knowledge component is represented by a rectangle
+    of a certain size and colour.
+
+    The size of the rectangle is proportional to the mean of the knowledge
+    component.
+
+    The color of the rectangle is used to differentiate different knowledge
+    components.
+    """
+
+    def __init__(
+        self,
+        title: str = "Comparison of learner's subjects",
+    ):
+        """Init a treemap plotter.
+
+        Args:
+            title: The default title of the visualization
+        """
+        super().__init__(title, "", "")
 
     def plot(
         self,
-        content: Union[Knowledge, List[Tuple]],
+        content: Knowledge,
         topics: Optional[Iterable[str]] = None,
         top_n: Optional[int] = None,
-        *,
-        title: str = "Comparison of learner's subjects",
-        x_label: str = "",
-        y_label: str = "",
         history: bool = False,
     ) -> Self:
-        if isinstance(content, Knowledge):
-            content = self._standardise_data(content, history, topics)
+        """Plot the graph based on the given data.
 
-        content = content[:top_n]
+        It will not draw anything if the knowledge given by the user is empty, or
+        if topics and top_n make the filtered knowledge empty.
 
-        means = [lst[0] for lst in content]
+        Args:
+            content:
+                The Knowledge object to use to plot the visualisation.
+            topics:
+                The list of topics in the learner's knowledge to visualise.
+                If None, all topics are visualised (unless top_n is
+                specified, see below).
+            top_n:
+                The number of topics to visualise. E.g. if top_n is 5, then the
+                top 5 topics ranked by mean will be visualised.
+            history:
+                Whether to utilize history information in the visualisation.
+                If this is set to True, an attribute called history must be
+                present in all knowledge components.
+        """
+        content_dict, _ = self._standardise_data(content, history, topics)
+        content_dict = content_dict[:top_n]
 
-        variances = [lst[1] for lst in content]
-
-        titles = [lst[2] for lst in content]
+        if not content_dict:
+            return self
 
         if history:
-            timestamps = [lst[3] for lst in content]
+            means, variances, titles, timestamps = unzip_content_dict_history(
+                content_dict
+            )
             number_of_videos = []
             last_video_watched = []
             for timestamp in timestamps:
                 number_of_videos.append(len(timestamp))
                 last_video_watched.append(timestamp[-1])
         else:
-            number_of_videos = [None for _ in variances]
-            last_video_watched = [None for _ in variances]
+            means, variances, titles = unzip_content_dict(content_dict)
+            number_of_videos = last_video_watched = [None] * len(variances)
 
-        self.figure = go.Figure(
+        self.figure.add_trace(
             go.Treemap(
                 labels=titles,
                 values=means,
@@ -68,7 +106,7 @@ class TreePlotter(PlotlyBasePlotter):
                         last_video_watched,
                     ]  # type: ignore
                 ),
-                hovertemplate=self._hovertemplate(
+                hovertemplate=self._hover_template(
                     (
                         "%{customdata[0]}",
                         "%{customdata[1]}",
@@ -78,10 +116,8 @@ class TreePlotter(PlotlyBasePlotter):
                     ),
                     history,
                 ),
-            ),
-            layout=self._layout((title, "", "")),
+            )
         )
-
         self.figure.update_layout(margin={"t": 50, "l": 25, "r": 25, "b": 25})
 
         return self

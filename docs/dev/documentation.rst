@@ -12,8 +12,8 @@ in build page of Read the Docs.
 .. image:: ../images/read-the-docs-view-docs.jpeg
 
 
-Building the documentation
---------------------------
+Building the documentation locally
+----------------------------------
 
 To build the documentation locally, run the following command from the root of the
 repository::

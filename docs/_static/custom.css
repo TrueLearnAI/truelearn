@@ -6,6 +6,14 @@ h1 {
     overflow-wrap: break-word;
 }
 
+dd p.rubric {
+    font-size: 1rem;
+    font-weight: 500;
+    margin-top: 1rem;
+    line-height: inherit;
+    text-transform: uppercase;
+}
+
 /* End Furo theme overrides */
 
 /* suppress download button and timing at top/bottom of every tutorial */

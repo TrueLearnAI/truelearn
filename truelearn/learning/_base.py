@@ -17,6 +17,7 @@ from .._constraint import (
     TypeConstraint,
     ValueConstraint,
     FuncConstraint,
+    Range,
 )
 
 
@@ -38,48 +39,6 @@ def draw_proba_static_constraint(obj: BaseClassifier, _):
         raise TrueLearnValueError(
             "When draw_proba_type is set to static,"
             " the draw_proba_static should not be None."
-        )
-
-
-def greater_than_zero_constraint(obj: BaseClassifier, param_name: str):
-    """Check whether the value of given parameter is greater than 0.
-
-    The value must be of type float.
-
-    Args:
-        obj: The object to check.
-        param_name: The name of the parameter.
-
-    Raises:
-        TrueLearnValueError:
-            If the value is not >0.
-    """
-    params = obj.get_params(deep=False)
-    value = params[param_name]
-    if isinstance(value, float) and value <= 0:
-        raise TrueLearnValueError(
-            f"{param_name} is expected to be >0. Got {value} instead."
-        )
-
-
-def greater_than_or_equal_to_zero_constraint(obj: BaseClassifier, param_name: str):
-    """Check whether the value of given parameter is greater than or equal to 0.
-
-    The value must be of type float.
-
-    Args:
-        obj: The object to check.
-        param_name: The name of the parameter.
-
-    Raises:
-        TrueLearnValueError:
-            If the value is not >=0.
-    """
-    params = obj.get_params(deep=False)
-    value = params[param_name]
-    if isinstance(value, float) and value < 0:
-        raise TrueLearnValueError(
-            f"{param_name} is expected to be >=0. Got {value} instead."
         )
 
 
@@ -190,11 +149,11 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
     _parameter_constraints: Dict[str, Any] = {
         **BaseClassifier._parameter_constraints,
         "learner_model": TypeConstraint(LearnerModel),
-        "threshold": TypeConstraint(float),
+        "threshold": [TypeConstraint(float), ValueConstraint(Range(ge=[0], le=[1]))],
         "init_skill": TypeConstraint(float),
         "def_var": [
             TypeConstraint(float),
-            FuncConstraint(greater_than_zero_constraint),
+            ValueConstraint(Range(gt=[0])),
         ],
         "tau": TypeConstraint(float),
         "beta": TypeConstraint(float),
@@ -202,13 +161,12 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
         "draw_proba_type": ValueConstraint("static", "dynamic"),
         "draw_proba_static": [
             TypeConstraint(float, type(None)),
-            FuncConstraint(
-                draw_proba_static_constraint, greater_than_or_equal_to_zero_constraint
-            ),
+            FuncConstraint(draw_proba_static_constraint),
+            ValueConstraint(Range(ge=[0], le=[1]), vtype=float),
         ],
         "draw_proba_factor": [
             TypeConstraint(float),
-            FuncConstraint(greater_than_or_equal_to_zero_constraint),
+            ValueConstraint(Range(ge=[0])),
         ],
     }
 

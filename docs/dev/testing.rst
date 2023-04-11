@@ -78,6 +78,9 @@ Please see the `prospector documentation`_ for more output options.
 
 Adding New Tests
 ----------------
+
+General Strategy
+""""""""""""""""
 To add a new test, you need to add the test case to the corresponding test in ``truelearn/tests``.
 
 For example, if you want to add a new test for ``KnowledgeClassifier``, you can add the test case to ``truelearn/tests/test_learning.py``.
@@ -92,3 +95,40 @@ Also, based on the ``pytest`` rules, you need to make sure that the names of you
 
     def test_xxx():
         ...
+
+
+Writing a visualisation test
+"""""""""""""""""""""""""""""
+
+Writing a test for a visualisation is more difficult than ordinary unit tests.
+In these tests, we typically want to test that our generated file is identical or similar to a baseline file,
+which we will refer to as a "file comparison test".
+
+To write a file comparison test, you only need to add a simple class decorator to your class.
+
+For example, this is a simple file comparison test inside ``truelearn/tests/test_utils_visualisations.py``::
+
+    @file_comparison(plotter_type="plotly")
+    class TestBarPlotter:
+        def test_default(self, resources):
+            plotter = visualisations.BarPlotter()
+            plotter.plot(resources[0])
+            return plotter
+
+        def test_history(self, resources):
+            plotter = visualisations.BarPlotter()
+            plotter.plot(resources[0], history=True)
+            return plotter
+
+The first time this test is run, there will be no baseline image to compare against, so the test will fail.
+But you will find that a directory called ``tests`` has been generated in your current working directory.
+Inside it, there will be a directory whose name is lowercase for the test class name where you can find all of the generated baseline files (i.e. ``testbarplotter`` for the example above).
+Your next step is copy this directory to ``truelearn/tests/baseline_files/``.
+Then, when you run the test again, if the file you generated matches the baseline, your test will pass.
+
+Due to the way that file comparison tests work, all visualisation tests must be grouped into classes.
+We recommend that you name all tests that make use of file comparison ``TestXXXPlotter``, where ``XXXPlotter`` is the plotter you want to test.
+If you do not use file comparisons, you can simply create ``TestXXXPlotterNormal`` and
+place all tests that do not use file comparisons in this class.
+
+You can see the documentation of ``file_comparison`` for additional information about its use.

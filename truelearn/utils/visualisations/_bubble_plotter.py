@@ -1,4 +1,4 @@
-from typing import Iterable, List, Optional, Tuple, Union
+from typing import Iterable, Optional
 from typing_extensions import Self
 
 import circlify
@@ -6,44 +6,72 @@ from matplotlib import cm, colors, patches
 import matplotlib.pyplot as plt
 
 from truelearn.models import Knowledge
-from truelearn.utils.visualisations._base import MatplotlibBasePlotter
+from truelearn.utils.visualisations._base import (
+    MatplotlibBasePlotter,
+    unzip_content_dict,
+)
 
 
 class BubblePlotter(MatplotlibBasePlotter):
-    """Provides utilities for plotting bubble charts."""
+    """Bubble plotter.
+
+    In the bubble chart, each knowledge component is represented by a bubble
+    of a certain size and shade.
+
+    The size of the bubble is proportional to the mean of the knowledge component.
+
+    The shade of the bubble represents the variance of the knowledge component.
+    The lighter the shade, the greater the variance.
+    """
+
+    def __init__(
+        self,
+        title: str = "Comparison of learner's subjects",
+    ):
+        """Init a bubble plotter.
+
+        Args:
+            title: The default title of the visualization
+        """
+        super().__init__(title, "", "")
 
     # pylint: disable=too-many-locals
     def plot(
         self,
-        content: Union[Knowledge, List[Tuple[float, float, str]]],
+        content: Knowledge,
         topics: Optional[Iterable[str]] = None,
         top_n: Optional[int] = None,
-        *,
-        title: str = "Comparison of learner's subjects",
-        x_label: str = "",
-        y_label: str = "",
     ) -> Self:
-        if isinstance(content, Knowledge):
-            content = self._standardise_data(content, False, topics)
+        """Plot the graph based on the given data.
 
-        content = content[:top_n]
+        It will not draw anything if the knowledge given by the user is empty, or
+        if topics and top_n make the filtered knowledge empty.
 
-        means = [lst[0] * 10 for lst in content]
+        Args:
+            content:
+                The Knowledge object to use to plot the visualisation.
+            topics:
+                The list of topics in the learner's knowledge to visualise.
+                If None, all topics are visualised (unless top_n is
+                specified, see below).
+            top_n:
+                The number of topics to visualise. E.g. if top_n is 5, then the
+                top 5 topics ranked by mean will be visualised.
+        """
+        content_dict, _ = self._standardise_data(content, False, topics)
+        content_dict = content_dict[:top_n]
 
-        variances = [lst[1] for lst in content]
+        if not content_dict:
+            return self
 
-        titles = [lst[2] for lst in content]
-
+        means, variances, titles = unzip_content_dict(content_dict)
         circles = circlify.circlify(
             means, show_enclosure=True, target_enclosure=circlify.Circle(x=0, y=0, r=1)
         )
 
-        fig, ax = plt.subplots(figsize=(11.75, 10))
+        self.ax.axis("off")
 
-        ax.set_title(title)
-
-        ax.axis("off")
-
+        # set limit for x and y-axis
         lim = max(
             max(
                 abs(circle.x) + circle.r,
@@ -64,7 +92,7 @@ class BubblePlotter(MatplotlibBasePlotter):
         for i, circle in enumerate(circles):
             if i < len(titles):
                 x, y, r = circle
-                ax.add_patch(
+                self.ax.add_patch(
                     patches.Circle(
                         (x, y),
                         r,
@@ -76,7 +104,8 @@ class BubblePlotter(MatplotlibBasePlotter):
                     titles[len(titles) - 1 - i], (x, y), va="center", ha="center"
                 )
 
-        cbar = fig.colorbar(sm, ax=ax)
+        # set up the colorbar on the right
+        cbar = self.fig.colorbar(sm, ax=self.ax)
         cbar.ax.set_ylabel("Variance")
 
         return self

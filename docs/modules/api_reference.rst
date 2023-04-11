@@ -164,10 +164,12 @@ Classes
     :toctree: generated/
     :template: class.rst
 
-Functions
----------
-.. currentmodule:: truelearn
-
-.. autosummary::
-    :toctree: generated/
-    :template: function.rst
+    utils.visualisations.LinePlotter
+    utils.visualisations.PiePlotter
+    utils.visualisations.RosePlotter
+    utils.visualisations.BarPlotter
+    utils.visualisations.DotPlotter
+    utils.visualisations.BubblePlotter
+    utils.visualisations.WordPlotter
+    utils.visualisations.RadarPlotter
+    utils.visualisations.TreePlotter

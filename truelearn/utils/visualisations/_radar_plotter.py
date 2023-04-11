@@ -1,39 +1,75 @@
-from typing import Iterable, List, Optional, Tuple, Union
+from typing import Iterable, List, Optional
 from typing_extensions import Self
 
 import plotly.graph_objects as go
 
 from truelearn.models import Knowledge
-from truelearn.utils.visualisations._base import PlotlyBasePlotter
+from truelearn.utils.visualisations._base import PlotlyBasePlotter, unzip_content_dict
 
 
 class RadarPlotter(PlotlyBasePlotter):
-    """Provides utilities for plotting radar charts."""
+    """Radar plotter.
+
+    In the radar chart, each knowledge component is represented by two radii.
+
+    One of the radii represents the variance of the knowledge component.
+
+    The other one represents the mean of the knowledge component.
+    """
+
+    def __init__(
+        self,
+        title: str = "Mean and variance across different topics.",
+    ):
+        """Init a radar plotter.
+
+        Args:
+            title: The default title of the visualization
+        """
+        super().__init__(title, "", "")
 
     def plot(
         self,
-        content: Union[Knowledge, List[Tuple]],
+        content: Knowledge,
         topics: Optional[Iterable[str]] = None,
         top_n: Optional[int] = None,
-        *,
-        title: str = "Mean and variance across different topics.",
-        x_label: str = "",
-        y_label: str = "",
     ) -> Self:
-        if isinstance(content, Knowledge):
-            content = self._standardise_data(content, False, topics)
+        """Plot the graph based on the given data.
 
-        content = content[:top_n]
+        It will not draw anything if the knowledge given by the user is empty, or
+        if topics and top_n make the filtered knowledge empty.
 
-        means = [lst[0] for lst in content]
+        Args:
+            content:
+                The Knowledge object to use to plot the visualisation.
+            topics:
+                The list of topics in the learner's knowledge to visualise.
+                If None, all topics are visualised (unless top_n is
+                specified, see below).
+            top_n:
+                The number of topics to visualise. E.g. if top_n is 5, then the
+                top 5 topics ranked by mean will be visualised.
+        """
+        content_dict, _ = self._standardise_data(content, False, topics)
+        content_dict = content_dict[:top_n]
 
-        variances = [lst[1] for lst in content]
+        if not content_dict:
+            return self
 
-        titles = [lst[2] for lst in content]
+        means, variances, titles = unzip_content_dict(content_dict)
+        means, variances, titles = list(means), list(variances), list(titles)
 
-        self.figure = go.Figure(
-            [self._trace(means, titles), self._trace(variances, titles)],
-            layout=self._layout((title, "", "")),
+        # need to add the first element to the list again
+        # otherwise, the last line will not properly show
+        means.append(means[0])
+        variances.append(variances[0])
+        titles.append(titles[0])
+
+        self.figure.add_traces(
+            [
+                self._trace(means, titles, "Means"),
+                self._trace(variances, titles, "Variances"),
+            ],
         )
 
         self.figure.update_layout(
@@ -51,34 +87,33 @@ class RadarPlotter(PlotlyBasePlotter):
 
         return self
 
-    def _trace(self, r: List[float], theta: List[str]) -> go.Scatterpolar:
+    def _trace(self, r: List[float], topics: List[str], name: str) -> go.Scatterpolar:
         """Returns a single layer in the radar chart.
 
         Args:
             r:
-                the radial position of each point that makes up the layer.
-            theta:
-                the angular position of each point that makes up the layer.
+                The radial position of each point that makes up the layer.
+            topics:
+                The topics that need to be shown.
+            name:
+                The name of the trace.
         """
-        r.append(r[0])
-        theta.append(theta[0])
         return go.Scatterpolar(
             r=r,
-            theta=theta,
+            theta=topics,
             fill="toself",
-            name="Variances",
-            hovertemplate=self._hovertemplate("%{r}"),
+            name=name,
+            hovertemplate=self._hover_template("%{r}"),
         )
 
-    def _hovertemplate(self, hoverdata: str, history: bool = False) -> str:
-        """Returns the string which will be displayed when a point is hovered.
+    def _hover_template(self, hover_fmt: str, history: bool = False) -> str:
+        """Return the string that specifies the hover template.
 
         Args:
-            hoverdata:
-                the format string.
+            hover_fmt:
+                The format string.
             history:
-                a boolean value which determines which template to use.
-                Makes no difference as of yet.
+                A boolean value which determines which template to use.
+                This doesn't make any difference in radar plotter.
         """
-        # TODO: fix this to show mean and variance correctly
-        return "<br>".join([f"Value: {hoverdata}", "<extra></extra>"])
+        return "<br>".join([f"Value: {hover_fmt}", "<extra></extra>"])

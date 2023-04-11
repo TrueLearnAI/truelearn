@@ -219,51 +219,46 @@ def multiprocessing_driver(
     )
 
 
-def main():
-    # train is for hyperparameter tuning
-    # test is for evaluation
-    #
-    # we neglect the tuning process and use the default values here
-    _, test, _ = datasets.load_peek_dataset(train_limit=0)
+# train is for hyperparameter tuning
+# test is for evaluation
+#
+# we neglect the tuning process and use the default values here
+_, test, _ = datasets.load_peek_dataset(train_limit=0)
 
-    all_data = test
-    def_var = get_dataset_variance(all_data)
+all_data = test
+def_var = get_dataset_variance(all_data)
 
-    # you can select top n active users (active => more activities)
-    # by default 20
-    top_n = 20
-    all_data.sort(key=lambda t: len(t[1]), reverse=True)
-    all_data = all_data[:top_n]
+# you can select top n active users (active => more activities)
+# by default 20
+top_n = 20
+all_data.sort(key=lambda t: len(t[1]), reverse=True)
+all_data = all_data[:top_n]
 
-    # the value 1 and 400 below is randomly chosen
-    # the appropriate value can be found by using hyperparameter training
-    classifier_cls_list = [
-        learning.EngageClassifier(),
-        learning.PersistentClassifier(),
-        learning.MajorityClassifier(),
-        learning.KnowledgeClassifier(def_var=def_var * 400),
-        learning.NoveltyClassifier(def_var=def_var * 1),
-        learning.InterestClassifier(def_var=def_var * 400),
-        learning.INKClassifier(
-            novelty_classifier=learning.NoveltyClassifier(def_var=def_var * 1),
-            interest_classifier=learning.InterestClassifier(def_var=def_var * 400),
-        ),
-    ]
+# the value 1 and 400 below is randomly chosen
+# the appropriate value can be found by using hyperparameter training
+classifier_cls_list = [
+    learning.EngageClassifier(),
+    learning.PersistentClassifier(),
+    learning.MajorityClassifier(),
+    learning.KnowledgeClassifier(def_var=def_var * 400),
+    learning.NoveltyClassifier(def_var=def_var * 1),
+    learning.InterestClassifier(def_var=def_var * 400),
+    learning.INKClassifier(
+        novelty_classifier=learning.NoveltyClassifier(def_var=def_var * 1),
+        interest_classifier=learning.InterestClassifier(def_var=def_var * 400),
+    ),
+]
 
-    metrics_for_all = []
-    # adjust this to a smaller value if you don't want to run this
-    # in all your cores
-    cpu_count = min(len(classifier_cls_list), multiprocessing.cpu_count())
-    with multiprocessing.Pool(cpu_count) as p:
-        classifier_name_metrics_pairs = p.map(
-            multiprocessing_driver,
-            zip(itertools.repeat(all_data), classifier_cls_list),
-        )
-        for cls_name, metrics_for_cls in classifier_name_metrics_pairs:
-            metrics_for_all.append((cls_name, metrics_for_cls))
+metrics_for_all = []
+# adjust this to a smaller value if you don't want to run this
+# in all your cores
+cpu_count = min(len(classifier_cls_list), multiprocessing.cpu_count())
+with multiprocessing.Pool(cpu_count) as p:
+    classifier_name_metrics_pairs = p.map(
+        multiprocessing_driver,
+        zip(itertools.repeat(all_data), classifier_cls_list),
+    )
+    for cls_name, metrics_for_cls in classifier_name_metrics_pairs:
+        metrics_for_all.append((cls_name, metrics_for_cls))
 
-    print_all_metrics(metrics_for_all)
-
-
-if __name__ == "__main__":
-    main()
+print_all_metrics(metrics_for_all)

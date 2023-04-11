@@ -1,51 +1,95 @@
-from typing import Iterable, List, Optional, Tuple, Union
+from typing import Iterable, Optional
 from typing_extensions import Self
 
 import numpy as np
 import plotly.graph_objects as go
 
 from truelearn.models import Knowledge
-from truelearn.utils.visualisations._base import PlotlyBasePlotter
+from truelearn.utils.visualisations._base import (
+    PlotlyBasePlotter,
+    unzip_content_dict,
+    unzip_content_dict_history,
+)
 
 
 class DotPlotter(PlotlyBasePlotter):
-    """Provides utilities for plotting dot plots."""
+    """Dot plotter.
+
+    In the dot chart, each knowledge component is represented by a dot
+    with height, shade and an error bar.
+
+    The height of the dot represents the mean of the knowledge component.
+
+    The shade of the dot also represents the mean of the knowledge component.
+    The darker the shade, the greater the mean.
+
+    The length of the error bar is related to the variance of the knowledge
+    component. The greater the variance, the greater the length.
+    """
+
+    def __init__(
+        self,
+        title: str = "Comparison of learner's subjects",
+        xlabel: str = "Subjects",
+        ylabel: str = "Mean",
+    ):
+        """Init a dot plotter.
+
+        Args:
+            title: The default title of the visualization
+            xlabel: The default x label of the visualization
+            ylabel: The default y label of the visualization
+        """
+        super().__init__(title, xlabel, ylabel)
 
     def plot(
         self,
-        content: Union[Knowledge, List[Tuple]],
+        content: Knowledge,
         topics: Optional[Iterable[str]] = None,
         top_n: Optional[int] = None,
-        *,
-        title: str = "Comparison of learner's subjects",
-        x_label: str = "Subjects",
-        y_label: str = "Mean",
         history: bool = False,
     ) -> Self:
-        if isinstance(content, Knowledge):
-            content = self._standardise_data(content, history, topics)
+        """Plot the graph based on the given data.
 
-        content = content[:top_n]
+        It will not draw anything if the knowledge given by the user is empty, or
+        if topics and top_n make the filtered knowledge empty.
 
-        means = [lst[0] for lst in content]
+        Args:
+            content:
+                The Knowledge object to use to plot the visualisation.
+            topics:
+                The list of topics in the learner's knowledge to visualise.
+                If None, all topics are visualised (unless top_n is
+                specified, see below).
+            top_n:
+                The number of topics to visualise. E.g. if top_n is 5, then the
+                top 5 topics ranked by mean will be visualised.
+            history:
+                Whether to utilize history information in the visualisation.
+                If this is set to True, an attribute called history must be
+                present in all knowledge components.
+        """
+        content_dict, _ = self._standardise_data(content, history, topics)
+        content_dict = content_dict[:top_n]
 
-        variances = [lst[1] for lst in content]
-
-        titles = [lst[2] for lst in content]
+        if not content_dict:
+            return self
 
         if history:
-            timestamps = [lst[3] for lst in content]
+            means, variances, titles, timestamps = unzip_content_dict_history(
+                content_dict
+            )
             number_of_videos = []
             last_video_watched = []
             for timestamp in timestamps:
                 number_of_videos.append(len(timestamp))
                 last_video_watched.append(timestamp[-1])
         else:
-            number_of_videos = [None for _ in variances]
-            last_video_watched = [None for _ in variances]
+            means, variances, titles = unzip_content_dict(content_dict)
+            number_of_videos = last_video_watched = [None] * len(variances)
 
-        self.figure = go.Figure(
-            data=go.Scatter(
+        self.figure.add_trace(
+            go.Scatter(
                 x=titles,
                 y=means,
                 marker={
@@ -67,7 +111,7 @@ class DotPlotter(PlotlyBasePlotter):
                 customdata=np.transpose(
                     [variances, number_of_videos, last_video_watched]  # type: ignore
                 ),
-                hovertemplate=self._hovertemplate(
+                hovertemplate=self._hover_template(
                     (
                         "%{x}",
                         "%{y}",
@@ -78,8 +122,7 @@ class DotPlotter(PlotlyBasePlotter):
                     history,
                 ),
                 mode="markers",
-            ),
-            layout=self._layout((title, x_label, y_label)),
+            )
         )
 
         return self

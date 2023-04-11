@@ -1,5 +1,6 @@
 import random
-from typing import Iterable, List, Optional, Tuple, Union
+import statistics
+from typing import Iterable, Optional, Tuple, List
 from typing_extensions import Self
 
 import numpy as np
@@ -8,70 +9,131 @@ import plotly.graph_objects as go
 from truelearn.models import Knowledge
 from truelearn.utils.visualisations._base import (
     PlotlyBasePlotter,
-    knowledge_to_dict,
+    unzip_content_dict,
+    unzip_content_dict_history,
 )
 
 
+def _summarize_other(rest: List[Tuple], history: bool):
+    """Summarize information for all topics that are not used.
+
+    This method is called if the learner wants to group all unused topics into a
+    category called "Other". This method summarizes necessary information, such as
+    average mean and variance from the given topics.
+    """
+    means = [lst[0] for lst in rest]
+    variances = [lst[1] for lst in rest]
+
+    average_mean = float(statistics.mean(means))
+    average_variance = float(statistics.mean(variances))
+
+    if history:
+        timestamps = [lst[3] for lst in rest]
+        return average_mean, average_variance, "Other", timestamps
+
+    return average_mean, average_variance, "Other"
+
+
+def _get_colour(variance: float, variance_min: float, variance_max: float) -> str:
+    """Map the variance to a shade of green represented in RGB.
+
+    A darker shade represents less variance.
+
+    Args:
+        variance:
+            Float value representing the variance of a knowledge component.
+        variance_min:
+            The smallest variance values from all the knowledge components
+            we are plotting.
+        variance_max:
+            The largest variance values from all the knowledge components
+            we are plotting.
+
+    Returns:
+        A colour string to use when plotting the figure.
+    """
+    variance_range = variance_max - variance_min
+    variance = (variance - variance_min) / variance_range
+    r = 20 + variance * 227
+    g = 69 + variance * 183
+    b = 38 + variance * 206
+
+    return f"rgb({r},{g},{b})"
+
+
 class PiePlotter(PlotlyBasePlotter):
-    """Provides utilities for plotting pie charts."""
+    """Pie plotter.
 
-    # TODO: strongly typed this in the future
-    def _standardise_data(
+    In the pie chart, each knowledge component is represented by a sector
+    with a certain angle and shade.
+
+    The angle of the sector is proportional to the mean of the knowledge component.
+
+    The shade of the sector represents the variance of the knowledge component.
+    The lighter the shade, the greater the variance.
+
+    On hover, additional information, like mean and variance of the knowledge
+    component, is displayed.
+    """
+
+    def __init__(
         self,
-        raw_data: Knowledge,
-        history: bool = False,
-        topics: Optional[Iterable[str]] = None,
-    ) -> Iterable:
-        raw_data_dict = knowledge_to_dict(raw_data)
+        title: str = "Distribution of learner's skill.",
+    ):
+        """Init a pie plotter.
 
-        content = []
-        rest = []
-        for _, kc in raw_data_dict.items():
-            data = self._get_kc_details(kc, history)
-            if (topics is None) or (data[2] in topics):
-                content.append(data)
-            else:
-                rest.append(data)
+        Args:
+            title: The default title of the visualization
+        """
+        super().__init__(title, "", "")
 
-        content.sort(key=lambda data: data[0], reverse=True)  # sort based on mean
-
-        return content, rest
-
-    # pylint: disable=too-many-locals
+    # pylint: disable=too-many-locals,too-many-arguments
     def plot(
         self,
-        content: Union[Knowledge, List[Tuple]],
+        content: Knowledge,
         topics: Optional[Iterable[str]] = None,
         top_n: Optional[int] = None,
-        *,
-        title: str = "Distribution of user's skill.",
-        x_label: str = "",
-        y_label: str = "",
         other: bool = False,
         history: bool = False,
     ) -> Self:
-        if isinstance(content, Knowledge):
-            content_dict, rest = self._standardise_data(content, history, topics)
-        else:
-            content_dict = content
-            rest = []
+        """Plot the graph based on the given data.
 
+        It will not draw anything if the knowledge given by the user is empty, or
+        if topics and top_n make the filtered knowledge empty.
+
+        Args:
+            content:
+                The Knowledge object to use to plot the visualisation.
+            topics:
+                The list of topics in the learner's knowledge to visualise.
+                If None, all topics are visualised (unless top_n is
+                specified, see below).
+            top_n:
+                The number of topics to visualise. E.g. if top_n is 5, then the
+                top 5 topics ranked by mean will be visualised.
+            other:
+                Whether to group all other unused topics together into an "Other"
+                category and visualise it.
+            history:
+                Whether to utilize history information in the visualisation.
+                If this is set to True, an attribute called history must be
+                present in all knowledge components.
+        """
+        content_dict, rest = self._standardise_data(content, history, topics)
         rest += content_dict[top_n:]
         content_dict = content_dict[:top_n]
 
-        if other:
-            content_dict.append(self._get_other_data(rest, history))
+        # only summarize if other and rest is not empty
+        if other and rest:
+            content_dict.append(_summarize_other(rest, history))
 
-        layout_data = self._layout((title, "", ""))
-
-        means = [lst[0] for lst in content_dict]
-
-        variances = [lst[1] for lst in content_dict]
-
-        titles = [lst[2] for lst in content_dict]
+        if not content_dict:
+            return self
 
         if history:
-            timestamps = [lst[3] for lst in content_dict]
+            means, variances, titles, timestamps = unzip_content_dict_history(
+                content_dict
+            )
             number_of_videos = []
             last_video_watched = []
             for timestamp in timestamps:
@@ -79,30 +141,33 @@ class PiePlotter(PlotlyBasePlotter):
                 last_video_watched.append(timestamp[-1])
 
             if other:
-                # get average number_of_videos
+                # get average number_of_videos for others
                 number_of_videos[-1] /= len(rest)
         else:
-            number_of_videos = [None for _ in variances]
-            last_video_watched = [None for _ in variances]
+            means, variances, titles = unzip_content_dict(content_dict)
+            number_of_videos = last_video_watched = [None] * len(variances)
 
         variance_min, variance_max = min(variances), max(variances)
 
-        colours = [self._get_colour(v, variance_min, variance_max) for v in variances]
+        colours = [_get_colour(v, variance_min, variance_max) for v in variances]
 
-        self.figure = go.Figure(
+        self.figure.add_trace(
             go.Pie(
                 labels=titles,
                 values=means,
                 customdata=np.transpose(
-                    [
-                        titles,
-                        means,
-                        variances,
-                        number_of_videos,
-                        last_video_watched,
-                    ]  # type: ignore
+                    np.array(
+                        [
+                            titles,
+                            means,
+                            variances,
+                            number_of_videos,
+                            last_video_watched,
+                        ],
+                        dtype=object,
+                    )
                 ),
-                hovertemplate=self._hovertemplate(
+                hovertemplate=self._hover_template(
                     (
                         "%{customdata[0][0]}",
                         "%{customdata[0][1]}",
@@ -115,96 +180,92 @@ class PiePlotter(PlotlyBasePlotter):
                 marker={
                     "colors": colours,
                 },
-            ),
-            layout=layout_data,
+            )
         )
 
         return self
 
-    def _get_other_data(self, rest: Iterable[Tuple], history: bool):
-        # make it a list because we use it a lot of time
-        rest = list(rest)
 
-        means = [lst[0] for lst in rest]
-        variances = [lst[1] for lst in rest]
-        average_mean = sum(means) / len(rest)
-        average_variance = sum(variances) / len(rest)
-        if history:
-            timestamps = []
-            for lst in rest:
-                timestamps += lst[3]  # concatenate timestamps
+class RosePlotter(PlotlyBasePlotter):
+    """Rose pie plotter.
 
-            timestamps[-1] = "N/A"  # alternatively, sort timestamps
-            other_data = (average_mean, average_variance, "Other", timestamps)
-        else:
-            other_data = (average_mean, average_variance, "Other")
+    In the rose pie chart, each knowledge component is represented by a sector
+    with a certain angle, shade, and radius.
 
-        return other_data
+    The angle of the sector is proportional to the number of learning events
+    in which the learner acquires this knowledge.
 
-    def _get_colour(
-        self, variance: float, variance_min: float, variance_max: float
-    ) -> str:
-        """Maps the variance to a shade of green represented in RGB.
+    The shade of the bubble represents the variance of the knowledge component.
+    The lighter the shade, the greater the variance.
 
-        A darker shade represents less variance.
+    The radius of the sector is proportional to the mean of the knowledge component.
+
+    On hover, additional information, like mean and variance of the knowledge
+    component, is displayed.
+    """
+
+    def __init__(
+        self,
+        title: str = "Distribution of learner's skill.",
+    ):
+        """Init a rose pie plotter.
 
         Args:
-            variance:
-                Float value representing the variance of a knowledge component.
-            variance_min:
-                The smallest variance values from all the knowledge components
-                we are plotting.
-            variance_max:
-                The largest variance values from all the knowledge components
-                we are plotting.
-
-        Returns:
-            A colour string to use when plotting the figure.
+            title: The default title of the visualization
         """
-        variance_range = variance_max - variance_min
-        variance = (variance - variance_min) / variance_range
-        r = 20 + variance * 227
-        g = 69 + variance * 183
-        b = 38 + variance * 206
+        super().__init__(title, "", "")
 
-        return f"rgb({r},{g},{b})"
-
-
-class RosePlotter(PiePlotter):
-    """Provides utilities for plotting rose charts."""
-
-    # pylint: disable=too-many-locals
+    # pylint: disable=too-many-locals,too-many-arguments
     def plot(
         self,
-        content: Union[Knowledge, List[Tuple]],
+        content: Knowledge,
         topics: Optional[Iterable[str]] = None,
         top_n: Optional[int] = None,
-        *,
-        title: str = "Distribution of user's skill.",
-        x_label: str = "",
-        y_label: str = "",
         other: bool = False,
-        history: bool = False,
+        random_state: Optional[random.Random] = None,
     ) -> Self:
-        if isinstance(content, Knowledge):
-            content_dict, rest = self._standardise_data(content, True, topics)
-        else:
-            content_dict = content
+        """Plot the graph based on the given data.
 
-        # TODO: type standardise data correctly to fix this
-        rest += content_dict[top_n:]  # type: ignore
+        It will not draw anything if the knowledge given by the user is empty, or
+        if topics and top_n make the filtered knowledge empty.
+
+        Args:
+            content:
+                The Knowledge object to use to plot the visualisation.
+            topics:
+                The list of topics in the learner's knowledge to visualise.
+                If None, all topics are visualised (unless top_n is
+                specified, see below).
+            top_n:
+                The number of topics to visualise. E.g. if top_n is 5, then the
+                top 5 topics ranked by mean will be visualised.
+            other:
+                Whether to group all other unused topics together into an "Other"
+                category and visualise it.
+            random_state:
+                An optional random.Random object that will be used to randomly
+                shuffle knowledge components, so that they will not be ranked
+                by mean.
+        """
+        content_dict, rest = self._standardise_data(content, True, topics)
+        rest += content_dict[top_n:]
         content_dict = content_dict[:top_n]
 
-        random.shuffle(content_dict)
+        if other and rest:
+            content_dict.append(_summarize_other(rest, True))
 
-        if other:
-            content_dict.append(self._get_other_data(rest, True))
+        if not content_dict:
+            return self
+
+        random_state = random_state or random.Random()
+        random_state.shuffle(content_dict)
 
         number_of_videos = [len(tr_data[3]) for tr_data in content_dict]
         if other:
-            number_of_videos[-1] = int(number_of_videos[-1] / len(rest))
+            number_of_videos[-1] /= len(rest)  # type: ignore
 
         total_videos = sum(number_of_videos)
+
         widths = [(n / total_videos) * 360 for n in number_of_videos]
         thetas = [0.0]
         for i in range(len(widths) - 1):
@@ -213,7 +274,7 @@ class RosePlotter(PiePlotter):
         variances = [tr_data[1] for tr_data in content_dict]
         variance_min, variance_max = min(variances), max(variances)
 
-        colours = [self._get_colour(v, variance_min, variance_max) for v in variances]
+        colours = [_get_colour(v, variance_min, variance_max) for v in variances]
 
         traces = []
         n_of_sectors = len(content_dict)
@@ -223,7 +284,8 @@ class RosePlotter(PiePlotter):
             )
 
         means = [tr_data[0] for tr_data in content_dict]
-        average_mean = sum(means) / len(means)
+        average_mean = float(statistics.mean(means))
+
         traces.append(
             go.Scatterpolar(
                 name="Average mean",
@@ -234,10 +296,9 @@ class RosePlotter(PiePlotter):
             )
         )
 
-        self.figure = go.Figure(data=traces, layout=self._layout((title, "", "")))
+        self.figure.add_traces(data=traces)
 
         topics = [tr_data[2] for tr_data in content_dict]
-
         self.figure.update_layout(
             polar={
                 "angularaxis": {
@@ -253,46 +314,36 @@ class RosePlotter(PiePlotter):
 
         return self
 
-    # TODO: add typing information and fix this in the next version
-    # pylint: disable=too-many-arguments
     def _trace(
         self,
-        tr_data,
-        theta,
-        width,
-        colour,
-        number_of_videos: Optional[int] = None,
+        tr_data: Tuple[float, float, str, List[Tuple[float, float, float]]],
+        theta: float,
+        width: float,
+        colour: str,
     ) -> go.Barpolar:
-        """Returns the Barpolar object representing a single sector.
+        """Return the Barpolar object representing a single sector.
 
         Args:
             tr_data:
-                the data used to plot the sector. A tuple containing the mean,
-                variance, title and timestamps of the topic represented by the
-                sector.
+                The data used to plot the sector. A list of tuples containing the mean,
+                variance, title and timestamps of the topic represented by the sector.
             theta:
-                the position of the sector alongside the angular axis,
+                The position of the sector alongside the angular axis,
                 given in degrees.
             width:
-                the width of the sector, given in degrees.
+                The width of the sector, given in degrees.
             colour:
-                the colour of the sector, given as an rgb string. E.g. 'rgb(0,0,0)'.
-            number_of_videos:
-                the number of videos watched for the topic represented
-                by the sector.
+                The colour of the sector, given as a rgb string. E.g. 'rgb(0,0,0)'.
         """
         mean, variance, title, timestamps = tr_data
-
-        if not number_of_videos:
-            number_of_videos = len(timestamps)
-
+        number_of_videos = len(timestamps)
         last_video_watched = timestamps[-1]
 
         return go.Barpolar(
             name=title,
             r=[mean],
             width=[width],
-            hovertemplate=self._hovertemplate(
+            hovertemplate=self._hover_template(
                 (title, mean, variance, number_of_videos, last_video_watched), True
             ),
             thetaunit="degrees",

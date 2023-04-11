@@ -13,9 +13,8 @@ from ._base import (
     InterestNoveltyKnowledgeBaseClassifier,
     gather_trueskill_team,
     team_sum_quality_from_kcs,
-    greater_than_or_equal_to_zero_constraint,
 )
-from .._constraint import TypeConstraint, ValueConstraint, FuncConstraint
+from .._constraint import TypeConstraint, ValueConstraint, Range
 
 
 class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
@@ -91,7 +90,7 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
         "decay_func_type": ValueConstraint("short", "long"),
         "decay_func_factor": [
             TypeConstraint(float),
-            FuncConstraint(greater_than_or_equal_to_zero_constraint),
+            ValueConstraint(Range(ge=[0])),
         ],
     }
 
@@ -166,8 +165,8 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
             def_var=def_var,
             tau=tau,
             beta=beta,
-            # learner always win in interest
-            # so we should always update regardless of the actual label
+            # learner always wins in interest classifier
+            # hence we should always update regardless of the actual label
             # positive_only should be disabled to ensure the update method
             # is always called
             positive_only=False,
