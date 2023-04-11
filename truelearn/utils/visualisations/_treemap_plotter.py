@@ -33,8 +33,6 @@ class TreePlotter(PlotlyBasePlotter):
 
         Args:
             title: The default title of the visualization
-            xlabel: The default x label of the visualization
-            ylabel: The default y label of the visualization
         """
         super().__init__(title, "", "")
 

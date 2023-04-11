@@ -20,17 +20,13 @@ class RadarPlotter(PlotlyBasePlotter):
     def __init__(
         self,
         title: str = "Mean and variance across different topics.",
-        xlabel: str = "",
-        ylabel: str = "",
     ):
         """Init a radar plotter.
 
         Args:
             title: The default title of the visualization
-            xlabel: The default x label of the visualization
-            ylabel: The default y label of the visualization
         """
-        super().__init__(title, xlabel, ylabel)
+        super().__init__(title, "", "")
 
     def plot(
         self,
