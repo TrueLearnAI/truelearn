@@ -4,7 +4,7 @@ from typing_extensions import Self
 import plotly.graph_objects as go
 
 from truelearn.models import Knowledge
-from truelearn.utils.visualisations._base import PlotlyBasePlotter
+from truelearn.utils.visualisations._base import PlotlyBasePlotter, unzip_content_dict
 
 
 class RadarPlotter(PlotlyBasePlotter):
@@ -40,6 +40,9 @@ class RadarPlotter(PlotlyBasePlotter):
     ) -> Self:
         """Plot the graph based on the given data.
 
+        It will not draw anything if the knowledge given by the user is empty, or
+        if topics and top_n make the filtered knowledge empty.
+
         Args:
             content:
                 The Knowledge object to use to plot the visualisation.
@@ -51,17 +54,21 @@ class RadarPlotter(PlotlyBasePlotter):
                 The number of topics to visualise. E.g. if top_n is 5, then the
                 top 5 topics ranked by mean will be visualised.
         """
-        content_dict, _ = self._standardise_data(content, False, topics)[:top_n]
+        content_dict, _ = self._standardise_data(content, False, topics)
+        content_dict = content_dict[:top_n]
 
-        means = [lst[0] for lst in content_dict]
-        variances = [lst[1] for lst in content_dict]
-        titles = [lst[2] for lst in content_dict]
+        if not content_dict:
+            return self
 
-        # need to add the first element to the list again
-        # otherwise, the last line will not properly show
-        means.append(means[0])
-        variances.append(variances[0])
-        titles.append(titles[0])
+        means, variances, titles = unzip_content_dict(content_dict)
+        means, variances, titles = list(means), list(variances), list(titles)
+
+        if means:
+            # need to add the first element to the list again
+            # otherwise, the last line will not properly show
+            means.append(means[0])
+            variances.append(variances[0])
+            titles.append(titles[0])
 
         self.figure.add_traces(
             [

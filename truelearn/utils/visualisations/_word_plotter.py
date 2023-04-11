@@ -3,7 +3,10 @@ from typing import Iterable, Optional
 from typing_extensions import Self
 
 from truelearn.models import Knowledge
-from truelearn.utils.visualisations._base import MatplotlibBasePlotter
+from truelearn.utils.visualisations._base import (
+    MatplotlibBasePlotter,
+    unzip_content_dict,
+)
 
 
 class WordPlotter(MatplotlibBasePlotter):
@@ -40,6 +43,9 @@ class WordPlotter(MatplotlibBasePlotter):
     ) -> Self:
         """Plot the graph based on the given data.
 
+        It will not draw anything if the knowledge given by the user is empty, or
+        if topics and top_n make the filtered knowledge empty.
+
         Args:
             content:
                 The Knowledge object to use to plot the visualisation.
@@ -58,15 +64,6 @@ class WordPlotter(MatplotlibBasePlotter):
                 You can refer to `wordcloud` documentation for all the supported
                 arguments.
         """
-        content_dict, _ = self._standardise_data(content, False, topics)[:top_n]
-
-        means = [lst[0] for lst in content_dict]
-        titles = [lst[2].lower() for lst in content_dict]
-
-        word_freq = {}
-        for title, mean in zip(titles, means):
-            word_freq[title] = int(mean * 500)
-
         try:
             # pylint: disable=import-outside-toplevel
             from wordcloud import WordCloud  # type: ignore
@@ -81,6 +78,19 @@ class WordPlotter(MatplotlibBasePlotter):
                 stacklevel=2,
             )
             return self
+
+        content_dict, _ = self._standardise_data(content, False, topics)
+        content_dict = content_dict[:top_n]
+
+        if not content_dict:
+            return self
+
+        means, _, titles = unzip_content_dict(content_dict)
+        titles = map(str.lower, titles)
+
+        word_freq = {}
+        for title, mean in zip(titles, means):
+            word_freq[title] = int(mean * 500)
 
         # default arguments
         wc_args = {

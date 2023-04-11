@@ -86,6 +86,9 @@ class LinePlotter(PlotlyBasePlotter):
     ) -> Self:
         """Plot the graph based on the given data.
 
+        It will not draw anything if the knowledge given by the user is empty, or
+        if topics and top_n make the filtered knowledge empty.
+
         Args:
             content:
                 The Knowledge object to use to plot the visualisation.
@@ -103,6 +106,9 @@ class LinePlotter(PlotlyBasePlotter):
             content_dict = self._content_for_multiple(content, topics)
         else:
             content_dict = self._content_for_single(content, topics, top_n)
+
+        if not content_dict:
+            return self
 
         traces = [self._trace(tr_data, variance) for tr_data in content_dict]
 

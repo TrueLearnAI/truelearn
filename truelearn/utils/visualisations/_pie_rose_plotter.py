@@ -7,7 +7,11 @@ import numpy as np
 import plotly.graph_objects as go
 
 from truelearn.models import Knowledge
-from truelearn.utils.visualisations._base import PlotlyBasePlotter
+from truelearn.utils.visualisations._base import (
+    PlotlyBasePlotter,
+    unzip_content_dict,
+    unzip_content_dict_history,
+)
 
 
 def _summarize_other(rest: List[Tuple], history: bool):
@@ -97,6 +101,9 @@ class PiePlotter(PlotlyBasePlotter):
     ) -> Self:
         """Plot the graph based on the given data.
 
+        It will not draw anything if the knowledge given by the user is empty, or
+        if topics and top_n make the filtered knowledge empty.
+
         Args:
             content:
                 The Knowledge object to use to plot the visualisation.
@@ -119,13 +126,17 @@ class PiePlotter(PlotlyBasePlotter):
         rest += content_dict[top_n:]
         content_dict = content_dict[:top_n]
 
-        if other:
+        # only summarize if other and rest is not empty
+        if other and rest:
             content_dict.append(_summarize_other(rest, history))
 
-        means, variances, titles, *others = list(zip(*content_dict))
+        if not content_dict:
+            return self
 
         if history:
-            timestamps = others[0]
+            means, variances, titles, timestamps = unzip_content_dict_history(
+                content_dict
+            )
             number_of_videos = []
             last_video_watched = []
             for timestamp in timestamps:
@@ -136,6 +147,7 @@ class PiePlotter(PlotlyBasePlotter):
                 # get average number_of_videos for others
                 number_of_videos[-1] /= len(rest)
         else:
+            means, variances, titles = unzip_content_dict(content_dict)
             number_of_videos = last_video_watched = [None] * len(variances)
 
         variance_min, variance_max = min(variances), max(variances)
@@ -220,6 +232,9 @@ class RosePlotter(PlotlyBasePlotter):
     ) -> Self:
         """Plot the graph based on the given data.
 
+        It will not draw anything if the knowledge given by the user is empty, or
+        if topics and top_n make the filtered knowledge empty.
+
         Args:
             content:
                 The Knowledge object to use to plot the visualisation.
@@ -242,11 +257,14 @@ class RosePlotter(PlotlyBasePlotter):
         rest += content_dict[top_n:]
         content_dict = content_dict[:top_n]
 
+        if other and rest:
+            content_dict.append(_summarize_other(rest, True))
+
+        if not content_dict:
+            return self
+
         random_state = random_state or random.Random()
         random_state.shuffle(content_dict)
-
-        if other:
-            content_dict.append(_summarize_other(rest, True))
 
         number_of_videos = [len(tr_data[3]) for tr_data in content_dict]
         if other:

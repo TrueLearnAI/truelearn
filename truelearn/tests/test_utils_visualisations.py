@@ -266,6 +266,11 @@ class TestBarPlotter:
         plotter.plot(resources[0], history=True)
         return plotter
 
+    def test_empty_knowledge(self):
+        plotter = visualisations.BarPlotter()
+        plotter.plot(models.Knowledge())
+        return plotter
+
 
 @file_comparison(
     plotter_type="matplotlib",
@@ -274,6 +279,11 @@ class TestBubblePlotter:
     def test_default(self, resources):
         plotter = visualisations.BubblePlotter()
         plotter.plot(resources[2])
+        return plotter
+
+    def test_empty_knowledge(self):
+        plotter = visualisations.BubblePlotter()
+        plotter.plot(models.Knowledge())
         return plotter
 
 
@@ -289,12 +299,22 @@ class TestDotPlotter:
         plotter.plot(resources[2], history=True)
         return plotter
 
+    def test_empty_knowledge(self):
+        plotter = visualisations.DotPlotter()
+        plotter.plot(models.Knowledge())
+        return plotter
+
 
 @file_comparison(plotter_type="plotly")
 class TestLinePlotterSingleUser:
     def test_default(self, resources):
         plotter = visualisations.LinePlotter()
         plotter.plot(resources[0])
+        return plotter
+
+    def test_empty_knowledge(self):
+        plotter = visualisations.LinePlotter()
+        plotter.plot(models.Knowledge())
         return plotter
 
 
@@ -324,6 +344,11 @@ class TestLinePlotterMultipleUsers:
         plotter.plot([resources[2], models.Knowledge()])
         return plotter
 
+    def test_empty_list_of_knowledge(self):
+        plotter = visualisations.LinePlotter()
+        plotter.plot([])
+        return plotter
+
 
 @file_comparison(plotter_type="plotly")
 class TestPiePlotter:
@@ -347,6 +372,11 @@ class TestPiePlotter:
         plotter.plot(resources[2], other=True)
         return plotter
 
+    def test_empty_knowledge(self):
+        plotter = visualisations.PiePlotter()
+        plotter.plot(models.Knowledge())
+        return plotter
+
 
 @file_comparison(plotter_type="plotly")
 class TestRosePlotter:
@@ -362,12 +392,22 @@ class TestRosePlotter:
         plotter.plot(resources[2], other=True, random_state=random_state)
         return plotter
 
+    def test_empty_knowledge(self):
+        plotter = visualisations.RosePlotter()
+        plotter.plot(models.Knowledge())
+        return plotter
+
 
 @file_comparison(plotter_type="plotly")
 class TestRadarPlotter:
     def test_default(self, resources):
         plotter = visualisations.RadarPlotter()
         plotter.plot(resources[2])
+        return plotter
+
+    def test_empty_knowledge(self):
+        plotter = visualisations.RadarPlotter()
+        plotter.plot(models.Knowledge())
         return plotter
 
 
@@ -383,6 +423,11 @@ class TestTreePlotter:
         plotter.plot(resources[0], history=True)
         return plotter
 
+    def test_empty_knowledge(self):
+        plotter = visualisations.TreePlotter()
+        plotter.plot(models.Knowledge())
+        return plotter
+
 
 @pytest.mark.skipif(
     sys.version_info >= (3, 8),
@@ -395,3 +440,7 @@ class TestWordPlotter:
         random_state = random.Random(42)
         plotter = visualisations.WordPlotter()
         plotter.plot(resources[0], random_state=random_state)
+
+    def test_empty_knowledge_no_throw(self):
+        plotter = visualisations.WordPlotter()
+        plotter.plot(models.Knowledge())

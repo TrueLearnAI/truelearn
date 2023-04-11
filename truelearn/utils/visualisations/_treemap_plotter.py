@@ -5,7 +5,11 @@ import numpy as np
 import plotly.graph_objects as go
 
 from truelearn.models import Knowledge
-from truelearn.utils.visualisations._base import PlotlyBasePlotter
+from truelearn.utils.visualisations._base import (
+    PlotlyBasePlotter,
+    unzip_content_dict,
+    unzip_content_dict_history,
+)
 
 
 class TreePlotter(PlotlyBasePlotter):
@@ -45,6 +49,9 @@ class TreePlotter(PlotlyBasePlotter):
     ) -> Self:
         """Plot the graph based on the given data.
 
+        It will not draw anything if the knowledge given by the user is empty, or
+        if topics and top_n make the filtered knowledge empty.
+
         Args:
             content:
                 The Knowledge object to use to plot the visualisation.
@@ -60,18 +67,23 @@ class TreePlotter(PlotlyBasePlotter):
                 If this is set to True, an attribute called history must be
                 present in all knowledge components.
         """
-        content_dict, _ = self._standardise_data(content, history, topics)[:top_n]
+        content_dict, _ = self._standardise_data(content, history, topics)
+        content_dict = content_dict[:top_n]
 
-        means, variances, titles, *others = list(zip(*content_dict))
+        if not content_dict:
+            return self
 
         if history:
-            timestamps = others[0]
+            means, variances, titles, timestamps = unzip_content_dict_history(
+                content_dict
+            )
             number_of_videos = []
             last_video_watched = []
             for timestamp in timestamps:
                 number_of_videos.append(len(timestamp))
                 last_video_watched.append(timestamp[-1])
         else:
+            means, variances, titles = unzip_content_dict(content_dict)
             number_of_videos = last_video_watched = [None] * len(variances)
 
         self.figure.add_trace(

@@ -366,3 +366,39 @@ def unix_to_iso(t: float) -> str:
         the ISO date string.
     """
     return datetime.datetime.utcfromtimestamp(t).strftime("%Y-%m-%d")
+
+
+def unzip_content_dict(content_dict: List[Tuple]):
+    """Unzip content dictionary.
+
+    Args:
+        content_dict:
+            A list of tuples where each tuple represents a knowledge component.
+            Inside each tuple, there are (mean, variance, title).
+
+    Returns:
+        A tuple containing (means, variances, titles).
+        Where each element inside the tuple is also a tuple.
+    """
+    if not content_dict:
+        return (), (), ()
+
+    return tuple(zip(*content_dict))
+
+
+def unzip_content_dict_history(content_dict: List[Tuple]):
+    """Unzip content dictionary.
+
+    Args:
+        content_dict:
+            A list of tuples where each tuple represents a knowledge component.
+            Inside each tuple, there are (mean, variance, title).
+
+    Returns:
+        A tuple containing (means, variances, titles).
+        Where each element inside the tuple is also a tuple.
+    """
+    if not content_dict:
+        return (), (), (), ()
+
+    return tuple(zip(*content_dict))

@@ -6,7 +6,10 @@ from matplotlib import cm, colors, patches
 import matplotlib.pyplot as plt
 
 from truelearn.models import Knowledge
-from truelearn.utils.visualisations._base import MatplotlibBasePlotter
+from truelearn.utils.visualisations._base import (
+    MatplotlibBasePlotter,
+    unzip_content_dict,
+)
 
 
 class BubblePlotter(MatplotlibBasePlotter):
@@ -45,6 +48,9 @@ class BubblePlotter(MatplotlibBasePlotter):
     ) -> Self:
         """Plot the graph based on the given data.
 
+        It will not draw anything if the knowledge given by the user is empty, or
+        if topics and top_n make the filtered knowledge empty.
+
         Args:
             content:
                 The Knowledge object to use to plot the visualisation.
@@ -56,9 +62,13 @@ class BubblePlotter(MatplotlibBasePlotter):
                 The number of topics to visualise. E.g. if top_n is 5, then the
                 top 5 topics ranked by mean will be visualised.
         """
-        content_dict, _ = self._standardise_data(content, False, topics)[:top_n]
+        content_dict, _ = self._standardise_data(content, False, topics)
+        content_dict = content_dict[:top_n]
 
-        means, variances, titles = list(zip(*content_dict))
+        if not content_dict:
+            return self
+
+        means, variances, titles = unzip_content_dict(content_dict)
         circles = circlify.circlify(
             means, show_enclosure=True, target_enclosure=circlify.Circle(x=0, y=0, r=1)
         )
