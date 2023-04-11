@@ -373,16 +373,14 @@ def unzip_content_dict(content_dict: List[Tuple]):
 
     Args:
         content_dict:
-            A list of tuples where each tuple represents a knowledge component.
+            An non-empty list of tuples where each tuple represents a
+            knowledge component.
             Inside each tuple, there are (mean, variance, title).
 
     Returns:
         A tuple containing (means, variances, titles).
         Where each element inside the tuple is also a tuple.
     """
-    if not content_dict:
-        return (), (), ()
-
     return tuple(zip(*content_dict))
 
 
@@ -391,14 +389,12 @@ def unzip_content_dict_history(content_dict: List[Tuple]):
 
     Args:
         content_dict:
-            A list of tuples where each tuple represents a knowledge component.
+            An non-empty list of tuples where each tuple represents a
+            knowledge component.
             Inside each tuple, there are (mean, variance, title).
 
     Returns:
         A tuple containing (means, variances, titles).
         Where each element inside the tuple is also a tuple.
     """
-    if not content_dict:
-        return (), (), (), ()
-
     return tuple(zip(*content_dict))
