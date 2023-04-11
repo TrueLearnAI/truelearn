@@ -17,7 +17,7 @@ from truelearn.utils import visualisations
 
 import plotly.io as pio
 
-data, _, _ = datasets.load_peek_dataset(test_limit=0)
+data, _, _ = datasets.load_peek_dataset(test_limit=0, verbose=False)
 
 # select a learner from data
 _, learning_events = data[12]

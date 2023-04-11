@@ -21,7 +21,7 @@ import plotly.io as pio
 # You can also use a custom knowledge component
 # if it follows the protocol of base knowledge component
 data, _, _ = datasets.load_peek_dataset(
-    test_limit=0, kc_init_func=models.HistoryAwareKnowledgeComponent
+    test_limit=0, kc_init_func=models.HistoryAwareKnowledgeComponent, verbose=False
 )
 
 # select a learner from data
