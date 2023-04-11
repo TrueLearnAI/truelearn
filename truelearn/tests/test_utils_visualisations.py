@@ -19,7 +19,7 @@ from truelearn.errors import TrueLearnTypeError
 BASELINE_DIR = (
     pathlib.Path(__file__).parent / "baseline_files"
 )  # directory relative to truelearn/tests
-TMP_PATH = pathlib.Path("./tests")  # directory relative to .
+TMP_PATH = pathlib.Path("./tests")  # directory relative to root
 UUID = "71903f8e-0ae2-4fd1-9c0c-2290e95b21e9"  # a randomly chosen UUID, affect HTML gen
 
 

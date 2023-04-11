@@ -77,7 +77,7 @@ class WordPlotter(MatplotlibBasePlotter):
             # (Therefore, all users running this test will get consistent behaviour,
             # regardless of what other packages they have installed).
             #
-            # We think this significantly increase the complexity of the tests
+            # We think this significantly increases the complexity of the tests
             # as we have no control over the upstream library.
             # Thus, we decide to mark this as no cover.
             warnings.warn(

@@ -79,7 +79,8 @@ This provides a lot of flexibility for developers as they “are not forced to i
 
 But they have now made some changes to the design. Their ``Classifier`` implementations now inherit a class ``BaseClassifier`` to provide
 parameter type checking and implementation of some common methods such as ``__repr__``.
-**TrueLearn took inspiration from it and designed our ``BaseClassifier``, type checking and implemented common methods.**
+**TrueLearn took inspiration from this in the design of our** ``BaseClassifier``
+**which enforces type checking and contains the implementation of some shared methods.**
 
 
 Project Structure
@@ -91,9 +92,9 @@ At time of writing, the repository includes the following subpackages:
 * truelearn/datasets: contains the methods to download and load PEEKDataset.
 * truelearn/learning: contains the implementation of all the classifiers.
 * truelearn/models: contains the definitions of event model and learner model.
-* truelearn/preprocessing: contains the preprocessing utilities, such as wikifier.
+* truelearn/preprocessing: contains the preprocessing utilities, such as Wikifier.
 * truelearn/tests: contains all the tests for TrueLearn library.
-* truelearn/utils: contains two utility packages, ``metrics`` (contains scoring functions) and ``visualization`` (contain different visualizations).
+* truelearn/utils: contains two utility packages, ``metrics`` (contains scoring functions) and ``visualisations``.
 
 
 truelearn.models
@@ -142,8 +143,8 @@ This package contains all the tests for TrueLearn.
 * test_datasets: contains the tests for ``truelearn.datasets``.
 * test_learning: contains the tests for ``truelearn.learning``.
 * test_models: contains the tests for ``truelearn.models``.
-* test_datasets: contains the tests for ``truelearn.datasets``.
-* test_datasets: contains the tests for ``truelearn.datasets``.
-* test_datasets: contains the tests for ``truelearn.datasets``.
+* test_preprocessing: contains the tests for ``truelearn.preprocessing``.
+* test_utils_metrics: contains the tests for ``truelearn.utils.metrics``.
+* test_utils_visualisations: contains the tests for ``truelearn.utils.visualisations``.
 
 To learn how to run the tests and add more tests to TrueLearn, please refer to :ref:`testing`.

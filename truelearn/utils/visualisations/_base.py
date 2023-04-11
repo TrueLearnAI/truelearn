@@ -32,8 +32,8 @@ class BasePlotter(ABC):
                 Whether the user wants to use the knowledge component's timestamps
                 (this allows the visualisations to display more information on
                 hover such as the number of videos watched and the last video watched).
-                If set to True, the Knowledge object must consists of knowledge
-                components that respects HistoryAwareKnowledgeComponents protocol,
+                If set to True, the Knowledge object must consist of knowledge
+                components that respect HistoryAwareKnowledgeComponents protocol,
                 or an error will be raised.
             topics:
                 An optional iterable of topics. The method will extract all the topics
@@ -337,7 +337,7 @@ def knowledge_to_dict(
             the knowledge object to copy.
 
     Returns:
-        A dictionary mapping topic id to knowledge component.
+        A dictionary mapping of topic id to a knowledge component.
         The knowledge component is in dictionary format.
     """
 
@@ -357,7 +357,7 @@ def knowledge_to_dict(
 
 
 def unix_to_iso(t: float) -> str:
-    """Convert an unix timestamp to an ISO-formatted date string.
+    """Convert a unix timestamp to an ISO-formatted date string.
 
     Args:
         t: value representing the POSIX timestamp.
