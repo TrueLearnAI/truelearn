@@ -63,12 +63,11 @@ class RadarPlotter(PlotlyBasePlotter):
         means, variances, titles = unzip_content_dict(content_dict)
         means, variances, titles = list(means), list(variances), list(titles)
 
-        if means:
-            # need to add the first element to the list again
-            # otherwise, the last line will not properly show
-            means.append(means[0])
-            variances.append(variances[0])
-            titles.append(titles[0])
+        # need to add the first element to the list again
+        # otherwise, the last line will not properly show
+        means.append(means[0])
+        variances.append(variances[0])
+        titles.append(titles[0])
 
         self.figure.add_traces(
             [

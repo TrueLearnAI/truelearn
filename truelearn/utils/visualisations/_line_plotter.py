@@ -95,7 +95,8 @@ class LinePlotter(PlotlyBasePlotter):
             topics:
                 The list of topics in the learner's knowledge to visualise.
                 If None, all topics are visualised (unless top_n is
-                specified, see below).
+                specified, see below). Only applicable if the content is of
+                type Knowledge
             top_n:
                 The number of topics to visualise. E.g. if top_n is 5, then the
                 top 5 topics ranked by mean will be visualised.

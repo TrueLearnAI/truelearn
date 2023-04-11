@@ -69,7 +69,8 @@ class PiePlotter(PlotlyBasePlotter):
 
     The angle of the sector is proportional to the mean of the knowledge component.
 
-    The shade of the sector is used to differentiate different knowledge components.
+    The shade of the sector represents the variance of the knowledge component.
+    The lighter the shade, the greater the variance.
 
     On hover, additional information, like mean and variance of the knowledge
     component, is displayed.
@@ -198,7 +199,8 @@ class RosePlotter(PlotlyBasePlotter):
     The angle of the sector is proportional to the number of learning events
     in which the learner acquires this knowledge.
 
-    The shade of the sector is used to differentiate different knowledge components.
+    The shade of the bubble represents the variance of the knowledge component.
+    The lighter the shade, the greater the variance.
 
     The radius of the sector is proportional to the mean of the knowledge component.
 
