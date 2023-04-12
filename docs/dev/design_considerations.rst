@@ -95,7 +95,7 @@ At time of writing, the repository includes the following subpackages:
 * truelearn/preprocessing: contains the preprocessing utilities, such as Wikifier.
 * truelearn/tests: contains all the tests for TrueLearn library.
 * truelearn/utils: contains two utility packages, ``metrics`` (contains scoring functions) and ``visualisations`` (contains a variety of plotting classes
-  that can be used to visualize the learner's knowledge).
+  that can be used to visualise the learner's knowledge).
 
 In the following sections, we will highlight four packages: ``truelearn.models``, ``truelearn.learning``, ``truelearn.utils.visualisations``, and ``truelearn.tests``.
 
@@ -129,7 +129,7 @@ The ``truelearn.learning`` package consists of different classifiers in `TrueLea
 
 .. _Power to the Learner\: Towards Human-Intuitive and Integrative Recommendations with Open Educational Resources: https://www.mdpi.com/2071-1050/14/18/11682
 
-If you plan to support new classifiers, start here and feel free to make a PR to do so. We welcome PR to add new classifiers,
+If you plan to support new classifiers, start here and feel free to make a PR to do so. We will be happy to review your code and help you get it merged.
 
 
 truelearn.utils.visualisations
