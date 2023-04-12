@@ -86,7 +86,7 @@ class PEEKKnowledgeComponentGenerator(Protocol):
 
 
 def __sanity_check(train_limit: Optional[int], test_limit: Optional[int]):
-    """Check if train_limit and test_limit is valid.
+    """Check if train_limit and test_limit are valid.
 
     Args:
         train_limit:
@@ -211,7 +211,7 @@ def __restructure_data(
 
     This function extracts the time, session (learner_id),
     topics, and label from the data, and constructs the appropriate
-    the model for these data.
+    model for this data.
 
     Args:
         filepath:

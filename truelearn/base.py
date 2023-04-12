@@ -71,7 +71,7 @@ class BaseClassifier(ABC):
         Args:
             deep:
                 If True, will return the parameters for this Classifier and
-                contained sub-objects that inherits BaseClassifier class.
+                contained sub-objects that inherit BaseClassifier class.
 
         Returns:
             A dict mapping variable names to the corresponding objects.
@@ -113,9 +113,9 @@ class BaseClassifier(ABC):
 
         Raises:
             TrueLearnTypeError:
-                Types of parameters does not satisfy their constraints.
+                Types of parameters do not satisfy their constraints.
             TrueLearnValueError:
-                Values of parameters does not satisfy their constraints.
+                Values of parameters do not satisfy their constraints.
             InvalidArgumentError:
                 If the given argument name is not in the class.
         """
@@ -175,9 +175,9 @@ class BaseClassifier(ABC):
 
         Raises:
             TrueLearnTypeError:
-                Types of parameters does not satisfy their constraints.
+                Types of parameters do not satisfy their constraints.
             TrueLearnValueError:
-                Values of parameters does not satisfy their constraints.
+                Values of parameters do not satisfy their constraints.
         """
         for (
             param_name,

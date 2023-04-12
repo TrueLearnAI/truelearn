@@ -49,14 +49,17 @@ description=None, url=None)
             variance:
                 A float indicating the variance of the knowledge component.
             timestamp:
-                A float indicating the POSIX timestamp of the last update of
-                the knowledge component.
+                A float
+                indicating the POSIX timestamp of when the knowledge component \
+                was last updated.
             title:
-                An optional string storing the title of the knowledge component.
+                An optional string
+                storing the title of the knowledge component.
             description:
                 An optional string that describes the knowledge component.
             url:
-                An optional string storing the url of the knowledge component.
+                An optional string
+                storing the url of the knowledge component.
 
         Returns:
             None.
@@ -111,8 +114,8 @@ description=None, url=None)
 
     @property
     def timestamp(self) -> Optional[float]:
-        """Optional[float]: The POSIX timestamp of the last update of the knowledge \
-        component."""
+        """Optional[float]: The POSIX timestamp of when the knowledge component was \
+        last updated."""
         return self.__timestamp
 
     def update(
@@ -335,7 +338,7 @@ class Knowledge:
 
     Examples:
         >>> from truelearn.models import Knowledge, KnowledgeComponent
-        >>> # construct an empty knowledge
+        >>> # construct empty knowledge
         >>> knowledge = Knowledge()
         >>> knowledge
         Knowledge(knowledge={})

@@ -72,7 +72,7 @@ class ValueConstraint:
             vtype:
                 The type of the given values. Defaults to object.
                 This is typically used if the type constraint of the parameter
-                supports multuple types, and you only want to check the value
+                supports multiple types, and you only want to check the value
                 for one of the types listed in the type constraint.
         """
         self.vtype = vtype

@@ -16,7 +16,7 @@ class PersistentClassifier(BaseClassifier):
         >>> persistent = PersistentClassifier()
         >>> persistent
         PersistentClassifier()
-        >>> # prepare event model with empty knowledge
+        >>> # prepare an event model with empty knowledge
         >>> events = [EventModel(), EventModel(), EventModel()]
         >>> engage_stats = [False, True, False]
         >>> for event, engage_stats in zip(events, engage_stats):
@@ -41,9 +41,9 @@ class PersistentClassifier(BaseClassifier):
 
         Raises:
             TrueLearnTypeError:
-                Types of parameters does not satisfy their constraints.
+                Types of parameters do not satisfy their constraints.
             TrueLearnValueError:
-                Values of parameters does not satisfy their constraints.
+                Values of parameters do not satisfy their constraints.
         """
         super().__init__()
 

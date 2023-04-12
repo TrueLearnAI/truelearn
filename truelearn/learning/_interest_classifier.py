@@ -26,8 +26,8 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
 
     During the training process, the classifier uses the idea of game matching
     established in TrueSkill. It represents the learning process as a game of two teams.
-    One team consists of all the knowledge components from the learnable unit and
-    the other consist of all the corresponding knowledge components from the learner.
+    One team consists of all the knowledge components from the learnable unit, and
+    the other consists of all the corresponding knowledge components from the learner.
     Then, the classifier uses the given label to update the knowledge components of
     the learner.
 
@@ -37,7 +37,7 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
     the learner wins the game.
 
     During the prediction process, the classifier uses cumulative density function
-    of normal distribution to calculate the probability that the learner engage in
+    of normal distribution to calculate the probability that the learner engages in
     the learning event. It calculates the probability of getting x in a
     Normal Distribution N(0, std) where x is the difference between
     the learner's skill (mean) and the learnable unit's skill (mean) and
@@ -52,7 +52,7 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
         >>> interest_classifier = InterestClassifier()
         >>> interest_classifier
         InterestClassifier()
-        >>> # prepare event model
+        >>> # prepare an event model
         >>> knowledges = [
         ...     Knowledge({1: KnowledgeComponent(mean=0.57, variance=1e-9)}),
         ...     Knowledge({
@@ -121,11 +121,11 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
             init_skill:
                 The initial mean of the learner's knowledge component.
                 It will be used when the learner interacts with knowledge components
-                at its first time.
+                 for its first time.
             def_var:
                 The initial variance (>0) of the learner's knowledge component.
                 It will be used when the learner interacts with knowledge components
-                at its first time.
+                 for its first time.
             beta:
                 The distance which guarantees about 76% chance of winning.
                 The recommended value is sqrt(def_var) / 2.
@@ -150,13 +150,13 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
             decay_func_factor:
                 A factor (>=0) that will be used in both short and long
                 interest decay function. Defaults to 0, which disables
-                the interest decay function .
+                the interest decay function.
 
         Raises:
             TrueLearnTypeError:
-                Types of parameters does not satisfy their constraints.
+                Types of parameters do not satisfy their constraints.
             TrueLearnValueError:
-                Values of parameters does not satisfy their constraints.
+                Values of parameters do not satisfy their constraints.
         """
         super().__init__(
             learner_model=learner_model,
@@ -165,7 +165,7 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
             def_var=def_var,
             tau=tau,
             beta=beta,
-            # learner always wins in interest classifier
+            # learner always wins in interest classifier,
             # hence we should always update regardless of the actual label
             # positive_only should be disabled to ensure the update method
             # is always called
@@ -219,7 +219,7 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
             event_time:
                 An optional float representing the event time.
             _y:
-                A bool indicating whether the learner engage in
+                A bool indicating whether the learner engages in
                 the learning event.
 
         Returns:
