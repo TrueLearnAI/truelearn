@@ -97,7 +97,7 @@ At time of writing, the repository includes the following subpackages:
 * truelearn/utils: contains two utility packages, ``metrics`` (contains scoring functions) and ``visualisations`` (contains a variety of visualizations
   that can be used to visualize the learner's knowledge).
 
-In the following sections, we will highlight four packages: ``truelearn.models``, ``truelearn.learing``, ``truelearn.utils.visualisations``, and ``truelearn.tests``.
+In the following sections, we will highlight four packages: ``truelearn.models``, ``truelearn.learning``, ``truelearn.utils.visualisations``, and ``truelearn.tests``.
 
 
 truelearn.models
