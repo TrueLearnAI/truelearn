@@ -7,6 +7,7 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 import inspect
+import warnings
 import os
 import shutil
 import sys
@@ -140,6 +141,19 @@ sphinx_gallery_conf = {
     "plot_gallery": "True",
     "image_scrapers": image_scrapers,
 }
+
+# filter WordPlotter warnings because we already have
+# an admonition in the WordPlotter example
+warnings.filterwarnings(
+    "ignore",
+    category=FutureWarning,
+    message=(
+        "This class may be removed in a future release "
+        "because wordcloud library does not have "
+        r"cross-platform support for python 3.8\+, "
+        r"and it is not actively maintained\."
+    ),
+)
 
 # -- Options for napoleon extension ------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/extensions/napoleon.html
