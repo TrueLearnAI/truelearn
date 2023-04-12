@@ -44,6 +44,7 @@ jobs:
 
     env:
       WIKIFIER_API_KEY: ${{ secrets.WIKIFIER_API_KEY }}
+      MPLBACKEND: "Agg"
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v3
