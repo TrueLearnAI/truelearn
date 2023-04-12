@@ -103,6 +103,10 @@ class LinePlotter(PlotlyBasePlotter):
             variance:
                 Whether to visualise variance.
         """
+        # be defensive
+        if topics is not None:
+            topics = list(topics)
+
         if isinstance(content, list):
             content_dict = self._content_for_multiple(content, topics)
         else:
@@ -120,7 +124,7 @@ class LinePlotter(PlotlyBasePlotter):
     def _content_for_single(
         self,
         content: Knowledge,
-        topics: Optional[Iterable[str]],
+        topics: Optional[List[str]],
         top_n: Optional[int],
     ):
         """Extract content from Knowledge.
@@ -132,8 +136,8 @@ class LinePlotter(PlotlyBasePlotter):
 
     def _content_for_multiple(
         self,
-        content_list: Iterable[Knowledge],
-        topics: Optional[Iterable[str]] = None,
+        content_list: List[Knowledge],
+        topics: Optional[List[str]],
     ):
         """Extract content from an iterable of Knowledge.
 
