@@ -64,7 +64,7 @@ The existence of transformer interface (`transform` method) makes it easy for us
 
 In terms of data representation of scikit-learn,
 “datasets are encoded in NumPy multidimensional arrays for dense data and as SciPy sparse matrices for sparse data”.
-This allows scikit-learn to utilize the efficient Numpy and SciPy operations while writing readable and maintainable code.
+This allows scikit-learn to utilise the efficient Numpy and SciPy operations while writing readable and maintainable code.
 For TrueLearn, the only problem with the above representation is that “the public interface is oriented towards processing batches of samples”,
 but our library expects data to be more “discrete” because the user engagement with educational resources is not likely obtained in large batches.
 **Therefore, we will provide functions that use on a single piece of data**.
@@ -94,7 +94,7 @@ At time of writing, the repository includes the following subpackages:
 * truelearn/models: contains the definitions of event model and learner model.
 * truelearn/preprocessing: contains the preprocessing utilities, such as Wikifier.
 * truelearn/tests: contains all the tests for TrueLearn library.
-* truelearn/utils: contains two utility packages, ``metrics`` (contains scoring functions) and ``visualisations`` (contains a variety of visualizations
+* truelearn/utils: contains two utility packages, ``metrics`` (contains scoring functions) and ``visualisations`` (contains a variety of plotting classes
   that can be used to visualize the learner's knowledge).
 
 In the following sections, we will highlight four packages: ``truelearn.models``, ``truelearn.learning``, ``truelearn.utils.visualisations``, and ``truelearn.tests``.
@@ -122,15 +122,14 @@ The ``truelearn.learning`` package consists of different classifiers in `TrueLea
 .. _TrueLearn\: A Family of Bayesian Algorithms to Match Lifelong Learners to Open Educational Resources: https://arxiv.org/abs/1911.09471
 
 * Baseline Classifiers: this package contains ``EngageClassifier``, ``PersistentClassifier`` and ``MajorityClassifier``, which are baseline classifiers in the first TrueLearn paper.
-* ``KnowledgeClassifier``: utilize the fixed-depth representation of event knowledge and rely on the third assumption in the first TrueLearn paper.
-* ``NoveltyClassifier``: utilize the fourth assumption in the first TrueLearn paper.
+* ``KnowledgeClassifier``: utilise the fixed-depth representation of event knowledge and rely on the third assumption in the first TrueLearn paper.
+* ``NoveltyClassifier``: utilise the fourth assumption in the first TrueLearn paper.
 * ``InterestClassifier``: model the learner's interest based on the paper `Power to the Learner: Towards Human-Intuitive and Integrative Recommendations with Open Educational Resources`_.
 * ``INKClassifier``: use ``NoveltyClassifier`` and ``InterestClassifier`` for meta-learning.
 
 .. _Power to the Learner\: Towards Human-Intuitive and Integrative Recommendations with Open Educational Resources: https://www.mdpi.com/2071-1050/14/18/11682
 
-If your plan to support new classifiers, you can start here. We welcome PR to add new classifiers,
-such as those that make use of knowledge tracking.
+If you plan to support new classifiers, start here and feel free to make a PR to do so. We welcome PR to add new classifiers,
 
 
 truelearn.utils.visualisations

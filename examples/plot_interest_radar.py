@@ -5,7 +5,7 @@ RadarPlotter Example
 
 This example shows how to use the ``RadarPlotter`` class
 to generate a radar plot to study the mean and variance
-of different knowledge components in the learner's interest.
+of learners' interest in different subjects.
 
 In this example, we use the ``InterestClassifier`` to build
 a representation of the learner's interest. You could also use

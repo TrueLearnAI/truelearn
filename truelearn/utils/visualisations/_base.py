@@ -269,7 +269,7 @@ class MatplotlibBasePlotter(BasePlotter):
 
     @final
     def show(self):
-        """Display the figure if the caller is in interactive environment.
+        """Display the figure if the caller is in an interactive environment.
 
         For example, if you use Jupyter Notebooks, it will be displayed.
 

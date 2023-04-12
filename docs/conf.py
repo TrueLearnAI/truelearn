@@ -47,7 +47,7 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx.ext.doctest",
     "sphinx_copybutton",
-    # for some mysteriou reason, if we put sphinx_gallery
+    # for some mysterious reason, if we put sphinx_gallery
     # below autosummary (which means if it is loaded after autosummary),
     # trueskill in truelearn.learning will not be properly
     # imported (``dir(trueskill)`` does not include trueskill
