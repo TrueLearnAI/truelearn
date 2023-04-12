@@ -26,14 +26,14 @@ class WordPlotter(MatplotlibBasePlotter):
         """Init a word cloud plotter."""
         super().__init__("", "", "")
 
-        # warnings.warn(
-        #     "This class may be removed in a future release "
-        #     "because wordcloud library does not have "
-        #     "cross-platform support for python 3.11+, "
-        #     "and it is not actively maintained.",
-        #     FutureWarning,
-        #     stacklevel=2,
-        # )
+        warnings.warn(
+            "WordPlotter may be removed in a future release "
+            "because wordcloud library does not have "
+            "cross-platform support for Python 3.11+, "
+            "and it is not actively maintained.",
+            FutureWarning,
+            stacklevel=2,
+        )
 
     def plot(
         self,
@@ -82,7 +82,7 @@ class WordPlotter(MatplotlibBasePlotter):
             # Thus, we decide to mark this as no cover.
             warnings.warn(
                 "Missing `wordcloud` dependency. "
-                "You can install it via `pip install wordcloud`.",
+                "You can try installing it via `pip install wordcloud`.",
                 FutureWarning,
                 stacklevel=2,
             )

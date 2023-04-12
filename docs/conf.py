@@ -148,9 +148,9 @@ warnings.filterwarnings(
     "ignore",
     category=FutureWarning,
     message=(
-        "This class may be removed in a future release "
+        "WordPlotter may be removed in a future release "
         "because wordcloud library does not have "
-        r"cross-platform support for python 3.8\+, "
+        r"cross-platform support for Python 3.11\+, "
         r"and it is not actively maintained\."
     ),
 )
