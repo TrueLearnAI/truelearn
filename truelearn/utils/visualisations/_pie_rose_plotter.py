@@ -202,6 +202,8 @@ class RosePlotter(PlotlyBasePlotter):
 
     On hover, additional information, like mean and variance of the knowledge
     component, is displayed.
+
+    Now, by default, rose pie chart uses history.
     """
 
     def __init__(
@@ -251,17 +253,21 @@ class RosePlotter(PlotlyBasePlotter):
         rest += content_dict[top_n:]
         content_dict = content_dict[:top_n]
 
+        random_state = random_state or random.Random()
+        random_state.shuffle(content_dict)
+
         if other and rest:
             content_dict.append(_summarize_other(rest, True))
 
         if not content_dict:
             return self
 
-        random_state = random_state or random.Random()
-        random_state.shuffle(content_dict)
+        # the order of content dict should be the same and does not change
+        # after this line
 
         number_of_videos = [len(tr_data[3]) for tr_data in content_dict]
-        if other:
+        # get average number of other (if we use it)
+        if other and rest:
             number_of_videos[-1] /= len(rest)  # type: ignore
 
         total_videos = sum(number_of_videos)
@@ -273,7 +279,6 @@ class RosePlotter(PlotlyBasePlotter):
 
         variances = [tr_data[1] for tr_data in content_dict]
         variance_min, variance_max = min(variances), max(variances)
-
         colours = [_get_colour(v, variance_min, variance_max) for v in variances]
 
         traces = []
@@ -283,9 +288,9 @@ class RosePlotter(PlotlyBasePlotter):
                 self._trace(content_dict[i], thetas[i], widths[i], colours[i])
             )
 
+        # add a trace for average mean
         means = [tr_data[0] for tr_data in content_dict]
         average_mean = float(statistics.mean(means))
-
         traces.append(
             go.Scatterpolar(
                 name="Average mean",
@@ -296,6 +301,7 @@ class RosePlotter(PlotlyBasePlotter):
             )
         )
 
+        # add all traces
         self.figure.add_traces(data=traces)
 
         topics = [tr_data[2] for tr_data in content_dict]

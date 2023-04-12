@@ -9,11 +9,10 @@ on:
 
   workflow_dispatch:
     inputs:
-        pypi_release_type:
-            description: 'Release to TestPyPI or PyPI (testpypi or pypi)'
-            required: true
-            default: 'testpypi'
-
+      pypi_release_type:
+        description: "Release to TestPyPI or PyPI (testpypi or pypi)"
+        required: true
+        default: "testpypi"
 
 permissions:
   contents: read
@@ -78,4 +77,3 @@ jobs:
         with:
           user: __token__
           password: ${{ secrets.PYPI_API_TOKEN }}
-

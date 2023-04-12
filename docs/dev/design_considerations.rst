@@ -64,9 +64,9 @@ The existence of transformer interface (`transform` method) makes it easy for us
 
 In terms of data representation of scikit-learn,
 “datasets are encoded in NumPy multidimensional arrays for dense data and as SciPy sparse matrices for sparse data”.
-This allows scikit-learn to utilize the efficient Numpy and SciPy operations while writing readable and maintainable code.
+This allows scikit-learn to utilise the efficient Numpy and SciPy operations while writing readable and maintainable code.
 For TrueLearn, the only problem with the above representation is that “the public interface is oriented towards processing batches of samples”,
-but our library expects data to be more “discrete” because the user engagement with some videos is not likely obtained in large batches.
+but our library expects data to be more “discrete” because the user engagement with educational resources is not likely obtained in large batches.
 **Therefore, we will provide functions that use on a single piece of data**.
 
 Finally, it is worth mentioning what makes scikit-learn extensible and its code more reusable.
@@ -94,18 +94,21 @@ At time of writing, the repository includes the following subpackages:
 * truelearn/models: contains the definitions of event model and learner model.
 * truelearn/preprocessing: contains the preprocessing utilities, such as Wikifier.
 * truelearn/tests: contains all the tests for TrueLearn library.
-* truelearn/utils: contains two utility packages, ``metrics`` (contains scoring functions) and ``visualisations``.
+* truelearn/utils: contains two utility packages, ``metrics`` (contains scoring functions) and ``visualisations`` (contains a variety of plotting classes
+  that can be used to visualise the learner's knowledge).
+
+In the following sections, we will highlight four packages: ``truelearn.models``, ``truelearn.learning``, ``truelearn.utils.visualisations``, and ``truelearn.tests``.
 
 
 truelearn.models
 ^^^^^^^^^^^^^^^^
-The ``truelearn.models`` package is made up from several import parts
+The ``truelearn.models`` package is made up from several important modules
 
 * base: contains the basic building blocks of learner and event knowledge.
-  We use an ontology based on Wikipedia to represent KCs, where each Wikipedia page is considered as an independent and atomic unit of knowledge (i.e. a KC).
+  We use an ontology based on Wikipedia to represent knowledge components (KCs), where each Wikipedia page is considered as an independent and atomic unit of knowledge (i.e. a KC).
   ``BaseKnowledgeComponent`` is the base classifier for all knowledge components. You can inherit this to design new ``KnowledgeComponent``.
-* knowledge: We have already defined two knowledge components ``KnowledgeComponent`` and ``HistoryAwareKnowledgeComponent`` based on ``BaseKnowledgeComponent``.
-  It also contains a class ``Knowledge`` that represents the learner and event knowledge.
+* knowledge: we have already defined two knowledge components ``KnowledgeComponent`` and ``HistoryAwareKnowledgeComponent`` based on ``BaseKnowledgeComponent``.
+  It also contains a class ``Knowledge`` that can represent the learner and event knowledge.
 * learner: we define ``LearnerModel`` to represent the learner and ``LearnerMetaWeights`` to represent the weights of different learner models when the developer
   uses meta-learning (``INKClassifier``).
 * event: we define ``EventModel`` to represent the event.
@@ -113,32 +116,54 @@ The ``truelearn.models`` package is made up from several import parts
 
 truelearn.learning
 ^^^^^^^^^^^^^^^^^^
-The ``truelearn.learning`` package consists of different classifiers in `TrueLearn: A Family of Bayesian Algorithms to Match Lifelong Learners to Open Educational Resources`_.
+The ``truelearn.learning`` package consists of different classifiers in `TrueLearn: A Family of Bayesian Algorithms to Match Lifelong Learners to Open Educational Resources`_
+(referred to by us as the first TrueLearn paper).
 
 .. _TrueLearn\: A Family of Bayesian Algorithms to Match Lifelong Learners to Open Educational Resources: https://arxiv.org/abs/1911.09471
 
-* Base Classifiers: baseline classifiers in paper.
-  It contains ``EngageClassifier``, ``PersistentClassifier``, ``MajorityClassifier``.
-* ``KnowledgeClassifier``: utilize the fixed-depth representation of event knowledge and rely on the third assumption in the first TrueLearn paper.
-* ``NoveltyClassifier``: utilize the fourth assumption in the TrueLearn paper.
-* ``InterestClassifier``: learn based on the learner's interest described in `Power to the Learner: Towards Human-Intuitive and Integrative Recommendations with Open Educational Resources`_.
+* Baseline Classifiers: this package contains ``EngageClassifier``, ``PersistentClassifier`` and ``MajorityClassifier``, which are baseline classifiers in the first TrueLearn paper.
+* ``KnowledgeClassifier``: utilise the fixed-depth representation of event knowledge and rely on the third assumption in the first TrueLearn paper.
+* ``NoveltyClassifier``: utilise the fourth assumption in the first TrueLearn paper.
+* ``InterestClassifier``: model the learner's interest based on the paper `Power to the Learner: Towards Human-Intuitive and Integrative Recommendations with Open Educational Resources`_.
 * ``INKClassifier``: use ``NoveltyClassifier`` and ``InterestClassifier`` for meta-learning.
 
 .. _Power to the Learner\: Towards Human-Intuitive and Integrative Recommendations with Open Educational Resources: https://www.mdpi.com/2071-1050/14/18/11682
 
-If your goal is to support new classifiers, you can start here. We welcome PR to add new classifiers,
-such as those that make use of knowledge tracking.
-If you plan to do this, please discuss it with us as we may need to restructure this sub-package.
+If you plan to support new classifiers, start here and feel free to make a PR to do so. We will be happy to review your code and help you get it merged.
 
 
 truelearn.utils.visualisations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-TODO
+The ``truelearn.utils.visualisations`` package contains different plotting classes (we call them plotter). We have defined two main categories of plotter,
+one based on plotly.py which provides users with interactive visualisations and supports exporting to static files (png, jpg, etc.) and dynamic files (html),
+and the other based on matplotlib which can only export to static files, but gives us more freedom to design and generate visualisations.
+
+* base: defines three base plotter classes. ``BasePlotter`` defines some shared methods and basic interfaces that all plotters need to follow.
+  ``PlotlyBasePlotter`` defines some methods shared by all plotly-based plotters, such as ``show`` (show visualisations) and ``savefig`` (save visualisations).
+  ``MatplotlibBasePlotter`` defines some common methods shared by all matplotlib-based plotters, such as ``title`` (set title) and ``set_x/ylabel`` (set x/y label).
+* ``BarPlotter``: a plotly-based plotter. It represents each knowledge component is by a bar with height, shade and an error bar.
+  It can be used to study the estimated mean of the learner's knowledge and the confidence level (via error bars) of the estimation.
+* ``BubblePlotter``: a matplotlib-based plotter. It represents each knowledge component is by a bubble of a certain size and shade.
+  It can be used to compare learner's knowledge across different subjects.
+* ``DotPlotter``: a plotly-based plotter. It represents each knowledge component is by a bar with height, shade and an error bar.
+  Similar to ``BarPlotter``, it can be used to study the estimated mean of the learner's knowledge and the confidence level (via error bars) of the estimation.
+* ``LinePlotter``: a plotly-based plotter. It focus on visualizing how learner's knowledge changes over time.
+  It can be used to compare different knowledge components of a learner and the same knowledge components of different learners.
+* ``PiePlotter``: a plotly-based plotter. It represents each knowledge component by a sector with a certain angle and shade.
+  It can be used to study the distribution of the learner's knowledge.
+* ``RadarPlotter``: a plotly-based plotter. It represents each knowledge component by two radii (one for the mean and the other for the variance).
+  It can be used to study the mean and variance of different knowledge components in the learner's knowledge.
+* ``RosePlotter``: a plotly-based plotter. It represents each knowledge component by a sector with a certain angle, shade, and radius.
+  It can be used to study the distribution of the learner's knowledge.
+* ``TreePlotter``: a plotly-based plotter. It represents each knowledge component by a rectangle of a certain size and colour.
+  It can be used to study the distribution of learner's knowledge and the relationships between different knowledge components (if semantic information about them is provided).
+* ``WordPlotter``: a matplotlib-based plotter. It represents each knowledge component in terms of the word cloud.
+  It can be used to study the representation of the learner's knowledge.
 
 
 truelearn.tests
 ^^^^^^^^^^^^^^^
-This package contains all the tests for TrueLearn.
+The ``truelearn.tests`` package contains all the tests for TrueLearn.
 
 * test_datasets: contains the tests for ``truelearn.datasets``.
 * test_learning: contains the tests for ``truelearn.learning``.

@@ -7,6 +7,7 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 import inspect
+import warnings
 import os
 import shutil
 import sys
@@ -46,6 +47,16 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx.ext.doctest",
     "sphinx_copybutton",
+    # for some mysterious reason, if we put sphinx_gallery
+    # below autosummary (which means if it is loaded after autosummary),
+    # trueskill in truelearn.learning will not be properly
+    # imported (``dir(trueskill)`` does not include trueskill
+    # methods and classes and ``trueskill.__all__`` is an empty list)
+    #
+    # Note: An alternative solution is to add a higher priority of
+    # ``generate_gallery_rst`` method in ``sphinx_gallery.gen_gallery``
+    # which controls the gallery generation. It is registered via
+    # app.connect('builder-inited', generate_gallery_rst).
     "sphinx_gallery.gen_gallery",
     "sphinx.ext.autosummary",
 ]
@@ -108,6 +119,7 @@ def linkcode_resolve(domain, info):
 
 # -- Gallery configuration ---------------------------------------------------
 from plotly.io._sg_scraper import plotly_sg_scraper
+from sphinx_gallery.sorting import ExampleTitleSortKey
 
 image_scrapers = (
     "matplotlib",
@@ -122,11 +134,26 @@ sphinx_gallery_conf = {
     "examples_dirs": "../examples",  # path to your example scripts
     "gallery_dirs": "examples",  # path to where to save gallery generated output,
     "download_all_examples": False,  # disable download file buttons
+    "within_subsection_order": ExampleTitleSortKey,  # sort examples by title
     "remove_config_comments": True,
     "show_memory": False,
     "show_signature": False,
+    "plot_gallery": "True",
     "image_scrapers": image_scrapers,
 }
+
+# filter WordPlotter warnings because we already have
+# an admonition in the WordPlotter example
+warnings.filterwarnings(
+    "ignore",
+    category=FutureWarning,
+    message=(
+        "WordPlotter may be removed in a future release "
+        "because wordcloud library does not have "
+        r"cross-platform support for Python 3.11\+, "
+        r"and it is not actively maintained\."
+    ),
+)
 
 # -- Options for napoleon extension ------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/extensions/napoleon.html

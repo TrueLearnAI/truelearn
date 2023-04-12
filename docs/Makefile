@@ -12,6 +12,13 @@ BUILDDIR      = _build
 help:
 	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
+# Generate doc without running the examples
+# Can speed up doc build time when you don't need the examples
+html-noplot:
+	$(SPHINXBUILD) -D plot_gallery=0 -b html $(ALLSPHINXOPTS) $(SOURCEDIR) $(BUILDDIR)/html
+	@echo
+	@echo "No-plot build finished. The HTML pages are in $(BUILDDIR)/html."
+
 .PHONY: help Makefile
 
 # Catch-all target: route all unknown targets to Sphinx using the new

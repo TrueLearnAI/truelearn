@@ -5,15 +5,15 @@ on:
       - main
     # filter on files that should trigger this workflow
     paths:
-      - 'pyproject.toml'
-      - '**.py'
-      - '.github/workflows/static_analysis.yml'
+      - "pyproject.toml"
+      - "**.py"
+      - ".github/workflows/static_analysis.yml"
   pull_request:
     # filter on files that should trigger this workflow
     paths:
-      - 'pyproject.toml'
-      - '**.py'
-      - '.github/workflows/static_analysis.yml'
+      - "pyproject.toml"
+      - "**.py"
+      - ".github/workflows/static_analysis.yml"
   workflow_dispatch:
   workflow_call:
 

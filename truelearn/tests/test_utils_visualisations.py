@@ -351,6 +351,18 @@ class TestLinePlotterSingleUserNormal:
             "You can use HistoryAwareKnowledgeComponents."
         )
 
+    def test_iterator_topics_no_throw(self):
+        plotter = visualisations.LinePlotter()
+        topics = ["Machine learning", "Probability"]
+        topics = map(lambda x: x, topics)
+
+        plotter.plot(
+            models.Knowledge(
+                {1: models.HistoryAwareKnowledgeComponent(mean=0.0, variance=0.5)}
+            ),
+            topics=topics,
+        )
+
 
 @file_comparison(plotter_type="plotly")
 class TestLinePlotterMultipleUsers:
@@ -472,8 +484,8 @@ class TestTreePlotter:
 
 
 @pytest.mark.skipif(
-    sys.version_info >= (3, 8),
-    reason="WordPlotter only supports Python version <= 3.7",
+    sys.version_info >= (3, 11),
+    reason="WordPlotter only supports Python version < 3.11",
 )
 class TestWordPlotter:
     # no way to test this in a cross-platform way

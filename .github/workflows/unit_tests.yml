@@ -5,28 +5,27 @@ on:
       - main
     # filter on files that should trigger this workflow
     paths:
-      - 'pyproject.toml'
-      - '**.py'
-      - '.github/workflows/unit_tests.yml'
+      - "pyproject.toml"
+      - "**.py"
+      - ".github/workflows/unit_tests.yml"
   pull_request:
     # filter on files that should trigger this workflow
     paths:
-      - 'pyproject.toml'
-      - '**.py'
-      - '.github/workflows/unit_tests.yml'
+      - "pyproject.toml"
+      - "**.py"
+      - ".github/workflows/unit_tests.yml"
   workflow_dispatch:
   workflow_call:
     inputs:
       environment:
         required: true
-        default: 'testing'
+        default: "testing"
         type: string
-        description: 'Environment to run tests in (testing)'
+        description: "Environment to run tests in (testing)"
     secrets:
       WIKIFIER_API_KEY:
         required: true
-        description: 'Wikifier API Key'
-
+        description: "Wikifier API Key"
 
 # Only cancel concurrent runs of the same workflow
 concurrency:
@@ -44,6 +43,9 @@ jobs:
 
     env:
       WIKIFIER_API_KEY: ${{ secrets.WIKIFIER_API_KEY }}
+      # necessary for matplotlib to work properly in Windows
+      # it fails occasionally if we don't set this
+      MPLBACKEND: "Agg"
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v3

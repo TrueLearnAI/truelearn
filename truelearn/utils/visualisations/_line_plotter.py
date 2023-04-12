@@ -132,8 +132,8 @@ class LinePlotter(PlotlyBasePlotter):
 
     def _content_for_multiple(
         self,
-        content_list: Iterable[Knowledge],
-        topics: Optional[Iterable[str]] = None,
+        content_list: List[Knowledge],
+        topics: Optional[Iterable[str]],
     ):
         """Extract content from an iterable of Knowledge.
 

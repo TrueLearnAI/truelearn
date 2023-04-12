@@ -23,3 +23,9 @@ repository::
 
 This will create a ``_build`` folder inside ``docs`` directory. You can view the generated
 html files in the ``_build`` folder.
+
+It is worth noting that the make command above will run the plotting examples in the ``examples`` folder.
+If you don't want to run them, and only want to preview the changes you made to other parts
+of the documentation, you can run a build without plotting with the following command::
+
+    make html-noplot

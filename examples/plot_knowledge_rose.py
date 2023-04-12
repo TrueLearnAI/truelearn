@@ -1,10 +1,10 @@
 # noqa
 """
-PiePlotter Example
-==================
+RosePlotter Example
+===================
 
-This example shows how to use the ``PiePlotter`` class
-to generate a pie chart to study the distribution of
+This example shows how to use the ``RosePlotter`` class
+to generate a rose pie chart to study the distribution of
 the learner's knowledge.
 
 In this example, we use the ``NoveltyClassifier`` to build
@@ -31,13 +31,11 @@ classifier = learning.NoveltyClassifier()
 for event, label in learning_events:
     classifier.fit(event, label)
 
-plotter = visualisations.PiePlotter()
+plotter = visualisations.RosePlotter()
 
-# you can control whether to include history data
-# in the plot. If you use `history=True`, it requires
-# the knowledge contains a history attribute.
-# This is why we use models.HistoryAwareKnowledgeComponent above
-plotter.plot(classifier.get_learner_model().knowledge, top_n=10, history=True)
+# you can control whether to include all other data
+# in a section called other.
+plotter.plot(classifier.get_learner_model().knowledge, top_n=5, other=True)
 
 # you can also use plotter.show()
 # which is a shorthand for calling pio

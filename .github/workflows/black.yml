@@ -3,9 +3,9 @@ on:
   pull_request:
     # filter on files that should trigger this workflow
     paths:
-      - 'pyproject.toml'
-      - '**.py'
-      - '.github/workflows/black.yml'
+      - "pyproject.toml"
+      - "**.py"
+      - ".github/workflows/black.yml"
   workflow_dispatch:
   workflow_call:
 
