@@ -10,7 +10,7 @@ In this example, we use the ``KnowledgeClassifier`` to build
 a representation of the learner's knowledge. You could also use
 other classifiers like ``NoveltyClassifier``.
 
-.. note:: You need to use ``WordPlotter`` with caution because
+.. warning:: You need to use ``WordPlotter`` with caution because
 
             - Compatibility: it fails to build in Windows for Python version > 3.7.
             - Stability: it is not actively maintained.
