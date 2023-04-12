@@ -47,6 +47,9 @@ class BubblePlotter(MatplotlibBasePlotter):
         It will not draw anything if the knowledge given by the user is empty, or
         if topics and top_n make the filtered knowledge empty.
 
+        Currently, this method requires all knowledge components inside the
+        given Knowledge are positive.
+
         Args:
             content:
                 The Knowledge object to use to plot the visualisation.
