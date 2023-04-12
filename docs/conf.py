@@ -137,6 +137,7 @@ sphinx_gallery_conf = {
     "remove_config_comments": True,
     "show_memory": False,
     "show_signature": False,
+    "plot_gallery": "True",
     "image_scrapers": image_scrapers,
 }
 
