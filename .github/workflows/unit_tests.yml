@@ -43,6 +43,8 @@ jobs:
 
     env:
       WIKIFIER_API_KEY: ${{ secrets.WIKIFIER_API_KEY }}
+      # necessary for matplotlib to work properly in Windows
+      # it fails occasionally if we don't set this
       MPLBACKEND: "Agg"
     steps:
       - name: Checkout Repo

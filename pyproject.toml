@@ -49,7 +49,7 @@ dependencies = [
     'plotly>=5.14.1',
     'matplotlib>=3.5.3',
     'circlify>=0.15.0',
-    "wordcloud>=1.8.2.2; python_version < '3.8'",
+    "wordcloud>=1.8.2.2; python_version < '3.11'",
     "kaleido>=0.2.1",
 ]
 [project.urls]
