@@ -90,7 +90,7 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
         "decay_func_type": ValueConstraint("short", "long"),
         "decay_func_factor": [
             TypeConstraint(float),
-            ValueConstraint(Range(ge=[0])),
+            ValueConstraint(Range(ge=0)),
         ],
     }
 
