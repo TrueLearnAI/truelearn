@@ -1,0 +1,2 @@
+Welcome! We’re happy to have you here. Thank you in advance for your contribution to TrueLearn.
+Please see: [Contributing Guide](https://truelearn.readthedocs.io/en/latest/dev/index.html) for more information!
