@@ -5,15 +5,15 @@ on:
       - main
     # filter on files that should trigger this workflow
     paths:
-      - 'pyproject.toml'
-      - '**.py'
-      - '.github/workflows/coverage.yml'
+      - "pyproject.toml"
+      - "**.py"
+      - ".github/workflows/coverage.yml"
   pull_request:
     # filter on files that should trigger this workflow
     paths:
-      - 'pyproject.toml'
-      - '**.py'
-      - '.github/workflows/coverage.yml'
+      - "pyproject.toml"
+      - "**.py"
+      - ".github/workflows/coverage.yml"
   workflow_dispatch:
 
 # Only cancel concurrent runs of the same workflow
