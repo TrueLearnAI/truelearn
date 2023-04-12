@@ -118,6 +118,7 @@ def linkcode_resolve(domain, info):
 
 # -- Gallery configuration ---------------------------------------------------
 from plotly.io._sg_scraper import plotly_sg_scraper
+from sphinx_gallery.sorting import ExampleTitleSortKey
 
 image_scrapers = (
     "matplotlib",
@@ -132,6 +133,7 @@ sphinx_gallery_conf = {
     "examples_dirs": "../examples",  # path to your example scripts
     "gallery_dirs": "examples",  # path to where to save gallery generated output,
     "download_all_examples": False,  # disable download file buttons
+    "within_subsection_order": ExampleTitleSortKey,  # sort examples by title
     "remove_config_comments": True,
     "show_memory": False,
     "show_signature": False,

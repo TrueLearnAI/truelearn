@@ -17,8 +17,8 @@ from truelearn.utils import visualisations
 import plotly.io as pio
 
 # use a custom knowledge component
-# you can always plugin you knowledge component here
-# as soon as it follows the protocol of knowledge component
+# you can always use your knowledge component here
+# as soon as it follows the protocol of history aware knowledge component
 data, _, _ = datasets.load_peek_dataset(
     test_limit=0, kc_init_func=models.HistoryAwareKnowledgeComponent, verbose=False
 )

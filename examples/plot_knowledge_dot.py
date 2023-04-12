@@ -1,11 +1,14 @@
 # noqa
 """
-PiePlotter Example
+DotPlotter Example
 ==================
 
-This example shows how to use the ``PiePlotter`` class
-to generate a pie chart to study the distribution of
-the learner's knowledge.
+This example shows how to use the ``DotPlotter`` class
+to generate a bar chart to study the estimated mean of
+the learner's knowledge and our confidence level (via error bars).
+
+It is similar to the previous example of the ``BarPlotter``.
+The difference is that the bars have been replaced with dots.
 
 In this example, we use the ``NoveltyClassifier`` to build
 a representation of the learner's knowledge. You could also use
@@ -31,12 +34,12 @@ classifier = learning.NoveltyClassifier()
 for event, label in learning_events:
     classifier.fit(event, label)
 
-plotter = visualisations.PiePlotter()
+plotter = visualisations.DotPlotter()
 
 # you can control whether to include history data
-# in the plot. If you use `history=True`, it requires
-# the knowledge contains a history attribute.
-# This is why we use models.HistoryAwareKnowledgeComponent above
+# in the plot. If you use `history=True`, when you hover
+# your mouse over the dot, you can see statistics about
+# the total number of videos watched and the time the learner watched the last video
 plotter.plot(classifier.get_learner_model().knowledge, top_n=10, history=True)
 
 # you can also use plotter.show()
