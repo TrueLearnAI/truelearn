@@ -2,7 +2,7 @@
 # Cleans up a GitHub PR as we use deployments to share data between jobs (for python_publish.yml)
 # Code from https://github.com/strumwolf/delete-deployment-environment
 #
-name: 🧼 Clean up environment
+name: 🧼 Clean up environment deployments
 on:
   workflow_dispatch:
 
