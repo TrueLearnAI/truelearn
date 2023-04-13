@@ -38,7 +38,7 @@
    :target: https://github.com/psf/black
    :alt: Black
 
-.. |TrueLearn| image:: docs/images/TrueLearn_logo.png
+.. |TrueLearn| image:: https://raw.githubusercontent.com/truelearnai/truelearn/main/docs/images/TrueLearn_logo.png
    :target: https://truelearnai.github.io/
    :alt: TrueLearn
 

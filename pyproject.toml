@@ -57,7 +57,6 @@ Homepage = "https://truelearnai.github.io/"
 Documentation = "https://truelearn.readthedocs.io/en/stable/"
 Issues = "https://github.com/TrueLearnAI/truelearn/issues"
 Source = "https://github.com/TrueLearnAI/truelearn"
-ChangeLog = "https://github.com/TrueLearnAI/truelearn/blob/main/docs/changelog.rst"
 
 [tool.setuptools.dynamic]
 version = {attr = "truelearn.__version__"}
