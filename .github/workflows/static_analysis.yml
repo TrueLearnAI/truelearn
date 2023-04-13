@@ -27,10 +27,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v3.5.2
 
       - name: Setup Python
-        uses: actions/setup-python@v4.4.0
+        uses: actions/setup-python@v4.5.0
         with:
           python-version: "3.7"
           cache: "pip" # cache dependencies
@@ -47,17 +47,8 @@ jobs:
           # Uses prospector.yml config file
           prospector --output-format xunit:prospector_report.xml
 
-      # Keep this commented out for now until prospector output format is fixed
-      # - name: Convert test results to Github Annotations
-      #  uses: check-run-reporter/action@v2.11.1
-      # Change to failure() only if you want to only report on failures
-      # if: success()||failure()
-      #with:
-      # token: ${{ secrets.CHECK_RUN_REPORTER_TOKEN }}
-      #report: './prospector_report.xml'
-      #label: "Prospector Analysis Report"
-
-      # NOTE: Because it expects Junit format, the line numberings on the annotation header defaults to 1
+      # NOTE: Because it expects a Junit format,
+      # the line numberings on the annotation header defaults to 1
       # However the error message shows the correct line numbering.
       - name: Convert test results to Github Annotations
         uses: mikepenz/action-junit-report@v3
