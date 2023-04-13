@@ -11,7 +11,7 @@ from truelearn.preprocessing import Wikifier
 
 
 # YOUR API KEY here.
-# you could register at https://wikifier.org/register.html.
+# you can register at: https://wikifier.org/register.html
 API_KEY = ""
 
 
