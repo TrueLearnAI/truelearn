@@ -121,11 +121,11 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
             init_skill:
                 The initial mean of the learner's knowledge component.
                 It will be used when the learner interacts with knowledge components
-                 for its first time.
+                for the first time.
             def_var:
                 The initial variance (>0) of the learner's knowledge component.
                 It will be used when the learner interacts with knowledge components
-                 for its first time.
+                for the first time.
             beta:
                 The distance which guarantees about 76% chance of winning.
                 The recommended value is sqrt(def_var) / 2.
