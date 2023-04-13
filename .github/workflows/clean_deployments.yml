@@ -16,6 +16,7 @@ on:
 
 jobs:
   cleanup:
+    name: Clear deployments
     runs-on: ubuntu-latest
     permissions: write-all
 

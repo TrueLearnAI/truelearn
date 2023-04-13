@@ -23,6 +23,7 @@ concurrency:
 
 jobs:
   code_coverage:
+    name: Calculate Coverage
     runs-on: ubuntu-latest
 
     steps:
