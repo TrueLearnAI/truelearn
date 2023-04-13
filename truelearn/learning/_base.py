@@ -149,11 +149,11 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
     _parameter_constraints: Dict[str, Any] = {
         **BaseClassifier._parameter_constraints,
         "learner_model": TypeConstraint(LearnerModel),
-        "threshold": [TypeConstraint(float), ValueConstraint(Range(ge=[0], le=[1]))],
+        "threshold": [TypeConstraint(float), ValueConstraint(Range(ge=0, le=1))],
         "init_skill": TypeConstraint(float),
         "def_var": [
             TypeConstraint(float),
-            ValueConstraint(Range(gt=[0])),
+            ValueConstraint(Range(gt=0)),
         ],
         "tau": TypeConstraint(float),
         "beta": TypeConstraint(float),
@@ -162,11 +162,11 @@ class InterestNoveltyKnowledgeBaseClassifier(BaseClassifier):
         "draw_proba_static": [
             TypeConstraint(float, type(None)),
             FuncConstraint(draw_proba_static_constraint),
-            ValueConstraint(Range(ge=[0], le=[1]), vtype=float),
+            ValueConstraint(Range(ge=0, le=1), vtype=float),
         ],
         "draw_proba_factor": [
             TypeConstraint(float),
-            ValueConstraint(Range(ge=[0])),
+            ValueConstraint(Range(ge=0)),
         ],
     }
 

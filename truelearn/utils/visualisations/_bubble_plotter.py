@@ -47,7 +47,7 @@ class BubblePlotter(MatplotlibBasePlotter):
         It will not draw anything if the knowledge given by the user is empty, or
         if topics and top_n make the filtered knowledge empty.
 
-        Currently this method requires that the mean of all knowledge components
+        Currently, this method requires that the mean of all the knowledge components
         of the learner Knowledge to be positive.
 
         Args:
@@ -74,7 +74,7 @@ class BubblePlotter(MatplotlibBasePlotter):
 
         self.ax.axis("off")
 
-        # set limit for x and y-axis
+        # set the limit for x and y-axis
         lim = max(
             max(
                 abs(circle.x) + circle.r,

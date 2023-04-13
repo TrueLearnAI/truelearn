@@ -6,7 +6,7 @@ from truelearn.base import BaseClassifier
 
 
 class EngageClassifier(BaseClassifier):
-    """A Classifier that always makes positive prediction.
+    """A Classifier that always makes a positive prediction.
 
     Examples:
         >>> from truelearn.learning import EngageClassifier
@@ -14,7 +14,7 @@ class EngageClassifier(BaseClassifier):
         >>> engage = EngageClassifier()
         >>> engage
         EngageClassifier()
-        >>> # prepare event model with empty knowledge
+        >>> # prepare an event model with empty knowledge
         >>> event = EventModel()
         >>> engage.fit(event, False)
         EngageClassifier()

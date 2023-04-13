@@ -10,7 +10,7 @@ class MajorityClassifier(BaseClassifier):
     """A classifier that predicts based on \
     the number of learner's engagement and non-engagement.
 
-    If the number of engagement on the training data is greater than
+    If the number of engagements on the training data is greater than
     the number of non-engagement, the classifier predicts Engage (True);
     otherwise, it predicts Non-Engage (False).
 
@@ -20,7 +20,7 @@ class MajorityClassifier(BaseClassifier):
         >>> majority = MajorityClassifier()
         >>> majority
         MajorityClassifier()
-        >>> # prepare event model with empty knowledge
+        >>> # prepare an event model with empty knowledge
         >>> events = [EventModel(), EventModel(), EventModel()]
         >>> engage_stats = [False, True, True]
         >>> for event, engage_stats in zip(events, engage_stats):
@@ -46,15 +46,15 @@ class MajorityClassifier(BaseClassifier):
 
         Args:
             *: Use to reject positional arguments.
-            engagement: The number of learner's engagement.
-            non_engagement: The number of learner's non_engagement.
+            engagement: The number of learner's engagements.
+            non_engagement: The number of learner's non_engagements.
             threshold: A float that determines the classification threshold.
 
         Raises:
             TrueLearnTypeError:
-                Types of parameters does not satisfy their constraints.
+                Types of parameters do not satisfy their constraints.
             TrueLearnValueError:
-                Values of parameters does not satisfy their constraints.
+                Values of parameters do not satisfy their constraints.
         """
         super().__init__()
 

@@ -1,4 +1,4 @@
-from typing import Any, Callable, List, Optional
+from typing import Any, Callable, Optional
 
 from truelearn.base import BaseClassifier
 from truelearn.errors import TrueLearnTypeError, TrueLearnValueError
@@ -72,7 +72,7 @@ class ValueConstraint:
             vtype:
                 The type of the given values. Defaults to object.
                 This is typically used if the type constraint of the parameter
-                supports multuple types, and you only want to check the value
+                supports multiple types, and you only want to check the value
                 for one of the types listed in the type constraint.
         """
         self.vtype = vtype
@@ -167,16 +167,16 @@ class Range:
 
     def __init__(
         self,
-        gt: Optional[List] = None,
-        ge: Optional[List] = None,
-        le: Optional[List] = None,
-        lt: Optional[List] = None,
+        gt: Optional[float] = None,
+        ge: Optional[float] = None,
+        le: Optional[float] = None,
+        lt: Optional[float] = None,
     ):
         """Init a Range object."""
-        self.greater = gt or []
-        self.greater_or_equal = ge or []
-        self.less_or_equal = le or []
-        self.less = lt or []
+        self.greater = gt
+        self.greater_or_equal = ge
+        self.less_or_equal = le
+        self.less = lt
 
     def __repr__(self) -> str:
         """Get a description of the range object.
@@ -190,7 +190,7 @@ class Range:
             symbols,
             [self.greater_or_equal, self.greater, self.less_or_equal, self.less],
         ):
-            if not val:
+            if val is None:
                 continue
             fmt_strs.append(f"{symbol}{val}")
         return f"Range({', '.join(fmt_strs)})"
@@ -206,8 +206,8 @@ class Range:
             Whether the value is within the range.
         """
         return (
-            all(other > num for num in self.greater)
-            and all(other >= num for num in self.greater_or_equal)
-            and all(other <= num for num in self.less_or_equal)
-            and all(other < num for num in self.less)
+            (self.greater is None or other > self.greater)
+            and (self.greater_or_equal is None or other >= self.greater_or_equal)
+            and (self.less_or_equal is None or other <= self.less_or_equal)
+            and (self.less is None or other < self.less)
         )

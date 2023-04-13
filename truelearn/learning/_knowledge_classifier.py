@@ -16,8 +16,8 @@ class KnowledgeClassifier(InterestNoveltyKnowledgeBaseClassifier):
 
     During the training process, the classifier uses the idea of game matching
     established in TrueSkill. It represents the learning process as a game of two teams.
-    One team consists of all the knowledge components from the learnable unit and
-    the other consist of all the corresponding knowledge components from the learner.
+    One team consists of all the knowledge components from the learnable unit, and
+    the other consists of all the corresponding knowledge components from the learner.
     Then, the classifier uses the given label to update the knowledge components
     of the learner.
 
@@ -27,7 +27,7 @@ class KnowledgeClassifier(InterestNoveltyKnowledgeBaseClassifier):
     means that the learner wins the game.
 
     During the prediction process, the classifier uses cumulative density function of
-    normal distribution to calculate the probability that the learner engage
+    normal distribution to calculate the probability that the learner engages
     in the learning event. It calculates the probability of getting x in a
     Normal Distribution N(0, std) where x is the difference between
     the learner's skill (mean) and the learnable unit's skill (mean) and
@@ -42,7 +42,7 @@ class KnowledgeClassifier(InterestNoveltyKnowledgeBaseClassifier):
         >>> knowledge_classifier = KnowledgeClassifier()
         >>> knowledge_classifier
         KnowledgeClassifier()
-        >>> # prepare event model
+        >>> # prepare an event model
         >>> knowledges = [
         ...     Knowledge({1: KnowledgeComponent(mean=0.57, variance=1e-9)}),
         ...     Knowledge({
@@ -101,11 +101,11 @@ KnowledgeComponent(mean=0.60005..., variance=0.31394..., ...), ...}), ...}
             init_skill:
                 The initial mean of the learner's knowledge component.
                 It will be used when the learner interacts with knowledge components
-                at its first time.
+                for the first time.
             def_var:
                 The initial variance (>0) of the learner's knowledge component.
                 It will be used when the learner interacts with knowledge components
-                at its first time.
+                for the first time.
             beta:
                 The distance which guarantees about 76% chance of winning.
                 The recommended value is sqrt(def_var) / 2.
@@ -130,13 +130,13 @@ KnowledgeComponent(mean=0.60005..., variance=0.31394..., ...), ...}), ...}
 
         Raises:
             TrueLearnTypeError:
-                Types of parameters does not satisfy their constraints.
+                Types of parameters do not satisfy their constraints.
             TrueLearnValueError:
-                Values of parameters does not satisfy their constraints.
+                Values of parameters do not satisfy their constraints.
         """
         # the knowledge classifier doesn't rely on the draw probability
-        # it utilizes different assumptions
-        # so, we set draw probability to a very small value to avoid its impact
+        # it utilises different assumptions, so
+        # we set draw probability to a very small value to avoid its impact
         super().__init__(
             learner_model=learner_model,
             threshold=threshold,

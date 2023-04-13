@@ -18,7 +18,7 @@ class INKClassifier(BaseClassifier):
     During the training process, the meta-classifier individually trains
     the KnowledgeClassifier and the InterestClassifier. After that, the
     meta-classifier trains a set of weights by again using the ideas of team matching.
-    One team consists of the weights of the knowledge, interest and bias and
+    One team consists of the weights of the knowledge, interest and bias, and
     the other team consists of the threshold. Then, the meta-classifier
     uses the given label to adjust the weights accordingly.
 
@@ -39,7 +39,7 @@ class INKClassifier(BaseClassifier):
         >>> meta_weights = LearnerMetaWeights(novelty_weights=weights)
         >>> ink_classifier = INKClassifier(learner_meta_weights=meta_weights)
         >>>
-        >>> # prepare event model
+        >>> # prepare an event model
         >>> knowledges = [
         ...     Knowledge({1: KnowledgeComponent(mean=0.15, variance=1e-9)}),
         ...     Knowledge({
@@ -115,15 +115,15 @@ mean=0.12698..., variance=0.39796...))...}
                 The dynamic factor of learner's learning process.
                 It's used to avoid the halting of the learning process.
             greedy:
-                A bool indicating whether the meta-learning should
+                A bool indicating whether meta-learning should
                 take the greedy approach. In the greedy approach,
                 only incorrect predictions lead to the update of the weights.
 
         Raises:
             TrueLearnTypeError:
-                Types of parameters does not satisfy their constraints.
+                Types of parameters do not satisfy their constraints.
             TrueLearnValueError:
-                Values of parameters does not satisfy their constraints.
+                Values of parameters do not satisfy their constraints.
         """
         self._novelty_classifier = novelty_classifier or NoveltyClassifier()
         self._interest_classifier = interest_classifier or InterestClassifier()
@@ -219,12 +219,12 @@ mean=0.12698..., variance=0.39796...))...}
                 The predicted probability of the learner's engagement by using
                 InterestClassifier.
             pred_actual:
-                Whether the learner actually engage in the given event. This value is
+                Whether the learner actually engages in the given event. This value is
                 either 0 or 1.
         """
         cur_pred = self.predict(x)
 
-        # if prediction is correct and greedy, don't train
+        # if the prediction is correct and greedy, don't train
         if self._greedy and cur_pred == pred_actual:
             return
 
@@ -251,7 +251,7 @@ mean=0.12698..., variance=0.39796...))...}
             ),
         )
 
-        if pred_actual:  # weights need to be larger than threshold
+        if pred_actual:  # weights need to be larger than a threshold
             new_team_experts, _ = env.rate(
                 [team_experts, team_threshold],
                 weights=[(pred_novelty, pred_interest, 1), (1,)],
