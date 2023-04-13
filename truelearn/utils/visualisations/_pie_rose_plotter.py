@@ -90,7 +90,7 @@ class PiePlotter(PlotlyBasePlotter):
     # pylint: disable=too-many-locals,too-many-arguments
     def plot(
         self,
-        content: Knowledge,
+        content: Union[Knowledge, Dict[Hashable, Dict[str, Union[str, float]]]],
         topics: Optional[Iterable[str]] = None,
         top_n: Optional[int] = None,
         other: bool = False,
@@ -220,7 +220,7 @@ class RosePlotter(PlotlyBasePlotter):
     # pylint: disable=too-many-locals,too-many-arguments
     def plot(
         self,
-        content: Knowledge,
+        content: Union[Knowledge, Dict[Hashable, Dict[str, Union[str, float]]]],
         topics: Optional[Iterable[str]] = None,
         top_n: Optional[int] = None,
         other: bool = False,

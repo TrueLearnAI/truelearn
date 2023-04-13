@@ -119,7 +119,7 @@ class LinePlotter(PlotlyBasePlotter):
 
     def _content_for_single(
         self,
-        content: Knowledge,
+        content: Union[Knowledge, Dict[Hashable, Dict[str, Union[str, float]]]],
         topics: Optional[Iterable[str]],
         top_n: Optional[int],
     ):

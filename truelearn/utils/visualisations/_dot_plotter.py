@@ -44,7 +44,7 @@ class DotPlotter(PlotlyBasePlotter):
 
     def plot(
         self,
-        content: Knowledge,
+        content: Union[Knowledge, Dict[Hashable, Dict[str, Union[str, float]]]],
         topics: Optional[Iterable[str]] = None,
         top_n: Optional[int] = None,
         history: bool = False,

@@ -16,7 +16,7 @@ class BasePlotter(ABC):
     @final
     def _standardise_data(
         self,
-        raw_data: Knowledge,
+        raw_data: Union[Knowledge, Dict[Hashable, Dict[str, Union[str, float]]]],
         history: bool = False,
         topics: Optional[Iterable[str]] = None,
     ) -> Tuple[List[Tuple], List[Tuple]]:
@@ -27,7 +27,9 @@ class BasePlotter(ABC):
 
         Args:
             raw_data:
-                The learner's knowledge, represented by a Knowledge object.
+                The learner's knowledge, represented by a Knowledge object or by a
+                dictionary of knowledge component dictionaries, in the same format
+                as that returned by the knowledge_to_dict function.
             history:
                 Whether the user wants to use the knowledge component's timestamps
                 (this allows the visualisations to display more information on
@@ -49,7 +51,10 @@ class BasePlotter(ABC):
         if topics is not None:
             topics = set(topics)
 
-        raw_data_dict = knowledge_to_dict(raw_data)
+        if isinstance(raw_data, Knowledge): 
+            raw_data_dict = knowledge_to_dict(raw_data)
+        else:
+            raw_data_dict = raw_data
 
         content = []
         rest = []
