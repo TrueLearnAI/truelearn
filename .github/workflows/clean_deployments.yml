@@ -19,8 +19,8 @@ jobs:
         uses: navikt/github-app-token-generator@v1.2.0
         id: get-token
         with:
-          app-id: ${{ secrets.GH_APP_ID }}
-          private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
+          app-id: ${{ secrets.DEPLOYMENT_TOKEN_APP_ID }}
+          private-key: ${{ secrets.DEPLOYMENT_TOKEN_PRIVATE_KEY }}
 
       # The behaviour of this action as configured is:
       # ✔️ Deactivates deployment
