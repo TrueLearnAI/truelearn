@@ -10,6 +10,9 @@ from truelearn.errors import TrueLearnTypeError
 from truelearn.models import Knowledge
 
 
+KnowledgeDataType = Union[Knowledge, Dict[Hashable, Dict[str, Union[str, float]]]]
+
+
 class BasePlotter(ABC):
     """The base class of all the plotters."""
 

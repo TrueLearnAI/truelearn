@@ -1,10 +1,13 @@
-from typing import Dict, Iterable, List, Optional, Union, Hashable
+from typing import Iterable, List, Optional
 from typing_extensions import Self
 
 import plotly.graph_objects as go
 
-from truelearn.models import Knowledge
-from truelearn.utils.visualisations._base import PlotlyBasePlotter, unzip_content_dict
+from truelearn.utils.visualisations._base import (
+    KnowledgeDataType,
+    PlotlyBasePlotter,
+    unzip_content_dict,
+)
 
 
 class RadarPlotter(PlotlyBasePlotter):
@@ -30,7 +33,7 @@ class RadarPlotter(PlotlyBasePlotter):
 
     def plot(
         self,
-        content: Union[Knowledge, Dict[Hashable, Dict[str, Union[str, float]]]],
+        content: KnowledgeDataType,
         topics: Optional[Iterable[str]] = None,
         top_n: Optional[int] = None,
     ) -> Self:
@@ -41,7 +44,8 @@ class RadarPlotter(PlotlyBasePlotter):
 
         Args:
             content:
-                The Knowledge object to use to plot the visualisation.
+                The Knowledge object or dictionary of knowledge components
+                dictionaries to use to plot the visualisation.
             topics:
                 The list of topics in the learner's knowledge to visualise.
                 If None, all topics are visualised (unless top_n is

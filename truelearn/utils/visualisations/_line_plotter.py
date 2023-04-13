@@ -1,12 +1,14 @@
-from typing import Dict, Iterable, List, Optional, Union, Tuple, Hashable
+from typing import Iterable, List, Optional, Union, Tuple
 from typing_extensions import Self
 
 import plotly.graph_objects as go
 
 from ._base import unix_to_iso
 from truelearn.errors import TrueLearnTypeError
-from truelearn.models import Knowledge
-from truelearn.utils.visualisations._base import PlotlyBasePlotter
+from truelearn.utils.visualisations._base import (
+    KnowledgeDataType,
+    PlotlyBasePlotter,
+)
 
 
 class LinePlotter(PlotlyBasePlotter):
@@ -79,7 +81,7 @@ class LinePlotter(PlotlyBasePlotter):
 
     def plot(
         self,
-        content: Union[List[Knowledge], Knowledge],
+        content: Union[List[KnowledgeDataType], KnowledgeDataType],
         topics: Optional[Iterable[str]] = None,
         top_n: Optional[int] = None,
         variance: bool = False,
@@ -91,7 +93,8 @@ class LinePlotter(PlotlyBasePlotter):
 
         Args:
             content:
-                The Knowledge object to use to plot the visualisation.
+                A single or list of Knowledge objects or dictionaries of knowledge
+                components dictionaries to use to plot the visualisation.
             topics:
                 The list of topics in the learner's knowledge to visualise.
                 If None, all topics are visualised (unless top_n is
@@ -119,11 +122,11 @@ class LinePlotter(PlotlyBasePlotter):
 
     def _content_for_single(
         self,
-        content: Union[Knowledge, Dict[Hashable, Dict[str, Union[str, float]]]],
+        content: KnowledgeDataType,
         topics: Optional[Iterable[str]],
         top_n: Optional[int],
     ):
-        """Extract content from Knowledge.
+        """Extract content from a single KnowledgeDataType.
 
         This method is called if the plotter only visualises one learner.
         """
@@ -132,10 +135,10 @@ class LinePlotter(PlotlyBasePlotter):
 
     def _content_for_multiple(
         self,
-        content_list: List[Knowledge],
+        content_list: List[KnowledgeDataType],
         topics: Optional[Iterable[str]],
     ):
-        """Extract content from an iterable of Knowledge.
+        """Extract content from an iterable of KnowledgeDataType.
 
         This method is called if the plotter visualises more than one learner.
         It tries to extract one topic from each learner.

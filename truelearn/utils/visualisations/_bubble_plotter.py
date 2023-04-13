@@ -1,12 +1,12 @@
-from typing import Dict, Iterable, Optional, Union, Hashable
+from typing import Iterable, Optional
 from typing_extensions import Self
 
 import circlify
 from matplotlib import cm, colors, patches
 import matplotlib.pyplot as plt
 
-from truelearn.models import Knowledge
 from truelearn.utils.visualisations._base import (
+    KnowledgeDataType,
     MatplotlibBasePlotter,
     unzip_content_dict,
 )
@@ -38,7 +38,7 @@ class BubblePlotter(MatplotlibBasePlotter):
     # pylint: disable=too-many-locals
     def plot(
         self,
-        content: Union[Knowledge, Dict[Hashable, Dict[str, Union[str, float]]]],
+        content: KnowledgeDataType,
         topics: Optional[Iterable[str]] = None,
         top_n: Optional[int] = None,
     ) -> Self:
@@ -52,7 +52,8 @@ class BubblePlotter(MatplotlibBasePlotter):
 
         Args:
             content:
-                The Knowledge object to use to plot the visualisation.
+                The Knowledge object or dictionary of knowledge components
+                dictionaries to use to plot the visualisation.
             topics:
                 The list of topics in the learner's knowledge to visualise.
                 If None, all topics are visualised (unless top_n is

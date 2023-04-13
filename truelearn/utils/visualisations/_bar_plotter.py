@@ -1,11 +1,11 @@
-from typing import Dict, Iterable, Optional, Union, Hashable
+from typing import Iterable, Optional
 from typing_extensions import Self
 
 import numpy as np
 import plotly.graph_objects as go
 
-from truelearn.models import Knowledge
 from truelearn.utils.visualisations._base import (
+    KnowledgeDataType,
     PlotlyBasePlotter,
     unzip_content_dict,
     unzip_content_dict_history,
@@ -44,7 +44,7 @@ class BarPlotter(PlotlyBasePlotter):
 
     def plot(
         self,
-        content: Union[Knowledge, Dict[Hashable, Dict[str, Union[str, float]]]],
+        content: KnowledgeDataType,
         topics: Optional[Iterable[str]] = None,
         top_n: Optional[int] = None,
         history: bool = False,
@@ -56,7 +56,8 @@ class BarPlotter(PlotlyBasePlotter):
 
         Args:
             content:
-                The Knowledge object to use to plot the visualisation.
+                The Knowledge object or dictionary of knowledge components
+                dictionaries to use to plot the visualisation.
             topics:
                 The list of topics in the learner's knowledge to visualise.
                 If None, all topics are visualised (unless top_n is

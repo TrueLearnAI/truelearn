@@ -1,13 +1,13 @@
 import random
 import statistics
-from typing import Dict, Iterable, List, Optional, Tuple, Union, Hashable
+from typing import Iterable, List, Optional, Tuple
 from typing_extensions import Self
 
 import numpy as np
 import plotly.graph_objects as go
 
-from truelearn.models import Knowledge
 from truelearn.utils.visualisations._base import (
+    KnowledgeDataType,
     PlotlyBasePlotter,
     unzip_content_dict,
     unzip_content_dict_history,
@@ -90,7 +90,7 @@ class PiePlotter(PlotlyBasePlotter):
     # pylint: disable=too-many-locals,too-many-arguments
     def plot(
         self,
-        content: Union[Knowledge, Dict[Hashable, Dict[str, Union[str, float]]]],
+        content: KnowledgeDataType,
         topics: Optional[Iterable[str]] = None,
         top_n: Optional[int] = None,
         other: bool = False,
@@ -103,7 +103,8 @@ class PiePlotter(PlotlyBasePlotter):
 
         Args:
             content:
-                The Knowledge object to use to plot the visualisation.
+                The Knowledge object or dictionary of knowledge components
+                dictionaries to use to plot the visualisation.
             topics:
                 The list of topics in the learner's knowledge to visualise.
                 If None, all topics are visualised (unless top_n is
@@ -220,7 +221,7 @@ class RosePlotter(PlotlyBasePlotter):
     # pylint: disable=too-many-locals,too-many-arguments
     def plot(
         self,
-        content: Union[Knowledge, Dict[Hashable, Dict[str, Union[str, float]]]],
+        content: KnowledgeDataType,
         topics: Optional[Iterable[str]] = None,
         top_n: Optional[int] = None,
         other: bool = False,
@@ -233,7 +234,8 @@ class RosePlotter(PlotlyBasePlotter):
 
         Args:
             content:
-                The Knowledge object to use to plot the visualisation.
+                The Knowledge object or dictionary of knowledge components
+                dictionaries to use to plot the visualisation.
             topics:
                 The list of topics in the learner's knowledge to visualise.
                 If None, all topics are visualised (unless top_n is
