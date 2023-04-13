@@ -53,7 +53,7 @@ dependencies = [
     # This is a temporary fix for kaleido hanging on image generation on Windows
     # See: https://github.com/plotly/Kaleido/issues/110
     # and: https://github.com/plotly/Kaleido/issues/134
-    "kaleido==0.1.0.post1",
+    "kaleido==0.1.0post1",
 ]
 [project.urls]
 Homepage = "https://truelearnai.github.io/"
