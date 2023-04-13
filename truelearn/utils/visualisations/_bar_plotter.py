@@ -1,4 +1,4 @@
-from typing import Iterable, Optional
+from typing import Dict, Iterable, Optional, Union, Hashable
 from typing_extensions import Self
 
 import numpy as np

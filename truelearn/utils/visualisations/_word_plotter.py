@@ -1,5 +1,5 @@
 import warnings
-from typing import Iterable, Optional
+from typing import Dict, Iterable, Optional, Union, Hashable
 from typing_extensions import Self
 
 from truelearn.models import Knowledge

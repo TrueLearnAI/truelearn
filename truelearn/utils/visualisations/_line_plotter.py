@@ -1,4 +1,4 @@
-from typing import Iterable, List, Optional, Tuple, Union
+from typing import Dict, Iterable, List, Optional, Union, Tuple, Hashable
 from typing_extensions import Self
 
 import plotly.graph_objects as go

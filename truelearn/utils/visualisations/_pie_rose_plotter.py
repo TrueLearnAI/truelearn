@@ -1,6 +1,6 @@
 import random
 import statistics
-from typing import Iterable, Optional, Tuple, List
+from typing import Dict, Iterable, List, Optional, Tuple, Union, Hashable
 from typing_extensions import Self
 
 import numpy as np
