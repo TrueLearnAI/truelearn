@@ -39,6 +39,12 @@ jobs:
   typo_check:
     uses: ./.github/workflows/typo.yml
 
+  # To share the secrets between jobs, we need to use an environment which creates
+  # multiple deployments. This action cleans up the GitHub PR when the deployments are
+  # no longer needed.
+  clean_deployments:
+    uses: ./.github/workflows/clean_deployments.yml
+
   deploy_to_pypi:
     runs-on: ubuntu-latest
     needs: [unit_tests, static_analysis, format_check, typo_check]

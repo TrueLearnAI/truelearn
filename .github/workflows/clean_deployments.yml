@@ -1,0 +1,36 @@
+#
+# Cleans up a GitHub PR as we use deployments to share data between jobs (for python_publish.yml)
+# Code from https://github.com/strumwolf/delete-deployment-environment
+#
+name: 🧼 Clean up environment
+on:
+  workflow_dispatch:
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    permissions: write-all
+
+    steps:
+      - uses: actions/checkout@v3.5.2
+
+      # Points to a recent commit instead of `main` to avoid supply chain attacks.
+      - name: 🎟 Get GitHub App token
+        uses: navikt/github-app-token-generator@v1.2.0
+        id: get-token
+        with:
+          app-id: ${{ secrets.GH_APP_ID }}
+          private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
+
+      # The behaviour of this action as configured is:
+      # ✔️ Deactivates deployment
+      # ✔️ Removes from deployments tab
+      # ❌ Removes from environment tab in settings (we want to keep our environments)
+      - name: 🗑 Delete deployment environment
+        uses: strumwolf/delete-deployment-environment@v2.2.3
+        with:
+          # Use a JWT created with your GitHub App's private key
+          # ⚠️ The provided token needs permission for admin write:org
+          token: ${{ steps.get-token.outputs.token }}
+          environment: testing
+          onlyRemoveDeployments: true
