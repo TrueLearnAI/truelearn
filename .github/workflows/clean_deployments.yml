@@ -5,6 +5,7 @@
 name: 🧼 Clean up environment deployments
 on:
   workflow_dispatch:
+  workflow_call:
 
 jobs:
   cleanup:
