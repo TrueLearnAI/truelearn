@@ -10,12 +10,13 @@ on:
   # an environment which creates multiple deployments.
   # This action cleans up the GitHub PR when the deployments are no longer needed.
   workflow_run:
-    workflows: ["Spell Check"]
+    workflows: ["Upload Python Package"]
     types:
       - completed
 
 jobs:
   cleanup:
+    name: Clear deployments
     runs-on: ubuntu-latest
     permissions: write-all
 
