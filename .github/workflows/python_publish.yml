@@ -42,6 +42,8 @@ jobs:
   deploy_to_pypi:
     name: Deploy to PyPI
     runs-on: ubuntu-latest
+    permissions: 
+      id-token: write
     needs: [unit_tests, static_analysis, format_check, typo_check]
     if: success()
     steps:
