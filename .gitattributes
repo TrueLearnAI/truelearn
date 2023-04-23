@@ -1,1 +1,5 @@
 truelearn/tests/baseline_files/** linguist-vendored
+
+# Ensure Line endings are LF on all platforms:
+# Converts line endings to LF on checkin and prevents conversion to CRLF on checkout
+* text=auto eol=lf
