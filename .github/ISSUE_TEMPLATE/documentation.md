@@ -2,7 +2,7 @@
 name: Documentation
 about: Report an issue related to the TrueLearn documentation.
 title: ''
-labels: ''
+labels: 'Documentation'
 assignees: ''
 
 ---
