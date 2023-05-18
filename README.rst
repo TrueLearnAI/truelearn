@@ -50,19 +50,19 @@ User Installation
 
    pip install -U truelearn
 
-For more information on installation, see the `Getting Started guide <https://truelearn.readthedocs.io/en/stable/tutorial/quickstart.html>`_.
+For more information on installation, see the `Getting Started guide <https://truelearn.readthedocs.io/en/latest/tutorial/quickstart.html>`_.
 
 Documentation
 #############
 
-**Latest stable release** is available at: https://truelearn.readthedocs.io/en/stable/
+.. BROKEN LINK -> **Latest stable release** is available at: https://truelearn.readthedocs.io/en/stable/
 
 **Development version** is available at: https://truelearn.readthedocs.io/en/latest/
 
 Change Log
 ##########
 
-See the `Change Log <https://truelearn.readthedocs.io/en/stable/index.html#change-log>`_
+See the `Change Log <https://truelearn.readthedocs.io/en/latest/index.html#change-log>`_
 for a history of all the major changes to the truelearn.
 
 Alternatively you can find it in the ``CHANGELOG.rst`` file found here:
@@ -73,7 +73,7 @@ Contributing
 
 Contributions are welcome, and they are greatly appreciated! Every little bit helps,
 and credit will always be given.
-Please see: `Contributing Guide <https://truelearn.readthedocs.io/en/stable/dev/index.html>`_ for more information!
+Please see: `Contributing Guide <https://truelearn.readthedocs.io/en/latest/dev/index.html>`_ for more information!
 We have listed a brief guide below.
 
 
