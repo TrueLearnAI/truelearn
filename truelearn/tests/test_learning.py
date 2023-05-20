@@ -799,7 +799,11 @@ class TestINKClassifier:
         for event, label in zip(train_events, train_labels):
             classifier.fit(event, label)
 
-        expected_results = [0.40575267541878457, 0.36519542301026875, 0.33362493980730495]
+        expected_results = [
+            0.40575267541878457,
+            0.36519542301026875,
+            0.33362493980730495,
+        ]
         actual_results = [classifier.predict_proba(event) for event in test_events]
 
         check_farray_close(actual_results, expected_results)
