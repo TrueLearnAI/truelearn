@@ -2,7 +2,6 @@
 import functools
 import random
 import pathlib
-import filecmp
 import types
 import os
 import sys
@@ -134,7 +133,10 @@ def file_comparison(plotter_type: str, config: Optional[Dict[str, Dict]] = None)
         }
 
         def file_cmp_func(filename1, filename2):
-            return filecmp.cmp(filename1, filename2)
+            with open(filename1, "rt") as f1, open(filename2, "rt") as f2:
+                # line by line comparison, ignore the differences in newline characters
+                # see https://docs.python.org/3/library/functions.html#open-newline-parameter
+                return f1.readlines() == f2.readlines()
 
     elif plotter_type == "matplotlib":
         extensions = {
