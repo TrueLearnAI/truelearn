@@ -199,14 +199,14 @@ class PlotlyBasePlotter(BasePlotter):
                         The default height of the image in the HTML file.
                     encoding:
                         The encoding of the saved HTML file. If unspecified,
-                        the encoding will be platform-dependent encoding.
+                        the encoding will be utf-8.
 
                 If you want to export a JSON file, you can optionally pass in
                     pretty:
                         Whether the saved JSON representation should be pretty-printed.
                     encoding:
                         The encoding of the saved JSON file. If unspecified,
-                        the encoding will be platform-dependent encoding.
+                        the encoding will be utf-8.
 
                 If you want to export an image file, you can optionally pass in
                     width:
@@ -219,21 +219,15 @@ class PlotlyBasePlotter(BasePlotter):
             to find out more supported arguments.
         """
         if file.endswith(".html"):
-            encoding = kargs.pop("encoding", None)
-            if encoding:
-                with open(file, mode="wt", encoding=encoding) as f:
-                    self.figure.write_html(file=f, **kargs)
-            else:
-                self.figure.write_html(file=file, **kargs)
+            encoding = kargs.pop("encoding", None) or "utf-8"
+            with open(file, mode="wt", encoding=encoding) as f:
+                self.figure.write_html(file=f, **kargs)
             return
 
         if file.endswith(".json"):
-            encoding = kargs.pop("encoding", None)
-            if encoding:
-                with open(file, mode="wt", encoding=encoding) as f:
-                    self.figure.write_json(file=f, **kargs)
-            else:
-                self.figure.write_json(file=file, **kargs)
+            encoding = kargs.pop("encoding", None) or "utf-8"
+            with open(file, mode="wt", encoding=encoding) as f:
+                self.figure.write_json(file=f, **kargs)
             return
 
         self.figure.write_image(file=file, **kargs)
