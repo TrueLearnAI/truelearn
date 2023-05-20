@@ -112,30 +112,41 @@ def file_comparison(plotter_type: str, config: Optional[Dict[str, Dict]] = None)
             For matplotlib type, the method will test `.png`.
         config:
             A dictionary containing the configuration for each extension.
+            E.g. config={".png": {...}, ".json": {...}, ...}
     """
     config = config or {}
 
     if plotter_type == "plotly":
         # only support html and json for plotly
         # because the backend engine that plotly uses
-        # to generate imgaes is platform dependent
+        # to generate images is platform dependent
         # Therefore, to be able to provide consistent
         # and replicable tests, we test against json and html.
         extensions = {
-            ".json": config.get(".json", {}),
+            ".json": {
+                **config.get(".json", {}),
+                # to generate files with cross-platform consistent encoding
+                "encoding": "utf-8",
+            },
             ".html": {
                 **config.get(".html", {}),
                 # overwrite settings for div_id and include_plotlyjs
                 # as they directly affect the generated output
                 "div_id": UUID,
                 "include_plotlyjs": "https://cdn.plot.ly/plotly-2.20.0.min.js",
+                # to generate files with cross-platform consistent encoding
+                "encoding": "utf-8",
             },
         }
 
         def file_cmp_func(filename1, filename2):
-            with open(filename1, "rt") as f1, open(filename2, "rt") as f2:
+            # since we use utf-8 to save all text files
+            # we can safely open them with utf-8 here
+            with open(filename1, "rt", encoding="utf-8") as f1, open(
+                filename2, "rt", encoding="utf-8"
+            ) as f2:
                 # line by line comparison, ignore the differences in newline characters
-                # see https://docs.python.org/3/library/functions.html#open-newline-parameter
+                # see https://docs.python.org/3/library/functions.html#open-newline-parameter # noqa
                 return f1.readlines() == f2.readlines()
 
     elif plotter_type == "matplotlib":
