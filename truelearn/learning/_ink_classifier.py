@@ -174,9 +174,9 @@ mean=0.12698..., variance=0.39796...))...}
             bias_weights.mean * pred_bias,
         ]
         team_learner_variance = [
-            novelty_weights.variance * pred_novelty,
-            interest_weights.variance * pred_interest,
-            bias_weights.variance * pred_bias,
+            novelty_weights.variance * (pred_novelty**2),
+            interest_weights.variance * (pred_interest**2),
+            bias_weights.variance * (pred_bias**2),
         ]
         team_content_mean = [self._threshold]
         team_content_variance = []
@@ -203,8 +203,6 @@ mean=0.12698..., variance=0.39796...))...}
     def __update_weights(
         self,
         x: EventModel,
-        pred_novelty: float,
-        pred_interest: float,
         pred_actual: float,
     ) -> None:
         """Update the weights of novelty, interest and bias.
@@ -212,12 +210,6 @@ mean=0.12698..., variance=0.39796...))...}
         Args:
             x:
                 A representation of the learning event.
-            pred_novelty:
-                The predicted probability of the learner's engagement by using
-                NoveltyClassifier.
-            pred_interest:
-                The predicted probability of the learner's engagement by using
-                InterestClassifier.
             pred_actual:
                 Whether the learner actually engages in the given event. This value is
                 either 0 or 1.
@@ -227,6 +219,9 @@ mean=0.12698..., variance=0.39796...))...}
         # if the prediction is correct and greedy, don't train
         if self._greedy and cur_pred == pred_actual:
             return
+
+        pred_novelty = self._novelty_classifier.predict_proba(x)
+        pred_interest = self._interest_classifier.predict_proba(x)
 
         # train
         env = self.__create_env()
@@ -278,11 +273,7 @@ mean=0.12698..., variance=0.39796...))...}
     def fit(self, x: EventModel, y: bool) -> Self:
         self._novelty_classifier.fit(x, y)
         self._interest_classifier.fit(x, y)
-
-        pred_novelty = self._novelty_classifier.predict_proba(x)
-        pred_interest = self._interest_classifier.predict_proba(x)
-
-        self.__update_weights(x, pred_novelty, pred_interest, y)
+        self.__update_weights(x, y)
         return self
 
     def predict(self, x: EventModel) -> bool:
