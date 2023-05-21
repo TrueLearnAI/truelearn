@@ -1,5 +1,5 @@
 import math
-from typing import Callable, Any, Optional, Dict, Iterable, List
+from typing import Callable, Any, Optional, Dict, Iterable
 from datetime import datetime as dt
 
 import trueskill
