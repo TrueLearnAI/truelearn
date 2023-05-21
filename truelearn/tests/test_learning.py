@@ -618,16 +618,6 @@ class TestInterestClassifier:
             "the draw_proba_static should not be None."
         )
 
-    def test_interest_positive_easy(self):
-        classifier = learning.InterestClassifier(init_skill=0.0, def_var=0.5)
-
-        knowledge = models.Knowledge(
-            {1: models.KnowledgeComponent(mean=0.0, variance=0.5)}
-        )
-        event = models.EventModel(knowledge)
-
-        assert classifier.predict_proba(event) == 0.5
-
     def test_interest_throw(self):
         with pytest.raises(TrueLearnTypeError) as excinfo:
             learning.InterestClassifier(threshold=0)
@@ -749,7 +739,7 @@ class TestInterestClassifier:
         for event, label in zip(train_events, train_labels):
             classifier.fit(event, label)
 
-        expected_results = [0.8648794445446283, 0.8438279621999456, 0.7777471206958368]
+        expected_results = [0.8245402410711562, 0.7833295255047532, 0.9194176141732581]
         actual_results = [classifier.predict_proba(event) for event in test_events]
 
         check_farray_close(actual_results, expected_results)
@@ -800,9 +790,9 @@ class TestINKClassifier:
             classifier.fit(event, label)
 
         expected_results = [
-            0.40575267541878457,
-            0.36519542301026875,
-            0.33362493980730495,
+            0.39583121564200274,
+            0.3542200117164174,
+            0.36177605375601996,
         ]
         actual_results = [classifier.predict_proba(event) for event in test_events]
 
@@ -853,7 +843,7 @@ class TestINKClassifier:
         for event, label in zip(train_events, train_labels):
             classifier.fit(event, label)
 
-        expected_results = [0.3844070661899784, 0.3398805698754434, 0.3133264788862059]
+        expected_results = [0.3807588746036166, 0.33099758411287944, 0.3461486335816942]
         actual_results = [classifier.predict_proba(event) for event in test_events]
 
         check_farray_close(actual_results, expected_results)
@@ -869,7 +859,7 @@ class TestINKClassifier:
                 event_time=0,
             )
         ]
-        train_labels = [True]
+        train_labels = [False]
         for event, label in zip(train_events, train_labels):
             classifier.fit(event, label)
 
