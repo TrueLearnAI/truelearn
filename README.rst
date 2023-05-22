@@ -2,7 +2,11 @@
 
 |FOSSA Status| |docs| |Black|
 
-|TrueLearn|
+.. raw:: html
+
+   <h1 align="center">
+    <a href="https://truelearnai.github.io/"><img src="https://raw.githubusercontent.com/truelearnai/truelearn/main/docs/images/TrueLearn_logo.svg" alt="TrueLearn" width="800" height="160"></a>
+   </h1>
 
 **TrueLearn** is a machine learning library for predicting and modelling learner engagement with educational resources.
 
@@ -18,7 +22,7 @@
    :target: https://github.com/TrueLearnAI/truelearn/actions/workflows/unit_tests.yml
    :alt: Unit tests
 
-.. |Static analysis| image:: https://github.com/comp0016-group1/TrueLearn/actions/workflows/static_analysis.yml/badge.svg
+.. |Static analysis| image:: https://github.com/TrueLearnAI/truelearn/actions/workflows/static_analysis.yml/badge.svg
    :target: https://github.com/TrueLearnAI/truelearn/actions/workflows/static_analysis.yml
    :alt: Static analysis
 
@@ -37,10 +41,6 @@
 .. |Black| image:: https://img.shields.io/badge/code%20style-black-000000.svg
    :target: https://github.com/psf/black
    :alt: Black
-
-.. |TrueLearn| image:: https://raw.githubusercontent.com/truelearnai/truelearn/main/docs/images/TrueLearn_logo.png
-   :target: https://truelearnai.github.io/
-   :alt: TrueLearn
 
 
 User Installation
