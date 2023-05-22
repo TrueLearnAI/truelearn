@@ -77,12 +77,12 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
         ...         interest_classifier.predict_proba(event)
         ...     )
         ...
-        True 0.88450...
-        True 0.81079...
-        True 0.95872...
+        True 0.87299...
+        True 0.69146...
+        True 0.91941...
         >>> interest_classifier.get_params()  # doctest:+ELLIPSIS
         {..., 'learner_model': LearnerModel(knowledge=Knowledge(knowledge=\
-{1: KnowledgeComponent(mean=0.99556..., variance=0.10483..., ...), ...}), ...}
+{1: KnowledgeComponent(mean=1.3651..., variance=0.07128..., ...), ...}), ...}
     """
 
     _parameter_constraints: Dict[str, Any] = {
@@ -196,6 +196,25 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
 
         return lambda t_delta: min(math.exp(-self._decay_func_factor * t_delta), 1.0)
 
+    @staticmethod
+    def _content_kc_masks(
+        content_kcs: Iterable[BaseKnowledgeComponent],
+    ) -> Iterable[BaseKnowledgeComponent]:
+        """Return a new iterable of content's knowledge components.
+
+        Args:
+            content_kcs: An iterable of content's knowledge components.
+
+        Returns:
+            A new iterable of content's knowledge components, where
+            the mean of each knowledge component is set to 1,
+            based on the assumption of the TrueLearn Interest model.
+        """
+        return (
+            kc.clone(mean=1.0, variance=kc.variance, timestamp=kc.timestamp)
+            for kc in content_kcs
+        )
+
     def _generate_ratings(
         self,
         env: trueskill.TrueSkill,
@@ -257,7 +276,9 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
         learner_kcs_decayed = map(__apply_interest_decay, learner_kcs)
 
         team_learner = gather_trueskill_team(env, learner_kcs_decayed)
-        team_content = gather_trueskill_team(env, content_kcs)
+        team_content = gather_trueskill_team(
+            env, InterestClassifier._content_kc_masks(content_kcs)
+        )
 
         # learner always wins in interest
         updated_team_learner, _ = env.rate([team_learner, team_content], ranks=[0, 1])
@@ -269,4 +290,6 @@ class InterestClassifier(InterestNoveltyKnowledgeBaseClassifier):
         learner_kcs: Iterable[BaseKnowledgeComponent],
         content_kcs: Iterable[BaseKnowledgeComponent],
     ) -> float:
-        return team_sum_quality_from_kcs(learner_kcs, content_kcs, self._beta)
+        return team_sum_quality_from_kcs(
+            learner_kcs, InterestClassifier._content_kc_masks(content_kcs), self._beta
+        )
