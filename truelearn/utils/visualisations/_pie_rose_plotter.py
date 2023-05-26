@@ -179,6 +179,10 @@ class PiePlotter(PlotlyBasePlotter):
                 ),
                 marker={
                     "colors": colours,
+                    "line": {
+                        "color": "black",
+                        "width": 1,
+                    },
                 },
             )
         )
