@@ -301,11 +301,14 @@ class RosePlotter(PlotlyBasePlotter):
                 r=[average_mean for _ in range(360)],
                 theta=list(range(360)),
                 mode="lines",
-                line_color="black",
+                line={
+                    "color": "black",
+                    "width": 3,
+                },
             )
         )
 
-        # add all traces
+        # add all traces to figure
         self.figure.add_traces(data=traces)
 
         topics = [tr_data[2] for tr_data in content_dict]
@@ -360,5 +363,9 @@ class RosePlotter(PlotlyBasePlotter):
             theta=[theta],
             marker={
                 "color": colour,
+                "line": {
+                    "color": "black",
+                    "width": 1,
+                },
             },
         )
