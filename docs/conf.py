@@ -163,7 +163,7 @@ napoleon_include_special_with_doc = False
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
 html_theme = "furo"
-html_logo = "images/TrueLearn_logo.png"
+html_logo = "images/TrueLearn_logo.svg"
 html_css_files = ["custom.css"]
 html_static_path = ["_static"]
 
