@@ -104,7 +104,7 @@ class BubblePlotter(MatplotlibBasePlotter):
                     )
                 )
                 plt.annotate(
-                    titles[len(titles) - 1 - i], (x, y), va="center", ha="center"
+                    titles[len(titles) - 1 - i].replace(" ","\n"), (x, y), va="center", ha="center"
                 )
 
         # set up the colorbar on the right
