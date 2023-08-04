@@ -59,7 +59,7 @@ dependencies = [
     # might be broken by their updates. We want to
     # manually update these dependencies.
     'plotly==5.14.1',
-    "wordcloud==1.8.2.2; python_version < '3.11'",
+    "wordcloud==1.9.2",
 
     # This is a temporary fix for kaleido hanging on image generation on Windows
     # See: https://github.com/plotly/Kaleido/issues/110
