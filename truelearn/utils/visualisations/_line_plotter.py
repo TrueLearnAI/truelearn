@@ -82,7 +82,7 @@ class LinePlotter(PlotlyBasePlotter):
         content: Union[List[Knowledge], Knowledge],
         topics: Optional[Iterable[str]] = None,
         top_n: Optional[int] = None,
-        variance: bool = False,
+        visualize_variance: bool = False,
     ) -> Self:
         """Plot the graph based on the given data.
 
@@ -100,7 +100,7 @@ class LinePlotter(PlotlyBasePlotter):
             top_n:
                 The number of topics to visualise. E.g. if top_n is 5, then the
                 top 5 topics ranked by mean will be visualised.
-            variance:
+            visualize_variance:
                 Whether to visualise variance.
         """
         if isinstance(content, list):
@@ -111,7 +111,7 @@ class LinePlotter(PlotlyBasePlotter):
         if not content_dict:
             return self
 
-        traces = [self._trace(tr_data, variance) for tr_data in content_dict]
+        traces = [self._trace(tr_data, visualize_variance) for tr_data in content_dict]
 
         self.figure.add_traces(traces)
 
@@ -152,7 +152,7 @@ class LinePlotter(PlotlyBasePlotter):
     def _trace(
         self,
         tr_data: Tuple[Iterable[float], Iterable[float], str, Iterable[float]],
-        visualise_variance: bool,
+        visualize_variance: bool,
     ) -> go.Scatter:
         """Return the Scatter object representing a single line.
 
@@ -161,7 +161,7 @@ class LinePlotter(PlotlyBasePlotter):
                 The data used to plot the line. A tuple containing the mean
                 and variance of each point, the name of the line (the topic or
                 the learner it represents) and the time when the learning event happens.
-            visualise_variance:
+            visualize_variance:
                 Whether to make the error bars at each point visible.
         """
         means, variances, name, timestamps = tr_data
@@ -175,7 +175,7 @@ class LinePlotter(PlotlyBasePlotter):
             line={"width": 2},
             error_y={
                 "array": variances,
-                "visible": visualise_variance,
+                "visible": visualize_variance,
             },
         )
 
