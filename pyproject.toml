@@ -51,18 +51,21 @@ dependencies = [
     'typing-extensions>=4.4.0',
     'trueskill>=0.4.5',
     'scikit-learn>=1.0.2',
-    'orjson>=3.8.6',
     'mpmath>=1.2.1',
-    'plotly>=5.14.1',
     'matplotlib>=3.5.3',
     'circlify>=0.15.0',
-    "wordcloud>=1.8.2.2; python_version < '3.11'",
+
+    # We lock these dependencies because our usage
+    # might be broken by their updates. We want to
+    # manually update these dependencies.
+    'plotly==5.14.1',
+    "wordcloud==1.8.2.2; python_version < '3.11'",
 
     # This is a temporary fix for kaleido hanging on image generation on Windows
     # See: https://github.com/plotly/Kaleido/issues/110
     # and: https://github.com/plotly/Kaleido/issues/134
     "kaleido==0.1.0.post1; sys_platform == 'win32'",
-    "kaleido>=0.2.1; sys_platform != 'win32'",
+    "kaleido==0.2.1; sys_platform != 'win32'",
 ]
 [project.urls]
 Homepage = "https://truelearnai.github.io/"
