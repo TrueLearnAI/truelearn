@@ -42,6 +42,7 @@ plotter.plot(
         "Dimension",
         "Computer virus",
     ],
+    visualize_variance=False,
 )
 
 # you can also use plotter.show() here
