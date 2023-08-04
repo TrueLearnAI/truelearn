@@ -41,7 +41,7 @@ class BarPlotter(PlotlyBasePlotter):
             ylabel: The default y label of the visualization
         """
         super().__init__(title, xlabel, ylabel)
-    
+
     # pylint: disable=too-many-arguments
     def plot(
         self,

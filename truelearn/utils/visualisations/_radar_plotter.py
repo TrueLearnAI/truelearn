@@ -73,9 +73,7 @@ class RadarPlotter(PlotlyBasePlotter):
         )
 
         if visualize_variance:
-            self.figure.add_trace(
-                self._trace(variances, titles, "Variances")
-            )
+            self.figure.add_trace(self._trace(variances, titles, "Variances"))
 
         self.figure.update_layout(
             polar={
