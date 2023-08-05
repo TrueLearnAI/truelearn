@@ -1,7 +1,7 @@
 from typing import Optional, Union, Dict, List, Iterable, cast
 from urllib import parse, request
 
-import orjson
+import json
 
 from truelearn.errors import TrueLearnValueError, WikifierError
 
@@ -131,7 +131,7 @@ class Wikifier:
 
         # nosec because we know `url` is a valid https url
         with request.urlopen(url) as r:  # nosec
-            resp = orjson.loads(r.read().decode("utf-8"))
+            resp = json.loads(r.read().decode("utf-8"))
             if "error" in resp:
                 raise WikifierError(f"error in response : {resp['error']}")
             if "status" in resp:
