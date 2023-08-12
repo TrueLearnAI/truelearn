@@ -4,7 +4,6 @@ import random
 import pathlib
 import types
 import os
-import sys
 from typing import Dict, Optional, Callable
 
 import pytest
@@ -496,10 +495,6 @@ class TestTreePlotter:
         return plotter
 
 
-@pytest.mark.skipif(
-    sys.version_info >= (3, 11),
-    reason="WordPlotter only supports Python version < 3.11",
-)
 class TestWordPlotter:
     # no way to test this in a cross-platform way
     # because wordcloud renders the same font differently on different operating systems

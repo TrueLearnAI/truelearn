@@ -798,6 +798,25 @@ class TestINKClassifier:
 
         check_farray_close(actual_results, expected_results)
 
+    def test_ink_classifier_customize_via_dict(self, train_cases, test_events):
+        classifier = learning.INKClassifier(
+            novelty_classifier={"def_var": 0.4},
+            interest_classifier={"beta": 0.2},
+        )
+
+        train_events, train_labels = train_cases
+        for event, label in zip(train_events, train_labels):
+            classifier.fit(event, label)
+
+        expected_results = [
+            0.36741905582712336,
+            0.3247468970257655,
+            0.33375911026514554,
+        ]
+        actual_results = [classifier.predict_proba(event) for event in test_events]
+
+        check_farray_close(actual_results, expected_results)
+
     def test_ink_get_set_params(self):
         classifier = learning.INKClassifier()
 
