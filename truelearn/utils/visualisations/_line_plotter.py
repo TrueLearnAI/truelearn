@@ -152,7 +152,7 @@ class LinePlotter(PlotlyBasePlotter):
     def _trace(
         self,
         tr_data: Tuple[Iterable[float], Iterable[float], str, Iterable[float]],
-        visualize_variance: bool,
+        visualise_variance: bool,
     ) -> go.Scatter:
         """Return the Scatter object representing a single line.
 
@@ -161,7 +161,7 @@ class LinePlotter(PlotlyBasePlotter):
                 The data used to plot the line. A tuple containing the mean
                 and variance of each point, the name of the line (the topic or
                 the learner it represents) and the time when the learning event happens.
-            visualize_variance:
+            visualise_variance:
                 Whether to make the error bars at each point visible.
         """
         means, variances, name, timestamps = tr_data
@@ -175,7 +175,7 @@ class LinePlotter(PlotlyBasePlotter):
             line={"width": 2},
             error_y={
                 "array": variances,
-                "visible": visualize_variance,
+                "visible": visualise_variance,
             },
         )
 
