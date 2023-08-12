@@ -106,9 +106,13 @@ mean=0.13029..., variance=0.39582...))...}
             learner_meta_weights:
                 The novelty/interest/bias weights.
             novelty_classifier:
-                The NoveltyClassifier.
+                The NoveltyClassifier. It can be a NoveltyClassifier object or
+                a dictionary of parameters that can be used to instantiate a
+                NoveltyClassifier object.
             interest_classifier:
-                The InterestClassifier.
+                The InterestClassifier. It can be an InterestClassifier object or
+                a dictionary of parameters that can be used to instantiate an
+                InterestClassifier object.
             threshold:
                 A float that determines the classification threshold.
             tau:
