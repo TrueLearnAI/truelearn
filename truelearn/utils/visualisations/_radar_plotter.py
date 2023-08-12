@@ -33,6 +33,7 @@ class RadarPlotter(PlotlyBasePlotter):
         content: Knowledge,
         topics: Optional[Iterable[str]] = None,
         top_n: Optional[int] = None,
+        visualise_variance: bool = True,
     ) -> Self:
         """Plot the graph based on the given data.
 
@@ -49,6 +50,8 @@ class RadarPlotter(PlotlyBasePlotter):
             top_n:
                 The number of topics to visualise. E.g. if top_n is 5, then the
                 top 5 topics ranked by mean will be visualised.
+            visualise_variance:
+                Whether to visualise variance.
         """
         content_dict, _ = self._standardise_data(content, False, topics)
         content_dict = content_dict[:top_n]
@@ -65,12 +68,12 @@ class RadarPlotter(PlotlyBasePlotter):
         variances.append(variances[0])
         titles.append(titles[0])
 
-        self.figure.add_traces(
-            [
-                self._trace(means, titles, "Means"),
-                self._trace(variances, titles, "Variances"),
-            ],
+        self.figure.add_trace(
+            self._trace(means, titles, "Means"),
         )
+
+        if visualise_variance:
+            self.figure.add_trace(self._trace(variances, titles, "Variances"))
 
         self.figure.update_layout(
             polar={
