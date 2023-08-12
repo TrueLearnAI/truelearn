@@ -38,7 +38,6 @@ Classes
     :template: class_with_call.rst
 
     datasets.PEEKKnowledgeComponentGenerator
-    datasets.PEEKData
 
 Functions
 ---------
