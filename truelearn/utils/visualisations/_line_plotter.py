@@ -82,7 +82,7 @@ class LinePlotter(PlotlyBasePlotter):
         content: Union[List[Knowledge], Knowledge],
         topics: Optional[Iterable[str]] = None,
         top_n: Optional[int] = None,
-        variance: bool = False,
+        visualise_variance: bool = False,
     ) -> Self:
         """Plot the graph based on the given data.
 
@@ -100,7 +100,7 @@ class LinePlotter(PlotlyBasePlotter):
             top_n:
                 The number of topics to visualise. E.g. if top_n is 5, then the
                 top 5 topics ranked by mean will be visualised.
-            variance:
+            visualise_variance:
                 Whether to visualise variance.
         """
         if isinstance(content, list):
@@ -111,7 +111,7 @@ class LinePlotter(PlotlyBasePlotter):
         if not content_dict:
             return self
 
-        traces = [self._trace(tr_data, variance) for tr_data in content_dict]
+        traces = [self._trace(tr_data, visualise_variance) for tr_data in content_dict]
 
         self.figure.add_traces(traces)
 
