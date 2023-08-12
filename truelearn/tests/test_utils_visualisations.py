@@ -471,6 +471,11 @@ class TestRadarPlotter:
         plotter.plot(resources[0], top_n=3)
         return plotter
 
+    def test_no_variance(self, resources):
+        plotter = visualisations.RadarPlotter()
+        plotter.plot(resources[0], visualise_variance=False)
+        return plotter
+
 
 @file_comparison(plotter_type="plotly")
 class TestTreePlotter:
