@@ -81,8 +81,8 @@ mean=0.13029..., variance=0.39582...))...}
     _parameter_constraints: Dict[str, Any] = {
         **BaseClassifier._parameter_constraints,
         "learner_meta_weights": TypeConstraint(LearnerMetaWeights),
-        "novelty_classifier": TypeConstraint(NoveltyClassifier, dict),
-        "interest_classifier": TypeConstraint(InterestClassifier, dict),
+        "novelty_classifier": TypeConstraint(NoveltyClassifier),
+        "interest_classifier": TypeConstraint(InterestClassifier),
         "threshold": TypeConstraint(float),
         "tau": TypeConstraint(float),
         "greedy": TypeConstraint(bool),
