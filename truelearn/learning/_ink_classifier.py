@@ -1,5 +1,5 @@
 import math
-from typing import Any, Optional, Dict, Tuple
+from typing import Any, Optional, Dict, Tuple, Union
 from typing_extensions import Self, Final
 
 import trueskill
@@ -92,8 +92,8 @@ mean=0.13029..., variance=0.39582...))...}
         self,
         *,
         learner_meta_weights: Optional[LearnerMetaWeights] = None,
-        novelty_classifier: Optional[NoveltyClassifier] = None,
-        interest_classifier: Optional[InterestClassifier] = None,
+        novelty_classifier: Optional[Union[NoveltyClassifier, Dict]] = None,
+        interest_classifier: Optional[Union[InterestClassifier, Dict]] = None,
         threshold: float = 0.5,
         tau: float = 0.0,
         greedy: bool = False,
@@ -106,9 +106,13 @@ mean=0.13029..., variance=0.39582...))...}
             learner_meta_weights:
                 The novelty/interest/bias weights.
             novelty_classifier:
-                The NoveltyClassifier.
+                The NoveltyClassifier. It can be a NoveltyClassifier object or
+                a dictionary of parameters that can be used to instantiate a
+                NoveltyClassifier object.
             interest_classifier:
-                The InterestClassifier.
+                The InterestClassifier. It can be an InterestClassifier object or
+                a dictionary of parameters that can be used to instantiate an
+                InterestClassifier object.
             threshold:
                 A float that determines the classification threshold.
             tau:
@@ -125,8 +129,20 @@ mean=0.13029..., variance=0.39582...))...}
             TrueLearnValueError:
                 Values of parameters do not satisfy their constraints.
         """
-        self._novelty_classifier = novelty_classifier or NoveltyClassifier()
-        self._interest_classifier = interest_classifier or InterestClassifier()
+        if novelty_classifier is None:
+            self._novelty_classifier = NoveltyClassifier()
+        elif isinstance(novelty_classifier, dict):
+            self._novelty_classifier = NoveltyClassifier(**novelty_classifier)
+        else:
+            self._novelty_classifier = novelty_classifier
+
+        if interest_classifier is None:
+            self._interest_classifier = InterestClassifier()
+        elif isinstance(interest_classifier, dict):
+            self._interest_classifier = InterestClassifier(**interest_classifier)
+        else:
+            self._interest_classifier = interest_classifier
+
         self._learner_meta_weights = learner_meta_weights or LearnerMetaWeights()
         self._threshold = threshold
         self._tau = tau
