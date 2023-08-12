@@ -85,7 +85,7 @@ class BubblePlotter(MatplotlibBasePlotter):
         plt.xlim(-lim, lim)
         plt.ylim(-lim, lim)
 
-        cmap = colormaps.get_cmap("Greens_r")
+        cmap = colormaps["Greens_r"]
 
         # Normalize data range to colormap range
         norm = colors.Normalize(vmin=min(variances) - 0.05, vmax=max(variances) + 0.05)
