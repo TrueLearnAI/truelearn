@@ -473,7 +473,7 @@ class TestRadarPlotter:
 
     def test_no_variance(self, resources):
         plotter = visualisations.RadarPlotter()
-        plotter.plot(resources[0], visualize_variance=False)
+        plotter.plot(resources[0], visualise_variance=False)
         return plotter
 
 

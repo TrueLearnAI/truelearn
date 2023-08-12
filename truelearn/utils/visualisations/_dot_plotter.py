@@ -49,7 +49,7 @@ class DotPlotter(PlotlyBasePlotter):
         topics: Optional[Iterable[str]] = None,
         top_n: Optional[int] = None,
         history: bool = False,
-        visualize_variance: bool = True,
+        visualise_variance: bool = True,
     ) -> Self:
         """Plot the graph based on the given data.
 
@@ -70,7 +70,7 @@ class DotPlotter(PlotlyBasePlotter):
                 Whether to utilize history information in the visualisation.
                 If this is set to True, an attribute called history must be
                 present in all knowledge components.
-            visualize_variance:
+            visualise_variance:
                 Whether to visualise variance.
         """
         content_dict, _ = self._standardise_data(content, history, topics)
@@ -110,7 +110,7 @@ class DotPlotter(PlotlyBasePlotter):
                     "color": "black",
                     "thickness": 4,
                     "width": 3,
-                    "visible": visualize_variance,
+                    "visible": visualise_variance,
                 },
                 customdata=np.transpose(
                     [variances, number_of_videos, last_video_watched]  # type: ignore
