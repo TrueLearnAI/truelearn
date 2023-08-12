@@ -2,7 +2,7 @@ from typing import Iterable, Optional
 from typing_extensions import Self
 
 import circlify
-from matplotlib import cm, colors, patches
+from matplotlib import cm, colors, colormaps, patches
 import matplotlib.pyplot as plt
 
 from truelearn.models import Knowledge
@@ -85,7 +85,7 @@ class BubblePlotter(MatplotlibBasePlotter):
         plt.xlim(-lim, lim)
         plt.ylim(-lim, lim)
 
-        cmap = cm.get_cmap("Greens_r")
+        cmap = colormaps.get_cmap("Greens_r")
 
         # Normalize data range to colormap range
         norm = colors.Normalize(vmin=min(variances) - 0.05, vmax=max(variances) + 0.05)
