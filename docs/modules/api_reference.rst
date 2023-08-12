@@ -113,7 +113,6 @@ Classes
     :toctree: generated/
     :template: class.rst
 
-    preprocessing.Annotation
     preprocessing.Wikifier
 
 Functions
