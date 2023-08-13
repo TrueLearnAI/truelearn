@@ -308,6 +308,30 @@ class TestBubblePlotter:
         plotter.plot(resources[0], top_n=3)
         return plotter
 
+    def test_bubble_word_overflow(self, resources):
+        plotter = visualisations.BubblePlotter()
+        plotter.plot(
+            resources[0],
+            topics=[
+                "Posterior probability",
+                "Algorithm",
+                "Machine learning",
+                "Variance",
+                "Exponential family",
+                "Factor graph",
+                "Rejection sampling",
+                "Probability",
+                "Topic model",
+                "Expected value",
+                "Bayesian inference",
+                "Markov chain",
+                "Importance sampling",
+                "Normalizing constant",
+                "Hyperplane",
+            ],
+        )
+        return plotter
+
 
 @file_comparison(plotter_type="plotly")
 class TestDotPlotter:
