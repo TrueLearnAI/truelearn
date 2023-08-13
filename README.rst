@@ -10,6 +10,7 @@
    :height: 160
    :align: center
 
+|
 
 **TrueLearn** is a machine learning library for predicting and modelling learner engagement with educational resources.
 
