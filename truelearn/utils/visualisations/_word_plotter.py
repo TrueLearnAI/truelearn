@@ -1,6 +1,7 @@
-import warnings
 from typing import Iterable, Optional
 from typing_extensions import Self
+
+from wordcloud import WordCloud
 
 from truelearn.models import Knowledge
 from truelearn.utils.visualisations._base import (
@@ -56,29 +57,6 @@ class WordPlotter(MatplotlibBasePlotter):
                 You can refer to `wordcloud` documentation for all the supported
                 arguments.
         """
-        try:
-            # pylint: disable=import-outside-toplevel
-            from wordcloud import WordCloud  # type: ignore
-        except ImportError:  # pragma: no cover
-            # no cover because:
-            #
-            # In some systems, users can install wordcloud by themselves.
-            # So, if we want to test this, we must specify a system
-            # and python version that will never be able to install wordcloud.
-            # (Therefore, all users running this test will get consistent behaviour,
-            # regardless of what other packages they have installed).
-            #
-            # We think this significantly increases the complexity of the tests
-            # as we have no control over the upstream library.
-            # Thus, we decide to mark this as no cover.
-            warnings.warn(
-                "Missing `wordcloud` dependency. "
-                "You can try installing it via `pip install wordcloud`.",
-                FutureWarning,
-                stacklevel=2,
-            )
-            return self
-
         content_dict, _ = self._standardise_data(content, False, topics)
         content_dict = content_dict[:top_n]
 
