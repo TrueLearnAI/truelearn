@@ -37,7 +37,7 @@ This file documents all notable changes to the project.
 
 *Removed*
 
-- orjson dependency, as JSON deserialisation is not our bottleneck and the additional dependency
+- The orjson dependency, as JSON deserialisation is not our bottleneck and the additional dependency
   is not worth it.
 
 **TrueLearn 1.0.0 (14-04-2023)**
