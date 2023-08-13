@@ -2,11 +2,14 @@
 
 |FOSSA Status| |docs| |Black|
 
-.. raw:: html
 
-   <h1 align="center">
-    <a href="https://truelearnai.github.io/"><img src="https://raw.githubusercontent.com/truelearnai/truelearn/main/docs/images/TrueLearn_logo.svg" alt="TrueLearn" width="800" height="160"></a>
-   </h1>
+.. image:: https://raw.githubusercontent.com/truelearnai/truelearn/main/docs/images/TrueLearn_logo.svg
+   :target: https://truelearnai.github.io/
+   :alt: TrueLearn
+   :width: 800
+   :height: 160
+   :align: center
+
 
 **TrueLearn** is a machine learning library for predicting and modelling learner engagement with educational resources.
 
