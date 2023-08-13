@@ -26,15 +26,6 @@ class WordPlotter(MatplotlibBasePlotter):
         """Init a word cloud plotter."""
         super().__init__("", "", "")
 
-        warnings.warn(
-            "WordPlotter may be removed in a future release "
-            "because wordcloud library does not have "
-            "cross-platform support for Python 3.11+, "
-            "and it is not actively maintained.",
-            FutureWarning,
-            stacklevel=2,
-        )
-
     def plot(
         self,
         content: Knowledge,
