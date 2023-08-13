@@ -4,7 +4,7 @@ LinePlotter Example
 ===================
 
 This example shows how to use the ``LinePlotter`` class
-to generate a bar chart to compare different learners' knowledge
+to generate a line chart to compare different learners' knowledge
 on the same topic.
 
 In this example, we use the ``NoveltyClassifier`` to build

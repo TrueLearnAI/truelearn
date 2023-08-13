@@ -182,7 +182,7 @@ class Wikifier:
         def page_rank_as_key(annotation: Annotation) -> float:
             """Return page rank from annotation.
 
-            This method could be used to change how the annotations
+            This method can be used to sort the annotations by page rank.
 
             Args:
                 annotation: An annotation from the wikifier API.
@@ -194,6 +194,8 @@ class Wikifier:
 
         def cosine_as_key(annotation: Annotation) -> float:
             """Return cosine from annotation.
+
+            This method can be used to sort the annotations by cosine similarity.
 
             Args:
                 annotation: An annotation from the wikifier API.

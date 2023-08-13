@@ -38,7 +38,6 @@ Classes
     :template: class_with_call.rst
 
     datasets.PEEKKnowledgeComponentGenerator
-    datasets.PEEKData
 
 Functions
 ---------
@@ -114,7 +113,6 @@ Classes
     :toctree: generated/
     :template: class.rst
 
-    preprocessing.Annotation
     preprocessing.Wikifier
 
 Functions
