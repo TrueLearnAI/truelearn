@@ -20,7 +20,7 @@ This file documents all notable changes to the project.
 
 *Changed*
 
-- Interest classifier now uses a binary skill representation.
+- Interest Classifier now uses a binary skill representation.
 - The INK Classifier can now be instantiated using a dictionary of parameters
 - Added black border to Rose Plotter to make it easier to distinguish topics of similar
   colour.
