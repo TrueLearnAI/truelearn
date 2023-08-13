@@ -9,11 +9,6 @@ to generate a word cloud to study the learner's knowledge.
 In this example, we use the ``KnowledgeClassifier`` to build
 a representation of the learner's knowledge. You could also use
 other classifiers like ``NoveltyClassifier``.
-
-.. warning:: You need to use ``WordPlotter`` with caution because
-
-            - Compatibility: it fails to work on some systems with Python 3.11.
-            - Stability: it is not actively maintained.
 """
 from truelearn import learning, datasets
 from truelearn.utils import visualisations
