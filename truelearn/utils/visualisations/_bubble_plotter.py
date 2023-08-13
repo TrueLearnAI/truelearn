@@ -2,7 +2,7 @@ from typing import Iterable, Optional
 from typing_extensions import Self
 
 import circlify
-from matplotlib import cm, colors, colormaps, patches
+from matplotlib import cm, colors, colormaps, patches  # type: ignore
 import matplotlib.pyplot as plt
 
 from truelearn.models import Knowledge
